@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mixpanel for Voice AI — Omkar Ray</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .thesis-page {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 60px 24px 100px;
+    }
+    .thesis-page .back-link {
+      display: inline-block;
+      margin-bottom: 40px;
+      font-size: 13px;
+      color: #888;
+      text-decoration: none;
+      letter-spacing: 0.02em;
+    }
+    .thesis-page .back-link:hover { color: #111; }
+    .thesis-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .thesis-meta .badge {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #888;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 3px 8px;
+    }
+    .thesis-page h1 {
+      font-size: 32px;
+      font-weight: 700;
+      line-height: 1.25;
+      margin: 0 0 12px;
+      color: #111;
+      letter-spacing: -0.02em;
+    }
+    .thesis-page .lede {
+      font-size: 17px;
+      line-height: 1.7;
+      color: #444;
+      margin-bottom: 48px;
+      border-left: 3px solid #111;
+      padding-left: 18px;
+    }
+    .thesis-page h2 {
+      font-size: 18px;
+      font-weight: 700;
+      color: #111;
+      margin: 40px 0 12px;
+      letter-spacing: -0.01em;
+    }
+    .thesis-page p {
+      font-size: 15px;
+      line-height: 1.8;
+      color: #444;
+      margin: 0 0 16px;
+    }
+    .thesis-page ul, .thesis-page ol {
+      padding-left: 22px;
+      margin: 0 0 20px;
+    }
+    .thesis-page li {
+      font-size: 15px;
+      line-height: 1.8;
+      color: #444;
+      margin-bottom: 6px;
+    }
+    .thesis-page strong { color: #111; font-weight: 600; }
+    .metric-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 24px 0;
+      font-size: 14px;
+    }
+    .metric-table th {
+      text-align: left;
+      font-weight: 600;
+      color: #111;
+      border-bottom: 2px solid #111;
+      padding: 8px 12px 8px 0;
+    }
+    .metric-table td {
+      padding: 10px 12px 10px 0;
+      border-bottom: 1px solid #eee;
+      color: #444;
+      vertical-align: top;
+    }
+    .metric-table td:first-child { color: #111; font-weight: 500; }
+    .signal-block {
+      background: #f8f8f8;
+      border-left: 3px solid #111;
+      padding: 16px 20px;
+      margin: 24px 0;
+      border-radius: 0 6px 6px 0;
+    }
+    .signal-block p { margin: 0; font-size: 14px; color: #555; }
+    .signal-block strong { color: #111; }
+    .tags-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 48px;
+      padding-top: 24px;
+      border-top: 1px solid #eee;
+    }
+    .tags-row span {
+      font-size: 12px;
+      background: #f3f3f3;
+      border-radius: 4px;
+      padding: 4px 10px;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+  <div class="thesis-page">
+    <a href="index.html" class="back-link">← Back</a>
+
+    <div class="thesis-meta">
+      <span class="badge">Thesis</span>
+      <span class="badge">Voice AI</span>
+    </div>
+
+    <h1>Mixpanel for Voice AI</h1>
+
+    <p class="lede">
+      Every voice AI platform today ships call logs and basic metrics. None ships the product analytics layer that actually matters. The company that builds Mixpanel-grade behavioural analytics on top of voice will own the retention and optimisation layer for every voice AI deployment in the world.
+    </p>
+
+    <h2>The problem no one is solving</h2>
+    <p>
+      When Mixpanel launched in 2009, web analytics was dominated by page-view counts. Companies knew <em>that</em> users visited — not <em>what</em> they did, where they dropped off, or which flows converted. Mixpanel introduced event-level tracking, funnel analysis, and cohort retention. The rest is history.
+    </p>
+    <p>
+      Voice AI is in exactly that moment. Platforms like Bolna, Bland, Retell, and ElevenLabs give you a call transcript, a duration, and maybe a sentiment score. That's it. The product analytics layer — the equivalent of Mixpanel's funnel builder — does not exist.
+    </p>
+    <p>
+      And voice is fundamentally harder to instrument than clicks. A user clicking "Add to Cart" is a discrete, typed event. A user saying "I'm thinking about maybe returning the product I bought last week, but first tell me about your policy" is ambiguous, multi-intent, and temporally spread across turns. Standard web analytics primitives don't map onto this.
+    </p>
+
+    <h2>What the analytics layer actually needs to track</h2>
+    <p>
+      The missing product needs to operate at three levels:
+    </p>
+
+    <table class="metric-table">
+      <thead>
+        <tr>
+          <th>Level</th>
+          <th>Metric</th>
+          <th>Why it matters</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Turn</td>
+          <td>Barge-in rate per prompt</td>
+          <td>High barge-in signals a bad prompt — user is impatient or confused</td>
+        </tr>
+        <tr>
+          <td>Turn</td>
+          <td>Silence duration by turn type</td>
+          <td>Long silences after specific agent prompts reveal friction points</td>
+        </tr>
+        <tr>
+          <td>Session</td>
+          <td>Intent resolution rate</td>
+          <td>Did the user's stated goal get resolved before they hung up?</td>
+        </tr>
+        <tr>
+          <td>Session</td>
+          <td>Conversation funnel drop-off</td>
+          <td>Like a checkout funnel — which turn do users abandon?</td>
+        </tr>
+        <tr>
+          <td>Session</td>
+          <td>Escalation rate to human</td>
+          <td>A proxy for agent failure — and for calibrating agent capability</td>
+        </tr>
+        <tr>
+          <td>Cohort</td>
+          <td>Retention across repeat calls</td>
+          <td>Do users return? Do they trust the voice agent over time?</td>
+        </tr>
+        <tr>
+          <td>Cohort</td>
+          <td>Topic drift over time</td>
+          <td>How does what users ask about evolve as the product scales?</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>
+      None of this exists out of the box anywhere. Gong does some of this for human sales calls. But Gong is built for human-to-human calls and isn't extensible to AI agents. CallMiner and similar tools are built for compliance, not product iteration.
+    </p>
+
+    <h2>Why now</h2>
+    <p>
+      Three things converged in 2024–25 that make this the right moment:
+    </p>
+    <ol>
+      <li><strong>Voice AI volume reached scale.</strong> Hundreds of companies are deploying AI voice agents for customer service, outbound sales, and scheduling. The data volume is large enough to warrant analytics tooling — and the pain is felt daily by PMs and founders trying to improve agent performance.</li>
+      <li><strong>LLMs are cheap enough to do NLU at call scale.</strong> Extracting structured intent, entity, and outcome data from transcripts now costs cents per call. The economics of real-time or near-real-time analysis finally work.</li>
+      <li><strong>Platform APIs are stabilising.</strong> Bolna, Retell, and Bland all have webhook and transcript APIs. An analytics layer can sit across all of them without needing carrier-level access.</li>
+    </ol>
+
+    <div class="signal-block">
+      <p><strong>Weak signal worth watching:</strong> Several Bolna and Retell customers on indie hacker forums are stitching together Airtable + Google Sheets + transcript exports to manually track conversation quality. That's a classic "people are hacking something together" signal — the market is ready for a product.</p>
+    </div>
+
+    <h2>The wedge and the moat</h2>
+    <p>
+      The wedge is simple: a <strong>conversation funnel builder</strong>. You define the steps in your voice flow (greeting → intent capture → resolution → close), drop a tag on each turn, and get a Sankey diagram of where users drop. This is immediately understandable to any PM who has ever used Mixpanel or Amplitude.
+    </p>
+    <p>
+      The moat builds from there:
+    </p>
+    <ul>
+      <li><strong>Cross-platform data.</strong> No single voice platform has the scale to do benchmarking. But a layer that sits across Bolna, Retell, Bland, and Vapi can tell you: "Your escalation rate is 2× the category median." That's a defensible network-effect position.</li>
+      <li><strong>Prompt-level feedback loops.</strong> Once you know which specific agent prompts cause barge-ins or drop-offs, the next step is automating prompt improvement suggestions. This turns the analytics layer into a product optimisation engine — and a significant switching cost.</li>
+      <li><strong>LLM judge integration.</strong> Using LLMs-as-judges to score call outcomes (did the agent actually resolve the user's intent?) is a proprietary dataset play. The more calls you score, the better your quality benchmarks become.</li>
+    </ul>
+
+    <h2>Who builds this</h2>
+    <p>
+      The ideal founder profile here is someone who has lived the pain: a PM or founder who has deployed a voice AI agent and been frustrated by the lack of observability. Technical enough to wire up LLM-based intent extraction; product-minded enough to build the analytics UX that resonates with operators.
+    </p>
+    <p>
+      This is not a platform play. It's an analytics and observability product — think Mixpanel or PostHog, not Twilio. GTM is bottom-up, starting with indie developers and growth-stage startups deploying voice agents, then expanding to enterprise.
+    </p>
+
+    <h2>What I'd want to see to get more conviction</h2>
+    <ul>
+      <li>5+ voice AI deployers willing to pay $500–2000/month before a product ships (letters of intent, not just warm words)</li>
+      <li>A clear answer to: "Why won't Bolna, Retell, or ElevenLabs build this natively?" (The answer is probably "platform risk + focus" — but it needs stress-testing)</li>
+      <li>A prototype that exports a conversation funnel from a Retell webhook in under 10 minutes of setup</li>
+    </ul>
+
+    <div class="tags-row">
+      <span>Voice Analytics</span>
+      <span>Conversation Intelligence</span>
+      <span>Product-Led Growth</span>
+      <span>Voice AI</span>
+      <span>Observability</span>
+      <span>LLM Evals</span>
+    </div>
+  </div>
+</body>
+</html>
