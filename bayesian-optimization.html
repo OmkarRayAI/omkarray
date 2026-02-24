@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bayesian Optimisation — Mathematical Deep Dive</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,700;1,400;1,500&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg:      #f8f7f4;
+  --ink:     #1c1c1c;
+  --muted:   #6e6e6e;
+  --faint:   #b8b3a8;
+  --rule:    #d8d3c8;
+  --card:    #f2f0eb;
+  --red:     #9b2335;
+  --blue:    #1a4a7a;
+  --green:   #1e6b3c;
+  --amber:   #8a5a00;
+  --teal:    #1a5a6b;
+  --purple:  #5a2080;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'EB Garamond', serif;
+  background: var(--bg);
+  color: var(--ink);
+  max-width: 1020px;
+  margin: 0 auto;
+  padding: 56px 44px;
+  line-height: 1.7;
+  font-size: 15px;
+}
+
+.doc-header {
+  border-top: 2px solid var(--ink);
+  padding-top: 20px;
+  margin-bottom: 48px;
+}
+.doc-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 28px;
+}
+.doc-id {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  line-height: 1.9;
+}
+.doc-classification {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: .15em;
+  color: var(--muted);
+  text-transform: uppercase;
+  text-align: right;
+  border: 1px solid var(--faint);
+  padding: 6px 12px;
+}
+h1 {
+  font-family: 'EB Garamond', serif;
+  font-size: 46px;
+  font-weight: 500;
+  line-height: 1.08;
+  letter-spacing: -.01em;
+}
+h1 .sub {
+  display: block;
+  font-size: 20px;
+  font-weight: 400;
+  font-style: italic;
+  color: var(--muted);
+  margin-top: 4px;
+  letter-spacing: 0;
+}
+.abstract {
+  margin-top: 20px;
+  padding: 18px 24px;
+  border-left: 3px solid var(--ink);
+  font-size: 14px;
+  font-style: italic;
+  color: var(--muted);
+  line-height: 1.8;
+  max-width: 740px;
+}
+.abstract strong { font-style: normal; color: var(--ink); }
+
+.section {
+  margin: 60px 0 24px;
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: 12px;
+  align-items: baseline;
+  border-bottom: 1px solid var(--ink);
+  padding-bottom: 8px;
+}
+.sec-n {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+.sec-title { font-size: 22px; font-weight: 500; }
+.sec-sub {
+  grid-column: 2;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  color: var(--muted);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  margin-top: -4px;
+}
+
+p.body {
+  font-size: 15px;
+  line-height: 1.8;
+  color: var(--ink);
+  margin-bottom: 16px;
+  max-width: 760px;
+}
+p.body strong { font-weight: 600; }
+p.body em { font-style: italic; }
+
+.def {
+  margin: 20px 0;
+  padding: 16px 20px 16px 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 16px;
+}
+.def-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  color: var(--muted);
+  padding-top: 2px;
+}
+.def-body { font-size: 14px; line-height: 1.75; }
+.def-body strong { font-weight: 600; }
+
+.math-block {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  background: var(--card);
+  border: 1px solid var(--rule);
+  padding: 16px 22px;
+  margin: 16px 0;
+  color: var(--ink);
+  line-height: 2;
+  overflow-x: auto;
+}
+.math-block .label {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  color: var(--muted);
+  display: block;
+  margin-bottom: 8px;
+  border-bottom: 1px dashed var(--rule);
+  padding-bottom: 6px;
+}
+.math-block .eq { display: block; margin: 4px 0 4px 20px; }
+.math-block .comment { color: var(--muted); }
+.m { font-family: 'JetBrains Mono', monospace; font-size: 12px; background: rgba(0,0,0,.05); padding: 1px 4px; border-radius: 2px; color: var(--red); }
+
+.diagram {
+  margin: 20px 0;
+  border: 1px solid var(--rule);
+  background: var(--card);
+  overflow: hidden;
+}
+.diagram-hdr {
+  padding: 10px 18px;
+  background: var(--ink);
+  color: var(--bg);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.diagram-hdr span { opacity: .5; }
+.diagram-body { padding: 24px; }
+.diagram-note {
+  padding: 10px 18px;
+  border-top: 1px dashed var(--rule);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.ex-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.ex-table th {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  padding: 10px 14px;
+  background: var(--ink);
+  color: var(--bg);
+  text-align: left;
+  font-weight: 500;
+}
+.ex-table td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--rule);
+  vertical-align: top;
+  line-height: 1.6;
+  color: var(--muted);
+}
+.ex-table td.key { color: var(--ink); font-weight: 500; }
+.ex-table tr:nth-child(even) td { background: rgba(0,0,0,.02); }
+
+.cmp-grid {
+  display: grid;
+  gap: 1px;
+  background: var(--rule);
+}
+.cmp-cell { background: var(--card); padding: 18px; }
+.cmp-name {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .06em;
+  margin-bottom: 6px;
+}
+.cmp-formula {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--red);
+  background: rgba(155,35,53,.06);
+  padding: 5px 8px;
+  margin-bottom: 10px;
+  line-height: 1.6;
+}
+.cmp-prop {
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 3px;
+  padding-left: 10px;
+  position: relative;
+  line-height: 1.5;
+}
+.cmp-prop::before { content: '—'; position: absolute; left: 0; color: var(--faint); }
+
+.spectrum { display: flex; flex-direction: column; gap: 0; }
+.sp-row {
+  display: grid;
+  grid-template-columns: 160px 1fr 180px;
+  border: 1px solid var(--rule);
+  margin-bottom: -1px;
+}
+.sp-lbl {
+  padding: 14px 16px;
+  border-right: 1px solid var(--rule);
+  background: rgba(0,0,0,.025);
+  font-family: 'JetBrains Mono', monospace;
+}
+.sp-lbl strong { display: block; font-size: 12px; color: var(--ink); margin-bottom: 3px; }
+.sp-lbl span { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+.sp-viz { padding: 10px 16px; display: flex; align-items: center; }
+.sp-note { padding: 12px 14px; border-left: 1px solid var(--rule); font-size: 12px; color: var(--muted); line-height: 1.5; }
+.sp-note strong { color: var(--ink); font-weight: 600; }
+.bar-track { width: 100%; height: 20px; background: var(--rule); border-radius: 1px; overflow: hidden; }
+.bar-fill  { height: 100%; display: flex; align-items: center; padding-left: 8px; font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 600; color: white; }
+
+.pyramid { max-width: 660px; margin: 0 auto; display: flex; flex-direction: column; }
+.pyr-row {
+  display: flex; align-items: center; justify-content: space-between;
+  border: 1px solid var(--rule); margin-bottom: -1px; padding: 14px 20px; gap: 16px;
+}
+.pyr-t { font-size: 14px; font-weight: 500; margin-bottom: 3px; }
+.pyr-d { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); line-height: 1.5; }
+.pyr-b {
+  font-family: 'JetBrains Mono', monospace; font-size: 9px;
+  padding: 3px 9px; border-radius: 1px; white-space: nowrap; flex-shrink: 0; border: 1px solid;
+}
+
+hr.rule { border: none; border-top: 1px solid var(--rule); margin: 36px 0; }
+
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0; }
+.note-box { background: var(--card); border: 1px solid var(--rule); padding: 18px; }
+.note-box h4 { font-size: 15px; font-weight: 500; margin-bottom: 8px; font-family: 'EB Garamond', serif; }
+.note-box p { font-size: 13px; color: var(--muted); line-height: 1.65; }
+
+.regret-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--rule);
+  margin: 16px 0;
+}
+.rg-cell { background: var(--card); padding: 20px; }
+.rg-name { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600; color: var(--ink); margin-bottom: 6px; letter-spacing: .05em; }
+.rg-formula { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--red); background: rgba(155,35,53,.06); padding: 6px 10px; margin-bottom: 10px; line-height: 1.5; }
+.rg-body { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+.doc-footer {
+  margin-top: 56px;
+  padding-top: 16px;
+  border-top: 1px solid var(--rule);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  color: var(--muted);
+  display: flex;
+  justify-content: space-between;
+  letter-spacing: .06em;
+  line-height: 1.8;
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="doc-header">
+  <div class="doc-meta">
+    <div class="doc-id">
+      Technical Memorandum<br>
+      Optimisation Theory · Probabilistic Methods<br>
+      February 2026
+    </div>
+    <div class="doc-classification">
+      Mathematical Deep Dive<br>
+      No PM framing
+    </div>
+  </div>
+  <h1>
+    Bayesian Optimisation
+    <span class="sub">A complete mathematical treatment — surrogate models, acquisition functions,<br>Gaussian processes, convergence, and the geometry of sequential decisions</span>
+  </h1>
+  <div class="abstract">
+    <strong>Abstract.</strong> Bayesian optimisation is a sequential, model-based strategy for the global optimisation of an expensive black-box function <span class="m">f : 𝒳 → ℝ</span>. It maintains a probabilistic surrogate model — typically a Gaussian process — over <span class="m">f</span>, and uses this model to define an acquisition function that directs sampling toward regions of high expected improvement. We derive the core mathematics: the Gaussian process posterior, the three canonical acquisition functions (EI, PI, UCB), kernel design and its relationship to function priors, marginalisation of hyperparameters, convergence in terms of cumulative regret, and the precise conditions under which BO outperforms gradient-based methods.
+  </div>
+</div>
+
+<!-- §1 -->
+<div class="section">
+  <div class="sec-n">§ 1</div>
+  <div>
+    <div class="sec-title">The Problem Formulation</div>
+    <div class="sec-sub">What BO solves and why derivatives are unavailable</div>
+  </div>
+</div>
+
+<p class="body">We seek the global maximiser of a function <span class="m">f</span> over a compact domain <span class="m">𝒳 ⊆ ℝᵈ</span>:</p>
+
+<div class="math-block">
+  <span class="label">Problem statement</span>
+  <span class="eq">x* = arg max_{x ∈ 𝒳}  f(x)</span>
+</div>
+
+<p class="body">The function <span class="m">f</span> has three properties that make gradient descent inapplicable:</p>
+
+<div class="def">
+  <div class="def-tag">Property 1</div>
+  <div class="def-body"><strong>Expensive to evaluate.</strong> Each query <span class="m">f(x)</span> costs significantly — training a neural network, running a physics simulation, a laboratory experiment. We have a budget of <span class="m">T</span> evaluations, typically <span class="m">T ∈ [10, 500]</span>. This is many orders of magnitude fewer than the iterations available to gradient descent.</div>
+</div>
+<div class="def">
+  <div class="def-tag">Property 2</div>
+  <div class="def-body"><strong>Black-box and non-differentiable.</strong> We cannot compute <span class="m">∂f/∂x</span>. The function may be computed by an external process, involve discrete operations, or simply not be expressed in closed form. Gradient information is unavailable by definition.</div>
+</div>
+<div class="def">
+  <div class="def-tag">Property 3</div>
+  <div class="def-body"><strong>Possibly multi-modal.</strong> <span class="m">f</span> may have multiple local maxima. Methods that follow local curvature will get trapped. We require a strategy with global coverage guarantees.</div>
+</div>
+
+<p class="body">Bayesian optimisation addresses all three by building a <em>probabilistic model</em> of <span class="m">f</span> from past evaluations, then using this model to choose the next query point — the one that best balances exploring unknown regions against exploiting regions known to be promising.</p>
+
+<div class="diagram">
+  <div class="diagram-hdr">Exhibit 1 — The Bayesian Optimisation Loop <span>4-component sequential cycle</span></div>
+  <div class="diagram-body">
+    <svg viewBox="0 0 860 280" xmlns="http://www.w3.org/2000/svg" width="100%" style="display:block;">
+      <rect width="860" height="280" fill="#f2f0eb"/>
+      <rect x="20" y="90" width="175" height="100" fill="white" stroke="#1c1c1c" stroke-width="1.5"/>
+      <rect x="20" y="90" width="175" height="22" fill="#1c1c1c"/>
+      <text x="107" y="106" font-family="'JetBrains Mono',monospace" font-size="9" fill="white" text-anchor="middle" letter-spacing="1">SURROGATE MODEL</text>
+      <text x="107" y="130" font-family="'EB Garamond',serif" font-size="13" fill="#1c1c1c" text-anchor="middle">Gaussian Process</text>
+      <text x="107" y="148" font-family="'JetBrains Mono',monospace" font-size="9" fill="#6e6e6e" text-anchor="middle">p(f | x₁..xₙ, y₁..yₙ)</text>
+      <text x="107" y="166" font-family="'JetBrains Mono',monospace" font-size="9" fill="#6e6e6e" text-anchor="middle">posterior mean μₙ(x)</text>
+      <text x="107" y="181" font-family="'JetBrains Mono',monospace" font-size="9" fill="#6e6e6e" text-anchor="middle">posterior var σ²ₙ(x)</text>
+      <rect x="245" y="90" width="175" height="100" fill="white" stroke="#1c1c1c" stroke-width="1.5"/>
+      <rect x="245" y="90" width="175" height="22" fill="#1c1c1c"/>
+      <text x="332" y="106" font-family="'JetBrains Mono',monospace" font-size="9" fill="white" text-anchor="middle" letter-spacing="1">ACQUISITION FN</text>
+      <text x="332" y="130" font-family="'EB Garamond',serif" font-size="13" fill="#1c1c1c" text-anchor="middle">α(x) — cheap to optimise</text>
+      <text x="332" y="148" font-family="'JetBrains Mono',monospace" font-size="9" fill="#6e6e6e" text-anchor="middle">EI, UCB, or PI</text>
+      <text x="332" y="166" font-family="'JetBrains Mono',monospace" font-size="9" fill="#6e6e6e" text-anchor="middle">x_{n+1} = arg max α(x)</text>
+      <text x="332" y="181" font-family="'JetBrains Mono',monospace" font-size="9" fill="#6e6e6e" text-anchor="middle">gradient-free inner opt</text>
+      <rect x="470" y="90" width="175" height="100" fill="white" stroke="#1c1c1c" stroke-width="1.5"/>
+      <rect x="470" y="90" width="175" height="22" fill="#1c1c1c"/>
+      <text x="557" y="106" font-family="'JetBrains Mono',monospace" font-size="9" fill="white" text-anchor="middle" letter-spacing="1">TRUE EVALUATION</text>
+      <text x="557" y="130" font-family="'EB Garamond',serif" font-size="13" fill="#1c1c1c" text-anchor="middle">y_{n+1} = f(x_{n+1}) + ε</text>
+      <text x="557" y="148" font-family="'JetBrains Mono',monospace" font-size="9" fill="#6e6e6e" text-anchor="middle">ε ~ 𝒩(0, σ²_noise)</text>
+      <text x="557" y="166" font-family="'JetBrains Mono',monospace" font-size="9" fill="#6e6e6e" text-anchor="middle">expensive oracle call</text>
+      <text x="557" y="181" font-family="'JetBrains Mono',monospace" font-size="9" fill="#6e6e6e" text-anchor="middle">(T budget total)</text>
+      <rect x="695" y="90" width="150" height="100" fill="white" stroke="#1c1c1c" stroke-width="1.5"/>
+      <rect x="695" y="90" width="150" height="22" fill="#1c1c1c"/>
+      <text x="770" y="106" font-family="'JetBrains Mono',monospace" font-size="9" fill="white" text-anchor="middle" letter-spacing="1">POSTERIOR UPDATE</text>
+      <text x="770" y="130" font-family="'EB Garamond',serif" font-size="13" fill="#1c1c1c" text-anchor="middle">Bayes' rule update</text>
+      <text x="770" y="148" font-family="'JetBrains Mono',monospace" font-size="9" fill="#6e6e6e" text-anchor="middle">Dₙ ← Dₙ ∪ {xₙ₊₁, yₙ₊₁}</text>
+      <text x="770" y="166" font-family="'JetBrains Mono',monospace" font-size="9" fill="#6e6e6e" text-anchor="middle">O(n³) GP refit</text>
+      <text x="770" y="181" font-family="'JetBrains Mono',monospace" font-size="9" fill="#6e6e6e" text-anchor="middle">n ← n + 1</text>
+      <line x1="196" y1="140" x2="243" y2="140" stroke="#1c1c1c" stroke-width="1.5" marker-end="url(#arr)"/>
+      <line x1="421" y1="140" x2="468" y2="140" stroke="#1c1c1c" stroke-width="1.5" marker-end="url(#arr)"/>
+      <line x1="646" y1="140" x2="693" y2="140" stroke="#1c1c1c" stroke-width="1.5" marker-end="url(#arr)"/>
+      <path d="M770,191 L770,240 L107,240 L107,191" fill="none" stroke="#1c1c1c" stroke-width="1.5" marker-end="url(#arr)"/>
+      <text x="438" y="258" font-family="'JetBrains Mono',monospace" font-size="9" fill="#6e6e6e" text-anchor="middle" letter-spacing="1">REPEAT UNTIL BUDGET EXHAUSTED</text>
+      <line x1="107" y1="40" x2="107" y2="88" stroke="#6e6e6e" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrgrey)"/>
+      <text x="107" y="28" font-family="'JetBrains Mono',monospace" font-size="9" fill="#6e6e6e" text-anchor="middle">INITIALISE</text>
+      <text x="107" y="40" font-family="'JetBrains Mono',monospace" font-size="9" fill="#6e6e6e" text-anchor="middle">D₀ = Latin hypercube</text>
+      <line x1="557" y1="40" x2="557" y2="88" stroke="#1a4a7a" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrblue)"/>
+      <text x="557" y="28" font-family="'JetBrains Mono',monospace" font-size="9" fill="#1a4a7a" text-anchor="middle">OUTPUT: x̂* = arg max f(xᵢ)</text>
+      <text x="557" y="40" font-family="'JetBrains Mono',monospace" font-size="9" fill="#1a4a7a" text-anchor="middle">over all observed points</text>
+      <defs>
+        <marker id="arr" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#1c1c1c"/></marker>
+        <marker id="arrgrey" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#6e6e6e"/></marker>
+        <marker id="arrblue" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#1a4a7a"/></marker>
+      </defs>
+    </svg>
+  </div>
+  <div class="diagram-note">The loop has two optimisations: the outer loop (expensive, querying <span class="m">f</span>) and an inner loop (cheap, maximising <span class="m">α(x)</span> over the surrogate). The inner optimisation uses gradient-based or evolutionary methods — it is cheap because <span class="m">α</span> is analytic and differentiable even when <span class="m">f</span> is not.</div>
+</div>
+<!-- §2 GP SURROGATE -->
+<div class="section">
+  <div class="sec-n">§ 2</div>
+  <div>
+    <div class="sec-title">The Gaussian Process Surrogate</div>
+    <div class="sec-sub">Prior specification, posterior update, and the predictive distribution</div>
+  </div>
+</div>
+
+<p class="body">A Gaussian process (GP) is a distribution over functions. It is the canonical surrogate for Bayesian optimisation because it provides a principled, closed-form posterior that quantifies both the <em>predicted value</em> and <em>uncertainty</em> at every unobserved point — precisely what the acquisition function requires.</p>
+
+<div class="def">
+  <div class="def-tag">Definition</div>
+  <div class="def-body"><strong>Gaussian Process.</strong> We say <span class="m">f ~ GP(m, k)</span> if any finite collection of function values <span class="m">[f(x₁), …, f(xₙ)]</span> is jointly Gaussian distributed with mean vector <span class="m">[m(x₁), …, m(xₙ)]</span> and covariance matrix <span class="m">[k(xᵢ, xⱼ)]</span>. The mean function <span class="m">m(x) = 𝔼[f(x)]</span> and kernel <span class="m">k(x, x') = Cov(f(x), f(x'))</span> completely specify the distribution.</div>
+</div>
+
+<p class="body">In practice we set <span class="m">m(x) = 0</span> (absorbed into the kernel's variance parameter) and focus on kernel design. Given <span class="m">n</span> observations <span class="m">Dₙ = {(xᵢ, yᵢ)}ᵢ₌₁ⁿ</span> with <span class="m">yᵢ = f(xᵢ) + εᵢ</span>, <span class="m">εᵢ ~ 𝒩(0, σ²ₙ)</span>, the posterior over <span class="m">f</span> at any test point <span class="m">x*</span> is Gaussian with closed-form parameters:</p>
+
+<div class="math-block">
+  <span class="label">GP Posterior — Predictive Distribution at x*</span>
+  <span class="eq">f(x*) | Dₙ  ~  𝒩( μₙ(x*),  σ²ₙ(x*) )</span>
+  <span class="eq"> </span>
+  <span class="eq">μₙ(x*)  =  k(x*, X)  [K(X,X) + σ²ₙ I]⁻¹  y      <span class="comment">    ← posterior mean (prediction)</span></span>
+  <span class="eq">σ²ₙ(x*) =  k(x*,x*) − k(x*,X) [K(X,X) + σ²ₙ I]⁻¹ k(X,x*) <span class="comment">← posterior variance (uncertainty)</span></span>
+  <span class="eq"> </span>
+  <span class="eq"><span class="comment">where:  K(X,X)ᵢⱼ = k(xᵢ,xⱼ)  is the n×n kernel matrix (Gram matrix)</span></span>
+  <span class="eq"><span class="comment">        k(x*,X)  is the 1×n cross-covariance vector</span></span>
+  <span class="eq"><span class="comment">        y  =  [y₁,…,yₙ]ᵀ  is the vector of observations</span></span>
+</div>
+
+<p class="body">The <strong>posterior mean</strong> <span class="m">μₙ(x*)</span> is the GP's best prediction of <span class="m">f(x*)</span> given all data seen so far. The <strong>posterior variance</strong> <span class="m">σ²ₙ(x*)</span> quantifies uncertainty: it equals the prior variance at <span class="m">x*</span> minus the information gained from observations. Points near observed data have low variance; unexplored regions retain high variance.</p>
+
+<div class="diagram">
+  <div class="diagram-hdr">Exhibit 2 — GP Prior to Posterior: How Observations Collapse Uncertainty <span>3-panel sequence</span></div>
+  <div class="diagram-body">
+    <svg viewBox="0 0 860 260" xmlns="http://www.w3.org/2000/svg" width="100%" style="display:block;">
+      <rect x="0" y="0" width="273" height="260" fill="white" stroke="#d8d3c8" stroke-width="1"/>
+      <rect x="287" y="0" width="273" height="260" fill="white" stroke="#d8d3c8" stroke-width="1"/>
+      <rect x="574" y="0" width="286" height="260" fill="white" stroke="#1c1c1c" stroke-width="1.5"/>
+      <text x="136" y="18" font-family="'JetBrains Mono',monospace" font-size="9" fill="#6e6e6e" text-anchor="middle">PRIOR (n=0)</text>
+      <text x="424" y="18" font-family="'JetBrains Mono',monospace" font-size="9" fill="#6e6e6e" text-anchor="middle">POSTERIOR (n=3 observations)</text>
+      <text x="717" y="18" font-family="'JetBrains Mono',monospace" font-size="9" fill="#1c1c1c" text-anchor="middle">POSTERIOR (n=7, converging)</text>
+      <path d="M10,130 C50,130 100,130 263,130 L263,40 C200,40 100,40 10,40 Z" fill="rgba(26,74,122,0.07)"/>
+      <path d="M10,120 C40,100 80,155 120,130 C160,105 200,160 263,140" fill="none" stroke="#d8d3c8" stroke-width="1"/>
+      <path d="M10,140 C40,160 80,110 120,145 C160,175 200,125 263,150" fill="none" stroke="#d8d3c8" stroke-width="1"/>
+      <path d="M10,110 C40,85 80,95 120,120 C160,140 200,100 263,115" fill="none" stroke="#d8d3c8" stroke-width="1"/>
+      <path d="M10,150 C40,170 80,140 120,160 C160,145 200,175 263,155" fill="none" stroke="#d8d3c8" stroke-width="1"/>
+      <line x1="10" y1="130" x2="263" y2="130" stroke="#1a4a7a" stroke-width="1.5" stroke-dasharray="4,3"/>
+      <text x="136" y="240" font-family="'JetBrains Mono',monospace" font-size="9" fill="#6e6e6e" text-anchor="middle">m(x)=0, wide σ everywhere</text>
+      <line x1="10" y1="210" x2="263" y2="210" stroke="#d8d3c8" stroke-width="1"/>
+      <line x1="10" y1="30" x2="10" y2="210" stroke="#d8d3c8" stroke-width="1"/>
+      <path d="M297,145 C330,140 360,80 395,75 C430,72 450,78 465,85 C490,95 530,115 557,120 L557,165 C530,158 490,150 465,145 C450,142 430,138 395,140 C360,145 330,175 297,178 Z" fill="rgba(26,74,122,0.09)"/>
+      <path d="M297,155 C330,148 360,110 395,95 C430,82 450,88 465,105 C490,120 530,135 557,142" fill="none" stroke="#1a4a7a" stroke-width="2"/>
+      <circle cx="360" cy="110" r="4" fill="#1c1c1c"/>
+      <circle cx="430" cy="85"  r="4" fill="#1c1c1c"/>
+      <circle cx="510" cy="128" r="4" fill="#1c1c1c"/>
+      <path d="M297,100 C310,90 325,60 335,50 L335,200 C325,190 310,185 297,195 Z" fill="rgba(26,74,122,0.06)"/>
+      <line x1="297" y1="210" x2="557" y2="210" stroke="#d8d3c8" stroke-width="1"/>
+      <line x1="297" y1="30"  x2="297" y2="210" stroke="#d8d3c8" stroke-width="1"/>
+      <text x="424" y="240" font-family="'JetBrains Mono',monospace" font-size="9" fill="#6e6e6e" text-anchor="middle">low σ near data, high σ elsewhere</text>
+      <path d="M584,148 C610,138 630,108 660,98 C690,90 720,86 750,92 C770,96 795,105 850,120 L850,136 C795,120 770,112 750,108 C720,102 690,105 660,113 C630,122 610,148 584,158 Z" fill="rgba(26,74,122,0.1)"/>
+      <path d="M584,153 C610,143 630,118 660,105 C690,93 720,88 750,98 C770,104 795,114 850,128" fill="none" stroke="#1a4a7a" stroke-width="2.5"/>
+      <circle cx="600" cy="155" r="3.5" fill="#1c1c1c"/>
+      <circle cx="630" cy="118" r="3.5" fill="#1c1c1c"/>
+      <circle cx="660" cy="105" r="3.5" fill="#1c1c1c"/>
+      <circle cx="695" cy="90"  r="3.5" fill="#1c1c1c"/>
+      <circle cx="720" cy="88"  r="3.5" fill="#1c1c1c"/>
+      <circle cx="750" cy="99"  r="3.5" fill="#1c1c1c"/>
+      <circle cx="800" cy="115" r="3.5" fill="#1c1c1c"/>
+      <line x1="720" y1="60" x2="720" y2="86" stroke="#9b2335" stroke-width="1.5"/>
+      <text x="720" y="56" font-family="'JetBrains Mono',monospace" font-size="9" fill="#9b2335" text-anchor="middle">x̂* (current best)</text>
+      <line x1="584" y1="210" x2="850" y2="210" stroke="#d8d3c8" stroke-width="1"/>
+      <line x1="584" y1="30"  x2="584" y2="210" stroke="#d8d3c8" stroke-width="1"/>
+      <text x="717" y="240" font-family="'JetBrains Mono',monospace" font-size="9" fill="#1c1c1c" text-anchor="middle">posterior tightens around observed f</text>
+      <g transform="translate(584,25)">
+        <line x1="0" y1="8" x2="24" y2="8" stroke="#1a4a7a" stroke-width="2"/>
+        <text x="28" y="12" font-family="'JetBrains Mono',monospace" font-size="8" fill="#6e6e6e">posterior mean μₙ(x)</text>
+        <rect x="0" y="20" width="24" height="8" fill="rgba(26,74,122,0.1)"/>
+        <text x="28" y="28" font-family="'JetBrains Mono',monospace" font-size="8" fill="#6e6e6e">±2σₙ(x) uncertainty</text>
+        <circle cx="12" cy="40" r="3.5" fill="#1c1c1c"/>
+        <text x="28" y="44" font-family="'JetBrains Mono',monospace" font-size="8" fill="#6e6e6e">observed y = f(x)+ε</text>
+      </g>
+    </svg>
+  </div>
+  <div class="diagram-note">Key property: <span class="m">σ²ₙ(xᵢ) → σ²ₙ</span> (noise variance) at observed points, and <span class="m">σ²ₙ(x*)</span> collapses to near-zero between observations as <span class="m">n → ∞</span>. The posterior update is exact under the GP model — no approximation is made during the update step, only during kernel and hyperparameter specification.</div>
+</div>
+
+<p class="body"><strong>Computational cost.</strong> The critical bottleneck is matrix inversion: computing <span class="m">[K(X,X) + σ²ₙ I]⁻¹</span> costs <span class="m">O(n³)</span> time and <span class="m">O(n²)</span> space. This is acceptable for small <span class="m">n</span> (say, <span class="m">n ≤ 10⁴</span>), but becomes prohibitive as the evaluation budget grows. Sparse GPs, inducing point methods (SGPR), and Cholesky decompositions with rank-1 updates mitigate this in practice.</p>
+
+<!-- §3 KERNELS -->
+<div class="section">
+  <div class="sec-n">§ 3</div>
+  <div>
+    <div class="sec-title">Kernel Design and Function Priors</div>
+    <div class="sec-sub">The kernel encodes all prior beliefs about f — smoothness, periodicity, scale</div>
+  </div>
+</div>
+
+<p class="body">The kernel function <span class="m">k(x, x')</span> is the only place where prior knowledge about <span class="m">f</span> enters the model. It must be <em>positive semi-definite</em> (so that <span class="m">K(X,X)</span> is always a valid covariance matrix). Every valid kernel corresponds to a specific class of functions that the GP prior places mass on.</p>
+
+<div class="diagram">
+  <div class="diagram-hdr">Exhibit 3 — Canonical Kernels: Formula, Geometry, and Implied Function Prior <span>4 kernels</span></div>
+  <div class="diagram-body">
+    <div class="cmp-grid" style="grid-template-columns:1fr 1fr;">
+      <div class="cmp-cell">
+        <div class="cmp-name">RBF / Squared Exponential</div>
+        <div class="cmp-formula">k(x,x') = σ²_f · exp( −|x−x'|² / 2ℓ² )</div>
+        <div class="cmp-prop">Functions are infinitely differentiable (C∞)</div>
+        <div class="cmp-prop">Controlled by length-scale ℓ (smoothness) and signal variance σ²_f</div>
+        <div class="cmp-prop">Over-smoothing: real functions rarely this regular</div>
+        <div class="cmp-prop">Strong stationarity: correlation depends only on distance |x−x'|</div>
+        <div class="cmp-prop"><strong>Use when:</strong> f known to be very smooth; good default starting point</div>
+        <div style="margin-top:12px;">
+          <svg viewBox="0 0 220 60" width="100%" style="display:block;">
+            <text x="0" y="12" font-family="'JetBrains Mono',monospace" font-size="8" fill="#6e6e6e">k(r) vs r = |x−x'|</text>
+            <line x1="0" y1="50" x2="220" y2="50" stroke="#d8d3c8" stroke-width="1"/>
+            <line x1="0" y1="20" x2="0" y2="52" stroke="#d8d3c8" stroke-width="1"/>
+            <path d="M0,20 C20,20 40,22 60,30 C90,42 120,50 220,51" fill="none" stroke="#1a4a7a" stroke-width="2"/>
+            <text x="2" y="32" font-family="'JetBrains Mono',monospace" font-size="8" fill="#6e6e6e">σ²_f</text>
+            <text x="180" y="46" font-family="'JetBrains Mono',monospace" font-size="8" fill="#6e6e6e">ℓ →</text>
+          </svg>
+        </div>
+      </div>
+      <div class="cmp-cell">
+        <div class="cmp-name">Matérn 5/2</div>
+        <div class="cmp-formula">k(x,x') = σ²_f (1 + √5r/ℓ + 5r²/3ℓ²) exp(−√5r/ℓ)&#10;r = |x−x'|</div>
+        <div class="cmp-prop">Functions are twice differentiable (C²) only</div>
+        <div class="cmp-prop">Less smooth than RBF — empirically more realistic for engineering/ML functions</div>
+        <div class="cmp-prop">Recommended default for most BO applications (Snoek et al., 2012)</div>
+        <div class="cmp-prop">Matérn ν=1/2 → exponential kernel (C⁰ only, very rough)</div>
+        <div class="cmp-prop"><strong>Use when:</strong> hyperparameter tuning, black-box engineering optimisation</div>
+        <div style="margin-top:12px;">
+          <svg viewBox="0 0 220 60" width="100%" style="display:block;">
+            <text x="0" y="12" font-family="'JetBrains Mono',monospace" font-size="8" fill="#6e6e6e">k(r) vs r — steeper initial decay</text>
+            <line x1="0" y1="50" x2="220" y2="50" stroke="#d8d3c8" stroke-width="1"/>
+            <line x1="0" y1="20" x2="0" y2="52" stroke="#d8d3c8" stroke-width="1"/>
+            <path d="M0,20 C10,20 20,24 35,34 C55,44 90,50 220,51" fill="none" stroke="#1e6b3c" stroke-width="2"/>
+            <path d="M0,20 C10,20 20,22 60,30 C90,42 120,50 220,51" fill="none" stroke="#1a4a7a" stroke-width="1" stroke-dasharray="3,2" opacity="0.5"/>
+            <text x="140" y="38" font-family="'JetBrains Mono',monospace" font-size="8" fill="#6e6e6e">Matérn 5/2</text>
+            <text x="140" y="28" font-family="'JetBrains Mono',monospace" font-size="8" fill="#1a4a7a" opacity="0.6">RBF (ref)</text>
+          </svg>
+        </div>
+      </div>
+      <div class="cmp-cell">
+        <div class="cmp-name">Periodic</div>
+        <div class="cmp-formula">k(x,x') = σ²_f · exp( −2 sin²(π|x−x'|/p) / ℓ² )</div>
+        <div class="cmp-prop">Encodes exact periodicity with period p</div>
+        <div class="cmp-prop">Combine with RBF for "locally periodic" functions: decay in periodicity over long distances</div>
+        <div class="cmp-prop">p is a hyperparameter — must be specified or marginalised over</div>
+        <div class="cmp-prop"><strong>Use when:</strong> f has known periodic structure (seasonal effects, oscillating systems)</div>
+      </div>
+      <div class="cmp-cell">
+        <div class="cmp-name">Kernel Composition Rules</div>
+        <div class="cmp-formula">k₁+k₂ and k₁·k₂ both yield valid kernels</div>
+        <div class="cmp-prop">Sum k₁+k₂: models functions with multiple additive components (e.g., trend + noise)</div>
+        <div class="cmp-prop">Product k₁·k₂: models functions that are simultaneously smooth and periodic (e.g., RBF × Periodic)</div>
+        <div class="cmp-prop">Linear kernel k(x,x')=xᵀx' → GP recovers Bayesian linear regression as a special case</div>
+        <div class="cmp-prop"><strong>Key insight:</strong> kernel choice = prior over function class. Wrong kernel = wrong inductive bias regardless of data quantity.</div>
+      </div>
+    </div>
+  </div>
+  <div class="diagram-note">The length-scale ℓ controls the correlation distance: large ℓ → smooth, slow-varying <span class="m">f</span>; small ℓ → rapidly changing <span class="m">f</span>. In practice ℓ is estimated by maximum marginal likelihood: <span class="m">log p(y|X,θ) = −½ yᵀ(K+σ²ₙI)⁻¹y − ½ log|K+σ²ₙI| − n/2 log 2π</span>. This log marginal likelihood is differentiable in all kernel hyperparameters θ and is typically maximised by L-BFGS.</div>
+</div>
+<!-- §4 ACQUISITION FUNCTIONS -->
+<div class="section">
+  <div class="sec-n">§ 4</div>
+  <div>
+    <div class="sec-title">Acquisition Functions</div>
+    <div class="sec-sub">The mathematical encoding of exploration vs. exploitation</div>
+  </div>
+</div>
+
+<p class="body">The acquisition function <span class="m">α : 𝒳 → ℝ</span> is a function of the GP posterior — cheap to evaluate and to optimise — that quantifies how useful querying <span class="m">f</span> at a candidate point <span class="m">x</span> would be. All canonical acquisition functions are derived from the posterior predictive distribution <span class="m">𝒩(μₙ(x), σ²ₙ(x))</span>.</p>
+
+<p class="body">Define <span class="m">f* = max{y₁,…,yₙ}</span> as the current best observed value. Then:</p>
+
+<div class="math-block">
+  <span class="label">The three canonical acquisition functions — full derivations</span>
+  <span class="eq"> </span>
+  <span class="eq"><strong>1.  Probability of Improvement (PI)  — Kushner, 1964</strong></span>
+  <span class="eq"> </span>
+  <span class="eq">   α_PI(x) = P( f(x) &gt; f* + ξ )  =  Φ( (μₙ(x) − f* − ξ) / σₙ(x) )</span>
+  <span class="eq"> </span>
+  <span class="eq">   <span class="comment">Φ = CDF of standard normal. ξ ≥ 0 is a trade-off parameter.</span></span>
+  <span class="eq">   <span class="comment">PI only measures probability of improvement, ignoring improvement magnitude.</span></span>
+  <span class="eq">   <span class="comment">Greedy (ξ=0) → exploits; large ξ → forces exploration.</span></span>
+  <span class="eq"> </span>
+  <span class="eq"><strong>2.  Expected Improvement (EI)  — Mockus, 1978</strong></span>
+  <span class="eq"> </span>
+  <span class="eq">   α_EI(x) = 𝔼[ max(f(x) − f*, 0) ]</span>
+  <span class="eq"> </span>
+  <span class="eq">   =  (μₙ(x) − f*) · Φ(Z)  +  σₙ(x) · φ(Z)         <span class="comment">Z = (μₙ(x)−f*)/σₙ(x)</span></span>
+  <span class="eq"> </span>
+  <span class="eq">   <span class="comment">φ = PDF of standard normal.  This closed form arises from integrating</span></span>
+  <span class="eq">   <span class="comment">max(f−f*,0) over the Gaussian predictive distribution 𝒩(μₙ,σ²ₙ).</span></span>
+  <span class="eq">   <span class="comment">First term: exploitation (high mean → high reward). </span></span>
+  <span class="eq">   <span class="comment">Second term: exploration (high σ → high reward).</span></span>
+  <span class="eq">   <span class="comment">EI = 0 iff σₙ(x) = 0 (already observed exactly) or μₙ(x) &lt;&lt; f*.</span></span>
+  <span class="eq"> </span>
+  <span class="eq"><strong>3.  Upper Confidence Bound (UCB)  — Srinivas et al., 2010</strong></span>
+  <span class="eq"> </span>
+  <span class="eq">   α_UCB(x) = μₙ(x)  +  β½ · σₙ(x)</span>
+  <span class="eq"> </span>
+  <span class="eq">   <span class="comment">β &gt; 0 is the exploration parameter (controls confidence width).</span></span>
+  <span class="eq">   <span class="comment">β→0: pure exploitation (follow mean). β→∞: pure exploration (follow σ).</span></span>
+  <span class="eq">   <span class="comment">Optimal β schedule (Srinivas 2010): β_t = 2log(|𝒳|t²π²/6δ) for finite 𝒳,</span></span>
+  <span class="eq">   <span class="comment">or β_t = 2log(t^(d/2+2) π²/3δ) for continuous 𝒳 ⊆ ℝᵈ.</span></span>
+  <span class="eq">   <span class="comment">UCB has the strongest theoretical convergence guarantees of the three.</span></span>
+</div>
+
+<div class="diagram">
+  <div class="diagram-hdr">Exhibit 4 — Acquisition Functions Visualised: Same GP Posterior, Three Different Next Points <span>geometric interpretation</span></div>
+  <div class="diagram-body">
+    <svg viewBox="0 0 860 320" xmlns="http://www.w3.org/2000/svg" width="100%" style="display:block;">
+      <rect x="0" y="0" width="268" height="320" fill="white" stroke="#d8d3c8" stroke-width="1"/>
+      <rect x="284" y="0" width="268" height="320" fill="white" stroke="#d8d3c8" stroke-width="1"/>
+      <rect x="568" y="0" width="292" height="320" fill="white" stroke="#1c1c1c" stroke-width="1.5"/>
+      <rect x="0" y="0" width="268" height="18" fill="#6e6e6e"/>
+      <text x="134" y="13" font-family="'JetBrains Mono',monospace" font-size="9" fill="white" text-anchor="middle">PI — Probability of Improvement</text>
+      <rect x="284" y="0" width="268" height="18" fill="#6e6e6e"/>
+      <text x="418" y="13" font-family="'JetBrains Mono',monospace" font-size="9" fill="white" text-anchor="middle">EI — Expected Improvement</text>
+      <rect x="568" y="0" width="292" height="18" fill="#1c1c1c"/>
+      <text x="714" y="13" font-family="'JetBrains Mono',monospace" font-size="9" fill="white" text-anchor="middle">UCB — Upper Confidence Bound</text>
+      <!-- PI panel -->
+      <path d="M12,170 C50,165 90,130 120,115 C145,103 165,98 190,105 C215,113 240,130 256,142 L256,190 C240,178 215,162 190,155 C165,150 145,152 120,157 C90,165 50,195 12,205 Z" fill="rgba(26,74,122,0.1)"/>
+      <path d="M12,188 C50,180 90,148 120,136 C145,127 165,124 190,130 C215,137 240,154 256,166" fill="none" stroke="#1a4a7a" stroke-width="2"/>
+      <circle cx="80" cy="155" r="3" fill="#1c1c1c"/>
+      <circle cx="150" cy="127" r="3" fill="#1c1c1c"/>
+      <line x1="12" y1="127" x2="256" y2="127" stroke="#9b2335" stroke-width="1" stroke-dasharray="3,2"/>
+      <text x="14" y="123" font-family="'JetBrains Mono',monospace" font-size="8" fill="#9b2335">f* = best so far</text>
+      <line x1="12" y1="230" x2="256" y2="230" stroke="#d8d3c8" stroke-width="1"/>
+      <path d="M12,305 C50,300 90,285 120,260 C145,242 165,230 190,242 C215,260 240,290 256,302" fill="none" stroke="#8a5a00" stroke-width="1.5"/>
+      <path d="M12,305 C50,300 90,285 120,260 C145,242 165,230 190,242 C215,260 240,290 256,302 L256,320 L12,320 Z" fill="rgba(138,90,0,0.08)"/>
+      <line x1="165" y1="112" x2="165" y2="320" stroke="#8a5a00" stroke-width="1.5" stroke-dasharray="3,2"/>
+      <circle cx="165" cy="230" r="3" fill="#8a5a00"/>
+      <text x="175" y="250" font-family="'JetBrains Mono',monospace" font-size="8" fill="#8a5a00">x_next (PI)</text>
+      <text x="175" y="262" font-family="'JetBrains Mono',monospace" font-size="8" fill="#8a5a00">exploits mean</text>
+      <text x="134" y="245" font-family="'JetBrains Mono',monospace" font-size="8" fill="#8a5a00">α_PI(x)</text>
+      <text x="134" y="222" font-family="'JetBrains Mono',monospace" font-size="8" fill="#6e6e6e" text-anchor="middle">f(x) posterior</text>
+      <!-- EI panel -->
+      <path d="M296,170 C334,165 374,130 404,115 C429,103 449,98 474,105 C499,113 524,130 540,142 L540,190 C524,178 499,162 474,155 C449,150 429,152 404,157 C374,165 334,195 296,205 Z" fill="rgba(26,74,122,0.1)"/>
+      <path d="M296,188 C334,180 374,148 404,136 C429,127 449,124 474,130 C499,137 524,154 540,166" fill="none" stroke="#1a4a7a" stroke-width="2"/>
+      <circle cx="364" cy="155" r="3" fill="#1c1c1c"/>
+      <circle cx="434" cy="127" r="3" fill="#1c1c1c"/>
+      <line x1="296" y1="127" x2="540" y2="127" stroke="#9b2335" stroke-width="1" stroke-dasharray="3,2"/>
+      <text x="298" y="123" font-family="'JetBrains Mono',monospace" font-size="8" fill="#9b2335">f*</text>
+      <line x1="296" y1="230" x2="540" y2="230" stroke="#d8d3c8" stroke-width="1"/>
+      <path d="M296,315 C334,308 374,282 404,258 C429,238 449,224 474,240 C499,260 524,292 540,308" fill="none" stroke="#1e6b3c" stroke-width="1.5"/>
+      <path d="M296,315 C334,308 374,282 404,258 C429,238 449,224 474,240 C499,260 524,292 540,308 L540,320 L296,320 Z" fill="rgba(30,107,60,0.08)"/>
+      <line x1="450" y1="104" x2="450" y2="320" stroke="#1e6b3c" stroke-width="1.5" stroke-dasharray="3,2"/>
+      <circle cx="450" cy="230" r="3" fill="#1e6b3c"/>
+      <text x="460" y="248" font-family="'JetBrains Mono',monospace" font-size="8" fill="#1e6b3c">x_next (EI)</text>
+      <text x="460" y="260" font-family="'JetBrains Mono',monospace" font-size="8" fill="#1e6b3c">balances mean+σ</text>
+      <text x="418" y="245" font-family="'JetBrains Mono',monospace" font-size="8" fill="#1e6b3c">α_EI(x)</text>
+      <text x="418" y="222" font-family="'JetBrains Mono',monospace" font-size="8" fill="#6e6e6e" text-anchor="middle">f(x) posterior</text>
+      <!-- UCB panel -->
+      <path d="M580,170 C618,165 658,130 688,115 C713,103 733,98 758,105 C783,113 808,128 845,140 L845,190 C808,176 783,158 758,152 C733,148 713,150 688,156 C658,164 618,194 580,204 Z" fill="rgba(26,74,122,0.1)"/>
+      <path d="M580,188 C618,180 658,148 688,136 C713,127 733,124 758,130 C783,137 808,152 845,165" fill="none" stroke="#1a4a7a" stroke-width="2"/>
+      <path d="M580,160 C618,148 658,105 688,90 C713,78 733,72 758,80 C783,90 808,108 845,122" fill="none" stroke="#1a4a7a" stroke-width="1" stroke-dasharray="4,2" opacity="0.6"/>
+      <circle cx="648" cy="155" r="3" fill="#1c1c1c"/>
+      <circle cx="718" cy="127" r="3" fill="#1c1c1c"/>
+      <line x1="580" y1="127" x2="845" y2="127" stroke="#9b2335" stroke-width="1" stroke-dasharray="3,2"/>
+      <text x="582" y="123" font-family="'JetBrains Mono',monospace" font-size="8" fill="#9b2335">f*</text>
+      <line x1="580" y1="230" x2="845" y2="230" stroke="#d8d3c8" stroke-width="1"/>
+      <path d="M580,245 C618,235 658,205 688,182 C713,162 733,155 758,162 C783,172 808,200 845,215" fill="none" stroke="#5a2080" stroke-width="1.5"/>
+      <path d="M580,245 C618,235 658,205 688,182 C713,162 733,155 758,162 C783,172 808,200 845,215 L845,320 L580,320 Z" fill="rgba(90,32,128,0.07)"/>
+      <line x1="690" y1="72" x2="690" y2="320" stroke="#5a2080" stroke-width="1.5" stroke-dasharray="3,2"/>
+      <circle cx="690" cy="230" r="3" fill="#5a2080"/>
+      <text x="700" y="250" font-family="'JetBrains Mono',monospace" font-size="8" fill="#5a2080">x_next (UCB)</text>
+      <text x="700" y="262" font-family="'JetBrains Mono',monospace" font-size="8" fill="#5a2080">high mean+σ</text>
+      <text x="690" y="75" font-family="'JetBrains Mono',monospace" font-size="8" fill="#5a2080" text-anchor="middle">μₙ+β½σₙ</text>
+      <text x="712" y="245" font-family="'JetBrains Mono',monospace" font-size="8" fill="#5a2080">α_UCB(x)</text>
+      <text x="712" y="222" font-family="'JetBrains Mono',monospace" font-size="8" fill="#6e6e6e" text-anchor="middle">f(x) posterior</text>
+    </svg>
+  </div>
+  <div class="diagram-note">The three functions select different <span class="m">x_next</span> from the same GP posterior. PI is most exploitative (pure probability, ignores magnitude). EI balances magnitude and probability analytically. UCB is most exploratory under high <span class="m">β</span> and has the strongest theoretical guarantees. EI is the empirical default; UCB is the theoretical default.</div>
+</div>
+<!-- §5 EXPLORATION-EXPLOITATION -->
+<div class="section">
+  <div class="sec-n">§ 5</div>
+  <div>
+    <div class="sec-title">The Exploration–Exploitation Spectrum</div>
+    <div class="sec-sub">How β in UCB and ξ in EI control the trade-off — and the optimal schedule</div>
+  </div>
+</div>
+
+<p class="body">Every acquisition function embeds a trade-off between querying where the mean is high (exploitation) and where uncertainty is high (exploration). The key insight is that <em>both are necessary</em>: a purely exploitative strategy converges to a local optimum near the initial observations; a purely exploratory strategy wastes evaluations uniformly.</p>
+
+<div class="diagram">
+  <div class="diagram-hdr">Exhibit 5 — Exploration–Exploitation Spectrum via UCB β Parameter <span>β controls the confidence width</span></div>
+  <div class="diagram-body">
+    <div class="spectrum">
+      <div class="sp-row">
+        <div class="sp-lbl"><strong>β → 0</strong><span>pure exploitation</span></div>
+        <div class="sp-viz"><div class="bar-track"><div class="bar-fill" style="width:8%;background:#9b2335;">exploit</div></div></div>
+        <div class="sp-note"><span class="m">α_UCB ≈ μₙ(x)</span> — always query where the posterior mean is highest. Greedy. Converges quickly to a local optimum near initial observations. <strong>Will miss global maximum if initialisation is poor.</strong></div>
+      </div>
+      <div class="sp-row">
+        <div class="sp-lbl"><strong>β = 0.1–1.0</strong><span>mild exploration</span></div>
+        <div class="sp-viz"><div class="bar-track"><div class="bar-fill" style="width:30%;background:#8a5a00;">exploit / explore</div></div></div>
+        <div class="sp-note">Slight preference for unexplored regions when mean values are comparable. Good for smooth, well-behaved functions where exploration cost is low relative to improvement gained.</div>
+      </div>
+      <div class="sp-row" style="border-left:3px solid #1e6b3c;">
+        <div class="sp-lbl" style="background:rgba(30,107,60,0.06);"><strong>β ≈ 2 log(t)</strong><span>★ optimal schedule</span></div>
+        <div class="sp-viz"><div class="bar-track"><div class="bar-fill" style="width:55%;background:#1e6b3c;">balanced — increases with t</div></div></div>
+        <div class="sp-note"><strong>Srinivas et al. (2010):</strong> setting <span class="m">β_t = 2 log(t^(d/2+2)π²/3δ)</span> yields sublinear cumulative regret <span class="m">R_T = O(√T · γ_T log T)</span> with probability <span class="m">1−δ</span>. β grows with time to maintain coverage as <span class="m">𝒳</span> is increasingly explored.</div>
+      </div>
+      <div class="sp-row">
+        <div class="sp-lbl"><strong>β = 5–10</strong><span>heavy exploration</span></div>
+        <div class="sp-viz"><div class="bar-track"><div class="bar-fill" style="width:78%;background:#1a4a7a;">explore</div></div></div>
+        <div class="sp-note">Strongly prefers uncertain regions. Useful in early iterations (small <span class="m">n</span>, poor coverage) or when <span class="m">f</span> is highly multi-modal and missing the global optimum is catastrophic.</div>
+      </div>
+      <div class="sp-row">
+        <div class="sp-lbl"><strong>β → ∞</strong><span>pure exploration</span></div>
+        <div class="sp-viz"><div class="bar-track"><div class="bar-fill" style="width:100%;background:#5a2080;">explore only</div></div></div>
+        <div class="sp-note"><span class="m">α_UCB ≈ σₙ(x)</span> — always query the most uncertain point. Equivalent to maximum variance sampling. Wastes evaluations in regions confirmed to have low <span class="m">f</span>. <strong>Exploration without exploitation is random search.</strong></div>
+      </div>
+    </div>
+  </div>
+  <div class="diagram-note">The EI analogue: <span class="m">ξ</span> in <span class="m">α_EI(x; ξ) = (μₙ(x) − f* − ξ)Φ(Z) + σₙ(x)φ(Z)</span>. Large <span class="m">ξ</span> requires <span class="m">f(x)</span> to exceed <span class="m">f*</span> by more than <span class="m">ξ</span> to be worth exploring — forces exploration of uncertain regions. In practice, <span class="m">ξ = 0.01</span> is the most common default for EI (Lizotte 2008).</div>
+</div>
+
+<!-- §6 HYPERPARAMETER MARGINALISATION -->
+<div class="section">
+  <div class="sec-n">§ 6</div>
+  <div>
+    <div class="sec-title">Hyperparameter Marginalisation</div>
+    <div class="sec-sub">Why integrating out θ is correct — and how it's approximated in practice</div>
+  </div>
+</div>
+
+<p class="body">The GP has hyperparameters <span class="m">θ = {ℓ, σ_f, σ_n, …}</span> (length-scale, signal variance, noise variance, etc.). Most implementations fit <span class="m">θ</span> by maximum marginal likelihood (type-II MLE) and treat it as fixed. This is a <em>point estimate</em>, which can be overconfident when data is sparse.</p>
+
+<p class="body">The fully Bayesian approach places a prior <span class="m">p(θ)</span> over hyperparameters and <em>integrates them out</em>:</p>
+
+<div class="math-block">
+  <span class="label">Fully Marginalised Acquisition — integrating over GP hyperparameters</span>
+  <span class="eq"> </span>
+  <span class="eq">α(x | Dₙ)  =  ∫  α(x | Dₙ, θ) · p(θ | Dₙ)  dθ</span>
+  <span class="eq"> </span>
+  <span class="eq"><span class="comment">where:  p(θ | Dₙ) ∝ p(y | X, θ) · p(θ)   ← posterior over hyperparameters</span></span>
+  <span class="eq"> </span>
+  <span class="eq"><span class="comment">This integral has no closed form. Approximated by:</span></span>
+  <span class="eq">  (a)  MCMC sampling:  α(x) ≈ (1/S) Σₛ α(x | Dₙ, θˢ),   θˢ ~ p(θ|Dₙ)  via HMC</span>
+  <span class="eq">  (b)  Slice sampling (SPEARMINT, Snoek et al. 2012)</span>
+  <span class="eq">  (c)  Laplace approximation:  p(θ|Dₙ) ≈ 𝒩(θ_MAP, [−∇² log p]⁻¹)</span>
+</div>
+
+<div class="two-col">
+  <div class="note-box">
+    <h4>Point Estimate (Type-II MLE)</h4>
+    <p><span class="m">θ* = arg max_θ log p(y | X, θ)</span>. Fast: single L-BFGS run. Used in BoTorch, GPyOpt defaults. Overconfident: the acquisition function behaves as if <span class="m">θ*</span> is known exactly, which underestimates uncertainty in <span class="m">θ</span> — especially dangerous with few observations (<span class="m">n &lt; 20</span>). Can lead to convergence to a suboptimal local maximum.</p>
+  </div>
+  <div class="note-box">
+    <h4>Full Marginalisation (MCMC)</h4>
+    <p>Treats GP hyperparameters as random variables with a prior. Averages the acquisition function over the posterior <span class="m">p(θ | Dₙ)</span>. More expensive but provides correct uncertainty quantification. Particularly important when the length-scale is poorly identified from few points. SPEARMINT used this; GPflowOpt and BoTorch support it via NUTS/HMC.</p>
+  </div>
+</div>
+
+<p class="body"><strong>When marginalisation matters most:</strong> in very low-data regimes (<span class="m">n ≤ 10</span>), when the kernel structure is uncertain, or when the acquisition function is used to make high-stakes decisions. In typical hyperparameter tuning with budgets of <span class="m">T = 50–200</span>, Type-II MLE performs comparably to full marginalisation and is far cheaper.</p>
+
+<!-- §7 CONVERGENCE -->
+<div class="section">
+  <div class="sec-n">§ 7</div>
+  <div>
+    <div class="sec-title">Convergence Theory — Regret Analysis</div>
+    <div class="sec-sub">What theoretical guarantees actually say — and what they do not</div>
+  </div>
+</div>
+
+<p class="body">Convergence of BO is analysed through the lens of <em>regret</em> — the gap between the values queried and the true optimum. There are two distinct notions:</p>
+
+<div class="regret-grid">
+  <div class="rg-cell">
+    <div class="rg-name">Simple Regret  r_T</div>
+    <div class="rg-formula">r_T  =  f(x*)  −  max_{t≤T} f(x_t)</div>
+    <div class="rg-body">The gap between the true maximum and the best point found after <span class="m">T</span> evaluations. Measures final quality. A Bayesian optimiser has converged when <span class="m">r_T → 0</span>. This is the quantity optimised in the recommendation step: return <span class="m">x̂* = arg max_{t≤T} f(x_t)</span>.</div>
+  </div>
+  <div class="rg-cell">
+    <div class="rg-name">Cumulative Regret  R_T</div>
+    <div class="rg-formula">R_T  =  Σ_{t=1}^T [ f(x*)  −  f(x_t) ]</div>
+    <div class="rg-body">The total suboptimality accumulated over all <span class="m">T</span> queries. Used to bound simple regret: <span class="m">r_T ≤ R_T / T</span>. An algorithm is <em>no-regret</em> if <span class="m">R_T / T → 0</span>. This requires that the algorithm continues to improve — not just one lucky query.</div>
+  </div>
+</div>
+
+<div class="math-block">
+  <span class="label">UCB Regret Bound — Srinivas, Krause, Kakade, Seeger (2010) — ICML Best Paper</span>
+  <span class="eq"> </span>
+  <span class="eq">With probability ≥ 1 − δ, UCB-BO with β_t = 2 log(|𝒳|t²π²/6δ) satisfies:</span>
+  <span class="eq"> </span>
+  <span class="eq">   R_T  ≤  √( C₁ · T · β_T · γ_T )</span>
+  <span class="eq"> </span>
+  <span class="eq"><span class="comment">where: γ_T = max information gain achievable by T points about f</span></span>
+  <span class="eq"><span class="comment">       C₁ = 8/log(1+σ⁻²_n)   (constant depending on noise level)</span></span>
+  <span class="eq"> </span>
+  <span class="eq"><span class="comment">γ_T depends on the kernel:</span></span>
+  <span class="eq">  RBF kernel:      γ_T  =  O( (log T)^(d+1) )         <span class="comment">← sublinear, fast convergence</span></span>
+  <span class="eq">  Matérn ν kernel: γ_T  =  O( T^(d/2ν+d) · (log T)^s ) <span class="comment">← depends on smoothness ν</span></span>
+  <span class="eq">  Linear kernel:   γ_T  =  O( d log T )                <span class="comment">← d-dimensional linear function</span></span>
+  <span class="eq"> </span>
+  <span class="eq"><span class="comment">For RBF:  R_T = O( √T · (log T)^(d+1) ),  so  R_T/T → 0  (no-regret)</span></span>
+  <span class="eq"><span class="comment">Simple regret: r_T ≤ R_T/T = O( (log T)^(d+1) / √T ) → 0 as T → ∞</span></span>
+</div>
+
+<p class="body"><strong>What the theorem does not say:</strong> it does not provide useful bounds for the finite budgets typical in practice (<span class="m">T = 50</span>). The constants hidden in the <span class="m">O(·)</span> notation are large and problem-dependent. The bound holds for the <em>exact</em> GP posterior with known hyperparameters — in practice, hyperparameters are estimated, which violates the theoretical assumptions. Convergence guarantees are asymptotic results; practical performance is empirical.</p>
+
+<div class="math-block">
+  <span class="label">Maximum Information Gain γ_T — the kernel-specific bottleneck</span>
+  <span class="eq"> </span>
+  <span class="eq">γ_T  =  max_{A⊂𝒳, |A|=T}  I(y_A ; f)  =  ½ log |I + σ⁻²_n K(A,A)|</span>
+  <span class="eq"> </span>
+  <span class="eq"><span class="comment">I(y_A ; f) is the mutual information between T observations y_A and the function f.</span></span>
+  <span class="eq"><span class="comment">γ_T measures how quickly observations "fill in" the function. Smoother kernels</span></span>
+  <span class="eq"><span class="comment">(RBF) have low γ_T — a few points reveal a lot. Rough kernels have high γ_T.</span></span>
+  <span class="eq"><span class="comment">The d-dimensional scaling γ_T ∝ d is why BO degrades in high dimensions.</span></span>
+</div>
+<!-- §8 WHEN BO BEATS GD -->
+<div class="section">
+  <div class="sec-n">§ 8</div>
+  <div>
+    <div class="sec-title">When BO Dominates Gradient Descent — and When It Doesn't</div>
+    <div class="sec-sub">The decision boundary is a function of dimensionality, budget, and differentiability</div>
+  </div>
+</div>
+
+<p class="body">This is a mathematical decision, not a heuristic one. The crossover point between BO and gradient-based methods is determined by three quantities: the <strong>evaluation budget</strong> <span class="m">T</span>, the <strong>input dimension</strong> <span class="m">d</span>, and <strong>gradient availability</strong>.</p>
+
+<div class="diagram">
+  <div class="diagram-hdr">Exhibit 6 — The BO vs. GD Decision Boundary <span>as a function of evaluation budget and dimensionality</span></div>
+  <div class="diagram-body">
+    <svg viewBox="0 0 800 280" xmlns="http://www.w3.org/2000/svg" width="100%" style="display:block;">
+      <rect width="800" height="280" fill="white"/>
+      <line x1="60" y1="20" x2="60" y2="240" stroke="#1c1c1c" stroke-width="1.5"/>
+      <line x1="60" y1="240" x2="780" y2="240" stroke="#1c1c1c" stroke-width="1.5"/>
+      <text x="420" y="270" font-family="'JetBrains Mono',monospace" font-size="10" fill="#1c1c1c" text-anchor="middle" letter-spacing="1">INPUT DIMENSION  d  →</text>
+      <text x="20" y="130" font-family="'JetBrains Mono',monospace" font-size="10" fill="#1c1c1c" text-anchor="middle" transform="rotate(-90,20,130)" letter-spacing="1">BUDGET  T  →</text>
+      <text x="100" y="255" font-family="'JetBrains Mono',monospace" font-size="9" fill="#6e6e6e" text-anchor="middle">d=2</text>
+      <text x="200" y="255" font-family="'JetBrains Mono',monospace" font-size="9" fill="#6e6e6e" text-anchor="middle">d=5</text>
+      <text x="340" y="255" font-family="'JetBrains Mono',monospace" font-size="9" fill="#6e6e6e" text-anchor="middle">d=10</text>
+      <text x="540" y="255" font-family="'JetBrains Mono',monospace" font-size="9" fill="#6e6e6e" text-anchor="middle">d=20</text>
+      <text x="740" y="255" font-family="'JetBrains Mono',monospace" font-size="9" fill="#6e6e6e" text-anchor="middle">d=50+</text>
+      <text x="55" y="220" font-family="'JetBrains Mono',monospace" font-size="9" fill="#6e6e6e" text-anchor="end">T=10</text>
+      <text x="55" y="180" font-family="'JetBrains Mono',monospace" font-size="9" fill="#6e6e6e" text-anchor="end">T=50</text>
+      <text x="55" y="130" font-family="'JetBrains Mono',monospace" font-size="9" fill="#6e6e6e" text-anchor="end">T=200</text>
+      <text x="55" y="70" font-family="'JetBrains Mono',monospace" font-size="9" fill="#6e6e6e" text-anchor="end">T=1000+</text>
+      <path d="M60,240 C100,240 200,238 300,235 C380,232 430,225 470,210 C500,200 520,180 530,160 C535,140 535,80 530,30 L60,30 Z" fill="rgba(30,107,60,0.1)" stroke="none"/>
+      <path d="M530,30 C535,80 535,140 530,160 C520,180 500,200 470,210 C430,225 380,232 300,235 C200,238 100,240 60,240 L780,240 L780,30 Z" fill="rgba(26,74,122,0.07)" stroke="none"/>
+      <path d="M60,30 C60,80 100,140 200,185 C280,218 380,232 500,238 C600,242 680,241 780,240" fill="none" stroke="#1c1c1c" stroke-width="2"/>
+      <text x="150" y="80" font-family="'EB Garamond',serif" font-size="15" fill="#1e6b3c" font-weight="500">BO dominates</text>
+      <text x="150" y="98" font-family="'JetBrains Mono',monospace" font-size="9" fill="#1e6b3c">low d, expensive f</text>
+      <text x="150" y="110" font-family="'JetBrains Mono',monospace" font-size="9" fill="#1e6b3c">T ≤ ~500 realistic</text>
+      <text x="150" y="122" font-family="'JetBrains Mono',monospace" font-size="9" fill="#1e6b3c">no gradient available</text>
+      <text x="600" y="80" font-family="'EB Garamond',serif" font-size="15" fill="#1a4a7a" font-weight="500">GD dominates</text>
+      <text x="600" y="98" font-family="'JetBrains Mono',monospace" font-size="9" fill="#1a4a7a">high d, cheap f</text>
+      <text x="600" y="110" font-family="'JetBrains Mono',monospace" font-size="9" fill="#1a4a7a">T &gt;&gt; 10⁴ feasible</text>
+      <text x="600" y="122" font-family="'JetBrains Mono',monospace" font-size="9" fill="#1a4a7a">gradient available</text>
+      <circle cx="200" cy="180" r="6" fill="white" stroke="#1e6b3c" stroke-width="2"/>
+      <text x="215" y="172" font-family="'JetBrains Mono',monospace" font-size="8" fill="#1e6b3c">hyperparameter</text>
+      <text x="215" y="182" font-family="'JetBrains Mono',monospace" font-size="8" fill="#1e6b3c">tuning (d≤10)</text>
+      <circle cx="340" cy="130" r="6" fill="white" stroke="#8a5a00" stroke-width="2"/>
+      <text x="355" y="122" font-family="'JetBrains Mono',monospace" font-size="8" fill="#8a5a00">NAS / drug</text>
+      <text x="355" y="132" font-family="'JetBrains Mono',monospace" font-size="8" fill="#8a5a00">discovery</text>
+      <circle cx="740" cy="60" r="6" fill="white" stroke="#1a4a7a" stroke-width="2"/>
+      <text x="688" y="46" font-family="'JetBrains Mono',monospace" font-size="8" fill="#1a4a7a">NN weight</text>
+      <text x="688" y="56" font-family="'JetBrains Mono',monospace" font-size="8" fill="#1a4a7a">training</text>
+      <text x="450" y="195" font-family="'JetBrains Mono',monospace" font-size="9" fill="#1c1c1c" text-anchor="middle">crossover boundary</text>
+      <text x="450" y="206" font-family="'JetBrains Mono',monospace" font-size="9" fill="#6e6e6e" text-anchor="middle">approx: BO effective when d ≤ 20, T ≤ 500</text>
+    </svg>
+  </div>
+  <div class="diagram-note">The curse of dimensionality strikes BO through <span class="m">γ_T</span>: in high dimensions, the number of observations needed to adequately cover <span class="m">𝒳</span> grows exponentially. The practical threshold is approximately <span class="m">d ≤ 20</span> for standard GP-BO; for <span class="m">d &gt; 20</span>, random embeddings (REMBO), additive decompositions, or gradient-enhanced GPs become necessary.</div>
+</div>
+
+<table class="ex-table">
+  <thead>
+    <tr>
+      <th style="width:200px;">Regime</th>
+      <th style="width:120px;">Use BO?</th>
+      <th>Mathematical Reason</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td class="key">d ≤ 20, T ≤ 500, ∇f unavailable</td>
+      <td style="color:#1e6b3c;font-weight:500;">✓ Yes, GP-BO</td>
+      <td>γ_T sublinear in T; GP posterior informative; acquisition function cheaper than f per query</td>
+    </tr>
+    <tr>
+      <td class="key">d ≤ 5, T ≤ 30</td>
+      <td style="color:#1e6b3c;font-weight:500;">✓ Yes, strong</td>
+      <td>Low d → GP posterior tight with few points; EI efficiently concentrates evaluations near x*</td>
+    </tr>
+    <tr>
+      <td class="key">20 &lt; d ≤ 100, T ≤ 1000</td>
+      <td style="color:#8a5a00;font-weight:500;">⚠ BO with tricks</td>
+      <td>REMBO (random embedding), HESBO, or additive GP decompositions extend BO to moderate d. Vanilla GP-BO fails.</td>
+    </tr>
+    <tr>
+      <td class="key">d &gt; 100, ∇f available</td>
+      <td style="color:#9b2335;font-weight:500;">✗ Use GD</td>
+      <td>GD amortises per-iteration cost over the full gradient; BO GP cost O(n³) cannot compete at scale</td>
+    </tr>
+    <tr>
+      <td class="key">f differentiable, T &gt; 10⁴ feasible</td>
+      <td style="color:#9b2335;font-weight:500;">✗ Use GD</td>
+      <td>Each GD step is O(d) vs. BO's O(n³) + inner optimisation. The gradient is an exponentially more informative signal.</td>
+    </tr>
+    <tr>
+      <td class="key">f noisy (σ_n large), d ≤ 10</td>
+      <td style="color:#1e6b3c;font-weight:500;">✓ BO handles noise</td>
+      <td>GP naturally models observation noise σ²_n. The posterior mean is an automatic smoothed estimate. GD on noisy f is ill-posed without careful variance reduction (SVRG, SAG).</td>
+    </tr>
+    <tr>
+      <td class="key">f is a neural network (d = 10⁶+)</td>
+      <td style="color:#9b2335;font-weight:500;">✗ Definitively GD</td>
+      <td>Training a GP with 10⁶-dimensional inputs is computationally impossible. Adam + backprop is the only viable strategy. BO is restricted to the hyperparameter space of the network, not its weights.</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- §9 EXTENSIONS -->
+<div class="section">
+  <div class="sec-n">§ 9</div>
+  <div>
+    <div class="sec-title">Extensions and Active Research Directions</div>
+    <div class="sec-sub">Beyond the standard formulation — the mathematical frontier</div>
+  </div>
+</div>
+
+<div class="diagram">
+  <div class="diagram-hdr">Exhibit 7 — Insights Pyramid: Standard Formulation to Open Research <span>layered from known to frontier</span></div>
+  <div class="diagram-body">
+    <div class="pyramid">
+      <div class="pyr-row" style="background:rgba(0,0,0,.02);">
+        <div class="pyr-main">
+          <div class="pyr-t">Standard GP-BO: GP surrogate + EI/UCB acquisition + MLE hyperparameters</div>
+          <div class="pyr-d">The formulation in §2–5. Works for d≤10, T≤200, noise-free or mildly noisy f.</div>
+        </div>
+        <div class="pyr-b" style="background:rgba(0,0,0,.06);border-color:var(--faint);color:var(--muted);">STANDARD</div>
+      </div>
+      <div class="pyr-row" style="background:rgba(26,74,122,.04);">
+        <div class="pyr-main">
+          <div class="pyr-t">Batch BO: selecting q &gt; 1 points per iteration (parallel evaluations)</div>
+          <div class="pyr-d">q-EI: 𝔼[max(f(x₁)…f(xq)) − f*] — analytically intractable for q&gt;1; approximated by Monte Carlo or fantasisation. Used when evaluations can run in parallel (e.g., k8s job farm).</div>
+        </div>
+        <div class="pyr-b" style="border-color:#1a4a7a;color:#1a4a7a;">KNOWN EXTENSION</div>
+      </div>
+      <div class="pyr-row" style="background:rgba(30,107,60,.04);">
+        <div class="pyr-main">
+          <div class="pyr-t">Constrained BO: optimise f(x) subject to cᵢ(x) ≥ 0</div>
+          <div class="pyr-d">Model each constraint with a separate GP: p(cᵢ(x) ≥ 0 | Dₙ). Acquisition becomes α(x) · P(feasible | x). SCBO (scalable constrained BO) extends to trust regions for stability.</div>
+        </div>
+        <div class="pyr-b" style="border-color:#1e6b3c;color:#1e6b3c;">ACTIVE AREA</div>
+      </div>
+      <div class="pyr-row" style="background:rgba(138,90,0,.04);">
+        <div class="pyr-main">
+          <div class="pyr-t">High-dimensional BO: REMBO, ALEBO, Additive BO, TuRBO (trust regions)</div>
+          <div class="pyr-d">REMBO: embed 𝒳 ⊆ ℝᵈ into a low-dimensional subspace ℝᵏ (k&lt;&lt;d) via random matrix A ∈ ℝ^{d×k}. Effective if f has low intrinsic dimensionality. TuRBO: restricts BO to a trust region that shrinks/grows based on success — avoids the exploration-exploitation pathology in high d.</div>
+        </div>
+        <div class="pyr-b" style="border-color:#8a5a00;color:#8a5a00;">ACTIVE AREA</div>
+      </div>
+      <div class="pyr-row" style="background:rgba(90,32,128,.04);">
+        <div class="pyr-main">
+          <div class="pyr-t">Non-GP surrogates: Random Forests (SMAC), TPE, Deep Kernel Learning</div>
+          <div class="pyr-d">SMAC (Hutter 2011) uses random forests as surrogate — handles categorical inputs and conditional hyperparameters natively. TPE (Bergstra 2011) models p(x|y) rather than p(y|x). DKL (Wilson 2016): deep neural network feature extractor + GP, combining scalability with posterior quality. These abandon closed-form posteriors for scalability.</div>
+        </div>
+        <div class="pyr-b" style="border-color:#5a2080;color:#5a2080;">FRONTIER</div>
+      </div>
+      <div class="pyr-row" style="background:rgba(155,35,53,.06);border-left:3px solid var(--red);">
+        <div class="pyr-main">
+          <div class="pyr-t">BO for LLMs: gradient-free fine-tuning, prompt optimisation, RLHF loop design</div>
+          <div class="pyr-d">As LLM evaluation becomes the expensive oracle — A/B test, human evaluation, downstream task performance — BO over the prompt/adapter/configuration space is an active area. Key challenge: the response variable is itself a distribution, not a scalar. Multi-objective BO (Pareto front) handles simultaneous optimisation of capability, safety, and efficiency metrics without reduction to a single scalar.</div>
+        </div>
+        <div class="pyr-b" style="border-color:var(--red);color:var(--red);">OPEN FRONTIER</div>
+      </div>
+    </div>
+  </div>
+  <div class="diagram-note">The deepest open question in BO theory: for what function classes does the cumulative regret of EI satisfy the same sublinear bound as UCB? UCB has O(√T·γ_T log T) guarantees under mild conditions. EI's convergence is harder to prove because it does not directly control the exploration-exploitation trade-off through an explicit parameter — yet empirically EI often outperforms UCB. The gap between theory and practice here is substantial.</div>
+</div>
+
+<!-- FOOTER -->
+<hr class="rule">
+<div class="doc-footer">
+  <div>
+    References: Kushner 1964 · Mockus 1978 · Srinivas, Krause, Kakade, Seeger 2010 (ICML Best Paper) ·<br>
+    Snoek, Larochelle, Adams 2012 · Bergstra &amp; Bengio 2012 · Hutter, Hoos, Leyton-Brown 2011 ·<br>
+    Wilson &amp; Adams 2013 · Wang et al. (REMBO) 2013 · Eriksson et al. (TuRBO) 2019 · Garnett 2023
+  </div>
+  <div style="text-align:right;">
+    Mathematical Deep Dive — Bayesian Optimisation<br>
+    February 2026
+  </div>
+</div>
+
+</body>
+</html>
