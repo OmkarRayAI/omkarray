@@ -270,31 +270,114 @@ main {
   flex-shrink: 0;
 }
 
-/* ─── Thesis Cards ─── */
+/* ─── Thesis Carousel ─── */
 
-.thesis-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 16px;
+.thesis-section {
+  overflow: visible;
+}
+
+.thesis-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 0;
+}
+
+.thesis-section-header .section-subtitle {
+  margin-bottom: 48px;
+}
+
+.thesis-nav {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 48px;
+}
+
+.thesis-nav-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-secondary);
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.thesis-nav-btn:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.thesis-track-wrapper {
+  position: relative;
+  margin-left: calc(-1 * (50vw - var(--max-width) / 2 - 24px));
+  margin-right: calc(-1 * (50vw - var(--max-width) / 2 - 24px));
+  padding-left: calc(50vw - var(--max-width) / 2 + 24px);
+}
+
+.thesis-track {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  scroll-behavior: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding-right: 48px;
+  padding-bottom: 4px;
+  cursor: grab;
+}
+
+.thesis-track:active {
+  cursor: grabbing;
+}
+
+.thesis-track::-webkit-scrollbar {
+  display: none;
 }
 
 .thesis-card {
-  display: block;
-  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  min-width: 380px;
+  max-width: 420px;
+  flex-shrink: 0;
+  padding: 32px;
   border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--surface);
-  transition: border-color 0.2s, transform 0.2s;
+  transition: border-color 0.25s, transform 0.25s, box-shadow 0.25s;
+  position: relative;
+  overflow: hidden;
 }
 
 .thesis-card:hover {
   border-color: #ccc;
-  transform: translateY(-2px);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
 }
 
 .thesis-card:hover .thesis-arrow {
   opacity: 1;
   transform: translateX(0);
+}
+
+.thesis-number {
+  font-family: 'Newsreader', Georgia, serif;
+  font-size: 64px;
+  font-weight: 500;
+  color: #f0f0f0;
+  position: absolute;
+  top: -8px;
+  right: 16px;
+  line-height: 1;
+  pointer-events: none;
+  user-select: none;
 }
 
 .thesis-header {
@@ -337,6 +420,7 @@ main {
   color: var(--text-secondary);
   line-height: 1.7;
   margin-bottom: 16px;
+  flex: 1;
 }
 
 .thesis-tags {
@@ -353,6 +437,24 @@ main {
   padding: 3px 10px;
   border-radius: 100px;
   letter-spacing: 0.02em;
+}
+
+.thesis-progress {
+  width: 100%;
+  max-width: var(--max-width);
+  height: 2px;
+  background: var(--border);
+  border-radius: 2px;
+  margin-top: 24px;
+  overflow: hidden;
+}
+
+.thesis-progress-bar {
+  height: 100%;
+  width: 50%;
+  background: var(--accent);
+  border-radius: 2px;
+  transition: width 0.15s ease-out;
 }
 
 /* ─── AI/ML and Maths ─── */
@@ -607,6 +709,31 @@ footer p {
 
   .topic-list {
     padding-left: 20px;
+  }
+
+  .thesis-track-wrapper {
+    margin-left: -20px;
+    margin-right: -20px;
+    padding-left: 20px;
+  }
+
+  .thesis-card {
+    min-width: 300px;
+    max-width: 320px;
+    padding: 24px;
+  }
+
+  .thesis-number {
+    font-size: 48px;
+  }
+
+  .thesis-nav {
+    display: none;
+  }
+
+  .thesis-progress {
+    max-width: 100%;
+    margin-left: 0;
   }
 
   footer {
