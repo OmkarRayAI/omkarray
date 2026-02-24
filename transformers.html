@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Transformers & Self-Attention — Howard Marks Style</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Special+Elite&display=swap');
+
+  :root {
+    --paper: #f5f0e8;
+    --ink: #1a1208;
+    --ink-light: #3d2f1a;
+    --red: #c0392b;
+    --blue: #1a4a8a;
+    --green: #1a6b3a;
+    --orange: #c05c00;
+    --pencil: #6b5a3e;
+    --highlight: #f6d860;
+    --circle: rgba(26, 74, 138, 0.12);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #2a2018;
+    font-family: 'Caveat', cursive;
+    min-height: 100vh;
+    padding: 40px 20px;
+  }
+
+  .notebook {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  /* Notebook title page */
+  .title-block {
+    background: var(--paper);
+    border-radius: 3px;
+    padding: 50px 60px;
+    margin-bottom: 6px;
+    position: relative;
+    box-shadow: 4px 4px 0 #1a1208, 8px 8px 0 rgba(0,0,0,0.2);
+    border: 1.5px solid #c8b89a;
+  }
+  .title-block::before {
+    content: '';
+    position: absolute;
+    left: 80px;
+    top: 0; bottom: 0;
+    width: 1.5px;
+    background: rgba(200, 100, 100, 0.4);
+  }
+  .title-block h1 {
+    font-family: 'Special Elite', monospace;
+    font-size: 42px;
+    color: var(--ink);
+    letter-spacing: -1px;
+    line-height: 1.1;
+  }
+  .title-block .subtitle {
+    font-size: 22px;
+    color: var(--pencil);
+    margin-top: 10px;
+  }
+  .title-block .note {
+    font-size: 16px;
+    color: var(--red);
+    margin-top: 20px;
+    font-style: italic;
+  }
+
+  /* Page */
+  .page {
+    background: var(--paper);
+    border-radius: 3px;
+    padding: 50px 60px;
+    margin-bottom: 6px;
+    position: relative;
+    box-shadow: 4px 4px 0 #1a1208, 8px 8px 0 rgba(0,0,0,0.2);
+    border: 1.5px solid #c8b89a;
+    overflow: hidden;
+  }
+
+  /* Ruled lines */
+  .page::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: repeating-linear-gradient(
+      transparent,
+      transparent 39px,
+      rgba(180,160,120,0.25) 39px,
+      rgba(180,160,120,0.25) 40px
+    );
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Red margin line */
+  .page::before {
+    content: '';
+    position: absolute;
+    left: 80px;
+    top: 0; bottom: 0;
+    width: 1.5px;
+    background: rgba(200, 80, 80, 0.35);
+    z-index: 1;
+  }
+
+  .page > * { position: relative; z-index: 2; }
+
+  .page-header {
+    font-family: 'Special Elite', monospace;
+    font-size: 26px;
+    color: var(--ink);
+    margin-bottom: 30px;
+    padding-bottom: 8px;
+    border-bottom: 2.5px solid var(--ink);
+  }
+  .page-header span {
+    font-size: 14px;
+    color: var(--pencil);
+    font-family: 'Caveat', cursive;
+    margin-left: 14px;
+  }
+
+  /* SVG diagrams */
+  svg {
+    display: block;
+    overflow: visible;
+    font-family: 'Caveat', cursive;
+  }
+
+  .annotation {
+    font-size: 17px;
+    color: var(--ink-light);
+    line-height: 1.5;
+    margin-top: 16px;
+  }
+  .annotation strong { color: var(--ink); }
+  .annotation .key { color: var(--blue); font-weight: 700; font-size: 19px; }
+  .annotation .warn { color: var(--red); }
+
+  .aside {
+    font-size: 14px;
+    color: var(--pencil);
+    font-style: italic;
+    margin-top: 8px;
+  }
+
+  .bracket-note {
+    font-size: 15px;
+    color: var(--red);
+    display: inline;
+    font-style: italic;
+  }
+
+  /* Highlight marker effect */
+  .hl {
+    background: linear-gradient(120deg, transparent 0%, var(--highlight) 10%, var(--highlight) 90%, transparent 100%);
+    padding: 1px 3px;
+  }
+
+  /* Two column layout */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    align-items: start;
+  }
+
+  .side-note {
+    background: rgba(26,74,138,0.07);
+    border-left: 3px solid var(--blue);
+    padding: 10px 14px;
+    font-size: 15px;
+    color: var(--ink-light);
+    margin-top: 20px;
+    line-height: 1.5;
+  }
+
+  .big-insight {
+    font-family: 'Special Elite', monospace;
+    font-size: 20px;
+    color: var(--ink);
+    background: rgba(246,216,96,0.4);
+    border: 1.5px dashed var(--orange);
+    padding: 14px 20px;
+    margin-top: 24px;
+    line-height: 1.5;
+  }
+
+  /* Page numbers */
+  .page-num {
+    position: absolute;
+    bottom: 16px;
+    right: 24px;
+    font-size: 13px;
+    color: var(--pencil);
+    z-index: 3;
+  }
+
+  /* Scribble circle */
+  .scribble-circle {
+    fill: none;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+  }
+
+  /* Arrow */
+  .arrow-path {
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+</style>
+</head>
+<body>
+<div class="notebook">
+
+  <!-- TITLE PAGE -->
+  <div class="title-block">
+    <h1>Transformers &<br>Self-Attention</h1>
+    <div class="subtitle">How they actually work — from scratch</div>
+    <div class="note">→ drawn in the style of Howard Marks memos: think first, then build up</div>
+  </div>
+
+  <!-- PAGE 1: THE FUNDAMENTAL PROBLEM -->
+  <div class="page">
+    <div class="page-header">1. The Problem <span>why do we need any of this?</span></div>
+
+    <svg width="100%" height="220" viewBox="0 0 760 220">
+      <!-- Words as boxes -->
+      <g>
+        <!-- word boxes -->
+        <rect x="10" y="60" width="80" height="40" fill="none" stroke="#1a1208" stroke-width="2" rx="2"/>
+        <text x="50" y="87" text-anchor="middle" font-family="Caveat" font-size="20" fill="#1a1208" font-weight="700">The</text>
+
+        <rect x="110" y="60" width="100" height="40" fill="none" stroke="#1a1208" stroke-width="2" rx="2"/>
+        <text x="160" y="87" text-anchor="middle" font-family="Caveat" font-size="20" fill="#1a1208" font-weight="700">animal</text>
+
+        <rect x="230" y="60" width="110" height="40" fill="none" stroke="#1a1208" stroke-width="2" rx="2"/>
+        <text x="285" y="87" text-anchor="middle" font-family="Caveat" font-size="20" fill="#1a1208" font-weight="700">didn't</text>
+
+        <rect x="360" y="60" width="100" height="40" fill="none" stroke="#1a1208" stroke-width="2" rx="2"/>
+        <text x="410" y="87" text-anchor="middle" font-family="Caveat" font-size="20" fill="#1a1208" font-weight="700">cross</text>
+
+        <rect x="480" y="60" width="70" height="40" fill="none" stroke="#1a1208" stroke-width="2" rx="2"/>
+        <text x="515" y="87" text-anchor="middle" font-family="Caveat" font-size="20" fill="#1a1208" font-weight="700">...it...</text>
+
+        <!-- annotation for "it" -->
+        <ellipse cx="515" cy="80" rx="45" ry="28" fill="rgba(192,57,43,0.1)" stroke="#c0392b" stroke-width="2" stroke-dasharray="5,3"/>
+        <text x="515" y="135" text-anchor="middle" font-family="Caveat" font-size="16" fill="#c0392b">what does "it" refer to?</text>
+        <line x1="515" y1="125" x2="515" y2="108" stroke="#c0392b" stroke-width="1.5" stroke-dasharray="3,2"/>
+
+        <!-- arrow from "it" back to "animal" -->
+        <path d="M 510 52 Q 400 10 175 52" fill="none" stroke="#1a4a8a" stroke-width="2.5" stroke-dasharray="6,3"/>
+        <polygon points="172,48 168,58 180,54" fill="#1a4a8a"/>
+        <text x="340" y="22" text-anchor="middle" font-family="Caveat" font-size="17" fill="#1a4a8a">attention needs to reach back here</text>
+      </g>
+
+      <!-- vs. old way label -->
+      <text x="0" y="185" font-family="Caveat" font-size="16" fill="#6b5a3e" font-style="italic">Old way (RNN): process left→right, one word at a time. By the time you reach "it", context is faded.</text>
+      <text x="0" y="210" font-family="Caveat" font-size="16" fill="#1a6b3a" font-weight="700">New way (Transformer): every word looks at every other word. All at once.</text>
+    </svg>
+
+    <div class="big-insight">
+      The key insight: instead of sequential processing,<br>
+      let every token directly attend to every other token simultaneously.
+    </div>
+
+    <div class="page-num">1</div>
+  </div>
+
+  <!-- PAGE 2: TOKENS TO VECTORS -->
+  <div class="page">
+    <div class="page-header">2. Step 0 — Words become Vectors <span>the prerequisite</span></div>
+
+    <svg width="100%" height="260" viewBox="0 0 760 260">
+
+      <!-- Word -->
+      <rect x="20" y="80" width="110" height="50" fill="none" stroke="#1a1208" stroke-width="2.5" rx="3"/>
+      <text x="75" y="112" text-anchor="middle" font-family="Caveat" font-size="24" fill="#1a1208" font-weight="700">"cat"</text>
+      <text x="75" y="155" text-anchor="middle" font-family="Caveat" font-size="15" fill="#6b5a3e">word</text>
+
+      <!-- arrow 1 -->
+      <path d="M 135 105 L 175 105" fill="none" stroke="#1a1208" stroke-width="2"/>
+      <polygon points="175,100 185,105 175,110" fill="#1a1208"/>
+      <text x="160" y="97" text-anchor="middle" font-family="Caveat" font-size="14" fill="#6b5a3e">tokenize</text>
+
+      <!-- Token ID -->
+      <rect x="190" y="80" width="100" height="50" fill="rgba(26,74,138,0.08)" stroke="#1a4a8a" stroke-width="2.5" rx="3"/>
+      <text x="240" y="112" text-anchor="middle" font-family="Caveat" font-size="24" fill="#1a4a8a" font-weight="700">2368</text>
+      <text x="240" y="155" text-anchor="middle" font-family="Caveat" font-size="15" fill="#6b5a3e">token ID</text>
+
+      <!-- arrow 2 -->
+      <path d="M 295 105 L 335 105" fill="none" stroke="#1a1208" stroke-width="2"/>
+      <polygon points="335,100 345,105 335,110" fill="#1a1208"/>
+      <text x="315" y="97" text-anchor="middle" font-family="Caveat" font-size="14" fill="#6b5a3e">lookup</text>
+
+      <!-- Embedding vector — drawn as a column -->
+      <g transform="translate(350, 60)">
+        <rect x="0" y="0" width="50" height="14" fill="rgba(26,106,58,0.2)" stroke="#1a6b3a" stroke-width="1.5" rx="1"/>
+        <rect x="0" y="18" width="50" height="14" fill="rgba(26,106,58,0.35)" stroke="#1a6b3a" stroke-width="1.5" rx="1"/>
+        <rect x="0" y="36" width="50" height="14" fill="rgba(26,106,58,0.15)" stroke="#1a6b3a" stroke-width="1.5" rx="1"/>
+        <rect x="0" y="54" width="50" height="14" fill="rgba(26,106,58,0.5)" stroke="#1a6b3a" stroke-width="1.5" rx="1"/>
+        <rect x="0" y="72" width="50" height="14" fill="rgba(26,106,58,0.25)" stroke="#1a6b3a" stroke-width="1.5" rx="1"/>
+        <rect x="0" y="90" width="50" height="14" fill="rgba(26,106,58,0.1)" stroke="#1a6b3a" stroke-width="1.5" rx="1"/>
+        <text x="25" y="125" text-anchor="middle" font-family="Caveat" font-size="14" fill="#6b5a3e">embedding</text>
+        <text x="25" y="143" text-anchor="middle" font-family="Caveat" font-size="13" fill="#6b5a3e">(512 dims)</text>
+
+        <!-- value labels -->
+        <text x="60" y="13" font-family="Caveat" font-size="13" fill="#1a6b3a">0.23</text>
+        <text x="60" y="31" font-family="Caveat" font-size="13" fill="#1a6b3a">−0.71</text>
+        <text x="60" y="49" font-family="Caveat" font-size="13" fill="#1a6b3a">0.08</text>
+        <text x="60" y="67" font-family="Caveat" font-size="13" fill="#1a6b3a">0.94</text>
+        <text x="60" y="85" font-family="Caveat" font-size="13" fill="#1a6b3a">−0.35</text>
+        <text x="60" y="103" font-family="Caveat" font-size="13" fill="#1a6b3a">0.12</text>
+      </g>
+
+      <!-- Plus positional -->
+      <text x="450" y="112" font-family="Caveat" font-size="40" fill="#1a1208">+</text>
+
+      <!-- Positional encoding column -->
+      <g transform="translate(490, 60)">
+        <rect x="0" y="0" width="50" height="14" fill="rgba(192,92,0,0.2)" stroke="#c05c00" stroke-width="1.5" rx="1"/>
+        <rect x="0" y="18" width="50" height="14" fill="rgba(192,92,0,0.1)" stroke="#c05c00" stroke-width="1.5" rx="1"/>
+        <rect x="0" y="36" width="50" height="14" fill="rgba(192,92,0,0.4)" stroke="#c05c00" stroke-width="1.5" rx="1"/>
+        <rect x="0" y="54" width="50" height="14" fill="rgba(192,92,0,0.15)" stroke="#c05c00" stroke-width="1.5" rx="1"/>
+        <rect x="0" y="72" width="50" height="14" fill="rgba(192,92,0,0.3)" stroke="#c05c00" stroke-width="1.5" rx="1"/>
+        <rect x="0" y="90" width="50" height="14" fill="rgba(192,92,0,0.05)" stroke="#c05c00" stroke-width="1.5" rx="1"/>
+        <text x="25" y="125" text-anchor="middle" font-family="Caveat" font-size="14" fill="#6b5a3e">position</text>
+        <text x="25" y="143" text-anchor="middle" font-family="Caveat" font-size="13" fill="#6b5a3e">(sin/cos)</text>
+      </g>
+
+      <!-- equals -->
+      <text x="560" y="112" font-family="Caveat" font-size="40" fill="#1a1208">=</text>
+
+      <!-- Final vector -->
+      <g transform="translate(600, 60)">
+        <rect x="0" y="0" width="50" height="14" fill="rgba(26,74,138,0.3)" stroke="#1a4a8a" stroke-width="2" rx="1"/>
+        <rect x="0" y="18" width="50" height="14" fill="rgba(26,74,138,0.2)" stroke="#1a4a8a" stroke-width="2" rx="1"/>
+        <rect x="0" y="36" width="50" height="14" fill="rgba(26,74,138,0.45)" stroke="#1a4a8a" stroke-width="2" rx="1"/>
+        <rect x="0" y="54" width="50" height="14" fill="rgba(26,74,138,0.15)" stroke="#1a4a8a" stroke-width="2" rx="1"/>
+        <rect x="0" y="72" width="50" height="14" fill="rgba(26,74,138,0.35)" stroke="#1a4a8a" stroke-width="2" rx="1"/>
+        <rect x="0" y="90" width="50" height="14" fill="rgba(26,74,138,0.1)" stroke="#1a4a8a" stroke-width="2" rx="1"/>
+        <text x="25" y="125" text-anchor="middle" font-family="Caveat" font-size="14" fill="#1a4a8a" font-weight="700">input</text>
+        <text x="25" y="143" text-anchor="middle" font-family="Caveat" font-size="13" fill="#1a4a8a">vector</text>
+      </g>
+
+      <!-- Why position matters note -->
+      <text x="240" y="200" text-anchor="middle" font-family="Caveat" font-size="16" fill="#c05c00" font-style="italic">* "Dog bites man" ≠ "Man bites dog" — order matters, so we encode position</text>
+    </svg>
+
+    <div class="side-note">
+      <strong>Key:</strong> Each word becomes a vector (list of ~512 numbers). Similar words end up nearby in this space. "cat" ≈ "kitten" ≈ "feline". The model learns this during training.
+    </div>
+
+    <div class="page-num">2</div>
+  </div>
+
+  <!-- PAGE 3: SELF-ATTENTION CORE IDEA -->
+  <div class="page">
+    <div class="page-header">3. Self-Attention — the Core Idea <span>the whole game</span></div>
+
+    <svg width="100%" height="300" viewBox="0 0 760 300">
+
+      <!-- Tokens in a row -->
+      <g>
+        <text x="0" y="20" font-family="Caveat" font-size="16" fill="#6b5a3e">Every token asks: "which other tokens should I pay attention to?"</text>
+
+        <!-- 5 token boxes -->
+        <g id="tokens">
+          <rect x="30" y="40" width="80" height="38" fill="rgba(26,74,138,0.08)" stroke="#1a4a8a" stroke-width="2" rx="3"/>
+          <text x="70" y="65" text-anchor="middle" font-family="Caveat" font-size="21" fill="#1a4a8a" font-weight="700">The</text>
+
+          <rect x="140" y="40" width="90" height="38" fill="rgba(26,106,58,0.15)" stroke="#1a6b3a" stroke-width="2.5" rx="3"/>
+          <text x="185" y="65" text-anchor="middle" font-family="Caveat" font-size="21" fill="#1a6b3a" font-weight="700">animal</text>
+
+          <rect x="260" y="40" width="90" height="38" fill="rgba(26,74,138,0.08)" stroke="#1a4a8a" stroke-width="2" rx="3"/>
+          <text x="305" y="65" text-anchor="middle" font-family="Caveat" font-size="21" fill="#1a4a8a" font-weight="700">didn't</text>
+
+          <rect x="380" y="40" width="90" height="38" fill="rgba(26,74,138,0.08)" stroke="#1a4a8a" stroke-width="2" rx="3"/>
+          <text x="425" y="65" text-anchor="middle" font-family="Caveat" font-size="21" fill="#1a4a8a" font-weight="700">cross</text>
+
+          <!-- "it" highlighted -->
+          <rect x="500" y="35" width="60" height="48" fill="rgba(192,57,43,0.12)" stroke="#c0392b" stroke-width="2.5" rx="3"/>
+          <text x="530" y="65" text-anchor="middle" font-family="Caveat" font-size="21" fill="#c0392b" font-weight="700">it</text>
+          <text x="530" y="100" text-anchor="middle" font-family="Caveat" font-size="14" fill="#c0392b">← focus token</text>
+
+          <rect x="590" y="40" width="80" height="38" fill="rgba(26,74,138,0.08)" stroke="#1a4a8a" stroke-width="2" rx="3"/>
+          <text x="630" y="65" text-anchor="middle" font-family="Caveat" font-size="21" fill="#1a4a8a" font-weight="700">tired</text>
+        </g>
+
+        <!-- Attention arcs from "it" to other words — with weights -->
+        <!-- to "animal" — thick -->
+        <path d="M 520 35 Q 350 -15 190 35" fill="none" stroke="#c0392b" stroke-width="4" opacity="0.85"/>
+        <polygon points="190,32 183,40 196,42" fill="#c0392b"/>
+        <text x="350" y="10" text-anchor="middle" font-family="Caveat" font-size="16" fill="#c0392b" font-weight="700">0.72 — high attention!</text>
+
+        <!-- to "The" — thin -->
+        <path d="M 515 35 Q 300 -40 72 35" fill="none" stroke="#6b5a3e" stroke-width="1.2" opacity="0.5"/>
+        <polygon points="72,32 66,40 78,42" fill="#6b5a3e" opacity="0.5"/>
+        <text x="72" y="24" font-family="Caveat" font-size="13" fill="#6b5a3e">0.02</text>
+
+        <!-- to "tired" — medium -->
+        <path d="M 535 83 Q 570 120 625 83" fill="none" stroke="#c05c00" stroke-width="2.5" opacity="0.7"/>
+        <polygon points="622,80 630,86 628,75" fill="#c05c00" opacity="0.7"/>
+        <text x="590" y="130" text-anchor="middle" font-family="Caveat" font-size="15" fill="#c05c00">0.18</text>
+
+        <!-- to "didn't" — thin -->
+        <path d="M 518 35 Q 420 -30 308 35" fill="none" stroke="#6b5a3e" stroke-width="1.5" opacity="0.4"/>
+        <polygon points="308,32 302,40 314,42" fill="#6b5a3e" opacity="0.4"/>
+        <text x="375" y="18" font-family="Caveat" font-size="13" fill="#6b5a3e">0.08</text>
+      </g>
+
+      <!-- Attention weight bar chart below -->
+      <g transform="translate(0, 150)">
+        <text x="0" y="20" font-family="Caveat" font-size="16" fill="#1a1208" font-weight="700">Attention weights for "it" (sum to 1.0):</text>
+
+        <!-- bars -->
+        <g transform="translate(0, 30)">
+          <!-- The -->
+          <rect x="30" y="50" width="80" height="10" fill="rgba(107,90,62,0.3)" stroke="#6b5a3e" stroke-width="1"/>
+          <text x="70" y="74" text-anchor="middle" font-family="Caveat" font-size="15" fill="#6b5a3e">The</text>
+          <text x="120" y="58" font-family="Caveat" font-size="13" fill="#6b5a3e">0.02</text>
+
+          <!-- animal -->
+          <rect x="160" y="20" width="90" height="40" fill="rgba(192,57,43,0.25)" stroke="#c0392b" stroke-width="2"/>
+          <text x="205" y="74" text-anchor="middle" font-family="Caveat" font-size="15" fill="#c0392b" font-weight="700">animal</text>
+          <text x="258" y="38" font-family="Caveat" font-size="14" fill="#c0392b" font-weight="700">0.72</text>
+
+          <!-- didn't -->
+          <rect x="290" y="43" width="90" height="17" fill="rgba(107,90,62,0.3)" stroke="#6b5a3e" stroke-width="1"/>
+          <text x="335" y="74" text-anchor="middle" font-family="Caveat" font-size="15" fill="#6b5a3e">didn't</text>
+          <text x="388" y="54" font-family="Caveat" font-size="13" fill="#6b5a3e">0.08</text>
+
+          <!-- cross -->
+          <rect x="420" y="48" width="90" height="12" fill="rgba(107,90,62,0.3)" stroke="#6b5a3e" stroke-width="1"/>
+          <text x="465" y="74" text-anchor="middle" font-family="Caveat" font-size="15" fill="#6b5a3e">cross</text>
+
+          <!-- tired -->
+          <rect x="550" y="34" width="80" height="26" fill="rgba(192,92,0,0.2)" stroke="#c05c00" stroke-width="1.5"/>
+          <text x="590" y="74" text-anchor="middle" font-family="Caveat" font-size="15" fill="#c05c00">tired</text>
+          <text x="638" y="46" font-family="Caveat" font-size="13" fill="#c05c00">0.18</text>
+
+          <!-- baseline -->
+          <line x1="20" y1="60" x2="740" y2="60" stroke="#c8b89a" stroke-width="1"/>
+        </g>
+      </g>
+    </svg>
+
+    <div class="big-insight">
+      Self-attention: each token creates a weighted combination of ALL other tokens.<br>
+      The weights tell you what to "look at". They're learned from data.
+    </div>
+
+    <div class="page-num">3</div>
+  </div>
+
+  <!-- PAGE 4: Q K V MECHANISM -->
+  <div class="page">
+    <div class="page-header">4. The Q, K, V Mechanism <span>how attention weights are computed</span></div>
+
+    <svg width="100%" height="340" viewBox="0 0 760 340">
+
+      <!-- Input vector on left -->
+      <g>
+        <text x="10" y="30" font-family="Caveat" font-size="17" fill="#6b5a3e">For each token, we create THREE vectors from the input:</text>
+
+        <!-- Input x -->
+        <rect x="10" y="60" width="55" height="120" fill="rgba(26,74,138,0.1)" stroke="#1a4a8a" stroke-width="2" rx="2"/>
+        <text x="37" y="125" text-anchor="middle" font-family="Caveat" font-size="28" fill="#1a4a8a" font-weight="700">x</text>
+        <text x="37" y="202" text-anchor="middle" font-family="Caveat" font-size="15" fill="#1a4a8a">input</text>
+        <text x="37" y="218" text-anchor="middle" font-family="Caveat" font-size="14" fill="#6b5a3e">vector</text>
+
+        <!-- Three arrows -->
+        <path d="M 68 80 L 155 55" fill="none" stroke="#1a1208" stroke-width="1.5"/>
+        <polygon points="152,50 162,52 156,61" fill="#1a1208"/>
+        <text x="100" y="55" font-family="Caveat" font-size="14" fill="#6b5a3e">× W_Q</text>
+
+        <path d="M 68 120 L 155 120" fill="none" stroke="#1a1208" stroke-width="1.5"/>
+        <polygon points="152,115 162,120 152,125" fill="#1a1208"/>
+        <text x="100" y="113" font-family="Caveat" font-size="14" fill="#6b5a3e">× W_K</text>
+
+        <path d="M 68 155 L 155 185" fill="none" stroke="#1a1208" stroke-width="1.5"/>
+        <polygon points="152,180 162,188 156,178" fill="#1a1208"/>
+        <text x="100" y="188" font-family="Caveat" font-size="14" fill="#6b5a3e">× W_V</text>
+
+        <!-- Q box -->
+        <rect x="160" y="30" width="80" height="55" fill="rgba(192,57,43,0.15)" stroke="#c0392b" stroke-width="2.5" rx="3"/>
+        <text x="200" y="65" text-anchor="middle" font-family="Caveat" font-size="30" fill="#c0392b" font-weight="700">Q</text>
+        <text x="200" y="105" text-anchor="middle" font-family="Caveat" font-size="15" fill="#c0392b">Query</text>
+        <text x="200" y="123" text-anchor="middle" font-family="Caveat" font-size="13" fill="#6b5a3e">"What am I</text>
+        <text x="200" y="139" text-anchor="middle" font-family="Caveat" font-size="13" fill="#6b5a3e">looking for?"</text>
+
+        <!-- K box -->
+        <rect x="160" y="92" width="80" height="55" fill="rgba(26,106,58,0.15)" stroke="#1a6b3a" stroke-width="2.5" rx="3"/>
+        <text x="200" y="127" text-anchor="middle" font-family="Caveat" font-size="30" fill="#1a6b3a" font-weight="700">K</text>
+        <text x="200" y="165" text-anchor="middle" font-family="Caveat" font-size="15" fill="#1a6b3a">Key</text>
+        <text x="200" y="183" text-anchor="middle" font-family="Caveat" font-size="13" fill="#6b5a3e">"What do</text>
+        <text x="200" y="199" text-anchor="middle" font-family="Caveat" font-size="13" fill="#6b5a3e">I have?"</text>
+
+        <!-- V box -->
+        <rect x="160" y="155" width="80" height="55" fill="rgba(192,92,0,0.15)" stroke="#c05c00" stroke-width="2.5" rx="3"/>
+        <text x="200" y="190" text-anchor="middle" font-family="Caveat" font-size="30" fill="#c05c00" font-weight="700">V</text>
+        <text x="200" y="228" text-anchor="middle" font-family="Caveat" font-size="15" fill="#c05c00">Value</text>
+        <text x="200" y="246" text-anchor="middle" font-family="Caveat" font-size="13" fill="#6b5a3e">"My actual</text>
+        <text x="200" y="262" text-anchor="middle" font-family="Caveat" font-size="13" fill="#6b5a3e">information"</text>
+      </g>
+
+      <!-- How scores are computed -->
+      <g transform="translate(290, 10)">
+        <text x="0" y="20" font-family="Caveat" font-size="17" fill="#1a1208" font-weight="700">Computing attention score between two tokens:</text>
+
+        <!-- Step 1: dot product -->
+        <rect x="0" y="35" width="90" height="40" fill="rgba(192,57,43,0.12)" stroke="#c0392b" stroke-width="2" rx="2"/>
+        <text x="45" y="61" text-anchor="middle" font-family="Caveat" font-size="20" fill="#c0392b" font-weight="700">Q_i</text>
+
+        <text x="98" y="62" font-family="Caveat" font-size="24" fill="#1a1208">·</text>
+
+        <rect x="110" y="35" width="90" height="40" fill="rgba(26,106,58,0.12)" stroke="#1a6b3a" stroke-width="2" rx="2"/>
+        <text x="155" y="61" text-anchor="middle" font-family="Caveat" font-size="20" fill="#1a6b3a" font-weight="700">K_j</text>
+
+        <text x="208" y="62" font-family="Caveat" font-size="20" fill="#6b5a3e">÷ √d</text>
+
+        <text x="255" y="62" font-family="Caveat" font-size="28" fill="#1a1208">=</text>
+
+        <rect x="275" y="35" width="80" height="40" fill="rgba(26,74,138,0.1)" stroke="#1a4a8a" stroke-width="2" rx="2"/>
+        <text x="315" y="61" text-anchor="middle" font-family="Caveat" font-size="18" fill="#1a4a8a" font-weight="700">score</text>
+
+        <text x="0" y="95" font-family="Caveat" font-size="14" fill="#6b5a3e" font-style="italic">dot product measures "how similar" Q and K are</text>
+        <text x="0" y="112" font-family="Caveat" font-size="14" fill="#6b5a3e" font-style="italic">÷√d keeps gradients stable during training</text>
+
+        <!-- Step 2: softmax -->
+        <text x="0" y="145" font-family="Caveat" font-size="17" fill="#1a1208" font-weight="700">Then softmax to get probabilities:</text>
+
+        <text x="0" y="175" font-family="Caveat" font-size="18" fill="#6b5a3e">softmax([score_1, score_2, ..., score_n])</text>
+        <text x="0" y="198" font-family="Caveat" font-size="18" fill="#6b5a3e">= [0.02, <tspan fill="#c0392b" font-weight="700">0.72</tspan>, 0.08, 0.05, 0.18, 0.05, ...]</text>
+        <text x="0" y="218" font-family="Caveat" font-size="14" fill="#6b5a3e" font-style="italic">all positive, sum to 1.0</text>
+
+        <!-- Step 3: weighted sum of V -->
+        <text x="0" y="250" font-family="Caveat" font-size="17" fill="#1a1208" font-weight="700">Finally, weighted sum of Values:</text>
+        <text x="0" y="278" font-family="Caveat" font-size="17" fill="#6b5a3e">output = 0.02·V_1 + <tspan fill="#c0392b" font-weight="700">0.72·V_animal</tspan> + 0.08·V_3 ...</text>
+        <text x="0" y="300" font-family="Caveat" font-size="14" fill="#1a6b3a" font-style="italic">→ a blend of all value vectors, weighted by relevance</text>
+      </g>
+    </svg>
+
+    <div class="page-num">4</div>
+  </div>
+
+  <!-- PAGE 5: FULL ATTENTION MATRIX -->
+  <div class="page">
+    <div class="page-header">5. The Attention Matrix <span>all tokens × all tokens</span></div>
+
+    <div class="two-col">
+      <div>
+        <svg width="100%" height="340" viewBox="0 0 360 340">
+
+          <!-- Labels: columns (keys) -->
+          <text x="80" y="25" text-anchor="middle" font-family="Caveat" font-size="15" fill="#1a6b3a">The</text>
+          <text x="130" y="25" text-anchor="middle" font-family="Caveat" font-size="15" fill="#1a6b3a">animal</text>
+          <text x="185" y="25" text-anchor="middle" font-family="Caveat" font-size="15" fill="#1a6b3a">didn't</text>
+          <text x="240" y="25" text-anchor="middle" font-family="Caveat" font-size="15" fill="#1a6b3a">it</text>
+          <text x="295" y="25" text-anchor="middle" font-family="Caveat" font-size="15" fill="#1a6b3a">tired</text>
+          <text x="180" y="14" text-anchor="middle" font-family="Caveat" font-size="13" fill="#6b5a3e" font-style="italic">← Keys (what I attend TO)</text>
+
+          <!-- Row labels (queries) -->
+          <text x="52" y="68" text-anchor="end" font-family="Caveat" font-size="15" fill="#c0392b">The</text>
+          <text x="52" y="118" text-anchor="end" font-family="Caveat" font-size="15" fill="#c0392b">animal</text>
+          <text x="52" y="168" text-anchor="end" font-family="Caveat" font-size="15" fill="#c0392b">didn't</text>
+          <text x="52" y="218" text-anchor="end" font-family="Caveat" font-size="15" fill="#c0392b">it</text>
+          <text x="52" y="268" text-anchor="end" font-family="Caveat" font-size="15" fill="#c0392b">tired</text>
+          <text x="18" y="160" text-anchor="middle" font-family="Caveat" font-size="13" fill="#6b5a3e" font-style="italic" transform="rotate(-90, 18, 160)">Queries (who is attending)</text>
+
+          <!-- Matrix cells — 5×5 -->
+          <!-- Row 0: The -->
+          <rect x="58" y="40" width="42" height="42" fill="rgba(26,74,138,0.5)" stroke="#c8b89a" stroke-width="1"/>
+          <text x="79" y="67" text-anchor="middle" font-family="Caveat" font-size="14" fill="white">.65</text>
+          <rect x="104" y="40" width="42" height="42" fill="rgba(26,74,138,0.1)" stroke="#c8b89a" stroke-width="1"/>
+          <text x="125" y="67" text-anchor="middle" font-family="Caveat" font-size="14" fill="#1a1208">.12</text>
+          <rect x="160" y="40" width="42" height="42" fill="rgba(26,74,138,0.08)" stroke="#c8b89a" stroke-width="1"/>
+          <text x="181" y="67" text-anchor="middle" font-family="Caveat" font-size="14" fill="#1a1208">.10</text>
+          <rect x="216" y="40" width="42" height="42" fill="rgba(26,74,138,0.07)" stroke="#c8b89a" stroke-width="1"/>
+          <text x="237" y="67" text-anchor="middle" font-family="Caveat" font-size="14" fill="#1a1208">.08</text>
+          <rect x="272" y="40" width="42" height="42" fill="rgba(26,74,138,0.06)" stroke="#c8b89a" stroke-width="1"/>
+          <text x="293" y="67" text-anchor="middle" font-family="Caveat" font-size="14" fill="#1a1208">.05</text>
+
+          <!-- Row 1: animal -->
+          <rect x="58" y="90" width="42" height="42" fill="rgba(26,74,138,0.12)" stroke="#c8b89a" stroke-width="1"/>
+          <text x="79" y="117" text-anchor="middle" font-family="Caveat" font-size="14" fill="#1a1208">.10</text>
+          <rect x="104" y="90" width="42" height="42" fill="rgba(26,74,138,0.6)" stroke="#c8b89a" stroke-width="1"/>
+          <text x="125" y="117" text-anchor="middle" font-family="Caveat" font-size="14" fill="white">.72</text>
+          <rect x="160" y="90" width="42" height="42" fill="rgba(26,74,138,0.1)" stroke="#c8b89a" stroke-width="1"/>
+          <text x="181" y="117" text-anchor="middle" font-family="Caveat" font-size="14" fill="#1a1208">.09</text>
+          <rect x="216" y="90" width="42" height="42" fill="rgba(26,74,138,0.08)" stroke="#c8b89a" stroke-width="1"/>
+          <text x="237" y="117" text-anchor="middle" font-family="Caveat" font-size="14" fill="#1a1208">.05</text>
+          <rect x="272" y="90" width="42" height="42" fill="rgba(26,74,138,0.05)" stroke="#c8b89a" stroke-width="1"/>
+          <text x="293" y="117" text-anchor="middle" font-family="Caveat" font-size="14" fill="#1a1208">.04</text>
+
+          <!-- Row 2: didn't -->
+          <rect x="58" y="140" width="42" height="42" fill="rgba(26,74,138,0.08)" stroke="#c8b89a" stroke-width="1"/>
+          <text x="79" y="167" text-anchor="middle" font-family="Caveat" font-size="14" fill="#1a1208">.08</text>
+          <rect x="104" y="140" width="42" height="42" fill="rgba(26,74,138,0.25)" stroke="#c8b89a" stroke-width="1"/>
+          <text x="125" y="167" text-anchor="middle" font-family="Caveat" font-size="14" fill="#1a1208">.28</text>
+          <rect x="160" y="140" width="42" height="42" fill="rgba(26,74,138,0.45)" stroke="#c8b89a" stroke-width="1"/>
+          <text x="181" y="167" text-anchor="middle" font-family="Caveat" font-size="14" fill="white">.48</text>
+          <rect x="216" y="140" width="42" height="42" fill="rgba(26,74,138,0.09)" stroke="#c8b89a" stroke-width="1"/>
+          <text x="237" y="167" text-anchor="middle" font-family="Caveat" font-size="14" fill="#1a1208">.10</text>
+          <rect x="272" y="140" width="42" height="42" fill="rgba(26,74,138,0.05)" stroke="#c8b89a" stroke-width="1"/>
+          <text x="293" y="167" text-anchor="middle" font-family="Caveat" font-size="14" fill="#1a1208">.06</text>
+
+          <!-- Row 3: "it" — highlighted row -->
+          <rect x="55" y="188" width="255" height="48" fill="none" stroke="#c0392b" stroke-width="2.5" stroke-dasharray="5,3" rx="2"/>
+          <rect x="58" y="190" width="42" height="42" fill="rgba(192,57,43,0.08)" stroke="#c8b89a" stroke-width="1"/>
+          <text x="79" y="217" text-anchor="middle" font-family="Caveat" font-size="14" fill="#1a1208">.02</text>
+          <rect x="104" y="190" width="42" height="42" fill="rgba(192,57,43,0.6)" stroke="#c8b89a" stroke-width="1"/>
+          <text x="125" y="217" text-anchor="middle" font-family="Caveat" font-size="14" fill="white" font-weight="700">.72</text>
+          <rect x="160" y="190" width="42" height="42" fill="rgba(192,57,43,0.15)" stroke="#c8b89a" stroke-width="1"/>
+          <text x="181" y="217" text-anchor="middle" font-family="Caveat" font-size="14" fill="#1a1208">.08</text>
+          <rect x="216" y="190" width="42" height="42" fill="rgba(192,57,43,0.5)" stroke="#c8b89a" stroke-width="1"/>
+          <text x="237" y="217" text-anchor="middle" font-family="Caveat" font-size="14" fill="white">.05</text>
+          <rect x="272" y="190" width="42" height="42" fill="rgba(192,57,43,0.25)" stroke="#c8b89a" stroke-width="1"/>
+          <text x="293" y="217" text-anchor="middle" font-family="Caveat" font-size="14" fill="#1a1208">.18</text>
+          <text x="320" y="219" font-family="Caveat" font-size="13" fill="#c0392b" font-style="italic">← "it" row</text>
+
+          <!-- Row 4: tired -->
+          <rect x="58" y="240" width="42" height="42" fill="rgba(26,74,138,0.05)" stroke="#c8b89a" stroke-width="1"/>
+          <text x="79" y="267" text-anchor="middle" font-family="Caveat" font-size="14" fill="#1a1208">.05</text>
+          <rect x="104" y="240" width="42" height="42" fill="rgba(26,74,138,0.3)" stroke="#c8b89a" stroke-width="1"/>
+          <text x="125" y="267" text-anchor="middle" font-family="Caveat" font-size="14" fill="#1a1208">.32</text>
+          <rect x="160" y="240" width="42" height="42" fill="rgba(26,74,138,0.35)" stroke="#c8b89a" stroke-width="1"/>
+          <text x="181" y="267" text-anchor="middle" font-family="Caveat" font-size="14" fill="#1a1208">.38</text>
+          <rect x="216" y="240" width="42" height="42" fill="rgba(26,74,138,0.12)" stroke="#c8b89a" stroke-width="1"/>
+          <text x="237" y="267" text-anchor="middle" font-family="Caveat" font-size="14" fill="#1a1208">.15</text>
+          <rect x="272" y="240" width="42" height="42" fill="rgba(26,74,138,0.12)" stroke="#c8b89a" stroke-width="1"/>
+          <text x="293" y="267" text-anchor="middle" font-family="Caveat" font-size="14" fill="#1a1208">.10</text>
+
+          <!-- Legend -->
+          <rect x="58" y="298" width="20" height="14" fill="rgba(26,74,138,0.1)" stroke="#c8b89a" stroke-width="1"/>
+          <text x="83" y="311" font-family="Caveat" font-size="13" fill="#6b5a3e">low attention</text>
+          <rect x="185" y="298" width="20" height="14" fill="rgba(26,74,138,0.6)" stroke="#c8b89a" stroke-width="1"/>
+          <text x="210" y="311" font-family="Caveat" font-size="13" fill="#6b5a3e">high attention</text>
+        </svg>
+      </div>
+
+      <div>
+        <div class="annotation">
+          <p>This is the <strong>attention matrix</strong>. It's an N×N grid where N = number of tokens.</p>
+          <br>
+          <p>Each row = <span class="key">one token's attention</span> across all others.</p>
+          <br>
+          <p><strong>Each row sums to 1.0</strong> (it's a probability distribution from softmax).</p>
+          <br>
+          <p>Darker = more attention. Look at the "it" row — it's heavily attending to "animal".</p>
+        </div>
+
+        <div class="side-note">
+          <strong>The math in one line:</strong><br><br>
+          Attention(Q,K,V) = softmax(QKᵀ / √d) · V<br><br>
+          <span style="color:#6b5a3e; font-size:14px">QKᵀ = the whole N×N score matrix at once</span>
+        </div>
+
+        <div class="annotation" style="margin-top:16px">
+          <span class="warn">Important:</span> This runs in <strong>parallel</strong> for all tokens simultaneously. Not sequentially. That's why transformers are fast on GPUs.
+        </div>
+      </div>
+    </div>
+
+    <div class="page-num">5</div>
+  </div>
+
+  <!-- PAGE 6: MULTI-HEAD ATTENTION -->
+  <div class="page">
+    <div class="page-header">6. Multi-Head Attention <span>looking through multiple lenses</span></div>
+
+    <svg width="100%" height="270" viewBox="0 0 760 270">
+
+      <!-- Single input -->
+      <rect x="330" y="10" width="100" height="40" fill="rgba(26,74,138,0.12)" stroke="#1a4a8a" stroke-width="2.5" rx="3"/>
+      <text x="380" y="36" text-anchor="middle" font-family="Caveat" font-size="20" fill="#1a4a8a" font-weight="700">input</text>
+
+      <!-- Splitting into 4 heads -->
+      <path d="M 350 50 L 80 85" fill="none" stroke="#6b5a3e" stroke-width="1.5"/>
+      <path d="M 365 50 L 245 85" fill="none" stroke="#6b5a3e" stroke-width="1.5"/>
+      <path d="M 415 50 L 515 85" fill="none" stroke="#6b5a3e" stroke-width="1.5"/>
+      <path d="M 430 50 L 680 85" fill="none" stroke="#6b5a3e" stroke-width="1.5"/>
+
+      <!-- Head 1 -->
+      <rect x="30" y="88" width="110" height="65" fill="rgba(192,57,43,0.12)" stroke="#c0392b" stroke-width="2" rx="3"/>
+      <text x="85" y="115" text-anchor="middle" font-family="Caveat" font-size="17" fill="#c0392b" font-weight="700">Head 1</text>
+      <text x="85" y="133" text-anchor="middle" font-family="Caveat" font-size="13" fill="#c0392b">syntax /</text>
+      <text x="85" y="148" text-anchor="middle" font-family="Caveat" font-size="13" fill="#c0392b">grammar</text>
+
+      <!-- Head 2 -->
+      <rect x="195" y="88" width="110" height="65" fill="rgba(26,106,58,0.12)" stroke="#1a6b3a" stroke-width="2" rx="3"/>
+      <text x="250" y="115" text-anchor="middle" font-family="Caveat" font-size="17" fill="#1a6b3a" font-weight="700">Head 2</text>
+      <text x="250" y="133" text-anchor="middle" font-family="Caveat" font-size="13" fill="#1a6b3a">coreference</text>
+      <text x="250" y="148" text-anchor="middle" font-family="Caveat" font-size="13" fill="#1a6b3a">("it"→"animal")</text>
+
+      <!-- Head 3 -->
+      <rect x="455" y="88" width="110" height="65" fill="rgba(192,92,0,0.12)" stroke="#c05c00" stroke-width="2" rx="3"/>
+      <text x="510" y="115" text-anchor="middle" font-family="Caveat" font-size="17" fill="#c05c00" font-weight="700">Head 3</text>
+      <text x="510" y="133" text-anchor="middle" font-family="Caveat" font-size="13" fill="#c05c00">subject-verb</text>
+      <text x="510" y="148" text-anchor="middle" font-family="Caveat" font-size="13" fill="#c05c00">relationships</text>
+
+      <!-- Head 4 -->
+      <rect x="625" y="88" width="110" height="65" fill="rgba(26,74,138,0.12)" stroke="#1a4a8a" stroke-width="2" rx="3"/>
+      <text x="680" y="115" text-anchor="middle" font-family="Caveat" font-size="17" fill="#1a4a8a" font-weight="700">Head 4</text>
+      <text x="680" y="133" text-anchor="middle" font-family="Caveat" font-size="13" fill="#1a4a8a">long-range</text>
+      <text x="680" y="148" text-anchor="middle" font-family="Caveat" font-size="13" fill="#1a4a8a">dependencies</text>
+
+      <!-- "... h heads total" -->
+      <text x="380" y="138" text-anchor="middle" font-family="Caveat" font-size="24" fill="#6b5a3e">· · ·</text>
+
+      <!-- Converging arrows to concat -->
+      <path d="M 85 153 L 310 195" fill="none" stroke="#6b5a3e" stroke-width="1.5"/>
+      <path d="M 250 153 L 340 195" fill="none" stroke="#6b5a3e" stroke-width="1.5"/>
+      <path d="M 510 153 L 420 195" fill="none" stroke="#6b5a3e" stroke-width="1.5"/>
+      <path d="M 680 153 L 450 195" fill="none" stroke="#6b5a3e" stroke-width="1.5"/>
+
+      <!-- Concat + Linear -->
+      <rect x="265" y="198" width="230" height="45" fill="rgba(107,90,62,0.15)" stroke="#6b5a3e" stroke-width="2.5" rx="3"/>
+      <text x="380" y="226" text-anchor="middle" font-family="Caveat" font-size="18" fill="#1a1208" font-weight="700">Concat + Linear projection</text>
+
+      <!-- Output -->
+      <path d="M 380 243 L 380 260" fill="none" stroke="#1a1208" stroke-width="2"/>
+      <polygon points="376,257 380,267 384,257" fill="#1a1208"/>
+      <text x="420" y="262" font-family="Caveat" font-size="17" fill="#1a6b3a" font-weight="700">output (same shape as input!)</text>
+    </svg>
+
+    <div class="annotation">
+      <strong>Why multiple heads?</strong> Each head learns a different type of relationship. One head might learn who refers to whom. Another learns subject-verb agreement. Another learns long-range dependencies.
+    </div>
+
+    <div class="big-insight">
+      GPT-3 uses 96 attention heads.<br>
+      Each head gets a slice of the embedding dimension and specializes in different patterns.<br>
+      <span style="font-size:16px; color:#6b5a3e">The model figures out what to specialize in — nobody programs that in.</span>
+    </div>
+
+    <div class="page-num">6</div>
+  </div>
+
+  <!-- PAGE 7: THE FULL TRANSFORMER BLOCK -->
+  <div class="page">
+    <div class="page-header">7. One Transformer Block <span>the repeating unit</span></div>
+
+    <div class="two-col">
+      <div>
+        <svg width="100%" height="420" viewBox="0 0 320 420">
+
+          <!-- Input -->
+          <rect x="85" y="10" width="150" height="40" fill="rgba(26,74,138,0.1)" stroke="#1a4a8a" stroke-width="2" rx="2"/>
+          <text x="160" y="36" text-anchor="middle" font-family="Caveat" font-size="19" fill="#1a4a8a" font-weight="700">input x</text>
+
+          <!-- residual skip line left -->
+          <line x1="55" y1="30" x2="55" y2="175" stroke="#c0392b" stroke-width="2" stroke-dasharray="5,3"/>
+          <text x="40" y="105" font-family="Caveat" font-size="13" fill="#c0392b" text-anchor="middle" transform="rotate(-90, 40, 105)">skip / residual</text>
+
+          <!-- arrow down -->
+          <line x1="160" y1="50" x2="160" y2="70" stroke="#1a1208" stroke-width="2"/>
+          <polygon points="156,68 160,78 164,68" fill="#1a1208"/>
+
+          <!-- Multi-head attention -->
+          <rect x="60" y="78" width="200" height="50" fill="rgba(192,57,43,0.12)" stroke="#c0392b" stroke-width="2.5" rx="3"/>
+          <text x="160" y="109" text-anchor="middle" font-family="Caveat" font-size="18" fill="#c0392b" font-weight="700">Multi-Head Attention</text>
+
+          <!-- skip join + add -->
+          <line x1="55" y1="175" x2="118" y2="175" stroke="#c0392b" stroke-width="2" stroke-dasharray="5,3"/>
+          <circle cx="130" cy="175" r="12" fill="white" stroke="#c0392b" stroke-width="2"/>
+          <text x="130" y="181" text-anchor="middle" font-family="Caveat" font-size="16" fill="#c0392b">+</text>
+
+          <!-- layer norm -->
+          <line x1="142" y1="175" x2="160" y2="175" stroke="#1a1208" stroke-width="2"/>
+          <rect x="60" y="163" width="200" height="24" fill="rgba(107,90,62,0.15)" stroke="#6b5a3e" stroke-width="1.5" rx="2"/>
+          <text x="160" y="180" text-anchor="middle" font-family="Caveat" font-size="15" fill="#6b5a3e">Add &amp; LayerNorm</text>
+
+          <line x1="160" y1="128" x2="160" y2="163" stroke="#1a1208" stroke-width="2"/>
+          <polygon points="156,160 160,170 164,160" fill="#1a1208"/>
+
+          <!-- arrow down -->
+          <line x1="160" y1="187" x2="160" y2="207" stroke="#1a1208" stroke-width="2"/>
+          <polygon points="156,205 160,215 164,205" fill="#1a1208"/>
+
+          <!-- second residual skip -->
+          <line x1="40" y1="195" x2="40" y2="330" stroke="#1a6b3a" stroke-width="2" stroke-dasharray="5,3"/>
+
+          <!-- FFN -->
+          <rect x="60" y="215" width="200" height="50" fill="rgba(26,106,58,0.12)" stroke="#1a6b3a" stroke-width="2.5" rx="3"/>
+          <text x="160" y="243" text-anchor="middle" font-family="Caveat" font-size="16" fill="#1a6b3a" font-weight="700">Feed-Forward Network</text>
+          <text x="160" y="259" text-anchor="middle" font-family="Caveat" font-size="13" fill="#1a6b3a">Linear → GELU → Linear</text>
+
+          <!-- skip join + add 2 -->
+          <line x1="40" y1="330" x2="103" y2="330" stroke="#1a6b3a" stroke-width="2" stroke-dasharray="5,3"/>
+          <circle cx="115" cy="330" r="12" fill="white" stroke="#1a6b3a" stroke-width="2"/>
+          <text x="115" y="336" text-anchor="middle" font-family="Caveat" font-size="16" fill="#1a6b3a">+</text>
+
+          <!-- layer norm 2 -->
+          <rect x="60" y="318" width="200" height="24" fill="rgba(107,90,62,0.15)" stroke="#6b5a3e" stroke-width="1.5" rx="2"/>
+          <text x="160" y="335" text-anchor="middle" font-family="Caveat" font-size="15" fill="#6b5a3e">Add &amp; LayerNorm</text>
+
+          <line x1="160" y1="265" x2="160" y2="318" stroke="#1a1208" stroke-width="2"/>
+          <polygon points="156,315 160,325 164,315" fill="#1a1208"/>
+
+          <!-- output arrow -->
+          <line x1="160" y1="342" x2="160" y2="368" stroke="#1a1208" stroke-width="2"/>
+          <polygon points="156,365 160,375 164,365" fill="#1a1208"/>
+
+          <!-- Output -->
+          <rect x="85" y="375" width="150" height="40" fill="rgba(26,74,138,0.15)" stroke="#1a4a8a" stroke-width="2" rx="2"/>
+          <text x="160" y="401" text-anchor="middle" font-family="Caveat" font-size="19" fill="#1a4a8a" font-weight="700">output z</text>
+
+          <!-- "× N" label -->
+          <rect x="240" y="20" width="70" height="380" fill="none" stroke="#c8b89a" stroke-width="1.5" stroke-dasharray="8,4" rx="5"/>
+          <text x="275" y="215" text-anchor="middle" font-family="Caveat" font-size="22" fill="#c8b89a" font-weight="700" transform="rotate(90, 275, 215)">× N layers</text>
+        </svg>
+      </div>
+
+      <div>
+        <div class="annotation">
+          <p><strong>Feed-Forward Network (FFN):</strong><br>
+          Two linear layers with a nonlinearity. Each token processed <em>independently</em>.<br>
+          Expands to 4× the width then back down. Stores "knowledge" about concepts.</p>
+          <br>
+          <p><strong>Residual / Skip connections:</strong><br>
+          Output = input + what-we-learned. This means:<br>
+          — gradients flow easily during training<br>
+          — early layers don't get "destroyed"</p>
+          <br>
+          <p><strong>Layer Norm:</strong><br>
+          Keeps the values in a healthy numerical range after each step. Makes training stable.</p>
+        </div>
+
+        <div class="side-note" style="margin-top:20px">
+          <strong>The key formula:</strong><br><br>
+          <code style="font-family:Caveat; font-size:16px; color:#1a4a8a">output = LayerNorm(x + Sublayer(x))</code>
+          <br><br>
+          This is applied twice per block — once for attention, once for FFN.
+        </div>
+
+        <div class="annotation" style="margin-top:20px">
+          <strong>Stack N of these blocks and you have a transformer.</strong><br>
+          GPT-2: 48 blocks. GPT-3: 96 blocks. Deeper = more abstract reasoning.
+        </div>
+      </div>
+    </div>
+
+    <div class="page-num">7</div>
+  </div>
+
+  <!-- PAGE 8: THE BIG PICTURE -->
+  <div class="page">
+    <div class="page-header">8. The Big Picture <span>all together now</span></div>
+
+    <svg width="100%" height="200" viewBox="0 0 760 200">
+
+      <!-- Stage boxes in a pipeline -->
+      <!-- 1. Tokenize -->
+      <rect x="0" y="60" width="105" height="60" fill="rgba(26,74,138,0.1)" stroke="#1a4a8a" stroke-width="2" rx="3"/>
+      <text x="52" y="86" text-anchor="middle" font-family="Caveat" font-size="15" fill="#1a4a8a" font-weight="700">Tokenize</text>
+      <text x="52" y="104" text-anchor="middle" font-family="Caveat" font-size="13" fill="#6b5a3e">words → IDs</text>
+      <text x="52" y="145" text-anchor="middle" font-family="Caveat" font-size="13" fill="#6b5a3e">"cat" → 2368</text>
+
+      <path d="M 108 90 L 128 90" fill="none" stroke="#1a1208" stroke-width="2"/>
+      <polygon points="126,86 136,90 126,94" fill="#1a1208"/>
+
+      <!-- 2. Embed -->
+      <rect x="135" y="60" width="115" height="60" fill="rgba(26,106,58,0.1)" stroke="#1a6b3a" stroke-width="2" rx="3"/>
+      <text x="192" y="86" text-anchor="middle" font-family="Caveat" font-size="15" fill="#1a6b3a" font-weight="700">Embed</text>
+      <text x="192" y="104" text-anchor="middle" font-family="Caveat" font-size="13" fill="#6b5a3e">IDs → vectors</text>
+      <text x="192" y="145" text-anchor="middle" font-family="Caveat" font-size="13" fill="#6b5a3e">+ position</text>
+
+      <path d="M 253 90 L 273 90" fill="none" stroke="#1a1208" stroke-width="2"/>
+      <polygon points="271,86 281,90 271,94" fill="#1a1208"/>
+
+      <!-- 3. Transformer blocks -->
+      <rect x="280" y="40" width="200" height="100" fill="rgba(192,57,43,0.08)" stroke="#c0392b" stroke-width="2.5" rx="3"/>
+      <text x="380" y="73" text-anchor="middle" font-family="Caveat" font-size="16" fill="#c0392b" font-weight="700">N × Transformer Block</text>
+      <text x="380" y="93" text-anchor="middle" font-family="Caveat" font-size="14" fill="#6b5a3e">Multi-Head Attn</text>
+      <text x="380" y="110" text-anchor="middle" font-family="Caveat" font-size="14" fill="#6b5a3e">+ FFN + LayerNorm</text>
+      <text x="380" y="127" text-anchor="middle" font-family="Caveat" font-size="14" fill="#6b5a3e">+ Residuals</text>
+      <text x="380" y="160" text-anchor="middle" font-family="Caveat" font-size="13" fill="#c0392b">the expensive part</text>
+
+      <path d="M 483 90 L 503 90" fill="none" stroke="#1a1208" stroke-width="2"/>
+      <polygon points="501,86 511,90 501,94" fill="#1a1208"/>
+
+      <!-- 4. Linear + Softmax -->
+      <rect x="510" y="60" width="125" height="60" fill="rgba(192,92,0,0.1)" stroke="#c05c00" stroke-width="2" rx="3"/>
+      <text x="572" y="83" text-anchor="middle" font-family="Caveat" font-size="14" fill="#c05c00" font-weight="700">Linear +</text>
+      <text x="572" y="100" text-anchor="middle" font-family="Caveat" font-size="14" fill="#c05c00" font-weight="700">Softmax</text>
+      <text x="572" y="145" text-anchor="middle" font-family="Caveat" font-size="13" fill="#6b5a3e">project to vocab</text>
+
+      <path d="M 638 90 L 658 90" fill="none" stroke="#1a1208" stroke-width="2"/>
+      <polygon points="656,86 666,90 656,94" fill="#1a1208"/>
+
+      <!-- 5. Next token -->
+      <rect x="665" y="55" width="90" height="70" fill="rgba(26,74,138,0.15)" stroke="#1a4a8a" stroke-width="2.5" rx="3"/>
+      <text x="710" y="83" text-anchor="middle" font-family="Caveat" font-size="15" fill="#1a4a8a" font-weight="700">Next</text>
+      <text x="710" y="100" text-anchor="middle" font-family="Caveat" font-size="15" fill="#1a4a8a" font-weight="700">Token</text>
+      <text x="710" y="145" text-anchor="middle" font-family="Caveat" font-size="13" fill="#6b5a3e">"mat"</text>
+
+      <!-- Training annotation -->
+      <text x="380" y="188" text-anchor="middle" font-family="Caveat" font-size="16" fill="#1a6b3a" font-style="italic">Training: compare predicted token to real token → compute loss → backprop → repeat × billions</text>
+    </svg>
+
+    <div class="two-col" style="margin-top: 10px;">
+      <div class="big-insight" style="margin-top:0">
+        The transformer doesn't process tokens one-by-one.<br>
+        It processes the <em>entire sequence</em> in parallel.<br>
+        <span style="font-size:16px; color:#6b5a3e">That's why it's so much faster than RNNs.</span>
+      </div>
+
+      <div>
+        <div class="annotation">
+          <strong>What the model learns:</strong><br>
+          All the weight matrices — W_Q, W_K, W_V, W_O in every head, plus the FFN weights. That's it. The architecture is fixed; the weights are learned.
+        </div>
+        <div class="annotation" style="margin-top:12px">
+          <span class="warn">GPT-3:</span> 96 layers × 96 heads × weights = <strong>175 billion parameters</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="page-num">8</div>
+  </div>
+
+  <!-- PAGE 9: KEY INSIGHTS SUMMARY -->
+  <div class="page">
+    <div class="page-header">9. The Mental Model <span>what to remember</span></div>
+
+    <svg width="100%" height="170" viewBox="0 0 760 170">
+
+      <!-- Four big circles with core ideas — Howard Marks style: rough bubbles -->
+
+      <!-- 1 -->
+      <ellipse cx="95" cy="70" rx="85" ry="55" fill="rgba(192,57,43,0.1)" stroke="#c0392b" stroke-width="2.5"/>
+      <text x="95" y="56" text-anchor="middle" font-family="Caveat" font-size="14" fill="#c0392b" font-weight="700">Attention =</text>
+      <text x="95" y="74" text-anchor="middle" font-family="Caveat" font-size="14" fill="#c0392b">every token looks</text>
+      <text x="95" y="90" text-anchor="middle" font-family="Caveat" font-size="14" fill="#c0392b">at every other</text>
+
+      <!-- 2 -->
+      <ellipse cx="285" cy="70" rx="85" ry="55" fill="rgba(26,106,58,0.1)" stroke="#1a6b3a" stroke-width="2.5"/>
+      <text x="285" y="56" text-anchor="middle" font-family="Caveat" font-size="14" fill="#1a6b3a" font-weight="700">Q·K = score</text>
+      <text x="285" y="74" text-anchor="middle" font-family="Caveat" font-size="14" fill="#1a6b3a">how relevant is</text>
+      <text x="285" y="90" text-anchor="middle" font-family="Caveat" font-size="14" fill="#1a6b3a">token j to token i?</text>
+
+      <!-- 3 -->
+      <ellipse cx="475" cy="70" rx="85" ry="55" fill="rgba(192,92,0,0.1)" stroke="#c05c00" stroke-width="2.5"/>
+      <text x="475" y="56" text-anchor="middle" font-family="Caveat" font-size="14" fill="#c05c00" font-weight="700">V = content</text>
+      <text x="475" y="74" text-anchor="middle" font-family="Caveat" font-size="14" fill="#c05c00">weighted blend of</text>
+      <text x="475" y="90" text-anchor="middle" font-family="Caveat" font-size="14" fill="#c05c00">all values</text>
+
+      <!-- 4 -->
+      <ellipse cx="665" cy="70" rx="85" ry="55" fill="rgba(26,74,138,0.1)" stroke="#1a4a8a" stroke-width="2.5"/>
+      <text x="665" y="56" text-anchor="middle" font-family="Caveat" font-size="14" fill="#1a4a8a" font-weight="700">Stack × N</text>
+      <text x="665" y="74" text-anchor="middle" font-family="Caveat" font-size="14" fill="#1a4a8a">each layer learns</text>
+      <text x="665" y="90" text-anchor="middle" font-family="Caveat" font-size="14" fill="#1a4a8a">more abstract</text>
+
+      <!-- connecting arrows -->
+      <path d="M 182 70 L 198 70" fill="none" stroke="#6b5a3e" stroke-width="2"/>
+      <polygon points="196,66 206,70 196,74" fill="#6b5a3e"/>
+      <path d="M 372 70 L 388 70" fill="none" stroke="#6b5a3e" stroke-width="2"/>
+      <polygon points="386,66 396,70 386,74" fill="#6b5a3e"/>
+      <path d="M 562 70 L 578 70" fill="none" stroke="#6b5a3e" stroke-width="2"/>
+      <polygon points="576,66 586,70 576,74" fill="#6b5a3e"/>
+
+      <!-- One line summary -->
+      <rect x="0" y="138" width="760" height="30" fill="rgba(26,74,138,0.08)" stroke="#1a4a8a" stroke-width="1.5" rx="2"/>
+      <text x="380" y="159" text-anchor="middle" font-family="Caveat" font-size="18" fill="#1a4a8a" font-weight="700">
+        Attention(Q,K,V) = softmax(QKᵀ / √d) · V
+      </text>
+    </svg>
+
+    <div class="annotation" style="margin-top:16px">
+      <strong>What the model actually learns to do with attention:</strong><br>
+      Early layers: local syntax, adjacent word patterns.<br>
+      Middle layers: coreference, entity relationships ("it" → "animal").<br>
+      Late layers: abstract semantic reasoning, task-specific patterns.
+    </div>
+
+    <div class="side-note" style="margin-top:16px">
+      <strong>Howard Marks analogy:</strong> Attention is like knowing <em>which pages in every book in the library to flip to</em> before answering a question — and doing it for every word, simultaneously, every forward pass.
+    </div>
+
+    <div class="page-num">9</div>
+  </div>
+
+</div>
+</body>
+</html>

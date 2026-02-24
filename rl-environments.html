@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RL Environments: The New Data Moat of AI — Omkar Ray</title>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;0,6..72,700;1,6..72,400;1,6..72,600&family=JetBrains+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1a1a;
+    --paper: #faf8f4;
+    --accent: #c4421a;
+    --accent-light: #f0d8cf;
+    --mid: #6b6560;
+    --rule: #d4cfc8;
+    --sidebar-bg: #f0ede7;
+    --code-bg: #2d2926;
+    --highlight: #fff3cd;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Newsreader', Georgia, serif;
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 19px;
+    line-height: 1.72;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .back-nav {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 28px 40px 0;
+  }
+
+  .back-nav a {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    color: var(--mid);
+    text-decoration: none;
+    letter-spacing: 0.3px;
+  }
+
+  .back-nav a:hover { color: var(--ink); }
+
+  /* ─── HERO ─── */
+  .hero {
+    padding: 64px 40px 80px;
+    max-width: 900px;
+    margin: 0 auto;
+    position: relative;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 40px;
+    width: 60px;
+    height: 4px;
+    background: var(--accent);
+  }
+
+  .hero .kicker {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 2.5px;
+    color: var(--accent);
+    margin-bottom: 24px;
+  }
+
+  .hero h1 {
+    font-size: clamp(36px, 5.5vw, 58px);
+    font-weight: 700;
+    line-height: 1.12;
+    letter-spacing: -0.02em;
+    margin-bottom: 24px;
+    max-width: 760px;
+  }
+
+  .hero .subtitle {
+    font-size: 22px;
+    font-weight: 400;
+    font-style: italic;
+    color: var(--mid);
+    max-width: 620px;
+    line-height: 1.55;
+  }
+
+  .hero .meta {
+    margin-top: 40px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    color: var(--mid);
+    letter-spacing: 0.3px;
+    display: flex;
+    gap: 24px;
+    align-items: center;
+  }
+
+  .hero .meta span { display: flex; align-items: center; gap: 6px; }
+
+  /* ─── CONTENT ─── */
+  .content {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 0 40px 120px;
+  }
+
+  .content p { margin-bottom: 22px; }
+
+  .content h2 {
+    font-size: 30px;
+    font-weight: 700;
+    margin: 64px 0 20px;
+    letter-spacing: -0.015em;
+    line-height: 1.25;
+    position: relative;
+    padding-left: 20px;
+  }
+
+  .content h2::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 4px;
+    bottom: 4px;
+    width: 4px;
+    background: var(--accent);
+    border-radius: 2px;
+  }
+
+  .content h3 {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    margin: 48px 0 16px;
+    color: var(--accent);
+  }
+
+  /* ─── PULLQUOTE ─── */
+  .pullquote {
+    margin: 48px -40px;
+    padding: 36px 40px;
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    font-size: 24px;
+    font-style: italic;
+    line-height: 1.55;
+    color: var(--ink);
+    position: relative;
+  }
+
+  .pullquote::before {
+    content: '"';
+    font-size: 72px;
+    font-weight: 700;
+    color: var(--accent);
+    position: absolute;
+    top: 20px;
+    left: 40px;
+    line-height: 1;
+    opacity: 0.3;
+  }
+
+  .pullquote .attr {
+    display: block;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-style: normal;
+    font-weight: 600;
+    color: var(--mid);
+    margin-top: 12px;
+    letter-spacing: 0.3px;
+  }
+
+  /* ─── CALLOUT ─── */
+  .callout {
+    background: var(--sidebar-bg);
+    border-left: 3px solid var(--accent);
+    padding: 28px 32px;
+    margin: 36px 0;
+    border-radius: 0 6px 6px 0;
+  }
+
+  .callout .callout-title {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.8px;
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+
+  .callout p {
+    font-size: 17px;
+    line-height: 1.65;
+    margin-bottom: 10px;
+  }
+
+  .callout p:last-child { margin-bottom: 0; }
+
+  /* ─── FRAMEWORK DIAGRAM ─── */
+  .framework {
+    margin: 48px 0;
+    background: var(--code-bg);
+    border-radius: 8px;
+    padding: 40px;
+    color: #e8e2da;
+  }
+
+  .framework .fw-title {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--accent);
+    margin-bottom: 28px;
+    opacity: 0.9;
+  }
+
+  .fw-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
+
+  .fw-layer {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: 16px;
+    align-items: start;
+    padding: 16px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .fw-layer:last-child { border-bottom: none; }
+
+  .fw-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding-top: 2px;
+  }
+
+  .fw-desc {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    color: #c4bfb7;
+  }
+
+  .fw-desc strong { color: #e8e2da; font-weight: 600; }
+
+  .fw-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+
+  .fw-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    background: rgba(196, 66, 26, 0.2);
+    color: #e8a88a;
+    padding: 3px 10px;
+    border-radius: 3px;
+    border: 1px solid rgba(196, 66, 26, 0.25);
+  }
+
+  /* ─── TABLE ─── */
+  .data-table {
+    width: 100%;
+    margin: 36px 0;
+    border-collapse: collapse;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+  }
+
+  .data-table thead th {
+    text-align: left;
+    padding: 12px 16px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--mid);
+    border-bottom: 2px solid var(--ink);
+  }
+
+  .data-table tbody td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--rule);
+    vertical-align: top;
+    line-height: 1.5;
+  }
+
+  .data-table tbody tr:hover { background: var(--sidebar-bg); }
+
+  /* ─── NUMBERED ARGUMENTS ─── */
+  .argument {
+    display: grid;
+    grid-template-columns: 48px 1fr;
+    gap: 16px;
+    margin: 32px 0;
+    align-items: start;
+  }
+
+  .argument-num {
+    font-family: 'Newsreader', serif;
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1;
+    opacity: 0.6;
+  }
+
+  .argument-body h4 {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    line-height: 1.3;
+  }
+
+  .argument-body p {
+    font-size: 17px;
+    color: var(--mid);
+    margin-bottom: 0;
+  }
+
+  /* ─── SECTION DIVIDER ─── */
+  .divider {
+    text-align: center;
+    margin: 56px 0;
+    color: var(--rule);
+    font-size: 20px;
+    letter-spacing: 12px;
+  }
+
+  /* ─── EMPHASIS ─── */
+  strong { font-weight: 600; }
+  em { font-style: italic; }
+
+  .highlight {
+    background: linear-gradient(180deg, transparent 60%, var(--accent-light) 60%);
+    padding: 0 2px;
+  }
+
+  /* ─── FOOTER ─── */
+  .essay-footer {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 40px 40px 80px;
+    border-top: 1px solid var(--rule);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    color: var(--mid);
+    display: flex;
+    justify-content: space-between;
+  }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 680px) {
+    .back-nav { padding: 20px 24px 0; }
+    .hero { padding: 48px 24px 56px; }
+    .content { padding: 0 24px 80px; }
+    .pullquote { margin: 36px -24px; padding: 28px 24px; }
+    .framework { padding: 28px 24px; }
+    .fw-layer { grid-template-columns: 1fr; }
+    .essay-footer { flex-direction: column; gap: 8px; padding: 32px 24px 60px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="back-nav">
+  <a href="index.html">← Back</a>
+</div>
+
+<div class="hero">
+  <div class="kicker">Investment Thesis · AI Infrastructure</div>
+  <h1>RL Environments Are the New Data Moat</h1>
+  <p class="subtitle">Why the companies building the "gyms" where AI agents train may capture more durable value than those building the agents themselves.</p>
+  <div class="meta">
+    <span>February 2026</span>
+    <span>·</span>
+    <span>15 min read</span>
+  </div>
+</div>
+
+<div class="content">
+
+  <p>For a decade, the AI industry ran on a simple formula: <strong>more data + more compute = better models.</strong> The data was static — scraped web pages, annotated images, expert-curated text. The moat belonged to whoever had the biggest dataset or the deepest labeling pipeline.</p>
+
+  <p>That era is ending. The frontier has shifted from <em>learning from human artifacts</em> to <em>learning from action and consequence</em>. In this new paradigm, what matters is not the volume of tokens you can feed a model, but the <span class="highlight">quality of the environments you can build for it to practice in.</span></p>
+
+  <p>This essay argues that <strong>RL environments</strong> — the sandboxes, simulators, and instrumented workflows where agents act, fail, and improve — are emerging as the most consequential and investable layer of the AI stack. They are to the "Era of Experience" what ImageNet was to the deep learning revolution: the enabling substrate without which progress stalls.</p>
+
+  <div class="divider">· · ·</div>
+
+  <h2>I. The Shift: From Tokens to Trajectories</h2>
+
+  <p>The "pre-training on internet text" paradigm hit diminishing returns around 2024. Not because language models stopped improving, but because the <em>marginal value</em> of another trillion tokens became vanishingly small compared to a well-designed RL training run. OpenAI's progression from o1 to o3 told the story: each generation allocated more compute to reinforcement learning and less to static pre-training.</p>
+
+  <p>This shift has a clean theoretical grounding. Silver and Sutton's "Era of Experience" paper from DeepMind frames it precisely: the next generation of AI agents will learn from <em>streams of interaction</em>, take <em>grounded actions</em> in real action spaces, receive <em>grounded rewards</em> from consequences, and plan in the <em>currency of experience.</em></p>
+
+  <div class="pullquote">
+    We added some reinforcement learning compute for o1… o3 maybe had a little bit more RL compute. At some point in the future maybe we'll have a lot of RL compute and then at some far point in the future maybe we'll be totally dominated and crushed by RL compute.
+    <span class="attr">— Dan Roberts, OpenAI Researcher, at Sequoia Ascent</span>
+  </div>
+
+  <p>What does "RL compute" actually consume? Not text. It consumes <strong>environment interactions</strong> — hundreds of thousands of rollouts where an agent attempts a task, receives a reward signal, and updates its policy. The raw material of RL scaling is not a dataset. It is a <em>world</em> the agent can act in.</p>
+
+  <p>This creates a fundamentally different supply chain. In the token era, data companies sold annotated text. In the experience era, they sell <strong>instrumented environments</strong> — interactive sandboxes that package a workflow surface, a task distribution, an evaluation function, and full trajectory logging. The product isn't a file. It's a living system.</p>
+
+  <div class="divider">· · ·</div>
+
+  <h2>II. Anatomy of an RL Environment</h2>
+
+  <p>An RL environment is deceptively simple in concept but ferociously hard to build well. At its core, it has four components — and <em>each</em> one is a source of competitive advantage or failure.</p>
+
+  <div class="framework">
+    <div class="fw-title">The Four Pillars of an RL Environment</div>
+    <div class="fw-grid">
+      <div class="fw-layer">
+        <div class="fw-label">Surface</div>
+        <div class="fw-desc">
+          <strong>The action space the agent inhabits.</strong> A UI it can click, an API it can call, a codebase it can modify, a terminal it can type into. The surface must faithfully reproduce the real-world task environment — otherwise the agent learns to exploit the simulation, not solve the problem.
+          <div class="fw-tags"><span class="fw-tag">Browser</span><span class="fw-tag">IDE</span><span class="fw-tag">API</span><span class="fw-tag">Shell</span><span class="fw-tag">GUI</span></div>
+        </div>
+      </div>
+      <div class="fw-layer">
+        <div class="fw-label">Tasks</div>
+        <div class="fw-desc">
+          <strong>A distribution of problems at calibrated difficulty.</strong> Not one task, but a task <em>library</em> — parameterized, varied, and tunable. Too easy and the agent saturates without learning transfer. Too hard and gradients vanish. The art is in the curriculum: starting simple, escalating complexity, and introducing adversarial variation.
+          <div class="fw-tags"><span class="fw-tag">Task generation</span><span class="fw-tag">Difficulty curves</span><span class="fw-tag">Curriculum</span></div>
+        </div>
+      </div>
+      <div class="fw-layer">
+        <div class="fw-label">Eval</div>
+        <div class="fw-desc">
+          <strong>A scoring function that maps outcomes to rewards.</strong> The eval defines what "good" means. Binary pass/fail is brittle. Dense reward shaping is powerful but can introduce reward hacking. The best evals blend automated checks with LLM-as-judge and, where available, human ground-truth. They are the loss function of the experience era.
+          <div class="fw-tags"><span class="fw-tag">Automated checks</span><span class="fw-tag">LLM-as-judge</span><span class="fw-tag">Human ground truth</span></div>
+        </div>
+      </div>
+      <div class="fw-layer">
+        <div class="fw-label">Logging</div>
+        <div class="fw-desc">
+          <strong>Full trajectory capture for learning.</strong> Every action, observation, reward, and intermediate state — recorded. This is the data the RL algorithm actually trains on. Incomplete trajectories mean incomplete gradients. Logging quality directly determines training signal quality.
+          <div class="fw-tags"><span class="fw-tag">Traces</span><span class="fw-tag">State snapshots</span><span class="fw-tag">Reward signals</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p>The critical insight is that <strong>these four components are deeply interdependent.</strong> A beautiful UI surface paired with a weak eval produces agents that look competent in demos and fail in production. A brilliant task library logged with lossy trajectories wastes compute. Building environments is systems engineering, not a wrapper around an existing application.</p>
+
+  <div class="divider">· · ·</div>
+
+  <h2>III. Why Environments Are the Bottleneck</h2>
+
+  <p>Brendan Foody of Mercor makes a provocative claim: <em>"RL is becoming so effective that models will be able to saturate any evaluation."</em> If that's true — and the evidence increasingly supports it — then the binding constraint on AI progress is no longer algorithmic. It's environmental.</p>
+
+  <p>Consider the implications. If RL can reliably improve a model on any eval it's trained against, then the frontier of AI capability is defined entirely by the <strong>breadth, fidelity, and difficulty of available environments.</strong> The labs don't need better optimizers. They need harder gyms.</p>
+
+  <p>This is why frontier labs have, in the past 18 months, put dozens of environment vendors into business. They are buying the raw material of RL scaling, and the demand is growing faster than supply.</p>
+
+  <div class="argument">
+    <div class="argument-num">01</div>
+    <div class="argument-body">
+      <h4>Environments are harder to commoditize than data</h4>
+      <p>Static datasets can be copied, leaked, or re-created. An environment is a running system — a live surface, a task generator, an eval pipeline, a logging infrastructure. Replicating it requires engineering the entire stack, not just downloading a file. The defensibility is operational, not legal.</p>
+    </div>
+  </div>
+
+  <div class="argument">
+    <div class="argument-num">02</div>
+    <div class="argument-body">
+      <h4>Domain expertise creates a compounding advantage</h4>
+      <p>Building a high-fidelity environment for chip design (Phinity), finance (Isidor), or computer use (Fleet AI, Matrices) requires deep domain knowledge — not just of the task, but of the failure modes, edge cases, and difficulty gradients that make RL training productive. This expertise compounds: each iteration reveals what the model finds hard, which informs the next generation of tasks.</p>
+    </div>
+  </div>
+
+  <div class="argument">
+    <div class="argument-num">03</div>
+    <div class="argument-body">
+      <h4>The "eval gap" is the real AGI bottleneck</h4>
+      <p>If RL can saturate any eval, then progress reduces to: <em>can we write evals fast enough for everything humans do?</em> This reframes the AGI question. The barrier isn't intelligence — it's instrumentation. Every un-eval'd workflow is a capability the model can't acquire through experience. Environment builders are, in a very real sense, converting human economic activity into AI-legible training signal.</p>
+    </div>
+  </div>
+
+  <div class="argument">
+    <div class="argument-num">04</div>
+    <div class="argument-body">
+      <h4>Labs are compute-rich but environment-poor</h4>
+      <p>The asymmetry is structural. Labs have billions in GPU compute and world-class RL researchers. What they lack — and cannot build internally at the rate they need — is coverage across the long tail of real-world workflows. This creates a natural market: labs buy environments the way cloud customers buy SaaS. The vendor ecosystem isn't incidental. It's load-bearing.</p>
+    </div>
+  </div>
+
+  <div class="divider">· · ·</div>
+
+  <h2>IV. The Competitive Landscape</h2>
+
+  <p>The environment-building market is nascent but structuring quickly into clear verticals. Each vertical reflects a domain where RL training demand is acute and the task surface is complex enough to sustain a standalone company.</p>
+
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Domain</th>
+        <th>Key Players</th>
+        <th>Why It's Hard</th>
+        <th>Moat Potential</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Coding</strong></td>
+        <td>Preference Model, Proximal, Mechanize, AfterQuery</td>
+        <td>Requires realistic repos, dependency resolution, test suites that catch subtle bugs — not just syntax</td>
+        <td>High — code environments improve with real codebase diversity</td>
+      </tr>
+      <tr>
+        <td><strong>Computer Use</strong></td>
+        <td>Fleet AI, Matrices, DeepTune</td>
+        <td>Pixel-level fidelity, latency simulation, handling non-deterministic UI states across OSes</td>
+        <td>Very High — cross-application workflows are combinatorially complex</td>
+      </tr>
+      <tr>
+        <td><strong>Chip Design</strong></td>
+        <td>Phinity AI</td>
+        <td>EDA tool integration, PPA (power/performance/area) evaluation, multi-step synthesis flows</td>
+        <td>Very High — extreme domain specialization</td>
+      </tr>
+      <tr>
+        <td><strong>Finance</strong></td>
+        <td>Isidor</td>
+        <td>Regulatory constraints, temporal data leakage, market simulation fidelity</td>
+        <td>High — compliance requirements create natural barriers</td>
+      </tr>
+      <tr>
+        <td><strong>General Knowledge Work</strong></td>
+        <td>Turing, Mercor, Surge AI, Handshake</td>
+        <td>Breadth vs. depth tradeoff; must cover many workflows without sacrificing fidelity</td>
+        <td>Medium — breadth is defensible, but depth may matter more</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>The incumbents — Turing, Mercor, Surge AI — have the advantage of existing lab relationships and data annotation infrastructure. But the specialized players have something potentially more durable: <strong>task design expertise</strong> that directly translates into model capability improvement. The question is whether labs will consolidate around a few deep vendors or maintain a broad portfolio.</p>
+
+  <div class="divider">· · ·</div>
+
+  <h2>V. The Sim-to-Real Problem</h2>
+
+  <p>Every environment company faces the same existential question: <strong>does training in our sandbox transfer to the real world?</strong> This is the sim-to-real gap, borrowed from robotics, and it is the single largest technical risk in the environment business.</p>
+
+  <p>Consider a coding environment. If the tasks are too synthetic — clean functions, isolated logic, perfect test suites — the model learns to ace the gym but stumbles on real codebases with messy dependencies, legacy patterns, and ambiguous requirements. The environment vendor's value is precisely in closing this gap: making their sandbox realistic enough that RL training transfers.</p>
+
+  <div class="callout">
+    <div class="callout-title">The Difficulty Calibration Problem</div>
+    <p>An underappreciated challenge: environments must stay <em>ahead</em> of the model. As RL training improves the agent, the environment must produce harder tasks, or the model saturates and stops learning. This creates a treadmill — environment companies must continuously expand their task distribution, or their product becomes obsolete as models improve.</p>
+    <p>The best environment companies will build <strong>procedural task generators</strong> that can scale difficulty programmatically, rather than relying on hand-crafted task libraries that get exhausted.</p>
+  </div>
+
+  <p>Jerry Dworek, former OpenAI research lead, frames the broader concern precisely: <em>"How do those models generalize? How do those models perform outside of what they've been trained for?"</em> If RL environments produce narrow specialists rather than general improvers, the entire value proposition weakens. The counter-argument is that with enough <em>diverse</em> environments — covering enough of the skill surface — generalization emerges from breadth. This is an empirical question, and its answer will determine whether the environment market is a $1B or $100B opportunity.</p>
+
+  <div class="divider">· · ·</div>
+
+  <h2>VI. Beyond Labs: The Enterprise RL Opportunity</h2>
+
+  <p>Today, the primary buyers of RL environments are frontier labs. But the next wave of demand will come from <strong>enterprises and AI-native application companies</strong> that want to fine-tune agents for their specific workflows.</p>
+
+  <p>Cursor's use of online RL to improve their tab completion model — using real user acceptance/rejection signals as the reward — is a template. Any company with an AI agent in production is sitting on a natural RL environment: the agent acts, the user provides implicit feedback (acceptance, correction, abandonment), and the trajectory is logged. The missing piece is the infrastructure to close the loop — to convert these production traces into RL training runs.</p>
+
+  <div class="callout">
+    <div class="callout-title">Application: Voice AI at Scale</div>
+    <p>Consider a company operating AI voice bots handling millions of customer calls. Every call is a trajectory: the agent speaks, the customer responds, the call resolves or escalates. Success metrics are clear — resolution rate, customer satisfaction, handle time. The environment is <em>already built</em>; it's the production system itself. What's needed is the RL infrastructure to train on these trajectories and the eval framework to measure improvement without regressing on edge cases.</p>
+    <p>This is where "RL-as-a-service" companies (Applied Compute, CGFT Labs, Osmosis AI) enter: they bring the RL expertise and tooling to companies that have the environments but lack the ML infrastructure to exploit them.</p>
+  </div>
+
+  <p>The enterprise opportunity has different dynamics than the lab market. Labs buy environments for <em>general</em> model improvement. Enterprises need environments that mirror their <em>specific</em> workflows — their CRM, their codebase, their customer demographics. This suggests a market where vertical specialization wins, and where the data generated by production deployment feeds back into environment quality in a flywheel that's very hard to replicate from outside.</p>
+
+  <div class="divider">· · ·</div>
+
+  <h2>VII. Open Questions and Risks</h2>
+
+  <h3>Generalization vs. Narrow Skill</h3>
+  <p>The most important open question in AI: does RL training produce transferable intelligence, or just task-specific muscle memory? If narrow, the environment market fragments into thousands of niche verticals. If broad, a smaller number of high-quality environments might drive general capability — concentrating value in the best gym builders.</p>
+
+  <h3>Continual Learning</h3>
+  <p>Ilya Sutskever's metaphor of the "superintelligent 15-year-old" points at a gap RL alone may not fill. Current RL produces a model that is frozen after training. Real intelligence requires continual adaptation — learning on deployment, updating beliefs, acquiring new skills in context. If continual learning proves necessary, environment companies will need to evolve from batch-training sandboxes to always-on learning systems.</p>
+
+  <h3>Reward Hacking at Scale</h3>
+  <p>As RL scales, so does the attack surface for reward hacking — agents finding ways to maximize the eval score without actually solving the intended problem. This is the environment builder's deepest technical challenge: designing evals robust enough that optimization pressure doesn't find shortcuts. The arms race between RL algorithms and eval robustness will define the quality bar for environment companies.</p>
+
+  <h3>Lab Consolidation Risk</h3>
+  <p>If one or two labs pull decisively ahead in RL scaling, they may verticalize — building environments in-house rather than buying from vendors. The environment market's growth depends on RL scaling being a broad industry trend, not a single-lab phenomenon. The emergence of open-source RL infrastructure (Prime Intellect, Thinky Machines) is a positive signal here.</p>
+
+  <div class="divider">· · ·</div>
+
+  <h2>VIII. The Thesis, Compressed</h2>
+
+  <p>In the experience era, <strong>the quality of the environment determines the ceiling of the agent.</strong> RL can optimize any objective you give it — which means the binding constraint is having the right objectives, in the right action spaces, at the right difficulty level. Environment builders are the supply-side infrastructure of AI progress.</p>
+
+  <p>The most investable positions in this stack are:</p>
+
+  <div class="argument">
+    <div class="argument-num">A</div>
+    <div class="argument-body">
+      <h4>Deep-domain environment specialists</h4>
+      <p>Companies that own the task design, eval logic, and fidelity requirements for a specific high-value domain — and whose environments measurably improve model performance on real-world tasks in that domain. The closer the gym to the game, the more valuable the gym.</p>
+    </div>
+  </div>
+
+  <div class="argument">
+    <div class="argument-num">B</div>
+    <div class="argument-body">
+      <h4>Environment-building infrastructure</h4>
+      <p>Tools that let <em>anyone</em> create high-quality RL environments — HUD Evals and equivalents that democratize environment construction. As RL moves from labs to enterprises, the demand for "environment IDEs" will explode.</p>
+    </div>
+  </div>
+
+  <div class="argument">
+    <div class="argument-num">C</div>
+    <div class="argument-body">
+      <h4>Application companies with natural RL flywheels</h4>
+      <p>Companies where production usage generates trajectories and reward signals that can be fed back into RL training — creating a self-improving loop that widens the gap with competitors who train only on static data. Cursor is the archetype. Every AI-native company should be asking: <em>is my production system also an RL environment?</em></p>
+    </div>
+  </div>
+
+  <div class="pullquote">
+    The primary barrier to applying agents to the entire economy is building evals for everything.
+    <span class="attr">— Brendan Foody, CEO of Mercor</span>
+  </div>
+
+  <p>If Foody is right, then the companies that can convert human economic activity into well-instrumented, well-evaluated RL environments — at the speed the labs demand — are building one of the most durable and consequential businesses in AI. Not the flashiest. Not the one demoing a chatbot. The one building the gym where the chatbot learned to be good.</p>
+
+</div>
+
+<div class="essay-footer">
+  <span>Built on analysis from Tanay Jaipuria (Wing VC), Silver &amp; Sutton (DeepMind), and frontier lab disclosures.</span>
+  <span>Feb 2026</span>
+</div>
+
+</body>
+</html>
