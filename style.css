@@ -7,17 +7,17 @@
 }
 
 :root {
-  --bg: #0b0b09;
-  --surface: #131311;
-  --surface-2: #1b1b18;
-  --text: #e8e4de;
-  --text-secondary: #7d7970;
-  --text-muted: #3c3b37;
-  --border: #212120;
-  --border-hover: #36352f;
-  --accent: #c8a96b;
-  --accent-dim: rgba(200, 169, 107, 0.07);
-  --accent-glow: rgba(200, 169, 107, 0.18);
+  --bg: #fafaf8;
+  --surface: #f3f2ed;
+  --surface-2: #eae9e3;
+  --text: #18171a;
+  --text-secondary: #5c5854;
+  --text-muted: #a09c96;
+  --border: #e5e2da;
+  --border-hover: #c8c4ba;
+  --accent: #7c5d2c;
+  --accent-dim: rgba(124, 93, 44, 0.08);
+  --accent-glow: rgba(124, 93, 44, 0.16);
   --radius: 10px;
   --max-width: 760px;
 }
@@ -26,6 +26,12 @@ html {
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 4px;
 }
 
 body {
@@ -54,10 +60,11 @@ nav {
   justify-content: space-between;
   align-items: center;
   padding: 16px 32px;
-  background: rgba(11, 11, 9, 0.88);
+  background: rgba(250, 250, 248, 0.92);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--border);
+  box-shadow: 0 1px 0 var(--border);
   transition: border-color 0.3s;
 }
 
@@ -110,7 +117,7 @@ main {
 .hero-grid {
   position: absolute;
   inset: 0;
-  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.055) 1px, transparent 1px);
+  background-image: radial-gradient(circle, rgba(0, 0, 0, 0.055) 1px, transparent 1px);
   background-size: 28px 28px;
   pointer-events: none;
   mask-image: radial-gradient(ellipse 85% 65% at 40% 50%, black 30%, transparent 80%);
@@ -270,7 +277,8 @@ main {
   border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--surface);
-  transition: border-color 0.25s, transform 0.25s, background 0.25s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: border-color 0.25s, transform 0.25s, background 0.25s, box-shadow 0.25s;
   position: relative;
   overflow: hidden;
 }
@@ -286,8 +294,9 @@ main {
 }
 
 .card:hover {
-  border-color: rgba(200, 169, 107, 0.32);
+  border-color: rgba(124, 93, 44, 0.28);
   background: var(--surface-2);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.07);
   transform: translateY(-2px);
 }
 
@@ -311,7 +320,7 @@ main {
   background: var(--accent-dim);
   padding: 3px 10px;
   border-radius: 100px;
-  border: 1px solid rgba(200, 169, 107, 0.2);
+  border: 1px solid rgba(124, 93, 44, 0.18);
 }
 
 .card-meta {
@@ -373,9 +382,11 @@ main {
   display: flex;
   align-items: center;
   gap: 20px;
-  padding: 18px 0;
+  padding: 18px 6px;
   border-bottom: 1px solid var(--border);
-  transition: padding-left 0.2s;
+  border-radius: 6px;
+  transition: padding-left 0.2s, background 0.2s;
+  margin: 0 -6px;
 }
 
 .blog-item:first-child {
@@ -383,7 +394,8 @@ main {
 }
 
 .blog-item:hover {
-  padding-left: 8px;
+  padding-left: 14px;
+  background: var(--surface);
 }
 
 .blog-date {
@@ -435,6 +447,7 @@ main {
   border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--surface);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
 .knowledge-header {
@@ -451,7 +464,7 @@ main {
   background: var(--accent-dim);
   padding: 3px 10px;
   border-radius: 100px;
-  border: 1px solid rgba(200, 169, 107, 0.2);
+  border: 1px solid rgba(124, 93, 44, 0.18);
 }
 
 .knowledge-card h3 {
@@ -591,7 +604,7 @@ main {
 .thesis-nav-btn:hover {
   background: var(--accent);
   border-color: var(--accent);
-  color: #0b0b09;
+  color: #fafaf8;
 }
 
 .thesis-track-wrapper {
@@ -631,7 +644,8 @@ main {
   border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--surface);
-  transition: border-color 0.25s, transform 0.25s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: border-color 0.25s, transform 0.25s, box-shadow 0.25s;
   position: relative;
   overflow: hidden;
 }
@@ -647,7 +661,8 @@ main {
 }
 
 .thesis-card:hover {
-  border-color: rgba(200, 169, 107, 0.32);
+  border-color: rgba(124, 93, 44, 0.28);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
   transform: translateY(-3px);
 }
 
@@ -664,7 +679,7 @@ main {
   font-family: 'Newsreader', Georgia, serif;
   font-size: 80px;
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.025);
+  color: rgba(0, 0, 0, 0.04);
   position: absolute;
   top: -14px;
   right: 10px;
@@ -690,7 +705,7 @@ main {
   background: var(--accent-dim);
   padding: 3px 10px;
   border-radius: 100px;
-  border: 1px solid rgba(200, 169, 107, 0.2);
+  border: 1px solid rgba(124, 93, 44, 0.18);
 }
 
 .thesis-arrow {
@@ -768,25 +783,46 @@ main {
   border: 1px solid var(--border);
   border-radius: 8px;
   background: var(--surface);
-  transition: border-color 0.2s, background 0.2s, color 0.2s;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+  transition: border-color 0.2s, background 0.2s, color 0.2s, box-shadow 0.2s, transform 0.2s;
   overflow: hidden;
 }
 
 .topic-list li:hover {
   border-color: var(--border-hover);
   background: var(--surface-2);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.06);
   color: var(--text);
+  transform: translateY(-1px);
 }
 
 .topic-list li a,
-.topic-list li span {
-  display: block;
+.topic-list li > span {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
   padding: 13px 16px;
   color: inherit;
 }
 
-.topic-list li a:hover {
+.topic-title {
+  font-size: 14px;
+  font-weight: 500;
   color: var(--text);
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+  transition: color 0.2s;
+}
+
+.topic-subtitle {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.4;
+  transition: color 0.2s;
+}
+
+.topic-list li:hover .topic-subtitle {
+  color: var(--text-secondary);
 }
 
 /* ─── Footer ─── */
