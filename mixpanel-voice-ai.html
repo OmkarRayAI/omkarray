@@ -4,256 +4,559 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Mixpanel for Voice AI — Omkar Ray</title>
-  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;0,6..72,700;1,6..72,400;1,6..72,600&family=JetBrains+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    .thesis-page {
+    :root {
+      --ink: #1a1a1a;
+      --paper: #faf8f4;
+      --accent: #c4421a;
+      --accent-light: #f0d8cf;
+      --mid: #6b6560;
+      --rule: #d4cfc8;
+      --sidebar-bg: #f0ede7;
+      --code-bg: #2d2926;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Newsreader', Georgia, serif;
+      background: var(--paper);
+      color: var(--ink);
+      font-size: 19px;
+      line-height: 1.72;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .back-nav {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 40px 0;
+    }
+
+    .back-nav a {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      color: var(--mid);
+      text-decoration: none;
+      letter-spacing: 0.3px;
+    }
+
+    .back-nav a:hover { color: var(--ink); }
+
+    /* ─── HERO ─── */
+    .hero {
+      padding: 64px 40px 80px;
+      max-width: 900px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 40px;
+      width: 60px;
+      height: 4px;
+      background: var(--accent);
+    }
+
+    .hero .kicker {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 2.5px;
+      color: var(--accent);
+      margin-bottom: 24px;
+    }
+
+    .hero h1 {
+      font-size: clamp(36px, 5.5vw, 58px);
+      font-weight: 700;
+      line-height: 1.12;
+      letter-spacing: -0.02em;
+      margin-bottom: 24px;
+      max-width: 760px;
+    }
+
+    .hero .subtitle {
+      font-size: 22px;
+      font-weight: 400;
+      font-style: italic;
+      color: var(--mid);
+      max-width: 620px;
+      line-height: 1.55;
+    }
+
+    .hero .meta {
+      margin-top: 40px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      color: var(--mid);
+      letter-spacing: 0.3px;
+      display: flex;
+      gap: 24px;
+      align-items: center;
+    }
+
+    /* ─── CONTENT ─── */
+    .content {
       max-width: 720px;
       margin: 0 auto;
-      padding: 60px 24px 100px;
+      padding: 0 40px 120px;
     }
-    .thesis-page .back-link {
-      display: inline-block;
-      margin-bottom: 40px;
-      font-size: 13px;
-      color: #888;
-      text-decoration: none;
-      letter-spacing: 0.02em;
-    }
-    .thesis-page .back-link:hover { color: #111; }
-    .thesis-meta {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 16px;
-    }
-    .thesis-meta .badge {
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: #888;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      padding: 3px 8px;
-    }
-    .thesis-page h1 {
-      font-size: 32px;
+
+    .content p { margin-bottom: 22px; }
+
+    .content h2 {
+      font-size: 30px;
       font-weight: 700;
+      margin: 64px 0 20px;
+      letter-spacing: -0.015em;
       line-height: 1.25;
-      margin: 0 0 12px;
-      color: #111;
-      letter-spacing: -0.02em;
+      position: relative;
+      padding-left: 20px;
     }
-    .thesis-page .lede {
-      font-size: 17px;
-      line-height: 1.7;
-      color: #444;
-      margin-bottom: 48px;
-      border-left: 3px solid #111;
-      padding-left: 18px;
+
+    .content h2::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 4px;
+      bottom: 4px;
+      width: 4px;
+      background: var(--accent);
+      border-radius: 2px;
     }
-    .thesis-page h2 {
+
+    .content h3 {
+      font-family: 'DM Sans', sans-serif;
       font-size: 18px;
       font-weight: 700;
-      color: #111;
-      margin: 40px 0 12px;
-      letter-spacing: -0.01em;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      margin: 48px 0 16px;
+      color: var(--accent);
     }
-    .thesis-page p {
-      font-size: 15px;
-      line-height: 1.8;
-      color: #444;
-      margin: 0 0 16px;
+
+    /* ─── PULLQUOTE ─── */
+    .pullquote {
+      margin: 48px -40px;
+      padding: 36px 40px;
+      border-top: 1px solid var(--rule);
+      border-bottom: 1px solid var(--rule);
+      font-size: 24px;
+      font-style: italic;
+      line-height: 1.55;
+      color: var(--ink);
+      position: relative;
     }
-    .thesis-page ul, .thesis-page ol {
-      padding-left: 22px;
-      margin: 0 0 20px;
+
+    .pullquote::before {
+      content: '"';
+      font-size: 72px;
+      font-weight: 700;
+      color: var(--accent);
+      position: absolute;
+      top: 20px;
+      left: 40px;
+      line-height: 1;
+      opacity: 0.3;
     }
-    .thesis-page li {
-      font-size: 15px;
-      line-height: 1.8;
-      color: #444;
-      margin-bottom: 6px;
-    }
-    .thesis-page strong { color: #111; font-weight: 600; }
-    .metric-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 24px 0;
-      font-size: 14px;
-    }
-    .metric-table th {
-      text-align: left;
+
+    .pullquote .attr {
+      display: block;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-style: normal;
       font-weight: 600;
-      color: #111;
-      border-bottom: 2px solid #111;
-      padding: 8px 12px 8px 0;
+      color: var(--mid);
+      margin-top: 12px;
+      letter-spacing: 0.3px;
     }
-    .metric-table td {
-      padding: 10px 12px 10px 0;
-      border-bottom: 1px solid #eee;
-      color: #444;
-      vertical-align: top;
-    }
-    .metric-table td:first-child { color: #111; font-weight: 500; }
-    .signal-block {
-      background: #f8f8f8;
-      border-left: 3px solid #111;
-      padding: 16px 20px;
-      margin: 24px 0;
+
+    /* ─── CALLOUT ─── */
+    .callout {
+      background: var(--sidebar-bg);
+      border-left: 3px solid var(--accent);
+      padding: 28px 32px;
+      margin: 36px 0;
       border-radius: 0 6px 6px 0;
     }
-    .signal-block p { margin: 0; font-size: 14px; color: #555; }
-    .signal-block strong { color: #111; }
-    .tags-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 48px;
-      padding-top: 24px;
-      border-top: 1px solid #eee;
+
+    .callout .callout-title {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.8px;
+      color: var(--accent);
+      margin-bottom: 12px;
     }
-    .tags-row span {
+
+    .callout p {
+      font-size: 17px;
+      line-height: 1.65;
+      margin-bottom: 10px;
+    }
+
+    .callout p:last-child { margin-bottom: 0; }
+
+    /* ─── FRAMEWORK DIAGRAM ─── */
+    .framework {
+      margin: 48px 0;
+      background: var(--code-bg);
+      border-radius: 8px;
+      padding: 40px;
+      color: #e8e2da;
+    }
+
+    .framework .fw-title {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--accent);
+      margin-bottom: 28px;
+      opacity: 0.9;
+    }
+
+    .fw-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
+
+    .fw-layer {
+      display: grid;
+      grid-template-columns: 140px 1fr;
+      gap: 16px;
+      align-items: start;
+      padding: 16px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .fw-layer:last-child { border-bottom: none; }
+
+    .fw-label {
+      font-family: 'JetBrains Mono', monospace;
       font-size: 12px;
-      background: #f3f3f3;
-      border-radius: 4px;
-      padding: 4px 10px;
-      color: #555;
+      font-weight: 500;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding-top: 2px;
+    }
+
+    .fw-desc {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+      color: #c4bfb7;
+    }
+
+    .fw-desc strong { color: #e8e2da; font-weight: 600; }
+
+    .fw-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+
+    .fw-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      background: rgba(196, 66, 26, 0.2);
+      color: #e8a88a;
+      padding: 3px 10px;
+      border-radius: 3px;
+      border: 1px solid rgba(196, 66, 26, 0.25);
+    }
+
+    /* ─── TABLE ─── */
+    .data-table {
+      width: 100%;
+      margin: 36px 0;
+      border-collapse: collapse;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+    }
+
+    .data-table thead th {
+      text-align: left;
+      padding: 12px 16px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--mid);
+      border-bottom: 2px solid var(--ink);
+    }
+
+    .data-table tbody td {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--rule);
+      vertical-align: top;
+      line-height: 1.5;
+    }
+
+    .data-table tbody tr:hover { background: var(--sidebar-bg); }
+
+    /* ─── NUMBERED ARGUMENTS ─── */
+    .argument {
+      display: grid;
+      grid-template-columns: 48px 1fr;
+      gap: 16px;
+      margin: 32px 0;
+      align-items: start;
+    }
+
+    .argument-num {
+      font-family: 'Newsreader', serif;
+      font-size: 36px;
+      font-weight: 700;
+      color: var(--accent);
+      line-height: 1;
+      opacity: 0.6;
+    }
+
+    .argument-body h4 {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      line-height: 1.3;
+    }
+
+    .argument-body p {
+      font-size: 17px;
+      color: var(--mid);
+      margin-bottom: 0;
+    }
+
+    /* ─── SECTION DIVIDER ─── */
+    .divider {
+      text-align: center;
+      margin: 56px 0;
+      color: var(--rule);
+      font-size: 20px;
+      letter-spacing: 12px;
+    }
+
+    strong { font-weight: 600; }
+    em { font-style: italic; }
+
+    .highlight {
+      background: linear-gradient(180deg, transparent 60%, var(--accent-light) 60%);
+      padding: 0 2px;
+    }
+
+    /* ─── FOOTER ─── */
+    .essay-footer {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 40px 40px 80px;
+      border-top: 1px solid var(--rule);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      color: var(--mid);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    @media (max-width: 680px) {
+      .back-nav { padding: 20px 24px 0; }
+      .hero { padding: 48px 24px 56px; }
+      .content { padding: 0 24px 80px; }
+      .pullquote { margin: 36px -24px; padding: 28px 24px; }
+      .framework { padding: 28px 24px; }
+      .fw-layer { grid-template-columns: 1fr; }
+      .essay-footer { flex-direction: column; gap: 8px; padding: 32px 24px 60px; }
     }
   </style>
 </head>
 <body>
-  <div class="thesis-page">
-    <a href="index.html" class="back-link">← Back</a>
 
-    <div class="thesis-meta">
-      <span class="badge">Thesis</span>
-      <span class="badge">Voice AI</span>
-    </div>
+<div class="back-nav">
+  <a href="index.html">← Back</a>
+</div>
 
-    <h1>Mixpanel for Voice AI</h1>
+<div class="hero">
+  <div class="kicker">Investment Thesis · Voice AI</div>
+  <h1>Mixpanel for Voice AI</h1>
+  <p class="subtitle">Every voice AI platform ships call logs. None ships the analytics layer that actually matters. The company that closes this gap will own the retention and optimisation layer for every voice AI deployment in the world.</p>
+  <div class="meta">
+    <span>February 2026</span>
+    <span>·</span>
+    <span>10 min read</span>
+  </div>
+</div>
 
-    <p class="lede">
-      Every voice AI platform today ships call logs and basic metrics. None ships the product analytics layer that actually matters. The company that builds Mixpanel-grade behavioural analytics on top of voice will own the retention and optimisation layer for every voice AI deployment in the world.
-    </p>
+<div class="content">
 
-    <h2>The problem no one is solving</h2>
-    <p>
-      When Mixpanel launched in 2009, web analytics was dominated by page-view counts. Companies knew <em>that</em> users visited — not <em>what</em> they did, where they dropped off, or which flows converted. Mixpanel introduced event-level tracking, funnel analysis, and cohort retention. The rest is history.
-    </p>
-    <p>
-      Voice AI is in exactly that moment. Platforms like Bolna, Bland, Retell, and ElevenLabs give you a call transcript, a duration, and maybe a sentiment score. That's it. The product analytics layer — the equivalent of Mixpanel's funnel builder — does not exist.
-    </p>
-    <p>
-      And voice is fundamentally harder to instrument than clicks. A user clicking "Add to Cart" is a discrete, typed event. A user saying "I'm thinking about maybe returning the product I bought last week, but first tell me about your policy" is ambiguous, multi-intent, and temporally spread across turns. Standard web analytics primitives don't map onto this.
-    </p>
+  <p>When Mixpanel launched in 2009, web analytics was dominated by page-view counts. Companies knew <em>that</em> users visited — not <em>what</em> they did, where they dropped off, or which flows converted. Mixpanel introduced event-level tracking, funnel analysis, and cohort retention. The rest is history.</p>
 
-    <h2>What the analytics layer actually needs to track</h2>
-    <p>
-      The missing product needs to operate at three levels:
-    </p>
+  <p>Voice AI is in exactly that moment. Platforms like Bolna, Bland, Retell, and ElevenLabs give you a call transcript, a duration, and maybe a sentiment score. That's it. The product analytics layer — the equivalent of Mixpanel's funnel builder — <span class="highlight">does not exist.</span></p>
 
-    <table class="metric-table">
-      <thead>
-        <tr>
-          <th>Level</th>
-          <th>Metric</th>
-          <th>Why it matters</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Turn</td>
-          <td>Barge-in rate per prompt</td>
-          <td>High barge-in signals a bad prompt — user is impatient or confused</td>
-        </tr>
-        <tr>
-          <td>Turn</td>
-          <td>Silence duration by turn type</td>
-          <td>Long silences after specific agent prompts reveal friction points</td>
-        </tr>
-        <tr>
-          <td>Session</td>
-          <td>Intent resolution rate</td>
-          <td>Did the user's stated goal get resolved before they hung up?</td>
-        </tr>
-        <tr>
-          <td>Session</td>
-          <td>Conversation funnel drop-off</td>
-          <td>Like a checkout funnel — which turn do users abandon?</td>
-        </tr>
-        <tr>
-          <td>Session</td>
-          <td>Escalation rate to human</td>
-          <td>A proxy for agent failure — and for calibrating agent capability</td>
-        </tr>
-        <tr>
-          <td>Cohort</td>
-          <td>Retention across repeat calls</td>
-          <td>Do users return? Do they trust the voice agent over time?</td>
-        </tr>
-        <tr>
-          <td>Cohort</td>
-          <td>Topic drift over time</td>
-          <td>How does what users ask about evolve as the product scales?</td>
-        </tr>
-      </tbody>
-    </table>
+  <div class="divider">· · ·</div>
 
-    <p>
-      None of this exists out of the box anywhere. Gong does some of this for human sales calls. But Gong is built for human-to-human calls and isn't extensible to AI agents. CallMiner and similar tools are built for compliance, not product iteration.
-    </p>
+  <h2>I. The Problem No One Is Solving</h2>
 
-    <h2>Why now</h2>
-    <p>
-      Three things converged in 2024–25 that make this the right moment:
-    </p>
-    <ol>
-      <li><strong>Voice AI volume reached scale.</strong> Hundreds of companies are deploying AI voice agents for customer service, outbound sales, and scheduling. The data volume is large enough to warrant analytics tooling — and the pain is felt daily by PMs and founders trying to improve agent performance.</li>
-      <li><strong>LLMs are cheap enough to do NLU at call scale.</strong> Extracting structured intent, entity, and outcome data from transcripts now costs cents per call. The economics of real-time or near-real-time analysis finally work.</li>
-      <li><strong>Platform APIs are stabilising.</strong> Bolna, Retell, and Bland all have webhook and transcript APIs. An analytics layer can sit across all of them without needing carrier-level access.</li>
-    </ol>
+  <p>Voice is fundamentally harder to instrument than clicks. A user clicking "Add to Cart" is a discrete, typed event. A user saying "I'm thinking about maybe returning the product I bought last week, but first tell me about your policy" is ambiguous, multi-intent, and temporally spread across turns. Standard web analytics primitives don't map onto this.</p>
 
-    <div class="signal-block">
-      <p><strong>Weak signal worth watching:</strong> Several Bolna and Retell customers on indie hacker forums are stitching together Airtable + Google Sheets + transcript exports to manually track conversation quality. That's a classic "people are hacking something together" signal — the market is ready for a product.</p>
-    </div>
+  <p>And yet the demand for observability is acute. PMs and founders deploying voice agents have no answer to basic questions: which part of the conversation causes users to hang up? Which prompts generate confusion? Which intents never get resolved? They are flying blind.</p>
 
-    <h2>The wedge and the moat</h2>
-    <p>
-      The wedge is simple: a <strong>conversation funnel builder</strong>. You define the steps in your voice flow (greeting → intent capture → resolution → close), drop a tag on each turn, and get a Sankey diagram of where users drop. This is immediately understandable to any PM who has ever used Mixpanel or Amplitude.
-    </p>
-    <p>
-      The moat builds from there:
-    </p>
-    <ul>
-      <li><strong>Cross-platform data.</strong> No single voice platform has the scale to do benchmarking. But a layer that sits across Bolna, Retell, Bland, and Vapi can tell you: "Your escalation rate is 2× the category median." That's a defensible network-effect position.</li>
-      <li><strong>Prompt-level feedback loops.</strong> Once you know which specific agent prompts cause barge-ins or drop-offs, the next step is automating prompt improvement suggestions. This turns the analytics layer into a product optimisation engine — and a significant switching cost.</li>
-      <li><strong>LLM judge integration.</strong> Using LLMs-as-judges to score call outcomes (did the agent actually resolve the user's intent?) is a proprietary dataset play. The more calls you score, the better your quality benchmarks become.</li>
-    </ul>
+  <div class="pullquote">
+    You can A/B test a landing page in an afternoon. A/B testing a voice agent prompt takes weeks of manual transcript review.
+    <span class="attr">— A recurring complaint across voice AI founder forums</span>
+  </div>
 
-    <h2>Who builds this</h2>
-    <p>
-      The ideal founder profile here is someone who has lived the pain: a PM or founder who has deployed a voice AI agent and been frustrated by the lack of observability. Technical enough to wire up LLM-based intent extraction; product-minded enough to build the analytics UX that resonates with operators.
-    </p>
-    <p>
-      This is not a platform play. It's an analytics and observability product — think Mixpanel or PostHog, not Twilio. GTM is bottom-up, starting with indie developers and growth-stage startups deploying voice agents, then expanding to enterprise.
-    </p>
+  <div class="divider">· · ·</div>
 
-    <h2>What I'd want to see to get more conviction</h2>
-    <ul>
-      <li>5+ voice AI deployers willing to pay $500–2000/month before a product ships (letters of intent, not just warm words)</li>
-      <li>A clear answer to: "Why won't Bolna, Retell, or ElevenLabs build this natively?" (The answer is probably "platform risk + focus" — but it needs stress-testing)</li>
-      <li>A prototype that exports a conversation funnel from a Retell webhook in under 10 minutes of setup</li>
-    </ul>
+  <h2>II. What the Analytics Layer Actually Needs</h2>
 
-    <div class="tags-row">
-      <span>Voice Analytics</span>
-      <span>Conversation Intelligence</span>
-      <span>Product-Led Growth</span>
-      <span>Voice AI</span>
-      <span>Observability</span>
-      <span>LLM Evals</span>
+  <p>The missing product needs to operate at three levels — turn, session, and cohort — each exposing a different class of insight.</p>
+
+  <div class="framework">
+    <div class="fw-title">The Three Levels of Voice Analytics</div>
+    <div class="fw-grid">
+      <div class="fw-layer">
+        <div class="fw-label">Turn</div>
+        <div class="fw-desc">
+          <strong>Microsignals within a single exchange.</strong> Barge-in rate per agent prompt. Silence duration after specific utterances. Repair requests ("what did you say?"). High barge-in on a specific prompt is a direct signal of confusion or impatience — it's the voice equivalent of rage-clicking.
+          <div class="fw-tags"><span class="fw-tag">Barge-in rate</span><span class="fw-tag">Silence duration</span><span class="fw-tag">Repair rate</span></div>
+        </div>
+      </div>
+      <div class="fw-layer">
+        <div class="fw-label">Session</div>
+        <div class="fw-desc">
+          <strong>The full arc of a single call.</strong> Conversation funnel drop-off by turn. Intent resolution rate. Escalation rate to human. These are the voice equivalents of checkout funnel abandonment — the metrics every PM already knows how to act on.
+          <div class="fw-tags"><span class="fw-tag">Funnel drop-off</span><span class="fw-tag">Intent resolution</span><span class="fw-tag">Escalation rate</span></div>
+        </div>
+      </div>
+      <div class="fw-layer">
+        <div class="fw-label">Cohort</div>
+        <div class="fw-desc">
+          <strong>Longitudinal patterns across users and time.</strong> Retention across repeat calls. Topic drift as the product scales. Agent quality benchmarking across deployments. This is where network effects start to appear — cross-platform benchmarks only exist if you're aggregating across multiple deployments.
+          <div class="fw-tags"><span class="fw-tag">Retention curves</span><span class="fw-tag">Topic drift</span><span class="fw-tag">Benchmarking</span></div>
+        </div>
+      </div>
     </div>
   </div>
+
+  <p>None of this exists out of the box anywhere. Gong does some of it for human sales calls — but Gong is built for human-to-human conversations and isn't extensible to AI agents. CallMiner and similar tools are built for compliance, not product iteration.</p>
+
+  <div class="divider">· · ·</div>
+
+  <h2>III. Why Now</h2>
+
+  <p>Three things converged in 2024–25 that make this the right moment:</p>
+
+  <div class="argument">
+    <div class="argument-num">01</div>
+    <div class="argument-body">
+      <h4>Voice AI volume reached scale</h4>
+      <p>Hundreds of companies are deploying AI voice agents for customer service, outbound sales, and scheduling. The data volume is large enough to warrant analytics tooling — and the pain is felt daily by PMs and founders trying to improve agent performance without visibility into what's actually happening on calls.</p>
+    </div>
+  </div>
+
+  <div class="argument">
+    <div class="argument-num">02</div>
+    <div class="argument-body">
+      <h4>LLMs are cheap enough to do NLU at call scale</h4>
+      <p>Extracting structured intent, entity, and outcome data from transcripts now costs cents per call. The economics of real-time or near-real-time analysis finally work. What would have required a dedicated NLP team in 2021 is now a GPT-4o prompt with structured output.</p>
+    </div>
+  </div>
+
+  <div class="argument">
+    <div class="argument-num">03</div>
+    <div class="argument-body">
+      <h4>Platform APIs are stabilising</h4>
+      <p>Bolna, Retell, and Bland all have webhook and transcript APIs. An analytics layer can sit across all of them without needing carrier-level access. The infrastructure to build on top of the voice stack now exists — and the voice platforms themselves have no incentive to build deep analytics (it's not their core loop).</p>
+    </div>
+  </div>
+
+  <div class="callout">
+    <div class="callout-title">Weak Signal Worth Watching</div>
+    <p>Several Bolna and Retell customers on indie hacker forums are stitching together Airtable + Google Sheets + transcript exports to manually track conversation quality. That's a classic "people are hacking something together" signal — the market is ready for a product.</p>
+  </div>
+
+  <div class="divider">· · ·</div>
+
+  <h2>IV. The Wedge and the Moat</h2>
+
+  <p>The wedge is simple: a <strong>conversation funnel builder.</strong> You define the steps in your voice flow (greeting → intent capture → resolution → close), tag each turn, and get a Sankey diagram of where users drop off. This is immediately understandable to any PM who has ever used Mixpanel or Amplitude — zero conceptual overhead.</p>
+
+  <p>The moat builds from there in three layers:</p>
+
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Moat Layer</th>
+        <th>Mechanism</th>
+        <th>Why It Compounds</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Cross-platform benchmarks</strong></td>
+        <td>Aggregate data across Bolna, Retell, Vapi, Bland deployments</td>
+        <td>No single platform has enough volume for meaningful benchmarks. A cross-platform layer can say "your escalation rate is 2× category median" — that's a value prop no platform can match</td>
+      </tr>
+      <tr>
+        <td><strong>Prompt-level feedback loops</strong></td>
+        <td>Map specific agent prompts to turn-level outcomes, surface improvement suggestions</td>
+        <td>Turns the analytics layer into a product optimisation engine. Creates a deep switching cost — your prompt library and its performance history live inside the tool</td>
+      </tr>
+      <tr>
+        <td><strong>LLM-judge scoring</strong></td>
+        <td>Use LLMs to score call outcomes (did the agent actually resolve intent?)</td>
+        <td>The more calls you score, the better your quality benchmarks become. Proprietary dataset of outcome judgements — hard to replicate from outside</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="divider">· · ·</div>
+
+  <h2>V. Who Builds This</h2>
+
+  <p>The ideal founder profile here is someone who has lived the pain: a PM or founder who has deployed a voice AI agent and been frustrated by the lack of observability. Technical enough to wire up LLM-based intent extraction; product-minded enough to build the analytics UX that resonates with operators.</p>
+
+  <p>This is not a platform play. It's an analytics and observability product — think Mixpanel or PostHog, not Twilio. GTM is bottom-up, starting with indie developers and growth-stage startups deploying voice agents, then expanding to enterprise where the data volume and compliance requirements justify premium pricing.</p>
+
+  <div class="pullquote">
+    The companies that own the observability layer tend to outlast the platforms they sit on top of.
+    <span class="attr">— A pattern repeated across every major infrastructure wave</span>
+  </div>
+
+  <div class="divider">· · ·</div>
+
+  <h2>VI. What I'd Want to See to Get More Conviction</h2>
+
+  <div class="argument">
+    <div class="argument-num">A</div>
+    <div class="argument-body">
+      <h4>5+ voice AI deployers willing to pay before a product ships</h4>
+      <p>Letters of intent at $500–2000/month, not just warm words. The pain needs to be acute enough that operators pre-commit — that's the signal that distinguishes "nice to have" from "I need this to do my job."</p>
+    </div>
+  </div>
+
+  <div class="argument">
+    <div class="argument-num">B</div>
+    <div class="argument-body">
+      <h4>A clear answer to platform internalization risk</h4>
+      <p>Why won't Bolna, Retell, or ElevenLabs build this natively? The answer is probably "platform risk + focus" — analytics is a different product motion from real-time voice infra. But this needs stress-testing, because if even one major platform ships a good analytics layer, the wedge narrows.</p>
+    </div>
+  </div>
+
+  <div class="argument">
+    <div class="argument-num">C</div>
+    <div class="argument-body">
+      <h4>A prototype that works in 10 minutes of setup</h4>
+      <p>Drop a Retell webhook URL, get a conversation funnel diagram in under 10 minutes. If the setup is longer than that, the bottom-up GTM motion breaks down — developers won't evangelize tools that require a day of integration work.</p>
+    </div>
+  </div>
+
+</div>
+
+<div class="essay-footer">
+  <span>Omkar Ray — February 2026</span>
+  <span>Voice AI · Analytics · Product Thesis</span>
+</div>
+
 </body>
 </html>
