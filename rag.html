@@ -1,15 +1,1312 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-62YF7Y81BS"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-62YF7Y81BS');
-</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Retrieval-Augmented Generation — Deep Dive</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,500&family=DM+Mono:ital,wght@0,400;0,500;1,400&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg:       #f6f3ee;
+  --paper:    #faf8f4;
+  --ink:      #1a1714;
+  --muted:    #6b6560;
+  --faint:    #c4bfb8;
+  --rule:     #d8d2c9;
+  --card:     #efecea;
+  --burg:     #7a1f2e;
+  --blue:     #1a3a5c;
+  --teal:     #0f4a50;
+  --amber:    #7a4a00;
+  --green:    #1e5c38;
+  --purple:   #3d1a6e;
+  --orange:   #8a3800;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 56px 48px;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.masthead {
+  display: grid;
+  grid-template-columns: 1fr 220px;
+  gap: 32px;
+  padding-bottom: 24px;
+  margin-bottom: 48px;
+  border-bottom: 2.5px solid var(--ink);
+}
+.mast-eyebrow {
+  display: flex; align-items: center; gap: 16px;
+  margin-bottom: 12px;
+}
+.mast-tag {
+  font-family: 'DM Mono', monospace;
+  font-size: 8.5px; letter-spacing: .22em; text-transform: uppercase;
+  color: var(--paper); background: var(--ink);
+  padding: 3px 10px;
+}
+.mast-tag-outline {
+  font-family: 'DM Mono', monospace;
+  font-size: 8.5px; letter-spacing: .22em; text-transform: uppercase;
+  color: var(--muted); border: 1px solid var(--faint);
+  padding: 3px 10px;
+}
+h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 52px; font-weight: 700;
+  line-height: 1.02; letter-spacing: -.02em;
+}
+h1 em { font-style: italic; color: var(--burg); }
+.mast-sub {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px; font-weight: 300;
+  color: var(--muted); margin-top: 8px; line-height: 1.65;
+  max-width: 560px;
+}
+.mast-right {
+  display: flex; flex-direction: column;
+  justify-content: flex-end; gap: 10px;
+}
+.mast-rule {
+  width: 100%; height: 1px; background: var(--rule);
+}
+.mast-stat {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px; color: var(--muted);
+  letter-spacing: .1em; line-height: 2.1;
+  border-left: 2px solid var(--burg);
+  padding-left: 12px;
+}
+.mast-stat strong { color: var(--ink); }
+
+.abstract {
+  margin-bottom: 48px;
+  padding: 16px 22px;
+  border-left: 3px solid var(--burg);
+  font-family: 'Playfair Display', serif;
+  font-size: 14px;
+  font-style: italic;
+  color: var(--muted);
+  line-height: 1.85;
+  max-width: 800px;
+}
+.abstract strong { font-style: normal; color: var(--ink); font-weight: 500; }
+
+.section {
+  margin: 64px 0 22px;
+  position: relative;
+}
+.section::before {
+  content: '';
+  display: block;
+  height: 1px;
+  background: var(--ink);
+  margin-bottom: 12px;
+}
+.sec-inner { display: flex; align-items: baseline; gap: 16px; }
+.sec-n {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px; font-weight: 500;
+  letter-spacing: .18em; text-transform: uppercase;
+  color: var(--burg); flex-shrink: 0;
+  width: 36px;
+}
+.sec-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 26px; font-weight: 500; line-height: 1.1;
+}
+.sec-sub {
+  font-family: 'DM Mono', monospace;
+  font-size: 8.5px; color: var(--muted);
+  letter-spacing: .1em; text-transform: uppercase;
+  margin-top: 4px; padding-left: 52px;
+}
+
+p.body {
+  font-size: 14px; line-height: 1.8;
+  color: var(--ink); margin-bottom: 16px; max-width: 800px;
+}
+p.body strong { font-weight: 500; }
+p.body em { font-style: italic; color: var(--muted); }
+
+.math-block {
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-left: 3px solid var(--burg);
+  padding: 16px 20px;
+  margin: 14px 0;
+  line-height: 2;
+  overflow-x: auto;
+  max-width: 860px;
+}
+.math-block .lbl {
+  font-size: 8px; text-transform: uppercase; letter-spacing: .18em;
+  color: var(--muted); display: block; margin-bottom: 8px;
+  border-bottom: 1px dashed var(--rule); padding-bottom: 6px;
+}
+.math-block .eq { display: block; margin: 2px 0 2px 18px; }
+.math-block .cmt { color: var(--muted); }
+.math-block strong { font-weight: 600; color: var(--burg); }
+.m { font-family: 'DM Mono', monospace; font-size: 11px; background: rgba(0,0,0,.055); padding: 1px 5px; border-radius: 1px; color: var(--burg); }
+
+.diagram {
+  margin: 18px 0;
+  border: 1px solid var(--rule);
+  background: var(--paper);
+  overflow: hidden;
+}
+.diagram-hdr {
+  padding: 9px 18px;
+  background: var(--ink);
+  color: var(--bg);
+  font-family: 'DM Mono', monospace;
+  font-size: 8.5px; text-transform: uppercase; letter-spacing: .14em;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.diagram-hdr span { opacity: .4; font-size: 8px; }
+.diagram-body { padding: 22px; }
+.diagram-note {
+  padding: 9px 18px;
+  border-top: 1px dashed var(--rule);
+  font-family: 'DM Mono', monospace;
+  font-size: 8.5px; color: var(--muted); line-height: 1.75;
+}
+
+.tbl { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.tbl th {
+  font-family: 'DM Mono', monospace;
+  font-size: 8.5px; text-transform: uppercase; letter-spacing: .1em;
+  padding: 9px 13px; background: var(--ink); color: var(--bg);
+  text-align: left; font-weight: 500;
+  border-right: 1px solid rgba(255,255,255,.08);
+}
+.tbl td {
+  padding: 9px 13px; border-bottom: 1px solid var(--rule);
+  vertical-align: top; line-height: 1.55; color: var(--muted);
+  border-right: 1px solid var(--rule);
+}
+.tbl td.key { color: var(--ink); font-weight: 500; font-size: 13px; }
+.tbl tr:nth-child(even) td { background: rgba(0,0,0,.015); }
+.good  { color: var(--green) !important; font-family: 'DM Mono',monospace; font-size: 10.5px; }
+.warn  { color: var(--amber) !important; font-family: 'DM Mono',monospace; font-size: 10.5px; }
+.bad   { color: var(--burg)  !important; font-family: 'DM Mono',monospace; font-size: 10.5px; }
+
+.g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--rule); margin: 18px 0; }
+.g3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1px; background: var(--rule); margin: 18px 0; }
+.g4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 1px; background: var(--rule); margin: 18px 0; }
+.gc {
+  background: var(--paper);
+  padding: 18px;
+}
+.gc-name {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px; font-weight: 500; letter-spacing: .08em;
+  color: var(--ink); margin-bottom: 6px;
+  text-transform: uppercase;
+}
+.gc-formula {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px; color: var(--burg);
+  background: rgba(122,31,46,.055);
+  padding: 5px 8px; margin-bottom: 10px; line-height: 1.55;
+}
+.gc-prop {
+  font-size: 12px; color: var(--muted);
+  margin-bottom: 4px; padding-left: 12px; position: relative; line-height: 1.5;
+}
+.gc-prop::before { content: '—'; position: absolute; left: 0; color: var(--faint); }
+.gc-prop strong { color: var(--ink); font-weight: 500; }
+.gc-tag {
+  display: inline-block;
+  font-family: 'DM Mono', monospace; font-size: 8px;
+  padding: 2px 8px; letter-spacing: .1em; text-transform: uppercase;
+  margin-top: 10px; border: 1px solid;
+}
+
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 14px 0; }
+.note-box { background: var(--card); border: 1px solid var(--rule); padding: 18px; }
+.note-box h4 { font-size: 14px; font-weight: 500; margin-bottom: 8px; font-family: 'Playfair Display', serif; }
+.note-box p { font-size: 12px; color: var(--muted); line-height: 1.65; }
+.note-box .m { font-size: 10.5px; }
+
+.callout {
+  background: rgba(122,31,46,.05);
+  border: 1px solid rgba(122,31,46,.2);
+  border-left: 3px solid var(--burg);
+  padding: 14px 18px; margin: 14px 0;
+  font-size: 13px; line-height: 1.7; max-width: 800px;
+}
+.callout strong { font-weight: 500; color: var(--burg); }
+
+hr.rule { border: none; border-top: 1px solid var(--rule); margin: 36px 0; }
+
+.footer {
+  margin-top: 52px; padding-top: 16px;
+  border-top: 1px solid var(--rule);
+  font-family: 'DM Mono', monospace; font-size: 8.5px; color: var(--muted);
+  display: flex; justify-content: space-between;
+  letter-spacing: .05em; line-height: 1.9;
+}
+
+.back-link {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: 'DM Mono', monospace; font-size: 9px;
+  letter-spacing: .12em; text-transform: uppercase;
+  color: var(--muted); text-decoration: none;
+  margin-bottom: 40px;
+  transition: color .2s;
+}
+.back-link:hover { color: var(--ink); }
+</style>
+</head>
+<body>
+
+<a href="index.html" class="back-link">&#8592; Back to index</a>
+
+<div class="masthead">
+  <div>
+    <div class="mast-eyebrow">
+      <div class="mast-tag">Technical Deep Dive</div>
+      <div class="mast-tag-outline">Information Retrieval · LLMs · Embeddings</div>
+    </div>
+    <h1>Retrieval-<em>Augmented</em><br>Generation</h1>
+    <div class="mast-sub">A complete systems treatment — chunking strategies, embedding geometry, contextual retrieval, late chunking, hybrid scoring, re-ranking, context assembly, and failure modes. Every component derived from first principles.</div>
+  </div>
+  <div class="mast-right">
+    <div class="mast-rule"></div>
+    <div class="mast-stat">
+      <strong>Sections</strong> &middot; 9<br>
+      <strong>Exhibits</strong> &middot; 9<br>
+      <strong>Scope</strong> &middot; Full pipeline<br>
+      including Contextual RAG,<br>
+      Late Chunking, BM25+dense<br>
+      hybrid, RRF, re-ranking,<br>
+      context window assembly<br>
+      <strong>Date</strong> &middot; Feb 2026
+    </div>
+  </div>
+</div>
+
+<div class="abstract">
+  <strong>Abstract.</strong> Retrieval-Augmented Generation is not a single algorithm &mdash; it is a pipeline of seven distinct engineering decisions, each with its own failure modes and mathematical tradeoffs. This document derives each component from first principles: the information-theoretic basis for chunking, the geometry of embedding spaces and why context destroys cosine similarity, the Anthropic Contextual Retrieval mechanism and its effect on embedding distributions, JinaAI&rsquo;s Late Chunking and the difference between pre-chunk and post-chunk pooling, the BM25/dense hybrid with Reciprocal Rank Fusion, cross-encoder re-ranking cost models, and the positional degradation problem in context window assembly. The goal is to give engineers a precise model of where each component can fail &mdash; and what to do about it.
+</div>
+
+<!-- SECTION 1 -->
+<div class="section">
+  <div class="sec-inner"><div class="sec-n">&sect; 1</div><div><div class="sec-title">The Full RAG Pipeline</div></div></div>
+  <div class="sec-sub">Seven components, three failure classes, one information flow</div>
+</div>
+
+<p class="body">A RAG system has two phases that operate at different times: an <strong>offline indexing phase</strong> that processes documents into a searchable store, and an <strong>online query phase</strong> that retrieves and generates. Every performance problem in RAG traces to one of three failure classes: (A) <em>recall failure</em> &mdash; the correct chunk is not retrieved; (B) <em>precision failure</em> &mdash; irrelevant chunks dilute the context; (C) <em>generation failure</em> &mdash; the correct chunks are retrieved but the LLM fails to use them.</p>
+
+<div class="diagram">
+  <div class="diagram-hdr">Exhibit 1 &mdash; Complete RAG Pipeline: Offline and Online Phases <span>all components and data flows</span></div>
+  <div class="diagram-body">
+    <svg viewBox="0 0 980 460" xmlns="http://www.w3.org/2000/svg" width="100%" style="display:block;">
+      <rect width="980" height="460" fill="#faf8f4"/>
+      <rect x="8" y="8" width="460" height="444" fill="rgba(122,31,46,.03)" stroke="rgba(122,31,46,.15)" stroke-width="1" stroke-dasharray="5,3"/>
+      <text x="238" y="26" font-family="'DM Mono',monospace" font-size="9" fill="#7a1f2e" text-anchor="middle" letter-spacing="2">OFFLINE &mdash; INDEXING PHASE</text>
+      <rect x="480" y="8" width="492" height="444" fill="rgba(26,58,92,.03)" stroke="rgba(26,58,92,.15)" stroke-width="1" stroke-dasharray="5,3"/>
+      <text x="726" y="26" font-family="'DM Mono',monospace" font-size="9" fill="#1a3a5c" text-anchor="middle" letter-spacing="2">ONLINE &mdash; QUERY PHASE</text>
+
+      <rect x="24" y="40" width="200" height="76" fill="white" stroke="#1a1714" stroke-width="1.5"/>
+      <rect x="24" y="40" width="200" height="20" fill="#1a1714"/>
+      <text x="34" y="54" font-family="'DM Mono',monospace" font-size="8" fill="white" letter-spacing="1">01 &middot; DOCUMENT INGESTION</text>
+      <text x="34" y="72" font-family="'DM Sans',sans-serif" font-size="11.5" fill="#1a1714">Parse, clean, extract</text>
+      <text x="34" y="87" font-family="'DM Mono',monospace" font-size="9" fill="#6b6560">PDF, HTML, Markdown, DOCX</text>
+      <text x="34" y="100" font-family="'DM Mono',monospace" font-size="9" fill="#6b6560">Metadata: source, date, title</text>
+      <line x1="124" y1="118" x2="124" y2="138" stroke="#1a1714" stroke-width="1.5" marker-end="url(#arr)"/>
+
+      <rect x="24" y="140" width="200" height="88" fill="white" stroke="#7a1f2e" stroke-width="2"/>
+      <rect x="24" y="140" width="200" height="20" fill="#7a1f2e"/>
+      <text x="34" y="154" font-family="'DM Mono',monospace" font-size="8" fill="white" letter-spacing="1">02 &middot; CHUNKING  &#9733; CRITICAL</text>
+      <text x="34" y="172" font-family="'DM Sans',sans-serif" font-size="11.5" fill="#1a1714">Strategy selection</text>
+      <text x="34" y="186" font-family="'DM Mono',monospace" font-size="9" fill="#6b6560">Fixed / Sentence / Semantic</text>
+      <text x="34" y="200" font-family="'DM Mono',monospace" font-size="9" fill="#6b6560">Recursive / Proposition</text>
+      <text x="34" y="214" font-family="'DM Mono',monospace" font-size="9" fill="#6b6560">Overlap: 10&ndash;20% of window</text>
+      <line x1="124" y1="230" x2="124" y2="250" stroke="#1a1714" stroke-width="1.5" marker-end="url(#arr)"/>
+
+      <rect x="24" y="252" width="200" height="90" fill="white" stroke="#7a1f2e" stroke-width="2"/>
+      <rect x="24" y="252" width="200" height="20" fill="#7a1f2e"/>
+      <text x="34" y="266" font-family="'DM Mono',monospace" font-size="8" fill="white" letter-spacing="1">03 &middot; CONTEXTUAL ENRICHMENT</text>
+      <text x="34" y="284" font-family="'DM Sans',sans-serif" font-size="11.5" fill="#1a1714">Anthropic Contextual RAG</text>
+      <text x="34" y="298" font-family="'DM Mono',monospace" font-size="9" fill="#6b6560">Prepend document context</text>
+      <text x="34" y="312" font-family="'DM Mono',monospace" font-size="9" fill="#6b6560">to each chunk before embed</text>
+      <text x="34" y="326" font-family="'DM Mono',monospace" font-size="9" fill="#7a1f2e">&#8594; &sect;4 full derivation</text>
+      <line x1="124" y1="344" x2="124" y2="364" stroke="#1a1714" stroke-width="1.5" marker-end="url(#arr)"/>
+
+      <rect x="24" y="366" width="200" height="76" fill="white" stroke="#1a3a5c" stroke-width="2"/>
+      <rect x="24" y="366" width="200" height="20" fill="#1a3a5c"/>
+      <text x="34" y="380" font-family="'DM Mono',monospace" font-size="8" fill="white" letter-spacing="1">04 &middot; EMBEDDING  &#9733; CRITICAL</text>
+      <text x="34" y="398" font-family="'DM Sans',sans-serif" font-size="11.5" fill="#1a1714">Dense vectors + BM25 index</text>
+      <text x="34" y="412" font-family="'DM Mono',monospace" font-size="9" fill="#6b6560">e(chunk) &#8712; R^d  (d=1536&ndash;3072)</text>
+      <text x="34" y="426" font-family="'DM Mono',monospace" font-size="9" fill="#6b6560">Late chunking: &sect;5</text>
+
+      <rect x="268" y="252" width="180" height="190" fill="white" stroke="#1a3a5c" stroke-width="1.5"/>
+      <rect x="268" y="252" width="180" height="20" fill="#1a3a5c"/>
+      <text x="358" y="266" font-family="'DM Mono',monospace" font-size="8" fill="white" text-anchor="middle" letter-spacing="1">VECTOR STORE</text>
+      <text x="358" y="290" font-family="'DM Mono',monospace" font-size="9.5" fill="#1a3a5c" text-anchor="middle">Dense index</text>
+      <text x="358" y="305" font-family="'DM Mono',monospace" font-size="9" fill="#6b6560" text-anchor="middle">HNSW / IVF-PQ</text>
+      <text x="358" y="320" font-family="'DM Mono',monospace" font-size="9" fill="#6b6560" text-anchor="middle">Pinecone, Weaviate, pgvector</text>
+      <line x1="278" y1="336" x2="438" y2="336" stroke="#d8d2c9" stroke-width="1"/>
+      <text x="358" y="355" font-family="'DM Mono',monospace" font-size="9.5" fill="#7a4a00" text-anchor="middle">Sparse index</text>
+      <text x="358" y="370" font-family="'DM Mono',monospace" font-size="9" fill="#6b6560" text-anchor="middle">BM25 / TF-IDF</text>
+      <text x="358" y="385" font-family="'DM Mono',monospace" font-size="9" fill="#6b6560" text-anchor="middle">Elasticsearch, BM25S</text>
+      <text x="358" y="400" font-family="'DM Mono',monospace" font-size="9" fill="#6b6560" text-anchor="middle">+ metadata filters</text>
+      <text x="358" y="428" font-family="'DM Mono',monospace" font-size="9" fill="#6b6560" text-anchor="middle">Chunk + metadata stored</text>
+      <line x1="226" y1="406" x2="266" y2="380" stroke="#1a3a5c" stroke-width="1.5" marker-end="url(#arrblue)"/>
+
+      <rect x="496" y="40" width="180" height="56" fill="white" stroke="#1a1714" stroke-width="1.5"/>
+      <rect x="496" y="40" width="180" height="20" fill="#1a1714"/>
+      <text x="506" y="54" font-family="'DM Mono',monospace" font-size="8" fill="white" letter-spacing="1">05 &middot; QUERY PROCESSING</text>
+      <text x="506" y="72" font-family="'DM Sans',sans-serif" font-size="11.5" fill="#1a1714">Raw user query</text>
+      <text x="506" y="85" font-family="'DM Mono',monospace" font-size="9" fill="#6b6560">HyDE / query expansion optional</text>
+      <line x1="586" y1="98" x2="586" y2="118" stroke="#1a1714" stroke-width="1.5" marker-end="url(#arr)"/>
+
+      <rect x="496" y="120" width="180" height="90" fill="white" stroke="#7a1f2e" stroke-width="2"/>
+      <rect x="496" y="120" width="180" height="20" fill="#7a1f2e"/>
+      <text x="506" y="134" font-family="'DM Mono',monospace" font-size="8" fill="white" letter-spacing="1">06 &middot; RETRIEVAL + FUSION &#9733;</text>
+      <text x="506" y="152" font-family="'DM Sans',sans-serif" font-size="11.5" fill="#1a1714">Hybrid search</text>
+      <text x="506" y="166" font-family="'DM Mono',monospace" font-size="9" fill="#6b6560">Dense: cos_sim(e(q), e(c))</text>
+      <text x="506" y="180" font-family="'DM Mono',monospace" font-size="9" fill="#6b6560">Sparse: BM25(q, c)</text>
+      <text x="506" y="194" font-family="'DM Mono',monospace" font-size="9" fill="#7a1f2e">&#8594; RRF fusion: &sect;6</text>
+      <line x1="450" y1="348" x2="494" y2="200" stroke="#1a3a5c" stroke-width="1.5" stroke-dasharray="4,2" marker-end="url(#arrblue)"/>
+      <line x1="586" y1="212" x2="586" y2="232" stroke="#1a1714" stroke-width="1.5" marker-end="url(#arr)"/>
+
+      <rect x="496" y="234" width="180" height="78" fill="white" stroke="#1a3a5c" stroke-width="2"/>
+      <rect x="496" y="234" width="180" height="20" fill="#1a3a5c"/>
+      <text x="506" y="248" font-family="'DM Mono',monospace" font-size="8" fill="white" letter-spacing="1">07 &middot; RE-RANKING</text>
+      <text x="506" y="266" font-family="'DM Sans',sans-serif" font-size="11.5" fill="#1a1714">Cross-encoder scoring</text>
+      <text x="506" y="280" font-family="'DM Mono',monospace" font-size="9" fill="#6b6560">score(q, c) joint encoding</text>
+      <text x="506" y="294" font-family="'DM Mono',monospace" font-size="9" fill="#6b6560">Cohere / BGE-reranker</text>
+      <text x="506" y="304" font-family="'DM Mono',monospace" font-size="9" fill="#1a3a5c">Top-k &#8594; Top-n (k&gt;&gt;n)</text>
+      <line x1="586" y1="314" x2="586" y2="334" stroke="#1a1714" stroke-width="1.5" marker-end="url(#arr)"/>
+
+      <rect x="496" y="336" width="180" height="76" fill="white" stroke="#0f4a50" stroke-width="2"/>
+      <rect x="496" y="336" width="180" height="20" fill="#0f4a50"/>
+      <text x="506" y="350" font-family="'DM Mono',monospace" font-size="8" fill="white" letter-spacing="1">08 &middot; CONTEXT ASSEMBLY</text>
+      <text x="506" y="368" font-family="'DM Sans',sans-serif" font-size="11.5" fill="#1a1714">Pack into context window</text>
+      <text x="506" y="382" font-family="'DM Mono',monospace" font-size="9" fill="#6b6560">Position matters: &sect;9</text>
+      <text x="506" y="396" font-family="'DM Mono',monospace" font-size="9" fill="#6b6560">Dedup + token budget</text>
+      <line x1="586" y1="414" x2="586" y2="434" stroke="#1a1714" stroke-width="1.5" marker-end="url(#arr)"/>
+
+      <rect x="496" y="430" width="180" height="22" fill="#1a1714"/>
+      <text x="586" y="445" font-family="'DM Mono',monospace" font-size="8.5" fill="white" text-anchor="middle" letter-spacing="1">LLM GENERATION &#8594; RESPONSE</text>
+
+      <text x="720" y="58" font-family="'DM Mono',monospace" font-size="8" fill="#7a1f2e" font-weight="500">FAILURE CLASSES</text>
+      <rect x="718" y="64" width="240" height="90" fill="rgba(122,31,46,.04)" stroke="rgba(122,31,46,.2)" stroke-width="1"/>
+      <text x="728" y="82" font-family="'DM Mono',monospace" font-size="8.5" fill="#7a1f2e">(A) Recall failure</text>
+      <text x="728" y="95" font-family="'DM Mono',monospace" font-size="8" fill="#6b6560">correct chunk not retrieved</text>
+      <text x="728" y="110" font-family="'DM Mono',monospace" font-size="8.5" fill="#7a4a00">(B) Precision failure</text>
+      <text x="728" y="123" font-family="'DM Mono',monospace" font-size="8" fill="#6b6560">irrelevant chunks dilute context</text>
+      <text x="728" y="138" font-family="'DM Mono',monospace" font-size="8.5" fill="#0f4a50">(C) Generation failure</text>
+      <text x="728" y="151" font-family="'DM Mono',monospace" font-size="8" fill="#6b6560">correct chunks, wrong answer</text>
+
+      <rect x="718" y="166" width="240" height="70" fill="rgba(26,58,92,.04)" stroke="rgba(26,58,92,.2)" stroke-width="1"/>
+      <text x="728" y="183" font-family="'DM Mono',monospace" font-size="8" fill="#1a3a5c" letter-spacing="1">QUERY EXPANSION VARIANTS</text>
+      <text x="728" y="198" font-family="'DM Mono',monospace" font-size="8.5" fill="#1a1714">HyDE: embed hypothetical answer</text>
+      <text x="728" y="211" font-family="'DM Mono',monospace" font-size="8" fill="#6b6560">instead of query &mdash; &sect;6 note</text>
+      <text x="728" y="224" font-family="'DM Mono',monospace" font-size="8.5" fill="#1a1714">Multi-query: n paraphrases &#8594; union</text>
+      <text x="718" y="254" font-family="'DM Mono',monospace" font-size="8" fill="#6b6560">&#9733; = highest-impact components</text>
+
+      <defs>
+        <marker id="arr" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+          <path d="M0,0 L8,4 L0,8 Z" fill="#1a1714"/>
+        </marker>
+        <marker id="arrblue" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto">
+          <path d="M0,0 L7,3.5 L0,7 Z" fill="#1a3a5c"/>
+        </marker>
+        <marker id="arrburg" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto">
+          <path d="M0,0 L7,3.5 L0,7 Z" fill="#7a1f2e"/>
+        </marker>
+      </defs>
+    </svg>
+  </div>
+  <div class="diagram-note">Two components marked &#9733; dominate end-to-end performance: chunking strategy and embedding quality. Errors made at these stages cannot be corrected downstream. Re-ranking improves precision but cannot recover recall &mdash; if the correct chunk is not in the top-k retrieved by the retriever, re-ranking never sees it. The offline pipeline runs once; the online pipeline runs per query. Latency budget is entirely in the online phase.</div>
+</div>
+
+<!-- SECTION 2: CHUNKING -->
+<div class="section">
+  <div class="sec-inner"><div class="sec-n">&sect; 2</div><div><div class="sec-title">Chunking Strategies</div></div></div>
+  <div class="sec-sub">The mathematics of split decisions &mdash; fixed, sentence, semantic, recursive, proposition, late</div>
+</div>
+
+<p class="body">Chunking is the single decision with the highest leverage on retrieval quality, yet it is the most frequently treated as a hyperparameter to be tuned by trial and error. Every chunking strategy embeds an implicit model of what the retrieval unit should be. Making that model explicit reveals when each strategy fails.</p>
+
+<div class="math-block">
+  <span class="lbl">The Chunking Objective &mdash; information theory framing</span>
+  <span class="eq"></span>
+  <span class="eq">Given document D, partition it into chunks C = {c&#8321;, &hellip;, c&#8345;} to maximise:</span>
+  <span class="eq"></span>
+  <span class="eq">  &Sigma;&#7522;  I( c_relevant ; q )  &minus;  &Sigma;&#7522;  I( c_irrelevant ; q )  subject to |c&#7522;| &le; L_max</span>
+  <span class="eq"></span>
+  <span class="eq"><span class="cmt">I(c ; q) = mutual information between chunk c and query q</span></span>
+  <span class="eq"><span class="cmt">L_max    = context budget allocated per chunk (balance: granularity vs. coverage)</span></span>
+  <span class="eq"></span>
+  <span class="eq"><span class="cmt">This is intractable in closed form. Every chunking strategy is an approximation.</span></span>
+  <span class="eq"><span class="cmt">The core tradeoff: small chunks &#8594; high precision, low recall (context stripped)</span></span>
+  <span class="eq"><span class="cmt">                  large chunks &#8594; high recall, low precision (diluted relevance signal)</span></span>
+</div>
+
+<div class="diagram">
+  <div class="diagram-hdr">Exhibit 2 &mdash; Six Chunking Strategies: Mechanism, Mathematics, and Failure Mode <span>ordered by conceptual sophistication</span></div>
+  <div class="diagram-body">
+    <div class="g2">
+      <div class="gc">
+        <div class="gc-name">&#9312; Fixed-Size (Character / Token)</div>
+        <div class="gc-formula">chunks = [D[i:i+L] for i in range(0, len(D), L-overlap)]
+overlap = 0.1L to 0.2L  (prevents boundary splits)</div>
+        <div class="gc-prop">Simplest strategy. Deterministic. No semantic awareness.</div>
+        <div class="gc-prop">Overlap parameter prevents information loss at boundaries &mdash; critical for mid-sentence splits.</div>
+        <div class="gc-prop"><strong>Failure mode:</strong> splits sentences, paragraphs, tables at arbitrary positions. Resulting chunks lack coherent meaning. Embeddings of incomplete sentences have poor quality.</div>
+        <div class="gc-prop"><strong>When to use:</strong> homogeneous documents with uniform information density (legal clauses, standardised reports). Never use for prose or technical documentation.</div>
+        <div class="gc-tag" style="border-color:var(--burg);color:var(--burg);">complexity: trivial</div>
+      </div>
+      <div class="gc">
+        <div class="gc-name">&#9313; Sentence / Paragraph Boundary</div>
+        <div class="gc-formula">splits = [". ", "? ", "! ", "\n\n"]
+chunks = split_on_boundaries(D, splits, max_tokens=L)
+merge small chunks: if len(c) &lt; L_min &#8594; merge with next</div>
+        <div class="gc-prop">Respects linguistic structure. Clean semantic units.</div>
+        <div class="gc-prop">Hard minimum <span class="m">L_min</span> prevents degenerate 3-token chunks (e.g., &ldquo;Yes.&rdquo; or &ldquo;No.&rdquo;).</div>
+        <div class="gc-prop"><strong>Failure mode:</strong> sentence boundaries do not align with topic boundaries. A single paragraph can discuss two distinct concepts &mdash; splitting by sentence produces chunks that are topically coherent within but not across boundaries.</div>
+        <div class="gc-prop"><strong>When to use:</strong> Q&amp;A corpora, FAQ documents, content where sentences are naturally self-contained answers. Good default for most use cases.</div>
+        <div class="gc-tag" style="border-color:var(--amber);color:var(--amber);">complexity: low</div>
+      </div>
+      <div class="gc">
+        <div class="gc-name">&#9314; Recursive / Hierarchical</div>
+        <div class="gc-formula">separators = ["\n\n", "\n", ". ", " ", ""]
+result = recursive_split(D, separators, max_tokens=L)
+  if len(chunk) &gt; L: recurse with next separator</div>
+        <div class="gc-prop">LangChain RecursiveCharacterTextSplitter default approach.</div>
+        <div class="gc-prop">Tries paragraph &#8594; sentence &#8594; word splits in order &mdash; preserves as much structure as possible given token budget.</div>
+        <div class="gc-prop"><strong>Failure mode:</strong> still character/token-driven at leaf level. Produces variable-length chunks which complicate batching and embedding. Does not detect semantic topic shifts.</div>
+        <div class="gc-prop"><strong>When to use:</strong> general documents where you know nothing about structure. Good baseline before semantic chunking.</div>
+        <div class="gc-tag" style="border-color:var(--amber);color:var(--amber);">complexity: low</div>
+      </div>
+      <div class="gc">
+        <div class="gc-name">&#9315; Semantic Chunking</div>
+        <div class="gc-formula">E = [embed(s&#7522;) for s&#7522; in sentences(D)]
+for i in range(1, len(E)):
+  sim[i] = cosine(E[i], E[i+w])   # w = window
+split at i where sim[i] &lt; threshold &#120591;</div>
+        <div class="gc-prop">Embeds sentences, computes rolling cosine similarity, splits where similarity drops below threshold <span class="m">&#120591;</span>.</div>
+        <div class="gc-prop">Window <span class="m">w</span> (1&ndash;3) smooths local variation &mdash; single-sentence dips don&rsquo;t cause false splits.</div>
+        <div class="gc-prop"><strong>Failure mode:</strong> requires per-document embedding pass &mdash; slow for large corpora. Threshold <span class="m">&#120591;</span> is sensitive: too low &#8594; few chunks, too high &#8594; fragmented. Gradual topic shifts (common in dense technical text) are missed.</div>
+        <div class="gc-prop"><strong>Mathematics:</strong> percentile threshold more stable than absolute: <span class="m">&#120591; = percentile(sim, 25)</span> &mdash; split at lowest 25% of similarity scores.</div>
+        <div class="gc-tag" style="border-color:var(--teal);color:var(--teal);">complexity: moderate</div>
+      </div>
+      <div class="gc">
+        <div class="gc-name">&#9316; Proposition Chunking</div>
+        <div class="gc-formula">propositions = LLM_extract(chunk,
+  prompt="Extract atomic, self-contained facts.")
+# each proposition is a standalone, verifiable claim
+# e.g. "Paris is the capital of France."</div>
+        <div class="gc-prop">Uses an LLM to rewrite chunks as a list of atomic, self-contained propositions (Chen et al., 2023 &mdash; DenseX Retrieval).</div>
+        <div class="gc-prop">Each proposition is: (a) factual, (b) complete without external context, (c) as short as possible.</div>
+        <div class="gc-prop"><strong>Why it works:</strong> propositions align perfectly with the typical query structure &mdash; a question seeking a specific fact. Cosine similarity between question and proposition embeddings is maximised because neither has extraneous words.</div>
+        <div class="gc-prop"><strong>Failure mode:</strong> expensive &mdash; requires one LLM call per chunk. Misses relational and procedural knowledge that cannot be atomised. Long documents with 1000s of propositions &#8594; large index, high latency.</div>
+        <div class="gc-tag" style="border-color:var(--purple);color:var(--purple);">complexity: high &mdash; LLM call per chunk</div>
+      </div>
+      <div class="gc">
+        <div class="gc-name">&#9317; Late Chunking (JinaAI, 2024)</div>
+        <div class="gc-formula"># Standard: chunk THEN embed
+e(c&#7522;) = mean_pool(encoder(c&#7522;))   &#8592; no context
+
+# Late chunking: embed THEN chunk (JinaAI)
+H = encoder(D)  # full document token embeddings
+e(c&#7522;) = mean_pool(H[start_i : end_i])  &#8592; full context</div>
+        <div class="gc-prop">Full mathematical derivation: &sect;5.</div>
+        <div class="gc-prop">Key insight: chunk boundaries applied <em>after</em> the transformer attention pass &mdash; every token attends to the full document before pooling.</div>
+        <div class="gc-prop"><strong>Requires:</strong> a long-context embedding model (jina-embeddings-v2, e5-mistral, Voyage-2). Document must fit in model&rsquo;s context window.</div>
+        <div class="gc-tag" style="border-color:var(--burg);color:var(--burg);">complexity: high &mdash; full-doc context required</div>
+      </div>
+    </div>
+  </div>
+  <div class="diagram-note">Chunking strategy selection decision tree: (1) Is the document structured (headers, sections)? &#8594; Use structure-aware splitting first, then recursive within sections. (2) Is the index small enough to afford LLM preprocessing? &#8594; Proposition chunking for fact-heavy corpora. (3) Does the embedding model support long context? &#8594; Late chunking for the best context preservation. (4) General production default: recursive sentence splitting at 512 tokens with 10&ndash;15% overlap + semantic coherence check.</div>
+</div>
+
+<!-- SECTION 3: EMBEDDING GEOMETRY -->
+<div class="section">
+  <div class="sec-inner"><div class="sec-n">&sect; 3</div><div><div class="sec-title">Embedding Geometry and Retrieval Scoring</div></div></div>
+  <div class="sec-sub">Cosine similarity, dot product, the hubness problem, and what contextual embeddings fix</div>
+</div>
+
+<p class="body">Dense retrieval reduces to nearest-neighbor search in a high-dimensional space. The choice of similarity function, the geometry of the embedding space, and the normalisation of vectors all affect retrieval accuracy in ways that are mathematically precise &mdash; and frequently misunderstood.</p>
+
+<div class="math-block">
+  <span class="lbl">Similarity Functions &mdash; when each is correct</span>
+  <span class="eq"></span>
+  <span class="eq"><strong>Cosine similarity:</strong></span>
+  <span class="eq">  cos(q, c) = (q &middot; c) / (||q|| ||c||)    &#8712;  [-1, 1]</span>
+  <span class="eq"><span class="cmt">  Measures angular similarity &mdash; invariant to vector magnitude.</span></span>
+  <span class="eq"><span class="cmt">  Correct when: magnitude is not informative (most text embeddings).</span></span>
+  <span class="eq"></span>
+  <span class="eq"><strong>Dot product:</strong></span>
+  <span class="eq">  dot(q, c) = q &middot; c  =  ||q|| ||c|| cos(&theta;)   (no normalisation)</span>
+  <span class="eq"><span class="cmt">  Sensitive to magnitude. Biases toward high-norm vectors.</span></span>
+  <span class="eq"><span class="cmt">  Correct when: magnitude encodes importance (learned dense retrieval: DPR, ColBERT).</span></span>
+  <span class="eq"><span class="cmt">  OpenAI text-embedding-ada-002: L2-normalised &#8594; dot product == cosine.</span></span>
+  <span class="eq"></span>
+  <span class="eq"><strong>Euclidean (L2) distance:</strong></span>
+  <span class="eq">  d(q, c) = ||q - c||&#8322;  =  sqrt( 2 - 2&middot;cos(q,c) )  for unit vectors</span>
+  <span class="eq"><span class="cmt">  Equivalent to cosine for normalised vectors. Used by FAISS L2 index.</span></span>
+  <span class="eq"><span class="cmt">  Implementation note: maximise cosine &#8596; minimise L2 for unit vectors.</span></span>
+</div>
+
+<p class="body"><strong>The hubness problem.</strong> In high-dimensional spaces (d &ge; 100), certain vectors become &ldquo;hubs&rdquo; &mdash; they appear as the nearest neighbor to an anomalously large fraction of query vectors regardless of semantic content. This occurs because in high dimensions, all points concentrate near a thin shell at distance <span class="m">&radic;d</span> from the origin, and the variance of inter-point distances collapses. Hub vectors are retrieved frequently; peripheral vectors almost never, even when they are the correct answer. This is a fundamental geometric property of the embedding space, not a model deficiency. Remediation: reduce embedding dimension or re-rank to de-weight known hubs.</p>
+
+<div class="math-block">
+  <span class="lbl">Approximate Nearest Neighbor &mdash; HNSW and IVF-PQ tradeoffs</span>
+  <span class="eq"></span>
+  <span class="eq"><strong>Exact search:</strong>  O(n &middot; d)  per query &mdash; infeasible at n &gt; 10&#8310;</span>
+  <span class="eq"></span>
+  <span class="eq"><strong>HNSW (Hierarchical Navigable Small World):</strong></span>
+  <span class="eq">  Build: O(n log n)   |  Query: O(log n)   |  Recall@10: 0.98+</span>
+  <span class="eq">  ef_construction (build quality) and ef_search (query quality) tradeoff speed/recall</span>
+  <span class="eq"><span class="cmt">  In-memory graph. Best for n &lt; 10&#8311;. Used by Weaviate, Qdrant, pgvector.</span></span>
+  <span class="eq"></span>
+  <span class="eq"><strong>IVF-PQ (Inverted File Index + Product Quantisation):</strong></span>
+  <span class="eq">  Build: k-means centroids (nlist clusters) + encode vectors as product codes</span>
+  <span class="eq">  Query: O(d &middot; nprobe)  where nprobe = number of cells to search</span>
+  <span class="eq">  Memory: 8&ndash;16 bytes per vector vs 4d bytes exact (d=1536 &#8594; 6144 bytes exact vs ~16 bytes)</span>
+  <span class="eq"><span class="cmt">  PQ compression loses recall: @nprobe=50, recall@10 ~= 0.92 for d=1536</span></span>
+  <span class="eq"><span class="cmt">  Best for n &gt; 10&#8311; where HNSW memory is prohibitive.</span></span>
+</div>
+
+<!-- SECTION 4: CONTEXTUAL RAG -->
+<div class="section">
+  <div class="sec-inner"><div class="sec-n">&sect; 4</div><div><div class="sec-title">Contextual Retrieval (Anthropic, 2024)</div></div></div>
+  <div class="sec-sub">How prepending document context to chunks changes the embedding distribution and why it works</div>
+</div>
+
+<p class="body">Standard RAG embeds each chunk in isolation. This creates a fundamental problem: a chunk like &ldquo;The revenue increased by 12% in Q3&rdquo; contains no information about <em>which company, which year, or which revenue line</em>. Its embedding is maximally ambiguous. When retrieved for a query about Apple&rsquo;s Q3 performance, it may rank below irrelevant chunks that happen to mention Apple explicitly.</p>
+
+<p class="body">Anthropic&rsquo;s Contextual Retrieval (September 2024) addresses this by prepending a brief, document-level context to each chunk <em>before embedding</em>. The context is generated by an LLM using the full document as input.</p>
+
+<div class="math-block">
+  <span class="lbl">Contextual Retrieval &mdash; the mechanism and embedding effect</span>
+  <span class="eq"></span>
+  <span class="eq"><strong>Standard RAG:</strong></span>
+  <span class="eq">  e_standard(c&#7522;) = encoder( c&#7522; )       &#8592; chunk only, no document context</span>
+  <span class="eq"></span>
+  <span class="eq"><strong>Contextual Retrieval:</strong></span>
+  <span class="eq">  ctx_i = LLM( document=D, chunk=c&#7522;,</span>
+  <span class="eq">              prompt="Describe where this chunk fits in the document." )</span>
+  <span class="eq">  c_contextual_i = ctx_i + "\n\n" + c&#7522;</span>
+  <span class="eq">  e_contextual(c&#7522;) = encoder( c_contextual_i )   &#8592; context-enriched embedding</span>
+  <span class="eq"></span>
+  <span class="eq"><span class="cmt">ctx_i is typically 50-100 tokens. It is prepended, not appended &mdash;</span></span>
+  <span class="eq"><span class="cmt">transformer attention weights beginning of sequence more reliably.</span></span>
+  <span class="eq"></span>
+  <span class="eq"><strong>Why the embedding changes:</strong></span>
+  <span class="eq">  e_standard("Revenue increased 12% in Q3") &asymp; e("generic financial metric")</span>
+  <span class="eq">  ctx = "This chunk is from Apple's 2024 annual report, Q3 results section."</span>
+  <span class="eq">  e_contextual(ctx + chunk) &asymp; e("Apple Q3 2024 revenue growth")   &#8592; anchored</span>
+  <span class="eq"></span>
+  <span class="eq"><span class="cmt">Formally: cos( e_contextual(c&#7522;), e(q_specific) )  &gt;&gt;  cos( e_standard(c&#7522;), e(q_specific) )</span></span>
+  <span class="eq"><span class="cmt">when q_specific = "Apple Q3 revenue 2024" &mdash; the embedding is pulled toward the</span></span>
+  <span class="eq"><span class="cmt">query cluster by the contextual tokens, not away from it.</span></span>
+</div>
+
+<div class="diagram">
+  <div class="diagram-hdr">Exhibit 3 &mdash; Contextual Retrieval: Embedding Space Before and After Context Injection <span>geometric effect on chunk placement</span></div>
+  <div class="diagram-body">
+    <svg viewBox="0 0 880 280" xmlns="http://www.w3.org/2000/svg" width="100%" style="display:block;">
+      <rect width="880" height="280" fill="#faf8f4"/>
+      <rect x="10" y="10" width="415" height="260" fill="white" stroke="#d8d2c9" stroke-width="1"/>
+      <rect x="10" y="10" width="415" height="22" fill="#7a1f2e"/>
+      <text x="217" y="26" font-family="'DM Mono',monospace" font-size="9" fill="white" text-anchor="middle" letter-spacing="1">STANDARD RAG &mdash; chunk embedded in isolation</text>
+      <rect x="450" y="10" width="420" height="260" fill="white" stroke="#1a3a5c" stroke-width="1.5"/>
+      <rect x="450" y="10" width="420" height="22" fill="#1a3a5c"/>
+      <text x="660" y="26" font-family="'DM Mono',monospace" font-size="9" fill="white" text-anchor="middle" letter-spacing="1">CONTEXTUAL RAG &mdash; context prepended before embed</text>
+
+      <circle cx="280" cy="120" r="30" fill="rgba(26,58,92,.07)" stroke="#1a3a5c" stroke-width="1" stroke-dasharray="3,2"/>
+      <text x="280" y="80" font-family="'DM Mono',monospace" font-size="8.5" fill="#1a3a5c" text-anchor="middle">Query cluster:</text>
+      <text x="280" y="91" font-family="'DM Mono',monospace" font-size="8.5" fill="#1a3a5c" text-anchor="middle">"Apple Q3 revenue"</text>
+      <circle cx="280" cy="120" r="4" fill="#1a3a5c"/>
+      <text x="286" y="118" font-family="'DM Mono',monospace" font-size="7.5" fill="#1a3a5c">q</text>
+
+      <circle cx="160" cy="185" r="5" fill="#7a1f2e"/>
+      <text x="170" y="183" font-family="'DM Mono',monospace" font-size="8" fill="#7a1f2e">c&#8323; (Apple Q3)</text>
+      <text x="170" y="195" font-family="'DM Mono',monospace" font-size="7.5" fill="#6b6560">embedded as generic</text>
+      <text x="170" y="206" font-family="'DM Mono',monospace" font-size="7.5" fill="#6b6560">"revenue +12%"</text>
+
+      <circle cx="310" cy="135" r="5" fill="#7a4a00"/>
+      <text x="320" y="133" font-family="'DM Mono',monospace" font-size="8" fill="#7a4a00">c&#8321; (mentions Apple,</text>
+      <text x="320" y="144" font-family="'DM Mono',monospace" font-size="8" fill="#7a4a00">unrelated topic)</text>
+
+      <circle cx="110" cy="130" r="5" fill="#1e5c38"/>
+      <text x="120" y="128" font-family="'DM Mono',monospace" font-size="8" fill="#1e5c38">c&#8322; (Samsung rev.)</text>
+
+      <circle cx="255" cy="148" r="5" fill="#7a4a00"/>
+      <text x="218" y="162" font-family="'DM Mono',monospace" font-size="8" fill="#7a4a00">c&#8325; (revenue forecast)</text>
+
+      <line x1="164" y1="183" x2="262" y2="130" stroke="#7a1f2e" stroke-width="1" stroke-dasharray="3,2"/>
+      <text x="195" y="150" font-family="'DM Mono',monospace" font-size="8" fill="#7a1f2e" transform="rotate(-30,195,150)">large distance</text>
+
+      <text x="30" y="248" font-family="'DM Mono',monospace" font-size="8.5" fill="#7a1f2e">c&#8323; retrieved at rank 4+</text>
+      <text x="30" y="262" font-family="'DM Mono',monospace" font-size="8.5" fill="#7a4a00">c&#8321;, c&#8325; retrieved at rank 1, 2 (wrong)</text>
+
+      <circle cx="620" cy="110" r="30" fill="rgba(26,58,92,.07)" stroke="#1a3a5c" stroke-width="1" stroke-dasharray="3,2"/>
+      <text x="620" y="72" font-family="'DM Mono',monospace" font-size="8.5" fill="#1a3a5c" text-anchor="middle">Query cluster:</text>
+      <text x="620" y="83" font-family="'DM Mono',monospace" font-size="8.5" fill="#1a3a5c" text-anchor="middle">"Apple Q3 revenue"</text>
+      <circle cx="620" cy="110" r="4" fill="#1a3a5c"/>
+      <text x="626" y="108" font-family="'DM Mono',monospace" font-size="7.5" fill="#1a3a5c">q</text>
+
+      <circle cx="605" cy="130" r="5" fill="#7a1f2e"/>
+      <text x="538" y="146" font-family="'DM Mono',monospace" font-size="8" fill="#7a1f2e">c&#8323;_ctx (Apple Q3)</text>
+      <text x="538" y="158" font-family="'DM Mono',monospace" font-size="7.5" fill="#7a1f2e">now anchored to cluster</text>
+      <line x1="608" y1="126" x2="617" y2="114" stroke="#7a1f2e" stroke-width="1.5"/>
+
+      <circle cx="750" cy="175" r="5" fill="#7a4a00"/>
+      <text x="758" y="173" font-family="'DM Mono',monospace" font-size="8" fill="#6b6560">c&#8321; (pushed away &mdash;</text>
+      <text x="758" y="184" font-family="'DM Mono',monospace" font-size="8" fill="#6b6560">context shows unrelated)</text>
+      <circle cx="490" cy="180" r="5" fill="#1e5c38"/>
+      <text x="500" y="178" font-family="'DM Mono',monospace" font-size="8" fill="#6b6560">c&#8322; (Samsung)</text>
+      <circle cx="720" cy="135" r="5" fill="#7a4a00"/>
+      <text x="728" y="133" font-family="'DM Mono',monospace" font-size="8" fill="#6b6560">c&#8325; (moved &mdash; generic</text>
+      <text x="728" y="144" font-family="'DM Mono',monospace" font-size="8" fill="#6b6560">context anchors elsewhere)</text>
+
+      <text x="470" y="248" font-family="'DM Mono',monospace" font-size="8.5" fill="#7a1f2e">c&#8323;_ctx retrieved at rank 1 &#10003;</text>
+      <text x="470" y="262" font-family="'DM Mono',monospace" font-size="8.5" fill="#6b6560">c&#8321;, c&#8325; ranked lower by true semantic distance</text>
+    </svg>
+  </div>
+  <div class="diagram-note">Anthropic&rsquo;s published results: Contextual Retrieval reduces retrieval failure rate by 49% in isolation, and 67% when combined with BM25 hybrid search (vs. standard BM25+dense baseline). The LLM cost for context generation is the main drawback &mdash; typically 1 Claude Haiku call per chunk. Prompt caching amortises this: cache the document-level prompt across all chunk calls. With caching, the marginal cost per chunk is approximately 1K input tokens (the chunk itself) at cache-hit pricing.</div>
+</div>
+
+<div class="callout">
+  <strong>Prompt caching economics for Contextual RAG:</strong> For a 200-page document split into 400 chunks, context generation without caching requires 400 full document passes. With prompt caching (cache the document prefix), each call costs only the marginal tokens for that chunk &mdash; roughly 1/200th the cost. At Claude Haiku pricing, a 200-page document enrichment costs approximately $0.02&ndash;0.05 with caching vs. $4&ndash;8 without. Contextual RAG is only economically viable with prompt caching enabled.
+</div>
+
+<!-- SECTION 5: LATE CHUNKING -->
+<div class="section">
+  <div class="sec-inner"><div class="sec-n">&sect; 5</div><div><div class="sec-title">Late Chunking (JinaAI, 2024)</div></div></div>
+  <div class="sec-sub">Pre-chunk vs. post-chunk pooling &mdash; the mathematical difference and when it dominates</div>
+</div>
+
+<p class="body">Late Chunking is a fundamentally different approach to the context problem. Rather than enriching chunks with text before embedding, it changes <em>when</em> chunking occurs relative to the embedding computation. The insight is that transformer attention is context-dependent &mdash; every token embedding encodes information from its neighbors. Standard chunking discards this context before it reaches the pooling step.</p>
+
+<div class="math-block">
+  <span class="lbl">Late Chunking &mdash; formal derivation of the pre/post-chunk pooling difference</span>
+  <span class="eq"></span>
+  <span class="eq"><strong>Standard chunking (chunk BEFORE embed):</strong></span>
+  <span class="eq"></span>
+  <span class="eq">  c&#7522;  = tokens[start_i : end_i]             &#8592; isolate chunk before encoding</span>
+  <span class="eq">  H_i = transformer( c&#7522; )                   &#8592; attention within chunk only</span>
+  <span class="eq">  e(c&#7522;) = mean_pool( H_i )  &#8712;  R^d          &#8592; token embeddings have NO document context</span>
+  <span class="eq"></span>
+  <span class="eq"><span class="cmt">  Problem: "The CEO said it would increase profits."</span></span>
+  <span class="eq"><span class="cmt">  The pronoun "it" is ambiguous within the chunk &mdash; its referent is in a previous chunk.</span></span>
+  <span class="eq"><span class="cmt">  H_i cannot resolve the coreference. The embedding is semantically underspecified.</span></span>
+  <span class="eq"></span>
+  <span class="eq"><strong>Late chunking (embed BEFORE chunk &mdash; JinaAI 2024):</strong></span>
+  <span class="eq"></span>
+  <span class="eq">  T  = tokens(D)                             &#8592; full document token sequence</span>
+  <span class="eq">  H  = transformer( T )                     &#8592; attention across ENTIRE document</span>
+  <span class="eq">  e(c&#7522;) = mean_pool( H[start_i : end_i] )   &#8592; slice embeddings AFTER global attention</span>
+  <span class="eq"></span>
+  <span class="eq"><span class="cmt">  Now H[j] for token j encodes: the token itself AND its full document context.</span></span>
+  <span class="eq"><span class="cmt">  "The CEO said it would increase profits." &mdash; "it" is resolved because</span></span>
+  <span class="eq"><span class="cmt">  H[it_position] attended to the referent "acquisition" in the prior sentence.</span></span>
+  <span class="eq"></span>
+  <span class="eq"><strong>Key requirement:</strong></span>
+  <span class="eq">  |T| &le; L_model  (document must fit in model's context window)</span>
+  <span class="eq"><span class="cmt">  &#8594; Requires long-context embedding model: jina-embeddings-v2 (8192 tokens),</span></span>
+  <span class="eq"><span class="cmt">     e5-mistral-7b-instruct (32768 tokens), Voyage-2, Cohere-embed-v3</span></span>
+  <span class="eq"><span class="cmt">  &#8594; Not possible with OpenAI text-embedding-ada-002 (8191 token context, short-doc only)</span></span>
+</div>
+
+<div class="diagram">
+  <div class="diagram-hdr">Exhibit 4 &mdash; Late Chunking vs. Standard: Attention Patterns and Pooling Difference <span>what changes mathematically</span></div>
+  <div class="diagram-body">
+    <svg viewBox="0 0 880 300" xmlns="http://www.w3.org/2000/svg" width="100%" style="display:block;">
+      <rect width="880" height="300" fill="#faf8f4"/>
+      <rect x="10" y="10" width="415" height="280" fill="white" stroke="#d8d2c9"/>
+      <rect x="10" y="10" width="415" height="22" fill="#7a1f2e"/>
+      <text x="217" y="26" font-family="'DM Mono',monospace" font-size="9" fill="white" text-anchor="middle" letter-spacing="1">STANDARD &mdash; chunk &#8594; encode &#8594; pool</text>
+
+      <text x="30" y="54" font-family="'DM Mono',monospace" font-size="8" fill="#6b6560">Document D:</text>
+      <rect x="30" y="60" width="110" height="26" fill="rgba(122,31,46,.12)" stroke="#7a1f2e" stroke-width="1"/>
+      <text x="85" y="77" font-family="'DM Mono',monospace" font-size="8.5" fill="#7a1f2e" text-anchor="middle">Chunk 1 tokens</text>
+      <rect x="150" y="60" width="110" height="26" fill="rgba(26,58,92,.1)" stroke="#1a3a5c" stroke-width="1"/>
+      <text x="205" y="77" font-family="'DM Mono',monospace" font-size="8.5" fill="#1a3a5c" text-anchor="middle">Chunk 2 tokens</text>
+      <rect x="270" y="60" width="110" height="26" fill="rgba(30,92,56,.1)" stroke="#1e5c38" stroke-width="1"/>
+      <text x="325" y="77" font-family="'DM Mono',monospace" font-size="8.5" fill="#1e5c38" text-anchor="middle">Chunk 3 tokens</text>
+
+      <rect x="30" y="105" width="110" height="50" fill="rgba(122,31,46,.07)" stroke="#7a1f2e" stroke-width="1"/>
+      <text x="85" y="118" font-family="'DM Mono',monospace" font-size="8" fill="#7a1f2e" text-anchor="middle">encoder(c&#8321;)</text>
+      <text x="85" y="130" font-family="'DM Mono',monospace" font-size="7.5" fill="#6b6560" text-anchor="middle">attention: c&#8321; only</text>
+      <text x="85" y="142" font-family="'DM Mono',monospace" font-size="7.5" fill="#6b6560" text-anchor="middle">H&#8321; = [h&#8321;&#8321; ... h&#8321;&#8345;]</text>
+
+      <rect x="150" y="105" width="110" height="50" fill="rgba(26,58,92,.07)" stroke="#1a3a5c" stroke-width="1"/>
+      <text x="205" y="118" font-family="'DM Mono',monospace" font-size="8" fill="#1a3a5c" text-anchor="middle">encoder(c&#8322;)</text>
+      <text x="205" y="130" font-family="'DM Mono',monospace" font-size="7.5" fill="#6b6560" text-anchor="middle">attention: c&#8322; only</text>
+      <text x="205" y="142" font-family="'DM Mono',monospace" font-size="7.5" fill="#7a1f2e" text-anchor="middle">"it" unresolved</text>
+
+      <rect x="270" y="105" width="110" height="50" fill="rgba(30,92,56,.07)" stroke="#1e5c38" stroke-width="1"/>
+      <text x="325" y="118" font-family="'DM Mono',monospace" font-size="8" fill="#1e5c38" text-anchor="middle">encoder(c&#8323;)</text>
+      <text x="325" y="130" font-family="'DM Mono',monospace" font-size="7.5" fill="#6b6560" text-anchor="middle">attention: c&#8323; only</text>
+      <text x="325" y="142" font-family="'DM Mono',monospace" font-size="7.5" fill="#6b6560" text-anchor="middle">H&#8323; = [h&#8323;&#8321; ... h&#8323;&#8342;]</text>
+
+      <line x1="85" y1="157" x2="85" y2="173" stroke="#7a1f2e" stroke-width="1.5" marker-end="url(#arr)"/>
+      <line x1="205" y1="157" x2="205" y2="173" stroke="#1a3a5c" stroke-width="1.5" marker-end="url(#arr)"/>
+      <line x1="325" y1="157" x2="325" y2="173" stroke="#1e5c38" stroke-width="1.5" marker-end="url(#arr)"/>
+
+      <rect x="60" y="175" width="50" height="24" fill="#7a1f2e" rx="2"/>
+      <text x="85" y="191" font-family="'DM Mono',monospace" font-size="8.5" fill="white" text-anchor="middle">e(c&#8321;)</text>
+      <rect x="180" y="175" width="50" height="24" fill="#1a3a5c" rx="2"/>
+      <text x="205" y="191" font-family="'DM Mono',monospace" font-size="8.5" fill="white" text-anchor="middle">e(c&#8322;)</text>
+      <rect x="300" y="175" width="50" height="24" fill="#1e5c38" rx="2"/>
+      <text x="325" y="191" font-family="'DM Mono',monospace" font-size="8.5" fill="white" text-anchor="middle">e(c&#8323;)</text>
+
+      <text x="217" y="235" font-family="'DM Mono',monospace" font-size="8.5" fill="#7a1f2e" text-anchor="middle">Embeddings lack cross-chunk context</text>
+      <text x="217" y="250" font-family="'DM Mono',monospace" font-size="8" fill="#6b6560" text-anchor="middle">coreferences, context dependencies unresolved</text>
+
+      <rect x="450" y="10" width="420" height="280" fill="white" stroke="#1a3a5c" stroke-width="1.5"/>
+      <rect x="450" y="10" width="420" height="22" fill="#1a3a5c"/>
+      <text x="660" y="26" font-family="'DM Mono',monospace" font-size="9" fill="white" text-anchor="middle" letter-spacing="1">LATE CHUNKING &mdash; encode full doc &#8594; slice pools</text>
+
+      <text x="468" y="54" font-family="'DM Mono',monospace" font-size="8" fill="#6b6560">Full document T:</text>
+      <rect x="468" y="60" width="382" height="26" fill="rgba(26,58,92,.1)" stroke="#1a3a5c" stroke-width="1"/>
+      <line x1="595" y1="60" x2="595" y2="86" stroke="#7a1f2e" stroke-width="1.5" stroke-dasharray="3,2"/>
+      <line x1="720" y1="60" x2="720" y2="86" stroke="#7a1f2e" stroke-width="1.5" stroke-dasharray="3,2"/>
+      <text x="531" y="77" font-family="'DM Mono',monospace" font-size="8" fill="#1a3a5c" text-anchor="middle">c&#8321; region</text>
+      <text x="657" y="77" font-family="'DM Mono',monospace" font-size="8" fill="#1a3a5c" text-anchor="middle">c&#8322; region</text>
+      <text x="782" y="77" font-family="'DM Mono',monospace" font-size="8" fill="#1a3a5c" text-anchor="middle">c&#8323; region</text>
+
+      <rect x="468" y="105" width="382" height="50" fill="rgba(26,58,92,.07)" stroke="#1a3a5c" stroke-width="1.5"/>
+      <text x="659" y="118" font-family="'DM Mono',monospace" font-size="9" fill="#1a3a5c" text-anchor="middle">encoder( full document T )</text>
+      <text x="659" y="132" font-family="'DM Mono',monospace" font-size="8" fill="#6b6560" text-anchor="middle">attention: every token attends to every other token</text>
+      <text x="659" y="145" font-family="'DM Mono',monospace" font-size="8" fill="#1a3a5c" text-anchor="middle">H = [h&#8321;, h&#8322;, ..., h|T|]   &#8592; full doc-contextualised token embeddings</text>
+
+      <line x1="659" y1="157" x2="659" y2="173" stroke="#1a3a5c" stroke-width="1.5" marker-end="url(#arrblue)"/>
+
+      <text x="468" y="188" font-family="'DM Mono',monospace" font-size="8" fill="#6b6560">Slice H at chunk boundaries and mean-pool each region:</text>
+      <rect x="468" y="196" width="108" height="24" fill="#7a1f2e" rx="2"/>
+      <text x="522" y="212" font-family="'DM Mono',monospace" font-size="8" fill="white" text-anchor="middle">e(c&#8321;)=pool(H[s&#8321;:e&#8321;])</text>
+      <rect x="586" y="196" width="128" height="24" fill="#1a3a5c" rx="2"/>
+      <text x="650" y="212" font-family="'DM Mono',monospace" font-size="8" fill="white" text-anchor="middle">e(c&#8322;)=pool(H[s&#8322;:e&#8322;])</text>
+      <rect x="724" y="196" width="124" height="24" fill="#1e5c38" rx="2"/>
+      <text x="786" y="212" font-family="'DM Mono',monospace" font-size="8" fill="white" text-anchor="middle">e(c&#8323;)=pool(H[s&#8323;:e&#8323;])</text>
+
+      <text x="659" y="245" font-family="'DM Mono',monospace" font-size="8.5" fill="#1a3a5c" text-anchor="middle">Each e(c&#7522;) carries full document context</text>
+      <text x="659" y="258" font-family="'DM Mono',monospace" font-size="8" fill="#6b6560" text-anchor="middle">coreferences resolved, "it" has referent from prior sentence</text>
+      <text x="659" y="270" font-family="'DM Mono',monospace" font-size="8" fill="#6b6560" text-anchor="middle">1 encoder call per document (not per chunk) &#8594; cheaper at scale</text>
+    </svg>
+  </div>
+  <div class="diagram-note">Late chunking has an additional efficiency advantage: one encoder call per document vs. one per chunk. For a 400-chunk document, this is 400&times; cheaper per embedding operation. The tradeoff: requires a long-context embedding model and the document must fit the model&rsquo;s context window. For documents longer than 8K&ndash;32K tokens, late chunking with an overlapping window approach is needed. JinaAI reports 10&ndash;20% retrieval improvement over standard chunking on multi-section technical documents.</div>
+</div>
+
+<p class="body"><strong>Contextual RAG vs. Late Chunking &mdash; which to use.</strong> These solve the same problem through different mechanisms and are complementary. Contextual RAG (text prepend) works with any embedding model including short-context ones. Late chunking requires a long-context embedding model. For documents under 8K tokens, both apply: late chunking captures internal coreferences; contextual RAG adds document-level metadata the model hasn&rsquo;t seen. For documents over 32K tokens, contextual RAG with windowed late chunking is the most robust approach.</p>
+
+<!-- SECTION 6: HYBRID RETRIEVAL + RRF -->
+<div class="section">
+  <div class="sec-inner"><div class="sec-n">&sect; 6</div><div><div class="sec-title">Hybrid Retrieval and Reciprocal Rank Fusion</div></div></div>
+  <div class="sec-sub">BM25 + dense retrieval &mdash; why each fails alone, RRF mathematics, HyDE</div>
+</div>
+
+<p class="body">Dense retrieval (vector similarity) and sparse retrieval (BM25) have complementary failure modes. Dense retrieval captures semantic meaning but misses exact keyword matches &mdash; query &ldquo;RFC 7230&rdquo; will fail to retrieve chunks containing &ldquo;RFC 7230&rdquo; if the embedding space has not seen the term. BM25 captures exact terms but misses synonyms and paraphrases &mdash; query &ldquo;heart attack&rdquo; misses chunks containing &ldquo;myocardial infarction&rdquo;. Hybrid search uses both and fuses the ranked lists.</p>
+
+<div class="math-block">
+  <span class="lbl">BM25 &mdash; the complete formula and its parameters</span>
+  <span class="eq"></span>
+  <span class="eq">BM25(q, d) = &Sigma;&#x2080;{t&#8712;q} IDF(t) &middot; (TF(t,d) &middot; (k&#8321;+1)) / (TF(t,d) + k&#8321;&middot;(1 - b + b&middot;|d|/avgdl))</span>
+  <span class="eq"></span>
+  <span class="eq"><span class="cmt">IDF(t)    = log( (N - df(t) + 0.5) / (df(t) + 0.5) + 1 )</span></span>
+  <span class="eq"><span class="cmt">             N = total docs, df(t) = docs containing term t</span></span>
+  <span class="eq"><span class="cmt">TF(t,d)   = raw term frequency of t in document d</span></span>
+  <span class="eq"><span class="cmt">|d|       = document length in terms</span></span>
+  <span class="eq"><span class="cmt">avgdl     = average document length in corpus</span></span>
+  <span class="eq"><span class="cmt">k&#8321; &#8712; [1.2, 2.0]  = term frequency saturation (default 1.5)</span></span>
+  <span class="eq"><span class="cmt">              high k&#8321; &#8594; TF more influential; low k&#8321; &#8594; TF saturates quickly</span></span>
+  <span class="eq"><span class="cmt">b  &#8712; [0, 1]      = length normalisation (default 0.75)</span></span>
+  <span class="eq"><span class="cmt">              b=1 &#8594; full length normalisation; b=0 &#8594; no normalisation</span></span>
+  <span class="eq"></span>
+  <span class="eq"><span class="cmt">BM25 advantages: exact term match, no hallucination of semantic similarity,</span></span>
+  <span class="eq"><span class="cmt">  zero-shot (no training needed), fast (inverted index O(|q|&middot;avg_df))</span></span>
+  <span class="eq"><span class="cmt">BM25 failures:  out-of-vocabulary queries, synonyms, multi-word concepts,</span></span>
+  <span class="eq"><span class="cmt">  semantically rich queries where exact terms are absent from relevant docs</span></span>
+</div>
+
+<div class="math-block">
+  <span class="lbl">Reciprocal Rank Fusion &mdash; the fusion function and why 60 is the magic constant</span>
+  <span class="eq"></span>
+  <span class="eq">RRF(d, {R&#8321;, R&#8322;, ..., R&#8342;}) = &Sigma;&#7522;  1 / (k_rrf + rank_i(d))</span>
+  <span class="eq"></span>
+  <span class="eq"><span class="cmt">k_rrf = 60  (empirically optimal across many datasets, Cormack et al. 2009)</span></span>
+  <span class="eq"><span class="cmt">rank_i(d) = rank of document d in ranked list R&#7522; (1-indexed)</span></span>
+  <span class="eq"><span class="cmt">If d not in R&#7522;: typically treated as rank &#8594; &#8734;, contributing 0</span></span>
+  <span class="eq"></span>
+  <span class="eq"><span class="cmt">For two rankers (dense + BM25):</span></span>
+  <span class="eq">RRF(d) = 1/(60 + rank_dense(d)) + 1/(60 + rank_BM25(d))</span>
+  <span class="eq"></span>
+  <span class="eq"><span class="cmt">Why k_rrf=60 works: it down-weights rank differences at the top</span></span>
+  <span class="eq"><span class="cmt">  rank 1 contributes 1/61 ~= 0.0164</span></span>
+  <span class="eq"><span class="cmt">  rank 2 contributes 1/62 ~= 0.0161  (only 2% less than rank 1)</span></span>
+  <span class="eq"><span class="cmt">  rank 10 contributes 1/70 ~= 0.0143  (13% less than rank 1)</span></span>
+  <span class="eq"><span class="cmt">  A document ranked 1st in BM25 and 10th in dense will outrank a document</span></span>
+  <span class="eq"><span class="cmt">  ranked 3rd in both &mdash; it benefits from the agreement bonus.</span></span>
+  <span class="eq"><span class="cmt">  RRF is parameter-free and requires no score normalisation across rankers.</span></span>
+</div>
+
+<div class="diagram">
+  <div class="diagram-hdr">Exhibit 5 &mdash; Hybrid Retrieval Pipeline: BM25 + Dense &#8594; RRF Fusion <span>full scoring flow with example</span></div>
+  <div class="diagram-body">
+    <svg viewBox="0 0 880 270" xmlns="http://www.w3.org/2000/svg" width="100%" style="display:block;">
+      <rect width="880" height="270" fill="#faf8f4"/>
+      <rect x="360" y="10" width="160" height="36" fill="#1a1714"/>
+      <text x="440" y="32" font-family="'DM Mono',monospace" font-size="9.5" fill="white" text-anchor="middle">Query q</text>
+
+      <line x1="360" y1="28" x2="180" y2="68" stroke="#1a1714" stroke-width="1.5" marker-end="url(#arr)"/>
+      <line x1="440" y1="46" x2="440" y2="66" stroke="#1a1714" stroke-width="1.5" marker-end="url(#arr)"/>
+      <line x1="520" y1="28" x2="700" y2="68" stroke="#1a1714" stroke-width="1.5" marker-end="url(#arr)"/>
+
+      <rect x="80" y="70" width="200" height="40" fill="#7a4a00" rx="1"/>
+      <text x="180" y="86" font-family="'DM Mono',monospace" font-size="9" fill="white" text-anchor="middle">BM25 retrieval</text>
+      <text x="180" y="100" font-family="'DM Mono',monospace" font-size="8.5" fill="rgba(255,255,255,.7)" text-anchor="middle">inverted index lookup</text>
+
+      <rect x="340" y="70" width="200" height="40" fill="#1a3a5c" rx="1"/>
+      <text x="440" y="86" font-family="'DM Mono',monospace" font-size="9" fill="white" text-anchor="middle">Dense ANN retrieval</text>
+      <text x="440" y="100" font-family="'DM Mono',monospace" font-size="8.5" fill="rgba(255,255,255,.7)" text-anchor="middle">e(q) &#8594; HNSW search</text>
+
+      <rect x="600" y="70" width="200" height="40" fill="#3d1a6e" rx="1"/>
+      <text x="700" y="86" font-family="'DM Mono',monospace" font-size="9" fill="white" text-anchor="middle">HyDE (optional)</text>
+      <text x="700" y="100" font-family="'DM Mono',monospace" font-size="8.5" fill="rgba(255,255,255,.7)" text-anchor="middle">embed hypothetical answer</text>
+
+      <rect x="30" y="130" width="300" height="80" fill="rgba(122,74,0,.07)" stroke="#7a4a00" stroke-width="1"/>
+      <text x="180" y="146" font-family="'DM Mono',monospace" font-size="8.5" fill="#7a4a00" text-anchor="middle">BM25 Ranked List R_BM25</text>
+      <text x="46" y="162" font-family="'DM Mono',monospace" font-size="8.5" fill="#1a1714">#1  d&#8323; (exact term match)</text>
+      <text x="46" y="176" font-family="'DM Mono',monospace" font-size="8.5" fill="#1a1714">#2  d&#8327; (high TF-IDF)</text>
+      <text x="46" y="190" font-family="'DM Mono',monospace" font-size="8.5" fill="#1a1714">#3  d&#8321; (partial match)</text>
+      <text x="46" y="204" font-family="'DM Mono',monospace" font-size="8.5" fill="#6b6560">#4  d&#8325; ...</text>
+
+      <rect x="370" y="130" width="300" height="80" fill="rgba(26,58,92,.07)" stroke="#1a3a5c" stroke-width="1"/>
+      <text x="520" y="146" font-family="'DM Mono',monospace" font-size="8.5" fill="#1a3a5c" text-anchor="middle">Dense Ranked List R_dense</text>
+      <text x="386" y="162" font-family="'DM Mono',monospace" font-size="8.5" fill="#1a1714">#1  d&#8321; (semantic match)</text>
+      <text x="386" y="176" font-family="'DM Mono',monospace" font-size="8.5" fill="#1a1714">#2  d&#8323; (synonym match)</text>
+      <text x="386" y="190" font-family="'DM Mono',monospace" font-size="8.5" fill="#1a1714">#3  d&#8329; (paraphrase)</text>
+      <text x="386" y="204" font-family="'DM Mono',monospace" font-size="8.5" fill="#6b6560">#4  d&#8325; ...</text>
+
+      <line x1="180" y1="212" x2="440" y2="244" stroke="#7a4a00" stroke-width="1.5" marker-end="url(#arrburg)"/>
+      <line x1="520" y1="212" x2="456" y2="244" stroke="#1a3a5c" stroke-width="1.5" marker-end="url(#arrblue)"/>
+
+      <rect x="340" y="246" width="200" height="22" fill="#1a1714"/>
+      <text x="440" y="261" font-family="'DM Mono',monospace" font-size="9" fill="white" text-anchor="middle">RRF FUSED RANKING</text>
+
+      <text x="700" y="150" font-family="'DM Mono',monospace" font-size="8.5" fill="#1a1714">RRF example for d&#8323;:</text>
+      <text x="700" y="165" font-family="'DM Mono',monospace" font-size="8.5" fill="#7a4a00">BM25: rank 1 &#8594; 1/61 = 0.0164</text>
+      <text x="700" y="180" font-family="'DM Mono',monospace" font-size="8.5" fill="#1a3a5c">dense: rank 2 &#8594; 1/62 = 0.0161</text>
+      <text x="700" y="195" font-family="'DM Mono',monospace" font-size="8.5" fill="#1a1714">RRF(d&#8323;) = 0.0325 &#8594; rank 1 &#10003;</text>
+      <line x1="690" y1="148" x2="690" y2="200" stroke="#d8d2c9" stroke-width="1"/>
+      <text x="700" y="218" font-family="'DM Mono',monospace" font-size="8.5" fill="#1a1714">RRF for d&#8321;:</text>
+      <text x="700" y="232" font-family="'DM Mono',monospace" font-size="8.5" fill="#7a4a00">BM25: rank 3 &#8594; 1/63 = 0.0159</text>
+      <text x="700" y="246" font-family="'DM Mono',monospace" font-size="8.5" fill="#1a3a5c">dense: rank 1 &#8594; 1/61 = 0.0164</text>
+      <text x="700" y="260" font-family="'DM Mono',monospace" font-size="8.5" fill="#1a1714">RRF(d&#8321;) = 0.0323 &#8594; rank 2</text>
+
+      <defs>
+        <marker id="arrburg" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto">
+          <path d="M0,0 L7,3.5 L0,7 Z" fill="#7a4a00"/>
+        </marker>
+      </defs>
+    </svg>
+  </div>
+  <div class="diagram-note">RRF is parameter-free and robust to differences in score scales between BM25 and cosine similarity &mdash; no normalisation needed because it only uses ranks, not raw scores. The weight on each ranker is implicit in which results appear: if only dense returns d&#8329;, its RRF score is 1/(60+rank_dense). Explicit weighting variants: weighted RRF = &alpha;/(60+rank&#8321;) + &beta;/(60+rank&#8322;). For most production systems, &alpha;=&beta;=1 (equal weight) performs comparably to tuned weights. HyDE: instead of embedding the query q, generate a hypothetical answer document with an LLM and embed that &mdash; the hypothetical answer is semantically closer to the relevant chunks than the short query string.</div>
+</div>
+
+<!-- SECTION 7: RE-RANKING -->
+<div class="section">
+  <div class="sec-inner"><div class="sec-n">&sect; 7</div><div><div class="sec-title">Re-ranking</div></div></div>
+  <div class="sec-sub">Cross-encoder vs. bi-encoder &mdash; the precision gap, cost model, and when re-ranking pays</div>
+</div>
+
+<p class="body">The retrieval stage uses a <em>bi-encoder</em>: query and document are encoded <em>independently</em>, then compared by dot product. This is fast &mdash; embeddings can be pre-computed &mdash; but imprecise, because the encoding of the query and document never interact. Re-ranking uses a <em>cross-encoder</em>: query and document are fed <em>jointly</em> to a transformer, enabling full attention between them. This produces much better relevance scores but cannot be pre-computed.</p>
+
+<div class="math-block">
+  <span class="lbl">Bi-encoder vs. Cross-encoder &mdash; the scoring difference</span>
+  <span class="eq"></span>
+  <span class="eq"><strong>Bi-encoder (retrieval):</strong></span>
+  <span class="eq">  score_bi(q, c) = e(q) &middot; e(c)        &#8592; embeddings computed independently</span>
+  <span class="eq">  Complexity: O(1) at query time (e(c) pre-computed offline)</span>
+  <span class="eq">  Interaction: NONE &mdash; q and c never attend to each other</span>
+  <span class="eq"></span>
+  <span class="eq"><strong>Cross-encoder (re-ranking):</strong></span>
+  <span class="eq">  score_cross(q, c) = f&#x3b8;( [CLS] q [SEP] c [SEP] )  &#8594; scalar</span>
+  <span class="eq">  Complexity: O(|q| + |c|)&sup2; at query time (no pre-computation possible)</span>
+  <span class="eq">  Interaction: FULL &mdash; every token of q attends to every token of c</span>
+  <span class="eq"></span>
+  <span class="eq"><span class="cmt">Cross-encoder advantages over bi-encoder on BEIR benchmark:</span></span>
+  <span class="eq"><span class="cmt">  NDCG@10 improvement: +8 to +15 points depending on task</span></span>
+  <span class="eq"><span class="cmt">  Best on: exact answer matching, multi-hop reasoning, long documents</span></span>
+  <span class="eq"><span class="cmt">  Smallest gap: keyword lookup, code search (bi-encoder near-optimal)</span></span>
+</div>
+
+<div class="math-block">
+  <span class="lbl">Re-ranking Cost Model &mdash; when the latency is worth it</span>
+  <span class="eq"></span>
+  <span class="eq">Retrieval latency  T_retrieve  = O(log n)  (ANN search, negligible)</span>
+  <span class="eq">Re-ranking latency T_rerank    = k_retrieve &times; T_cross_encode</span>
+  <span class="eq"></span>
+  <span class="eq"><span class="cmt">T_cross_encode ~= 5-50ms per (q,c) pair on GPU, depending on chunk length</span></span>
+  <span class="eq"><span class="cmt">k_retrieve = 50-200 candidates from retrieval</span></span>
+  <span class="eq"><span class="cmt">&#8594; T_rerank ~= 250ms&ndash;10s  (often the dominant latency term in the pipeline)</span></span>
+  <span class="eq"></span>
+  <span class="eq">Optimisation:  retrieve k_large (top-200), re-rank, pass top-n to LLM (n &#8810; k_large)</span>
+  <span class="eq">Parallelism:   batch cross-encoder calls &mdash; GPU throughput reduces effective latency</span>
+  <span class="eq"></span>
+  <span class="eq"><span class="cmt">Break-even:  re-ranking pays when precision improvement reduces LLM generation errors</span></span>
+  <span class="eq"><span class="cmt">by more than the latency and cost added. On long-context LLMs where the context</span></span>
+  <span class="eq"><span class="cmt">window cost dominates, reducing n via better ranking is worth significant latency.</span></span>
+</div>
+
+<div class="two-col">
+  <div class="note-box">
+    <h4>Cross-encoder models</h4>
+    <p><strong>Cohere Rerank-3</strong> (API): state-of-the-art, 4096 token context, multilingual. Best for production when latency budget allows. <strong>BGE-Reranker-v2-m3</strong> (open): comparable quality, self-hostable, 8192 token context. <strong>cross-encoder/ms-marco-MiniLM-L-6-v2</strong>: smallest/fastest, good for latency-sensitive applications. LLM-as-reranker: instruct an LLM to score relevance &mdash; highest quality but expensive. SetRank, RankGPT: listwise reranking (score all k candidates jointly) vs. pointwise (score each independently). Listwise better captures relative ordering; pointwise parallelises.</p>
+  </div>
+  <div class="note-box">
+    <h4>NDCG@k &mdash; the correct retrieval metric</h4>
+    <p>NDCG@k (Normalised Discounted Cumulative Gain) is the standard measure for ranked retrieval quality: <span class="m">NDCG@k = DCG@k / IDCG@k</span> where <span class="m">DCG@k = &Sigma;&#7522; (2^rel&#7522; - 1) / log&#8322;(i+1)</span>. Discounts lower-ranked results logarithmically. IDCG = DCG of perfect ordering. NDCG rewards: (a) relevant documents appearing early and (b) higher-graded relevance. For RAG, use <strong>Recall@k</strong> (is the correct chunk in the top k?) rather than NDCG when there is a single gold chunk, and NDCG when relevance is graded.</p>
+  </div>
+</div>
+
+<!-- SECTION 8: CONTEXT WINDOW ASSEMBLY -->
+<div class="section">
+  <div class="sec-inner"><div class="sec-n">&sect; 8</div><div><div class="sec-title">Context Window Assembly</div></div></div>
+  <div class="sec-sub">Positional degradation, lost-in-the-middle, token budget allocation, deduplication</div>
+</div>
+
+<p class="body">After retrieval and re-ranking, the top-<span class="m">n</span> chunks must be assembled into the prompt. This assembly step has its own failure mode: LLM performance degrades as a function of <em>where</em> in the context window information is placed. The &ldquo;lost-in-the-middle&rdquo; effect (Liu et al., 2023) is a systematic positional bias in current transformer architectures.</p>
+
+<div class="math-block">
+  <span class="lbl">Lost-in-the-Middle &mdash; positional degradation model</span>
+  <span class="eq"></span>
+  <span class="eq">P_recall(chunk at position i | n total chunks)  &asymp;  f(i, n)</span>
+  <span class="eq"></span>
+  <span class="eq"><span class="cmt">Empirical shape (Liu et al. 2023, on GPT-3.5, Claude, LLaMA):</span></span>
+  <span class="eq">  f(1)   ~= 0.92    &#8592; first chunk: high recall</span>
+  <span class="eq">  f(n)   ~= 0.88    &#8592; last chunk: high recall</span>
+  <span class="eq">  f(n/2) ~= 0.56    &#8592; middle chunk: recall drops by ~35pp</span>
+  <span class="eq"></span>
+  <span class="eq"><span class="cmt">U-shaped recall curve: primacy + recency effects dominate middle positions.</span></span>
+  <span class="eq"><span class="cmt">Effect size scales with n and with context length: more chunks &#8594; deeper trough.</span></span>
+  <span class="eq"></span>
+  <span class="eq"><strong>Mitigation strategies:</strong></span>
+  <span class="eq">  1. Place highest-relevance chunks at positions 1 and n (first + last)</span>
+  <span class="eq">  2. Reduce n: fewer, higher-quality chunks &gt; many diluted chunks</span>
+  <span class="eq">  3. Use models with explicit position attention (long-rope, ALiBi) &mdash; smaller effect</span>
+  <span class="eq">  4. Repeat critical information: cite key facts in the query framing AND the context</span>
+</div>
+
+<div class="diagram">
+  <div class="diagram-hdr">Exhibit 6 &mdash; Context Window Assembly: Token Budget, Deduplication, and Positional Strategy <span>full assembly algorithm</span></div>
+  <div class="diagram-body">
+    <svg viewBox="0 0 880 300" xmlns="http://www.w3.org/2000/svg" width="100%" style="display:block;">
+      <rect width="880" height="300" fill="#faf8f4"/>
+      <text x="24" y="24" font-family="'DM Mono',monospace" font-size="9" fill="#6b6560" letter-spacing="1">CONTEXT WINDOW TOKEN BUDGET ALLOCATION</text>
+      <rect x="24" y="34" width="832" height="44" fill="white" stroke="#1a1714" stroke-width="1.5"/>
+      <rect x="24" y="34" width="130" height="44" fill="rgba(26,58,92,.12)" stroke="#1a3a5c" stroke-width="1"/>
+      <text x="89" y="52" font-family="'DM Mono',monospace" font-size="8.5" fill="#1a3a5c" text-anchor="middle">System prompt</text>
+      <text x="89" y="66" font-family="'DM Mono',monospace" font-size="8" fill="#6b6560" text-anchor="middle">~200-500 tok</text>
+      <rect x="154" y="34" width="536" height="44" fill="rgba(122,31,46,.07)" stroke="#7a1f2e" stroke-width="1"/>
+      <text x="422" y="52" font-family="'DM Mono',monospace" font-size="8.5" fill="#7a1f2e" text-anchor="middle">Retrieved + re-ranked chunks (budget: L_total - L_system - L_query - L_generation_reserve)</text>
+      <text x="422" y="66" font-family="'DM Mono',monospace" font-size="8" fill="#6b6560" text-anchor="middle">sorted by relevance score &mdash; place #1 first, #2 last, #3 second, #4 second-to-last (U-shape packing)</text>
+      <rect x="690" y="34" width="80" height="44" fill="rgba(30,92,56,.1)" stroke="#1e5c38" stroke-width="1"/>
+      <text x="730" y="52" font-family="'DM Mono',monospace" font-size="8.5" fill="#1e5c38" text-anchor="middle">Query</text>
+      <text x="730" y="66" font-family="'DM Mono',monospace" font-size="8" fill="#6b6560" text-anchor="middle">50-200 tok</text>
+      <rect x="770" y="34" width="86" height="44" fill="rgba(61,26,110,.07)" stroke="#3d1a6e" stroke-width="1"/>
+      <text x="813" y="52" font-family="'DM Mono',monospace" font-size="8.5" fill="#3d1a6e" text-anchor="middle">Gen reserve</text>
+      <text x="813" y="66" font-family="'DM Mono',monospace" font-size="8" fill="#6b6560" text-anchor="middle">1000-2000</text>
+
+      <text x="24" y="110" font-family="'DM Mono',monospace" font-size="9" fill="#6b6560" letter-spacing="1">POSITIONAL RECALL CURVE (Liu et al. 2023)</text>
+      <rect x="24" y="120" width="400" height="165" fill="white" stroke="#d8d2c9" stroke-width="1"/>
+      <line x1="60" y1="266" x2="400" y2="266" stroke="#d8d2c9" stroke-width="1"/>
+      <line x1="60" y1="130" x2="60" y2="266" stroke="#d8d2c9" stroke-width="1"/>
+      <path d="M60,141 C80,142 100,148 140,168 C180,188 200,210 230,218 C260,210 280,188 320,168 C360,148 380,142 400,140" fill="none" stroke="#1a3a5c" stroke-width="2"/>
+      <path d="M60,141 C80,142 100,148 140,168 C180,188 200,210 230,218 C260,210 280,188 320,168 C360,148 380,142 400,140 L400,266 L60,266 Z" fill="rgba(26,58,92,.07)"/>
+      <text x="230" y="280" font-family="'DM Mono',monospace" font-size="8" fill="#6b6560" text-anchor="middle">Position in context &#8594;</text>
+      <text x="34" y="200" font-family="'DM Mono',monospace" font-size="8" fill="#6b6560" text-anchor="middle" transform="rotate(-90,34,200)">Recall &#8594;</text>
+      <text x="62" y="140" font-family="'DM Mono',monospace" font-size="8" fill="#6b6560">0.92</text>
+      <text x="220" y="225" font-family="'DM Mono',monospace" font-size="8" fill="#7a1f2e">~0.56</text>
+      <text x="378" y="140" font-family="'DM Mono',monospace" font-size="8" fill="#6b6560">0.88</text>
+      <text x="100" y="156" font-family="'DM Mono',monospace" font-size="8" fill="#1a3a5c">FIRST</text>
+      <text x="355" y="148" font-family="'DM Mono',monospace" font-size="8" fill="#1a3a5c">LAST</text>
+      <text x="195" y="212" font-family="'DM Mono',monospace" font-size="8" fill="#7a1f2e">MIDDLE</text>
+      <text x="195" y="224" font-family="'DM Mono',monospace" font-size="8" fill="#7a1f2e">LOST</text>
+
+      <rect x="450" y="120" width="406" height="165" fill="white" stroke="#d8d2c9" stroke-width="1"/>
+      <text x="466" y="140" font-family="'DM Mono',monospace" font-size="9" fill="#6b6560" letter-spacing="1">ASSEMBLY ALGORITHM</text>
+      <text x="466" y="160" font-family="'DM Mono',monospace" font-size="9" fill="#1a1714">1. Deduplicate overlapping chunks:</text>
+      <text x="476" y="174" font-family="'DM Mono',monospace" font-size="8.5" fill="#6b6560">sim(c&#7522;, c&#11388;) &gt; 0.95 &#8594; keep higher-ranked only</text>
+      <text x="466" y="192" font-family="'DM Mono',monospace" font-size="9" fill="#1a1714">2. Token budget: allocate L_chunks</text>
+      <text x="476" y="206" font-family="'DM Mono',monospace" font-size="8.5" fill="#6b6560">L_total - L_system - L_query - L_reserve</text>
+      <text x="466" y="222" font-family="'DM Mono',monospace" font-size="9" fill="#1a1714">3. Truncate: greedily add chunks until budget</text>
+      <text x="476" y="236" font-family="'DM Mono',monospace" font-size="8.5" fill="#6b6560">truncate last included chunk at token boundary</text>
+      <text x="466" y="252" font-family="'DM Mono',monospace" font-size="9" fill="#1a1714">4. U-shape pack: rank 1 first, rank 2 last,</text>
+      <text x="476" y="266" font-family="'DM Mono',monospace" font-size="8.5" fill="#6b6560">rank 3 second, rank 4 second-to-last, etc.</text>
+      <text x="476" y="278" font-family="'DM Mono',monospace" font-size="8.5" fill="#7a1f2e">&#8594; places most relevant chunks in high-recall positions</text>
+    </svg>
+  </div>
+  <div class="diagram-note">U-shape packing exploits the primacy and recency effect. The two most relevant chunks are placed at positions 1 and n (highest recall). The third most relevant is placed at position 2 (second-best recall), the fourth at position n-1, and so on. This is a deterministic, zero-cost optimisation that increases the expected recall of high-relevance chunks without any retrieval changes. The effect size is largest for n &gt; 10 chunks and for long-context windows where the middle is far from both ends.</div>
+</div>
+
+<!-- SECTION 9: FAILURE MODES -->
+<div class="section">
+  <div class="sec-inner"><div class="sec-n">&sect; 9</div><div><div class="sec-title">Failure Mode Taxonomy</div></div></div>
+  <div class="sec-sub">Complete classification of what breaks, where, and how to diagnose each failure class</div>
+</div>
+
+<div class="diagram">
+  <div class="diagram-hdr">Exhibit 7 &mdash; RAG Failure Modes: Pipeline Stage, Root Cause, Diagnostic, Fix <span>complete taxonomy</span></div>
+  <div class="diagram-body">
+    <table class="tbl">
+      <thead>
+        <tr>
+          <th style="width:130px;">Failure</th>
+          <th style="width:100px;">Stage</th>
+          <th>Root Cause</th>
+          <th>Diagnostic Signal</th>
+          <th>Fix</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="key">Chunk boundary split</td>
+          <td style="font-family:'DM Mono',monospace;font-size:10px;color:var(--burg);">Chunking</td>
+          <td>Fixed-size split cuts sentence mid-way. Embedding of fragment is incoherent.</td>
+          <td>High embedding variance within same document. Chunks with dangling pronouns or incomplete sentences.</td>
+          <td>Switch to sentence-boundary or semantic chunking. Add overlap (15%). Minimum chunk length filter.</td>
+        </tr>
+        <tr>
+          <td class="key">Semantic ambiguity</td>
+          <td style="font-family:'DM Mono',monospace;font-size:10px;color:var(--burg);">Embedding</td>
+          <td>Chunk lacks entity context &mdash; &ldquo;it increased by 12%&rdquo; embeds as generic financial statement, not Apple Q3 specific.</td>
+          <td>Correct chunk retrieved for broad queries but not specific ones. Recall drops with increasing query specificity.</td>
+          <td>Contextual Retrieval (&sect;4). Add entity/section metadata to chunk text before embedding.</td>
+        </tr>
+        <tr>
+          <td class="key">Coreference failure</td>
+          <td style="font-family:'DM Mono',monospace;font-size:10px;color:var(--burg);">Embedding</td>
+          <td>&ldquo;They decided to acquire it&rdquo; &mdash; pronouns unresolved because referents in prior chunk, stripped at chunking.</td>
+          <td>Correct chunk retrieved for standalone fact queries; fails when query depends on pronoun in chunk.</td>
+          <td>Late chunking (&sect;5). Increase overlap. Coreference resolution as preprocessing step.</td>
+        </tr>
+        <tr>
+          <td class="key">Lexical mismatch</td>
+          <td style="font-family:'DM Mono',monospace;font-size:10px;color:var(--amber);">Retrieval</td>
+          <td>Dense embedding maps &ldquo;heart attack&rdquo; and &ldquo;myocardial infarction&rdquo; differently &mdash; vocabulary gap. Or rare acronym not in training data.</td>
+          <td>High recall on paraphrase queries, low recall on exact-term queries. BM25 recovers what dense misses.</td>
+          <td>Add BM25 to hybrid retrieval with RRF fusion (&sect;6). Query expansion with synonyms.</td>
+        </tr>
+        <tr>
+          <td class="key">Hubness bias</td>
+          <td style="font-family:'DM Mono',monospace;font-size:10px;color:var(--amber);">Retrieval</td>
+          <td>Certain high-norm vectors retrieved for almost all queries regardless of relevance. High-dimensional geometric effect.</td>
+          <td>Same k documents appearing in top-10 across semantically diverse queries. Check retrieval frequency histogram.</td>
+          <td>L2 normalise all embeddings. Re-rank to down-weight known hubs. Reduce embedding dimension.</td>
+        </tr>
+        <tr>
+          <td class="key">Semantic dilution</td>
+          <td style="font-family:'DM Mono',monospace;font-size:10px;color:var(--amber);">Retrieval</td>
+          <td>Multi-topic chunks embed to centroid &mdash; no single query is close to a chunk discussing two unrelated concepts.</td>
+          <td>Relevant information known to exist in corpus but never retrieved. Manual inspection shows chunks are multi-topic.</td>
+          <td>Reduce chunk size. Use proposition chunking to atomise multi-topic chunks. Semantic chunking to split at topic boundaries.</td>
+        </tr>
+        <tr>
+          <td class="key">Re-ranker distribution shift</td>
+          <td style="font-family:'DM Mono',monospace;font-size:10px;color:var(--teal);">Re-ranking</td>
+          <td>Cross-encoder trained on web (MS-MARCO) but corpus is domain-specific (medical, legal, code). Score scale invalid.</td>
+          <td>Re-ranking hurts metrics vs. raw retrieval on domain corpus. Cross-encoder scores low-variance (all chunks near same score).</td>
+          <td>Fine-tune cross-encoder on domain data. Use domain-specific re-ranker (Cohere Rerank-3 multilingual handles this better).</td>
+        </tr>
+        <tr>
+          <td class="key">Lost in the middle</td>
+          <td style="font-family:'DM Mono',monospace;font-size:10px;color:var(--teal);">Assembly</td>
+          <td>LLM fails to use information at middle positions in long context. Primacy/recency bias.</td>
+          <td>Correct chunk retrieved and confirmed in context. LLM answer ignores it. Position of correct chunk is at n/2.</td>
+          <td>U-shape packing (&sect;8). Reduce n. Repeat key information in query framing. Use models with better long-context attention.</td>
+        </tr>
+        <tr>
+          <td class="key">Context contamination</td>
+          <td style="font-family:'DM Mono',monospace;font-size:10px;color:var(--teal);">Assembly</td>
+          <td>Retrieved chunks from different sources contradict each other. LLM averages or hallucinates between them.</td>
+          <td>LLM gives hedged, contradictory, or wrong answers on factual queries. Multiple sources give conflicting information.</td>
+          <td>Include source metadata; instruct LLM to cite and prefer most recent / most authoritative. Deduplicate contradictory chunks by date/authority.</td>
+        </tr>
+        <tr>
+          <td class="key">Generation hallucination</td>
+          <td style="font-family:'DM Mono',monospace;font-size:10px;color:var(--blue);">Generation</td>
+          <td>LLM generates information not present in context, despite correct retrieval. Model prior overrides retrieved context.</td>
+          <td>Correct chunks present in context. LLM answer contains facts not in any chunk.</td>
+          <td>Explicit grounding instruction: &ldquo;Answer ONLY from the provided context. If not present, say so.&rdquo; Reduce temperature. Add faithfulness verification step.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="diagram-note">Diagnosis order: first check retrieval (is the correct chunk in top-k?), then check context (is it present in the assembled prompt?), then check generation (did the LLM use it?). Most production failures are retrieval failures &mdash; the LLM is rarely the bottleneck. A systematic evaluation requires: ground-truth (query, answer, source chunk) triples; Recall@k for retrieval; answer correctness for generation; and attributability (can every claim in the answer be traced to a retrieved chunk).</div>
+</div>
+
+<div class="diagram">
+  <div class="diagram-hdr">Exhibit 8 &mdash; Decision Matrix: Which RAG Enhancement for Which Problem <span>systematic selection guide</span></div>
+  <div class="diagram-body">
+    <table class="tbl">
+      <thead>
+        <tr>
+          <th style="width:160px;">Symptom</th>
+          <th>Diagnosis</th>
+          <th>Primary fix</th>
+          <th>Secondary fix</th>
+          <th>Cost</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="key">Correct chunks not retrieved at all</td>
+          <td>Lexical mismatch or embedding not trained on domain vocabulary</td>
+          <td class="good">Add BM25 hybrid + RRF</td>
+          <td>Domain-specific embedding fine-tuning</td>
+          <td style="font-family:'DM Mono',monospace;font-size:10px;">Low</td>
+        </tr>
+        <tr>
+          <td class="key">Retrieved for broad query, not specific</td>
+          <td>Chunk lacks entity/section context &mdash; semantic ambiguity</td>
+          <td class="good">Contextual Retrieval (&sect;4)</td>
+          <td>Metadata filtering (section, entity)</td>
+          <td style="font-family:'DM Mono',monospace;font-size:10px;">Medium (LLM calls)</td>
+        </tr>
+        <tr>
+          <td class="key">Pronoun/coreference queries fail</td>
+          <td>Cross-chunk dependency stripped by chunking</td>
+          <td class="good">Late Chunking (&sect;5)</td>
+          <td>Increase overlap; add coreference resolution</td>
+          <td style="font-family:'DM Mono',monospace;font-size:10px;">Medium (long-context model)</td>
+        </tr>
+        <tr>
+          <td class="key">Many irrelevant chunks in top-k</td>
+          <td>Bi-encoder retrieval imprecise; chunks too large</td>
+          <td class="good">Cross-encoder re-ranking</td>
+          <td>Smaller chunks + proposition chunking</td>
+          <td style="font-family:'DM Mono',monospace;font-size:10px;">High (latency)</td>
+        </tr>
+        <tr>
+          <td class="key">LLM ignores retrieved context</td>
+          <td>Lost-in-middle or context too long</td>
+          <td class="good">U-shape packing + reduce n</td>
+          <td>Repeat key facts in query framing</td>
+          <td style="font-family:'DM Mono',monospace;font-size:10px;">Zero (assembly change)</td>
+        </tr>
+        <tr>
+          <td class="key">LLM hallucinates despite correct retrieval</td>
+          <td>Generation not grounded to context</td>
+          <td class="good">Explicit grounding instruction</td>
+          <td>Add faithfulness verification (second LLM call)</td>
+          <td style="font-family:'DM Mono',monospace;font-size:10px;">Low</td>
+        </tr>
+        <tr>
+          <td class="key">Multi-topic document retrieval poor</td>
+          <td>Semantic dilution &mdash; chunks embed to centroid</td>
+          <td class="good">Proposition chunking</td>
+          <td>Semantic chunking with topic-boundary detection</td>
+          <td style="font-family:'DM Mono',monospace;font-size:10px;">High (LLM preprocessing)</td>
+        </tr>
+        <tr>
+          <td class="key">All queries retrieve same 10 chunks</td>
+          <td>Hubness bias in embedding space</td>
+          <td class="good">L2-normalise all embeddings; check norms</td>
+          <td>Diversity-aware retrieval (MMR)</td>
+          <td style="font-family:'DM Mono',monospace;font-size:10px;">Low (post-processing)</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="diagram-note">Maximal Marginal Relevance (MMR): a diversity-aware retrieval strategy that selects chunks maximising both relevance and diversity. MMR(c&#7522;) = &lambda;&middot;sim(c&#7522;, q) &minus; (1&minus;&lambda;)&middot;max&#x2080;{c&#11388;&#8712;S} sim(c&#7522;, c&#11388;) where S is the already-selected set. &lambda;=1 &#8594; pure relevance; &lambda;=0 &#8594; pure diversity. Useful when the corpus contains many near-duplicate chunks (e.g., a document repeated with minor edits) that would otherwise dominate the retrieved set.</div>
+</div>
+
+<div class="diagram">
+  <div class="diagram-hdr">Exhibit 9 &mdash; Complexity vs. Retrieval Improvement: Component Value Map <span>where to invest engineering effort</span></div>
+  <div class="diagram-body">
+    <svg viewBox="0 0 880 280" xmlns="http://www.w3.org/2000/svg" width="100%" style="display:block;">
+      <rect width="880" height="280" fill="white"/>
+      <line x1="80" y1="20" x2="80" y2="240" stroke="#1a1714" stroke-width="1.5"/>
+      <line x1="80" y1="240" x2="850" y2="240" stroke="#1a1714" stroke-width="1.5"/>
+      <text x="465" y="265" font-family="'DM Mono',monospace" font-size="10" fill="#6b6560" text-anchor="middle" letter-spacing="1">IMPLEMENTATION COMPLEXITY  &#8594;</text>
+      <text x="28" y="130" font-family="'DM Mono',monospace" font-size="10" fill="#1a1714" text-anchor="middle" transform="rotate(-90,28,130)" letter-spacing="1">RETRIEVAL IMPROVEMENT  &#8594;</text>
+      <line x1="80" y1="160" x2="850" y2="160" stroke="#d8d2c9" stroke-width="1" stroke-dasharray="3,3"/>
+      <line x1="465" y1="20" x2="465" y2="240" stroke="#d8d2c9" stroke-width="1" stroke-dasharray="3,3"/>
+      <text x="270" y="40" font-family="'DM Mono',monospace" font-size="8.5" fill="#1e5c38">HIGH ROI</text>
+      <text x="600" y="40" font-family="'DM Mono',monospace" font-size="8.5" fill="#6b6560">HIGH EFFORT / HIGH GAIN</text>
+      <text x="270" y="220" font-family="'DM Mono',monospace" font-size="8.5" fill="#6b6560">QUICK WINS</text>
+      <text x="600" y="220" font-family="'DM Mono',monospace" font-size="8.5" fill="#7a1f2e">LOW ROI</text>
+
+      <circle cx="160" cy="68" r="8" fill="#7a4a00"/>
+      <text x="172" y="64" font-family="'DM Mono',monospace" font-size="8.5" fill="#7a4a00">BM25 hybrid + RRF</text>
+      <text x="172" y="76" font-family="'DM Mono',monospace" font-size="8" fill="#6b6560">(add sparse retrieval)</text>
+
+      <circle cx="310" cy="55" r="8" fill="#7a1f2e"/>
+      <text x="322" y="51" font-family="'DM Mono',monospace" font-size="8.5" fill="#7a1f2e">Contextual Retrieval</text>
+      <text x="322" y="63" font-family="'DM Mono',monospace" font-size="8" fill="#6b6560">(LLM context prepend)</text>
+
+      <circle cx="120" cy="135" r="8" fill="#1a3a5c"/>
+      <text x="132" y="131" font-family="'DM Mono',monospace" font-size="8.5" fill="#1a3a5c">Sentence chunking</text>
+      <text x="132" y="143" font-family="'DM Mono',monospace" font-size="8" fill="#6b6560">(vs. fixed size)</text>
+
+      <circle cx="100" cy="190" r="8" fill="#1e5c38"/>
+      <text x="112" y="186" font-family="'DM Mono',monospace" font-size="8.5" fill="#1e5c38">U-shape context packing</text>
+      <text x="112" y="198" font-family="'DM Mono',monospace" font-size="8" fill="#6b6560">(assembly reorder)</text>
+
+      <circle cx="540" cy="72" r="8" fill="#3d1a6e"/>
+      <text x="552" y="68" font-family="'DM Mono',monospace" font-size="8.5" fill="#3d1a6e">Cross-encoder reranking</text>
+      <text x="552" y="80" font-family="'DM Mono',monospace" font-size="8" fill="#6b6560">(latency tradeoff)</text>
+
+      <circle cx="620" cy="90" r="8" fill="#7a1f2e"/>
+      <text x="632" y="86" font-family="'DM Mono',monospace" font-size="8.5" fill="#7a1f2e">Late Chunking</text>
+      <text x="632" y="98" font-family="'DM Mono',monospace" font-size="8" fill="#6b6560">(long-context model req.)</text>
+
+      <circle cx="730" cy="80" r="8" fill="#0f4a50"/>
+      <text x="742" y="76" font-family="'DM Mono',monospace" font-size="8.5" fill="#0f4a50">Proposition chunking</text>
+      <text x="742" y="88" font-family="'DM Mono',monospace" font-size="8" fill="#6b6560">(LLM per chunk)</text>
+
+      <circle cx="380" cy="140" r="8" fill="#1a3a5c"/>
+      <text x="392" y="136" font-family="'DM Mono',monospace" font-size="8.5" fill="#1a3a5c">Semantic chunking</text>
+      <text x="392" y="148" font-family="'DM Mono',monospace" font-size="8" fill="#6b6560">(embed during index)</text>
+
+      <circle cx="440" cy="155" r="8" fill="#8a3800"/>
+      <text x="452" y="151" font-family="'DM Mono',monospace" font-size="8.5" fill="#8a3800">HyDE</text>
+      <text x="452" y="163" font-family="'DM Mono',monospace" font-size="8" fill="#6b6560">(LLM per query)</text>
+
+      <circle cx="800" cy="42" r="8" fill="#1a1714"/>
+      <text x="812" y="38" font-family="'DM Mono',monospace" font-size="8.5" fill="#1a1714">Fine-tune embeddings</text>
+      <text x="812" y="50" font-family="'DM Mono',monospace" font-size="8" fill="#6b6560">(training data req.)</text>
+    </svg>
+  </div>
+  <div class="diagram-note">Build order for production RAG: (1) Sentence/recursive chunking with overlap &mdash; immediate baseline improvement over fixed-size, zero additional infrastructure. (2) BM25 hybrid + RRF &mdash; add Elasticsearch/BM25S alongside dense, fuse with RRF. Largest single retrieval improvement per unit effort. (3) Contextual Retrieval &mdash; add LLM context prepend during indexing with prompt caching; 49% failure reduction. (4) Cross-encoder re-ranking &mdash; add Cohere Rerank or BGE-Reranker for precision-critical use cases. (5) Late chunking or proposition chunking for specific document types where coreference or atomicity matters. Fine-tuned embeddings only when domain vocabulary is highly specialised and sufficient labeled data exists.</div>
+</div>
+
+<hr class="rule">
+<div class="footer">
+  <div>
+    References: Robertson &amp; Zaragoza BM25 survey 2009 &middot; Cormack, Clarke, Buettcher RRF 2009 &middot; Gao et al. DenseX Propositions 2023 &middot;
+    Liu et al. Lost-in-Middle 2023 &middot; Anthropic Contextual Retrieval blog 2024 &middot;<br>
+    JinaAI Late Chunking 2024 &middot; Thakur et al. BEIR benchmark 2021 &middot; Formal et al. SPLADE 2021 &middot;
+    Johnson et al. FAISS 2019 &middot; Malkov &amp; Yashunin HNSW 2018 &middot; Lewis et al. RAG original 2020
+  </div>
+  <div style="text-align:right;">
+    Technical Deep Dive &mdash; RAG<br>
+    February 2026
+  </div>
+</div>
+
+</body>
+</html>
