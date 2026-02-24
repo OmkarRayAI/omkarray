@@ -363,6 +363,10 @@ main {
   gap: 16px;
 }
 
+.knowledge-grid.single-column {
+  grid-template-columns: 1fr;
+}
+
 .knowledge-card {
   padding: 28px;
   border: 1px solid var(--border);
