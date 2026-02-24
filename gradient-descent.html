@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gradient Descent — Deep Dive</title>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Fira+Code:wght@400;500;600&family=Source+Sans+3:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #faf8f3;
+    --ink: #1a1a2e;
+    --navy: #16213e;
+    --red: #c0392b;
+    --blue: #2980b9;
+    --green: #27ae60;
+    --gold: #c8960c;
+    --orange: #d35400;
+    --muted: #6b7280;
+    --rule: #d5cfc0;
+    --light: #ede8dc;
+    --card: #f5f2eb;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Source Sans 3', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 52px 36px;
+    line-height: 1.65;
+    background-image: repeating-linear-gradient(
+      0deg, transparent, transparent 27px,
+      rgba(0,0,0,0.022) 27px, rgba(0,0,0,0.022) 28px
+    );
+  }
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Fira Code', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    text-decoration: none;
+    margin-bottom: 18px;
+  }
+  .back-link:hover { color: var(--ink); }
+
+  /* ── MASTHEAD ── */
+  .masthead {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 24px;
+    align-items: end;
+    border-top: 3px double var(--ink);
+    border-bottom: 1px solid var(--ink);
+    padding: 24px 0 20px;
+    margin-bottom: 48px;
+  }
+  .field-tag {
+    font-family: 'Fira Code', monospace;
+    font-size: 10px;
+    letter-spacing: .15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .field-tag::before { content: '∇'; font-size: 18px; color: var(--red); }
+  h1 {
+    font-family: 'Libre Baskerville', serif;
+    font-size: 52px;
+    font-weight: 700;
+    line-height: 1.0;
+    letter-spacing: -.02em;
+  }
+  h1 em { font-style: italic; color: var(--red); font-weight: 400; }
+  .masthead-sub {
+    font-size: 14px;
+    color: var(--muted);
+    font-weight: 300;
+    margin-top: 10px;
+    max-width: 500px;
+    line-height: 1.7;
+  }
+  .masthead-right { text-align: right; }
+  .verdict-stamp {
+    display: inline-block;
+    border: 2px solid var(--red);
+    color: var(--red);
+    font-family: 'Fira Code', monospace;
+    font-size: 9px;
+    letter-spacing: .15em;
+    text-transform: uppercase;
+    padding: 6px 14px;
+    margin-bottom: 10px;
+    transform: rotate(1.5deg);
+    display: inline-block;
+  }
+  .meta-lines {
+    font-family: 'Fira Code', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    line-height: 1.9;
+    text-align: right;
+  }
+
+  /* ── SECTION HEADERS ── */
+  .section-header {
+    display: grid;
+    grid-template-columns: 52px 1fr;
+    gap: 16px;
+    align-items: start;
+    margin: 64px 0 28px;
+  }
+  .sec-num {
+    font-family: 'Libre Baskerville', serif;
+    font-size: 56px;
+    font-weight: 700;
+    color: var(--rule);
+    line-height: .85;
+    text-align: right;
+    font-style: italic;
+  }
+  .sec-title {
+    font-family: 'Libre Baskerville', serif;
+    font-size: 22px;
+    font-weight: 700;
+    border-bottom: 2px solid var(--ink);
+    padding-bottom: 4px;
+    margin-bottom: 4px;
+  }
+  .sec-sub {
+    font-family: 'Fira Code', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: .1em;
+    text-transform: uppercase;
+  }
+
+  p.body {
+    font-size: 14px;
+    color: var(--ink);
+    margin-bottom: 16px;
+    max-width: 700px;
+    font-weight: 300;
+    line-height: 1.8;
+  }
+  p.body strong { font-weight: 600; }
+
+  .callout {
+    border-left: 3px solid var(--red);
+    padding: 12px 20px;
+    background: rgba(192,57,43,.05);
+    margin: 20px 0;
+    font-family: 'Libre Baskerville', serif;
+    font-size: 14px;
+    font-style: italic;
+    color: var(--ink);
+    line-height: 1.65;
+  }
+
+  /* ── DIAGRAM FRAME ── */
+  .diagram {
+    background: var(--card);
+    border: 1px solid var(--rule);
+    padding: 28px 32px;
+    margin: 20px 0;
+    position: relative;
+  }
+  .diagram::after {
+    content: '';
+    position: absolute;
+    top: 4px; left: 4px; right: -4px; bottom: -4px;
+    border: 1px solid var(--rule);
+    z-index: -1;
+    pointer-events: none;
+  }
+  .diagram-label {
+    font-family: 'Fira Code', monospace;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: .15em;
+    color: var(--muted);
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px dashed var(--rule);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .diagram-label::before {
+    content: attr(data-exhibit);
+    background: var(--ink);
+    color: var(--paper);
+    font-size: 8px;
+    padding: 2px 7px;
+    letter-spacing: .1em;
+    flex-shrink: 0;
+  }
+  .footnote {
+    font-family: 'Fira Code', monospace;
+    font-size: 9px;
+    color: var(--muted);
+    border-top: 1px dashed var(--rule);
+    padding-top: 10px;
+    margin-top: 16px;
+    line-height: 1.75;
+  }
+
+  .math {
+    font-family: 'Fira Code', monospace;
+    font-size: 12px;
+    background: rgba(192,57,43,.06);
+    padding: 1px 5px;
+    border-radius: 2px;
+    color: var(--red);
+  }
+
+  .landscape-wrap {
+    background: var(--navy);
+    border-radius: 2px;
+    overflow: hidden;
+    height: 290px;
+  }
+  .landscape-wrap svg { width: 100%; height: 100%; }
+
+  @keyframes dash-march {
+    to { stroke-dashoffset: -24; }
+  }
+  .march {
+    stroke-dasharray: 6 4;
+    animation: dash-march 1s linear infinite;
+  }
+
+  .alg-layer {
+    display: flex;
+    align-items: stretch;
+    border: 1px solid var(--rule);
+    margin-bottom: -1px;
+  }
+  .al-label {
+    width: 150px; min-width: 150px;
+    padding: 13px 16px;
+    font-family: 'Fira Code', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border-right: 1px solid var(--rule);
+  }
+  .al-sub { font-size: 8px; opacity: .6; margin-top: 2px; }
+  .al-easy  { background: var(--light); color: var(--muted); }
+  .al-med   { background: #2c3e50; color: #bdc3c7; }
+  .al-hard  { background: var(--ink); color: var(--paper); }
+  .al-content {
+    flex: 1;
+    padding: 12px 18px;
+    font-size: 13px;
+    line-height: 1.65;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .al-tag {
+    margin-left: auto;
+    font-family: 'Fira Code', monospace;
+    font-size: 9px;
+    padding: 3px 9px;
+    white-space: nowrap;
+    align-self: center;
+    flex-shrink: 0;
+  }
+  .tag-e { background: rgba(39,174,96,.1);  color: var(--green);  border: 1px solid rgba(39,174,96,.3); }
+  .tag-m { background: rgba(41,128,185,.1); color: var(--blue);   border: 1px solid rgba(41,128,185,.3); }
+  .tag-h { background: rgba(192,57,43,.1);  color: var(--red);    border: 1px solid rgba(192,57,43,.3); }
+
+  .variants-grid {
+    display: grid;
+    grid-template-columns: repeat(4,1fr);
+    gap: 1px;
+    background: var(--rule);
+  }
+  .vc {
+    background: var(--card);
+    padding: 18px 16px;
+  }
+  .vc-name {
+    font-family: 'Fira Code', monospace;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+  .vc-formula {
+    font-family: 'Fira Code', monospace;
+    font-size: 10px;
+    color: var(--red);
+    background: rgba(192,57,43,.06);
+    padding: 5px 8px;
+    border-radius: 2px;
+    margin-bottom: 10px;
+    line-height: 1.5;
+  }
+  .vc-prop {
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 3px;
+    line-height: 1.4;
+    padding-left: 10px;
+    position: relative;
+  }
+  .vc-prop::before { content: '·'; position: absolute; left: 0; color: var(--red); }
+  .vc-meters { margin-top: 12px; display: flex; flex-direction: column; gap: 4px; }
+  .vc-row { display: flex; align-items: center; gap: 6px; }
+  .vc-lbl { font-family: 'Fira Code', monospace; font-size: 8px; color: var(--muted); width: 56px; text-transform: uppercase; letter-spacing: .05em; flex-shrink: 0; }
+  .vc-track { flex: 1; height: 5px; background: var(--rule); border-radius: 1px; overflow: hidden; }
+  .vc-fill { height: 100%; border-radius: 1px; }
+
+  .fail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 4px;
+    height: 310px;
+  }
+  .fq { padding: 16px; display: flex; flex-direction: column; gap: 5px; }
+  .fq-title { font-family: 'Fira Code', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: .1em; margin-bottom: 4px; font-weight: 600; }
+  .fq-item { font-size: 11px; line-height: 1.4; color: var(--muted); padding-left: 12px; position: relative; }
+  .fq-item::before { content: '→'; position: absolute; left: 0; font-family: 'Fira Code', monospace; font-size: 10px; }
+  .fq1 { background: rgba(192,57,43,.07); border: 1px solid rgba(192,57,43,.25); }
+  .fq1 .fq-title { color: var(--red); }
+  .fq2 { background: rgba(211,84,0,.06); border: 1px solid rgba(211,84,0,.2); }
+  .fq2 .fq-title { color: var(--orange); }
+  .fq3 { background: rgba(41,128,185,.06); border: 1px solid rgba(41,128,185,.2); }
+  .fq3 .fq-title { color: var(--blue); }
+  .fq4 { background: rgba(39,174,96,.05); border: 1px solid rgba(39,174,96,.2); }
+  .fq4 .fq-title { color: var(--green); }
+
+  .lr-row {
+    display: grid;
+    grid-template-columns: 130px 1fr 160px;
+    border: 1px solid var(--rule);
+    margin-bottom: -1px;
+    align-items: center;
+    overflow: hidden;
+  }
+  .lr-lbl {
+    padding: 13px 14px;
+    border-right: 1px solid var(--rule);
+    background: var(--light);
+    font-family: 'Fira Code', monospace;
+  }
+  .lr-lbl strong { display: block; font-size: 13px; color: var(--ink); margin-bottom: 2px; }
+  .lr-lbl span { font-size: 10px; }
+  .lr-viz { padding: 8px 16px; }
+  .lr-viz svg { width: 100%; height: 40px; display: block; }
+  .lr-note { padding: 10px 14px; border-left: 1px solid var(--rule); font-size: 11px; color: var(--muted); line-height: 1.5; }
+  .lr-note strong { color: var(--ink); font-weight: 600; }
+
+  .pyramid { display: flex; flex-direction: column; max-width: 640px; margin: 0 auto; }
+  .pyr-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border: 1px solid var(--rule);
+    margin-bottom: -1px;
+    padding: 13px 20px;
+    gap: 12px;
+  }
+  .pyr-title { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+  .pyr-desc { font-family: 'Fira Code', monospace; font-size: 9.5px; color: var(--muted); line-height: 1.5; }
+  .pyr-badge {
+    font-family: 'Fira Code', monospace;
+    font-size: 9px;
+    padding: 3px 9px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    border-radius: 1px;
+  }
+
+  .build-table { width: 100%; border-collapse: collapse; }
+  .build-table th {
+    font-family: 'Fira Code', monospace;
+    font-size: 9px; text-transform: uppercase; letter-spacing: .1em;
+    padding: 10px 14px; background: var(--ink); color: var(--paper);
+    text-align: left; font-weight: 500;
+  }
+  .build-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--rule);
+    font-size: 12px;
+    vertical-align: middle;
+  }
+  .build-table tr:nth-child(even) td { background: rgba(0,0,0,.025); }
+  .bar-track { height: 18px; background: var(--light); border-radius: 1px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 1px; display: flex; align-items: center; padding-left: 8px; font-family: 'Fira Code', monospace; font-size: 9px; color: #fff; font-weight: 600; white-space: nowrap; }
+
+  .use-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .use-table th { font-family: 'Fira Code', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: .1em; padding: 10px 14px; background: var(--light); color: var(--muted); text-align: left; border: 1px solid var(--rule); font-weight: 500; }
+  .use-table td { padding: 10px 14px; border: 1px solid var(--rule); vertical-align: top; line-height: 1.5; color: var(--muted); }
+  .use-table td strong { color: var(--ink); font-weight: 600; }
+  .yes { color: var(--green) !important; }
+  .no  { color: var(--red) !important; }
+  .maybe { color: var(--gold) !important; }
+
+  .verdict {
+    border: 2px solid var(--ink);
+    margin: 52px 0 32px;
+    overflow: hidden;
+  }
+  .verdict-hdr {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 14px 28px;
+    font-family: 'Libre Baskerville', serif;
+    font-size: 18px;
+    font-style: italic;
+  }
+  .verdict-body {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+  .vi { padding: 24px; border-right: 1px solid var(--rule); }
+  .vi:last-child { border-right: none; }
+  .vi h5 { font-family: 'Fira Code', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); margin-bottom: 8px; }
+  .vi-score { font-family: 'Libre Baskerville', serif; font-size: 44px; font-weight: 700; font-style: italic; line-height: 1; margin-bottom: 6px; }
+  .vi p { font-size: 12px; color: var(--muted); line-height: 1.65; }
+
+  hr.rule { border: none; border-top: 1px solid var(--rule); margin: 36px 0; }
+
+  .ann-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-top: 16px; }
+  .ann { display: flex; gap: 10px; align-items: flex-start; }
+  .ann-num { font-family: 'Fira Code', monospace; font-size: 10px; font-weight: 600; color: var(--paper); background: var(--red); min-width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+  .ann-text { font-size: 12px; color: var(--ink); line-height: 1.55; }
+  .ann-text strong { font-weight: 600; }
+</style>
+</head>
+<body>
+
+<a href="index.html" class="back-link">&larr; Back to omkarray.com</a>
+
+<!-- MASTHEAD -->
+<div class="masthead">
+  <div>
+    <div class="field-tag">Optimisation Theory · Machine Learning Foundations · Learning Deep Dive</div>
+    <h1>Gradient<br><em>Descent</em></h1>
+    <p class="masthead-sub">The algorithm that trains nearly every neural network alive. What it actually computes, where it silently breaks, what each variant fixes, and when to abandon it entirely.</p>
+  </div>
+  <div class="masthead-right">
+    <div class="verdict-stamp">Foundation Algorithm</div>
+    <div class="meta-lines">
+      Complexity: O(n) per step<br>
+      Convergence: not guaranteed<br>
+      Ubiquity: near-universal<br>
+      Invented: Cauchy, 1847<br>
+      Rediscovered: Rumelhart, 1986
+    </div>
+  </div>
+</div>
+
+<!-- §1 -->
+<div class="section-header">
+  <div class="sec-num">1</div>
+  <div>
+    <div class="sec-title">What It Actually Computes</div>
+    <div class="sec-sub">Strip away the metaphors — the precise mechanical operation</div>
+  </div>
+</div>
+
+<p class="body">The textbook metaphor — a blindfolded hiker descending a mountain — is useful but dangerously incomplete. Here is what gradient descent does, stated precisely: it <strong>iteratively adjusts parameters in the direction that most steeply reduces the loss function</strong>, by an amount controlled by the learning rate.</p>
+<p class="body">The update rule is deceptively simple: <span class="math">θ ← θ − α · ∇J(θ)</span>. Three objects. The weight vector <span class="math">θ</span>. The learning rate <span class="math">α</span>. The gradient <span class="math">∇J(θ)</span> — the direction of steepest ascent, negated. The algorithm has no memory of where it has been. No map. No knowledge of the landscape's shape beyond the local slope at this exact point.</p>
+
+<div class="callout">"Gradient descent is not a solver — it is a direction follower. It finds where the slope points down and takes a step. It has no concept of destination, only of local improvement. This is both its power and its fundamental limitation."</div>
+
+<div class="diagram">
+  <div class="diagram-label" data-exhibit="EXHIBIT A">The Loss Landscape — Iterative Descent with Failure Regions Marked</div>
+  <div class="landscape-wrap">
+    <svg viewBox="0 0 900 290" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+      <rect width="900" height="290" fill="#16213e"/>
+      <g stroke="rgba(255,255,255,0.035)" stroke-width="1">
+        <line x1="0" y1="58"  x2="900" y2="58"/>
+        <line x1="0" y1="116" x2="900" y2="116"/>
+        <line x1="0" y1="174" x2="900" y2="174"/>
+        <line x1="0" y1="232" x2="900" y2="232"/>
+        <line x1="112" y1="0" x2="112" y2="290"/>
+        <line x1="225" y1="0" x2="225" y2="290"/>
+        <line x1="338" y1="0" x2="338" y2="290"/>
+        <line x1="450" y1="0" x2="450" y2="290"/>
+        <line x1="562" y1="0" x2="562" y2="290"/>
+        <line x1="675" y1="0" x2="675" y2="290"/>
+        <line x1="787" y1="0" x2="787" y2="290"/>
+      </g>
+
+      <defs>
+        <linearGradient id="sg" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#c0392b" stop-opacity="0.5"/>
+          <stop offset="100%" stop-color="#2980b9" stop-opacity="0.15"/>
+        </linearGradient>
+      </defs>
+
+      <path d="M0,28 C50,28 80,95 115,112 C145,126 165,133 195,127 C225,120 248,104 285,98 C315,94 345,97 375,118 C405,138 425,150 465,153 C490,154 510,153 530,152 C570,149 620,148 670,172 C720,198 775,228 900,252 L900,290 L0,290 Z" fill="url(#sg)" opacity="0.28"/>
+      <path d="M0,28 C50,28 80,95 115,112 C145,126 165,133 195,127 C225,120 248,104 285,98 C315,94 345,97 375,118 C405,138 425,150 465,153 C490,154 510,153 530,152 C570,149 620,148 670,172 C720,198 775,228 900,252" fill="none" stroke="rgba(192,57,43,0.6)" stroke-width="2"/>
+
+      <defs>
+        <marker id="ya" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
+          <path d="M0,0 L6,3 L0,6 Z" fill="rgba(255,200,50,0.75)"/>
+        </marker>
+        <marker id="ra" markerWidth="5" markerHeight="5" refX="2.5" refY="2.5" orient="auto">
+          <path d="M0,0 L5,2.5 L0,5 Z" fill="rgba(192,57,43,0.8)"/>
+        </marker>
+      </defs>
+      <g stroke="rgba(255,200,50,0.65)" stroke-width="1.4" fill="none" marker-end="url(#ya)">
+        <line x1="115" y1="112" x2="148" y2="126"/>
+        <line x1="148" y1="126" x2="173" y2="131"/>
+        <line x1="173" y1="131" x2="210" y2="124"/>
+        <line x1="210" y1="124" x2="252" y2="109"/>
+        <line x1="252" y1="109" x2="293" y2="97"/>
+        <line x1="293" y1="97"  x2="352" y2="108"/>
+        <line x1="352" y1="108" x2="405" y2="143"/>
+        <line x1="405" y1="143" x2="448" y2="152"/>
+        <line x1="448" y1="152" x2="472" y2="153.5"/>
+        <line x1="472" y1="153.5" x2="484" y2="153.2"/>
+      </g>
+      <path class="march" d="M484,153.2 Q490,153 495,153" fill="none" stroke="rgba(255,200,50,0.5)" stroke-width="1.5"/>
+      <line x1="148" y1="128" x2="123" y2="115" stroke="rgba(192,57,43,0.8)" stroke-width="1.5" marker-end="url(#ra)"/>
+      <text x="105" y="110" font-family="'Fira Code',monospace" font-size="9" fill="rgba(192,57,43,0.9)">−∇J</text>
+      <circle cx="115" cy="112" r="4" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.5)" stroke-width="1.2"/>
+      <text x="115" y="103" font-family="'Fira Code',monospace" font-size="9" fill="rgba(255,255,255,0.7)" text-anchor="middle">θ₀</text>
+      <circle cx="195" cy="127" r="5" fill="none" stroke="rgba(211,84,0,0.85)" stroke-width="1.5" stroke-dasharray="2,2"/>
+      <text x="195" y="118" font-family="'Fira Code',monospace" font-size="9" fill="rgba(211,84,0,0.9)" text-anchor="middle">local min</text>
+      <text x="285" y="88"  font-family="'Fira Code',monospace" font-size="9" fill="rgba(41,128,185,0.9)" text-anchor="middle">saddle</text>
+      <line x1="285" y1="91" x2="285" y2="96" stroke="rgba(41,128,185,0.6)" stroke-width="1"/>
+      <circle cx="488" cy="153" r="6" fill="rgba(39,174,96,0.25)" stroke="rgba(39,174,96,0.9)" stroke-width="1.5"/>
+      <text x="488" y="143" font-family="'Fira Code',monospace" font-size="9" fill="rgba(39,174,96,0.95)" text-anchor="middle">global min</text>
+      <text x="488" y="166" font-family="'Fira Code',monospace" font-size="8" fill="rgba(39,174,96,0.7)" text-anchor="middle">θ*</text>
+      <text x="690" y="160" font-family="'Fira Code',monospace" font-size="9" fill="rgba(255,255,255,0.35)" text-anchor="middle">plateau region</text>
+      <text x="450" y="280" font-family="'Fira Code',monospace" font-size="10" fill="rgba(255,255,255,0.35)" text-anchor="middle" letter-spacing="2">PARAMETER  θ  →</text>
+      <text x="15" y="145" font-family="'Fira Code',monospace" font-size="10" fill="rgba(255,255,255,0.35)" text-anchor="middle" transform="rotate(-90,15,145)" letter-spacing="2">LOSS  J(θ)  →</text>
+    </svg>
+  </div>
+  <div class="ann-row">
+    <div class="ann"><div class="ann-num">1</div><div class="ann-text"><strong>Compute gradient</strong> ∇J(θ) — partial derivatives of loss w.r.t. every parameter. Points in the direction of steepest increase.</div></div>
+    <div class="ann"><div class="ann-num">2</div><div class="ann-text"><strong>Negate and scale</strong> by α. Move <em>opposite</em> the gradient — downhill — by a controlled step size.</div></div>
+    <div class="ann"><div class="ann-num">3</div><div class="ann-text"><strong>Repeat until</strong> gradient ≈ 0. That's a stationary point — but whether it's a minimum, saddle, or local trap is unknowable locally.</div></div>
+  </div>
+  <div class="footnote">The loss landscape is non-convex in real neural networks — local minima, saddle points, and plateaus coexist. GD offers no guarantees about which stationary point it finds.</div>
+</div>
+
+<!-- §2 -->
+<div class="section-header">
+  <div class="sec-num">2</div>
+  <div>
+    <div class="sec-title">The Algorithm — Layers of Difficulty</div>
+    <div class="sec-sub">Trivial formula, non-trivial implementation — where it actually breaks</div>
+  </div>
+</div>
+<p class="body">The update rule fits on one napkin. Making gradient descent reliably train a modern model spans thousands of engineering decisions. Every major advance in deep learning — batch norm, residual connections, Adam, gradient clipping — is a targeted patch for a specific failure mode of vanilla GD.</p>
+<div class="diagram">
+  <div class="diagram-label" data-exhibit="EXHIBIT B">Difficulty Stack — From Formula to Production-Grade Training</div>
+  <div style="display:flex;flex-direction:column;gap:0;">
+    <div class="alg-layer"><div class="al-label al-easy">Update Rule<div class="al-sub">one line</div></div><div class="al-content"><span class="math" style="font-size:13px;">θ ← θ − α∇J(θ)</span><span style="color:var(--muted);font-size:13px;">Any undergraduate implements this in NumPy in 5 minutes.</span><span class="al-tag tag-e">TRIVIAL</span></div></div>
+    <div class="alg-layer"><div class="al-label al-easy">Backpropagation<div class="al-sub">autograd / chain rule</div></div><div class="al-content"><span style="font-size:13px;color:var(--muted);">Chain rule through the computation graph. PyTorch/JAX handle this.</span><span class="al-tag tag-e">EASY W/ LIBRARIES</span></div></div>
+    <div class="alg-layer"><div class="al-label al-med">Mini-Batch SGD<div class="al-sub">stochastic variant</div></div><div class="al-content"><span style="font-size:13px;color:#bdc3c7;">Compute gradient on a random batch of B samples. Introduces noise that helps escape local minima.</span><span class="al-tag tag-m">MODERATE</span></div></div>
+    <div class="alg-layer"><div class="al-label al-med">LR Schedules<div class="al-sub">warmup, cosine, decay</div></div><div class="al-content"><span style="font-size:13px;color:#bdc3c7;">A fixed learning rate almost never works for large models.</span><span class="al-tag tag-m">NON-TRIVIAL</span></div></div>
+    <div class="alg-layer" style="border-left:3px solid var(--red);"><div class="al-label al-hard">Gradient Pathologies<div class="al-sub">vanishing / exploding</div></div><div class="al-content"><span style="font-size:13px;">In deep networks, gradients shrink to zero or explode to NaN. Requires clipping, normalization, and proper init.</span><span class="al-tag tag-h">HARD</span></div></div>
+    <div class="alg-layer" style="border-left:3px solid var(--red);"><div class="al-label al-hard">Ill-Conditioning<div class="al-sub">curvature mismatch</div></div><div class="al-content"><span style="font-size:13px;">Loss surface has different curvature by direction; vanilla GD oscillates in ravines.</span><span class="al-tag tag-h">HARD</span></div></div>
+  </div>
+</div>
+
+<!-- §3 -->
+<div class="section-header">
+  <div class="sec-num">3</div>
+  <div>
+    <div class="sec-title">Variant Analysis — What Each Fix Buys You</div>
+    <div class="sec-sub">SGD → Momentum → RMSProp → Adam: the lineage of patches</div>
+  </div>
+</div>
+<p class="body">Each major variant is a direct response to a specific failure mode. Every variant adds state — which adds memory cost but buys more intelligent navigation of the landscape.</p>
+<div class="diagram">
+  <div class="diagram-label" data-exhibit="EXHIBIT C">Variant Comparison — Formulas and Trade-offs</div>
+  <div class="variants-grid">
+    <div class="vc"><div class="vc-name">Vanilla SGD</div><div class="vc-formula">θ ← θ − α · ∇J(θ_batch)</div><div class="vc-prop">Stochastic mini-batch updates</div><div class="vc-prop">Oscillates in ravines</div></div>
+    <div class="vc"><div class="vc-name">SGD + Momentum</div><div class="vc-formula">v ← βv + α·∇J(θ)<br>θ ← θ − v</div><div class="vc-prop">Smooths oscillation</div><div class="vc-prop">Faster on plateaus</div></div>
+    <div class="vc"><div class="vc-name">RMSProp</div><div class="vc-formula">E[g²] ← βE[g²]+(1−β)g²<br>θ ← θ − α/√(E[g²]+ε)·g</div><div class="vc-prop">Per-parameter adaptive LR</div></div>
+    <div class="vc" style="border-left:3px solid var(--blue);"><div class="vc-name" style="color:var(--blue);">Adam</div><div class="vc-formula">m̂, v̂ bias-corrected moments<br>θ ← θ − α·m̂/√(v̂+ε)</div><div class="vc-prop">Industry default for transformers</div></div>
+  </div>
+</div>
+
+<!-- §4 -->
+<div class="section-header">
+  <div class="sec-num">4</div>
+  <div>
+    <div class="sec-title">Failure Mode Map</div>
+    <div class="sec-sub">Impact × Frequency map for practical training</div>
+  </div>
+</div>
+<div class="diagram">
+  <div class="diagram-label" data-exhibit="EXHIBIT D">Risk Matrix — GD Failure Modes</div>
+  <div class="fail-grid">
+    <div class="fq fq1"><div class="fq-title">High Impact · High Frequency</div><div class="fq-item">Vanishing gradients</div><div class="fq-item">Bad learning rate</div><div class="fq-item">Exploding gradients</div></div>
+    <div class="fq fq2"><div class="fq-title">High Impact · Lower Frequency</div><div class="fq-item">Local minima traps</div><div class="fq-item">Sharp minima</div></div>
+    <div class="fq fq3"><div class="fq-title">Low Impact · High Frequency</div><div class="fq-item">Saddle point slowdown</div><div class="fq-item">Plateau regions</div></div>
+    <div class="fq fq4"><div class="fq-title">Low Impact · Low Frequency</div><div class="fq-item">Ravine oscillation</div><div class="fq-item">Float underflow</div></div>
+  </div>
+</div>
+
+<!-- §5 -->
+<div class="section-header">
+  <div class="sec-num">5</div>
+  <div>
+    <div class="sec-title">The Learning Rate Spectrum</div>
+    <div class="sec-sub">The single most impactful hyperparameter</div>
+  </div>
+</div>
+<p class="body">If gradient descent is the algorithm, learning rate is the dial that determines whether it works. The right answer in modern training is usually a schedule, not a constant.</p>
+<div class="diagram">
+  <div class="diagram-label" data-exhibit="EXHIBIT E">Learning Rate Spectrum — Divergence to Stagnation</div>
+  <div class="lr-row"><div class="lr-lbl"><strong style="color:var(--red);">Too High</strong><span style="color:var(--red);">α ≈ 0.1–1.0</span></div><div class="lr-viz"><svg viewBox="0 0 340 40" xmlns="http://www.w3.org/2000/svg"><polyline points="0,32 34,20 68,30 102,12 136,34 170,6 204,36 238,4 272,36 306,2 340,36" fill="none" stroke="#c0392b" stroke-width="2"/></svg></div><div class="lr-note">Loss diverges or explodes.</div></div>
+  <div class="lr-row" style="border-left:3px solid var(--green);background:rgba(39,174,96,.03);"><div class="lr-lbl" style="background:rgba(39,174,96,.08);"><strong style="color:var(--green);">Just Right</strong><span style="color:var(--green);">α ≈ 1e-3 to 3e-4</span></div><div class="lr-viz"><svg viewBox="0 0 340 40" xmlns="http://www.w3.org/2000/svg"><path d="M0,36 C60,28 120,14 200,6 C260,2 300,2 340,2" fill="none" stroke="#27ae60" stroke-width="2"/></svg></div><div class="lr-note">Smooth, stable descent.</div></div>
+  <div class="lr-row"><div class="lr-lbl"><strong style="color:var(--blue);">Too Low</strong><span style="color:var(--blue);">α ≈ 1e-6</span></div><div class="lr-viz"><svg viewBox="0 0 340 40" xmlns="http://www.w3.org/2000/svg"><path d="M0,34 C100,33 200,32 340,31" fill="none" stroke="#2980b9" stroke-width="2"/></svg></div><div class="lr-note">Barely moves.</div></div>
+</div>
+
+<!-- §6 -->
+<div class="section-header">
+  <div class="sec-num">6</div>
+  <div>
+    <div class="sec-title">Where the Real Insight Lives</div>
+    <div class="sec-sub">From obvious textbook facts to deeper intuition</div>
+  </div>
+</div>
+<div class="diagram">
+  <div class="diagram-label" data-exhibit="EXHIBIT F">Insight Pyramid</div>
+  <div class="pyramid">
+    <div class="pyr-row" style="background:rgba(0,0,0,.02);"><div><div class="pyr-title">Update rule</div><div class="pyr-desc">θ ← θ − α∇J(θ)</div></div><div class="pyr-badge" style="background:var(--light);color:var(--muted);">OBVIOUS</div></div>
+    <div class="pyr-row" style="background:rgba(41,128,185,.04);"><div><div class="pyr-title">Mini-batch noise helps generalisation</div><div class="pyr-desc">Noise acts as implicit regularisation.</div></div><div class="pyr-badge" style="background:rgba(41,128,185,.1);color:var(--blue);">KNOWN</div></div>
+    <div class="pyr-row" style="background:rgba(192,57,43,.09);border-left:3px solid var(--red);"><div><div class="pyr-title">GD has implicit bias toward simpler solutions</div><div class="pyr-desc">A deep reason it can generalise well remains an open research frontier.</div></div><div class="pyr-badge" style="background:rgba(192,57,43,.15);color:var(--red);">DEEPEST</div></div>
+  </div>
+</div>
+
+<!-- §7 -->
+<div class="section-header">
+  <div class="sec-num">7</div>
+  <div>
+    <div class="sec-title">Implementation Complexity by Variant</div>
+    <div class="sec-sub">How hard each variant is to implement correctly</div>
+  </div>
+</div>
+<div class="diagram">
+  <div class="diagram-label" data-exhibit="EXHIBIT G">Build Complexity — NumPy from Scratch</div>
+  <table class="build-table">
+    <thead><tr><th style="width:185px;">Variant</th><th>Implementation Effort</th><th style="width:90px;">LoC</th><th style="width:175px;">Hardest Step</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Vanilla GD</strong></td><td><div class="bar-track"><div class="bar-fill" style="width:6%;background:#95a5a6;">trivial</div></div></td><td style="font-family:'Fira Code',monospace;">~5</td><td>Nothing</td></tr>
+      <tr><td><strong>Momentum</strong></td><td><div class="bar-track"><div class="bar-fill" style="width:14%;background:#7f8c8d;">velocity state</div></div></td><td style="font-family:'Fira Code',monospace;">~15</td><td>State update correctness</td></tr>
+      <tr><td><strong>Adam / AdamW</strong></td><td><div class="bar-track"><div class="bar-fill" style="width:50%;background:#9b59b6;">bias correction + decoupled WD</div></div></td><td style="font-family:'Fira Code',monospace;">~55</td><td>Numerical stability and decay handling</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- §8 -->
+<div class="section-header">
+  <div class="sec-num">8</div>
+  <div>
+    <div class="sec-title">When to Abandon Gradient Descent</div>
+    <div class="sec-sub">Use GD vs alternatives</div>
+  </div>
+</div>
+<div class="diagram">
+  <div class="diagram-label" data-exhibit="EXHIBIT H">Decision Table — Use GD or Alternatives?</div>
+  <table class="use-table">
+    <thead><tr><th style="width:200px;">Situation</th><th style="width:110px;">Use GD?</th><th>Alternative</th><th>Reason</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Training a neural network</strong></td><td class="yes"><strong>✓ Yes</strong></td><td>AdamW</td><td>Standard at scale.</td></tr>
+      <tr><td><strong>Non-differentiable objective</strong></td><td class="no"><strong>✗ No</strong></td><td>Evolutionary / Bayesian methods</td><td>No gradient exists.</td></tr>
+      <tr><td><strong>Hyperparameter search</strong></td><td class="no"><strong>✗ No</strong></td><td>Bayesian optimisation</td><td>Validation objective is not directly differentiable.</td></tr>
+      <tr><td><strong>Very small datasets</strong></td><td class="maybe"><strong>⚠ Maybe</strong></td><td>L-BFGS / Newton</td><td>Second-order methods can converge faster.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="verdict">
+  <div class="verdict-hdr">Final Verdict — Gradient Descent</div>
+  <div class="verdict-body">
+    <div class="vi">
+      <h5>Ubiquity Score</h5>
+      <div class="vi-score" style="color:var(--red);">10/10</div>
+      <p>Trains nearly every neural network in production today.</p>
+    </div>
+    <div class="vi">
+      <h5>Theoretical Understanding</h5>
+      <div class="vi-score" style="color:var(--blue);">4/10</div>
+      <p>Generalisation behavior in non-convex settings is still not fully explained.</p>
+    </div>
+    <div class="vi">
+      <h5>Replication Difficulty</h5>
+      <div class="vi-score" style="color:var(--green);">2/10</div>
+      <p>The formula is simple; robust large-scale training requires significant engineering judgment.</p>
+    </div>
+  </div>
+</div>
+
+<hr class="rule">
+<div style="font-family:'Fira Code',monospace;font-size:9px;color:var(--muted);line-height:1.9;">
+  Key references: Cauchy (1847) · Rumelhart, Hinton &amp; Williams (1986) · AdaGrad (2011) · Adam (2014) · AdamW (2019) · Double Descent (2019) · Spectral Bias (2019) · Lion (2023). Learning foundations volume. Feb 2026.
+</div>
+
+</body>
+</html>
