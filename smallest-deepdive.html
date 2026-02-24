@@ -1,0 +1,1168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smallest.ai — PM Deep Dive</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=JetBrains+Mono:wght@400;500;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0a0a0f;
+    --bg: #f0eff5;
+    --accent: #3d2bcc;
+    --accent2: #7c3aed;
+    --gold: #c47c0a;
+    --muted: #64637a;
+    --light: #e4e2f0;
+    --rule: #ccc9e0;
+    --green: #1a6b4a;
+    --red: #b52a1c;
+    --card: #fafaf8;
+    --white: #ffffff;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 48px 32px;
+    line-height: 1.6;
+  }
+
+  /* BACK LINK */
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    text-decoration: none;
+    margin-bottom: 20px;
+  }
+  .back-link:hover { color: var(--ink); }
+
+  /* MASTHEAD */
+  .masthead {
+    margin-bottom: 56px;
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 28px;
+  }
+  .masthead-eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .masthead-eyebrow::before {
+    content: '';
+    display: block;
+    width: 32px;
+    height: 2px;
+    background: var(--accent);
+  }
+  .masthead h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 52px;
+    font-weight: 400;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+  }
+  .masthead h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+  .masthead-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-top: 16px;
+  }
+  .masthead-sub {
+    font-size: 14px;
+    color: var(--muted);
+    font-weight: 300;
+    max-width: 480px;
+  }
+  .masthead-meta {
+    text-align: right;
+  }
+  .verdict-chip {
+    display: inline-block;
+    background: var(--accent);
+    color: white;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    border-radius: 1px;
+    margin-bottom: 4px;
+  }
+  .meta-line {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+  }
+
+  /* THESIS BOX */
+  .thesis {
+    background: var(--accent);
+    color: white;
+    padding: 28px 32px;
+    margin-bottom: 48px;
+    display: grid;
+    grid-template-columns: 3fr 1fr;
+    gap: 24px;
+    align-items: center;
+  }
+  .thesis p {
+    font-family: 'DM Serif Display', serif;
+    font-size: 19px;
+    font-weight: 400;
+    font-style: italic;
+    line-height: 1.4;
+    opacity: 0.95;
+  }
+  .thesis-stat {
+    text-align: right;
+  }
+  .thesis-stat-num {
+    font-family: 'DM Serif Display', serif;
+    font-size: 42px;
+    font-weight: 400;
+    display: block;
+    line-height: 1;
+    color: rgba(255,255,255,0.9);
+  }
+  .thesis-stat-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    opacity: 0.7;
+    margin-top: 4px;
+  }
+
+  /* SECTIONS */
+  .section-header {
+    display: grid;
+    grid-template-columns: 60px 1fr;
+    gap: 16px;
+    align-items: start;
+    margin: 60px 0 28px;
+  }
+  .section-num {
+    font-family: 'DM Serif Display', serif;
+    font-size: 64px;
+    color: var(--light);
+    line-height: 0.9;
+    text-align: right;
+  }
+  .section-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 24px;
+    font-weight: 400;
+    color: var(--ink);
+  }
+  .section-desc {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-top: 3px;
+  }
+
+  p.body {
+    font-size: 14px;
+    color: var(--ink);
+    margin-bottom: 16px;
+    max-width: 680px;
+    font-weight: 300;
+  }
+  p.body strong { font-weight: 600; }
+
+  /* DIAGRAM FRAME */
+  .diagram {
+    background: var(--white);
+    border: 1px solid var(--rule);
+    padding: 28px 32px;
+    margin: 20px 0;
+    position: relative;
+  }
+  .diagram::before {
+    content: '';
+    display: block;
+    position: absolute;
+    top: 0; left: 0;
+    width: 4px;
+    height: 100%;
+    background: var(--accent);
+  }
+  .diagram-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    margin-bottom: 20px;
+  }
+  .footnote {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    border-top: 1px solid var(--rule);
+    padding-top: 10px;
+    margin-top: 16px;
+  }
+
+  /* EXHIBIT A: Model Stack */
+  .model-layer {
+    display: flex;
+    align-items: stretch;
+    margin-bottom: -1px;
+    border: 1px solid var(--rule);
+    position: relative;
+  }
+  .ml-label {
+    width: 130px;
+    min-width: 130px;
+    padding: 14px 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border-right: 1px solid var(--rule);
+  }
+  .ml-label.owned {
+    background: var(--accent);
+    color: white;
+    border-right-color: var(--accent);
+  }
+  .ml-label.vendor {
+    background: #f0eff5;
+    color: var(--muted);
+  }
+  .ml-label.mixed {
+    background: #ede9fc;
+    color: var(--accent2);
+    border-right-color: #cfc9f0;
+  }
+  .ml-label-sub {
+    font-size: 8px;
+    opacity: 0.7;
+    margin-top: 2px;
+  }
+  .ml-content {
+    flex: 1;
+    padding: 12px 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    font-size: 12px;
+  }
+  .chip {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .chip-own { background: #ede9fc; border: 1px solid #cfc9f0; color: var(--accent); }
+  .chip-vendor { background: var(--light); border: 1px solid var(--rule); color: var(--muted); }
+  .chip-gold { background: #fef3d6; border: 1px solid #f0d080; color: var(--gold); }
+  .ml-stat {
+    margin-left: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--green);
+    white-space: nowrap;
+    padding-left: 12px;
+  }
+  .ml-stat.red { color: var(--red); }
+
+  /* EXHIBIT C: Comparison vs Bolna */
+  .compare-grid {
+    display: grid;
+    grid-template-columns: 180px 1fr 1fr;
+    gap: 0;
+  }
+  .cg-header {
+    padding: 10px 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: white;
+    background: var(--ink);
+    border: 1px solid var(--ink);
+  }
+  .cg-header.bolna { background: #8b4513; }
+  .cg-header.smallest { background: var(--accent); }
+  .cg-row-label {
+    padding: 12px 16px;
+    font-size: 12px;
+    font-weight: 500;
+    border: 1px solid var(--rule);
+    border-top: none;
+    background: #fafaf8;
+    display: flex;
+    align-items: center;
+  }
+  .cg-cell {
+    padding: 12px 16px;
+    font-size: 12px;
+    line-height: 1.5;
+    border: 1px solid var(--rule);
+    border-left: none;
+    border-top: none;
+    color: var(--muted);
+  }
+  .cg-cell strong { color: var(--ink); font-weight: 600; }
+  .cg-cell.win { background: #f0f7f3; }
+  .win-badge {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px;
+    background: var(--green);
+    color: white;
+    padding: 1px 5px;
+    border-radius: 1px;
+    margin-left: 4px;
+    vertical-align: middle;
+  }
+
+  /* EXHIBIT D: Moat Radar as horizontal bars */
+  .radar-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .rb-row {
+    display: grid;
+    grid-template-columns: 180px 1fr 1fr;
+    gap: 8px;
+    align-items: center;
+  }
+  .rb-label { font-size: 12px; font-weight: 500; }
+  .rb-bar-wrap {
+    height: 22px;
+    background: var(--light);
+    border-radius: 2px;
+    overflow: hidden;
+    position: relative;
+  }
+  .rb-bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    padding: 0 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: white;
+    font-weight: 600;
+  }
+  .rb-col-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    text-align: center;
+    margin-bottom: 4px;
+  }
+
+  /* EXHIBIT E: Risk matrix */
+  .rg-cell {
+    padding: 12px;
+    border-radius: 2px;
+    font-size: 11px;
+  }
+  .rg-tag {
+    display: inline-block;
+    background: rgba(0,0,0,0.07);
+    border-radius: 2px;
+    padding: 2px 7px;
+    margin: 2px;
+    font-size: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    line-height: 1.6;
+  }
+  .rg-cell-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 8px;
+  }
+  .q1 { background: #fde8e2; }
+  .q1 .rg-cell-title { color: var(--red); }
+  .q2 { background: #fffbe6; }
+  .q2 .rg-cell-title { color: var(--gold); }
+  .q3 { background: #e8f5ee; }
+  .q3 .rg-cell-title { color: var(--green); }
+  .q4 { background: #f5f5f7; }
+  .q4 .rg-cell-title { color: var(--muted); }
+
+  /* EXHIBIT F: Build effort */
+  .bt-table { width: 100%; border-collapse: collapse; }
+  .bt-table th {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 10px 14px;
+    background: var(--ink);
+    color: white;
+    text-align: left;
+    font-weight: 500;
+  }
+  .bt-table td {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--rule);
+    font-size: 12px;
+    vertical-align: middle;
+  }
+  .bt-table tr:nth-child(even) td { background: #faf9fe; }
+  .bt-track {
+    height: 20px;
+    background: var(--light);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .bt-fill {
+    height: 100%;
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    padding-left: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: white;
+  }
+
+  /* GAP TABLE */
+  .gap-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .gap-table th {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: white;
+    background: var(--ink);
+    padding: 10px 14px;
+    text-align: left;
+    font-weight: 500;
+  }
+  .gap-table td {
+    padding: 11px 14px;
+    border-bottom: 1px solid var(--rule);
+    vertical-align: top;
+    line-height: 1.5;
+  }
+  .gap-table tr:nth-child(even) td { background: #faf9fe; }
+  .pill {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+  }
+  .pill-high { background: #fde8e2; color: var(--red); }
+  .pill-med { background: #fffbe6; color: var(--gold); }
+  .pill-low { background: #e8f5ee; color: var(--green); }
+
+  /* VERDICT */
+  .verdict {
+    border: 2px solid var(--accent);
+    padding: 0;
+    margin: 48px 0;
+    overflow: hidden;
+  }
+  .verdict-title {
+    background: var(--accent);
+    color: white;
+    padding: 12px 24px;
+    font-family: 'DM Serif Display', serif;
+    font-size: 16px;
+  }
+  .verdict-body {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 0;
+    padding: 24px;
+    border-top: none;
+  }
+  .verdict-item {
+    padding: 0 20px;
+    border-right: 1px solid var(--rule);
+  }
+  .verdict-item:first-child { padding-left: 0; }
+  .verdict-item:last-child { border-right: none; }
+  .verdict-item h5 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .verdict-num {
+    font-family: 'DM Serif Display', serif;
+    font-size: 44px;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .verdict-num.accent { color: var(--accent); }
+  .verdict-num.green { color: var(--green); }
+  .verdict-num.red { color: var(--red); }
+  .verdict-item p { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0; }
+  .insight-card { border: 1px solid var(--rule); padding: 18px; background: var(--white); }
+  .insight-card h4 { font-family: 'DM Serif Display', serif; font-size: 15px; margin-bottom: 8px; }
+  .insight-card p { font-size: 12px; color: var(--muted); line-height: 1.5; font-weight: 300; }
+
+  .callout {
+    border-left: 3px solid var(--accent);
+    padding: 12px 20px;
+    background: #f5f3fc;
+    margin: 16px 0;
+    font-size: 13px;
+    font-style: italic;
+    color: var(--ink);
+    font-family: 'DM Serif Display', serif;
+    font-weight: 400;
+  }
+
+  hr.rule { border: none; border-top: 1px solid var(--rule); margin: 32px 0; }
+
+  .key-diff {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--rule);
+    margin: 20px 0;
+  }
+  .kd-cell {
+    background: var(--white);
+    padding: 20px 18px;
+  }
+  .kd-cell h4 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+  .kd-num {
+    font-family: 'DM Serif Display', serif;
+    font-size: 32px;
+    color: var(--ink);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .kd-label { font-size: 12px; color: var(--muted); }
+
+  @media (max-width: 768px) {
+    body { padding: 28px 16px; }
+    .masthead h1 { font-size: 40px; }
+    .masthead-row { flex-direction: column; align-items: flex-start; gap: 16px; }
+    .masthead-meta { text-align: left; }
+    .thesis { grid-template-columns: 1fr; }
+    .thesis-stat { text-align: left; }
+    .section-header { grid-template-columns: 40px 1fr; }
+    .section-num { font-size: 48px; }
+    .compare-grid { grid-template-columns: 1fr; }
+    .two-col { grid-template-columns: 1fr; }
+    .verdict-body { grid-template-columns: 1fr; gap: 20px; }
+    .verdict-item { border-right: none; border-bottom: 1px solid var(--rule); padding: 0 0 16px; }
+    .verdict-item:last-child { border-bottom: none; padding-bottom: 0; }
+    .rb-row { grid-template-columns: 1fr; gap: 4px; }
+    .key-diff { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<a href="index.html" class="back-link">&larr; Back to omkarray.com</a>
+
+<!-- MASTHEAD -->
+<div class="masthead">
+  <div class="masthead-eyebrow">PM Analysis · Full-Stack Voice AI · February 2026</div>
+  <h1>Smallest<em>.ai</em><br>Deep Dive</h1>
+  <div class="masthead-row">
+    <div class="masthead-sub">The company building the anti-wrapper — proprietary models across the full voice stack from waveform to response. How defensible is it really?</div>
+    <div class="masthead-meta">
+      <div class="verdict-chip">Not a Wrapper</div>
+      <div class="meta-line" style="margin-top:6px">$8.26M Seed · Sierra Ventures · 3one4<br>Awaaz Labs Pvt Ltd · SF + Bangalore</div>
+    </div>
+  </div>
+</div>
+
+<!-- THESIS -->
+<div class="thesis">
+  <p>"Smallest.ai is the only voice AI company in India that owns the full inference loop — ASR, LLM, and TTS — under one roof. This is simultaneously their strongest moat and their greatest execution risk."</p>
+  <div class="thesis-stat">
+    <span class="thesis-stat-num">100ms</span>
+    <div class="thesis-stat-label">TTS latency<br>(Lightning V2)</div>
+    <span class="thesis-stat-num" style="margin-top:16px;display:block">20×</span>
+    <div class="thesis-stat-label">cost reduction<br>achieved ($0.20→$0.01/min)</div>
+  </div>
+</div>
+
+<!-- KEY DIFFERENTIATORS -->
+<div class="key-diff">
+  <div class="kd-cell">
+    <h4>Core Claim</h4>
+    <div class="kd-num">3</div>
+    <div class="kd-label">Proprietary models: Lightning (TTS), Electron (LLM), Pulse (ASR) — all built in-house</div>
+  </div>
+  <div class="kd-cell">
+    <h4>Architecture Type</h4>
+    <div class="kd-num" style="font-size:22px;line-height:1.2;margin-top:4px">Full<br>Stack</div>
+    <div class="kd-label">Own inference loop vs. Bolna's multi-vendor orchestration</div>
+  </div>
+  <div class="kd-cell">
+    <h4>Positioning</h4>
+    <div class="kd-num" style="font-size:18px;line-height:1.3;margin-top:4px">Model<br>Company</div>
+    <div class="kd-label">Research papers published, CPAL 2026 presence, ASI framework proposed</div>
+  </div>
+</div>
+
+<!-- SECTION 1 -->
+<div class="section-header">
+  <div class="section-num">01</div>
+  <div class="section-text">
+    <div class="section-title">What Smallest.ai Actually Builds</div>
+    <div class="section-desc">The model stack — theirs vs. vendor — and what's truly proprietary</div>
+  </div>
+</div>
+
+<p class="body">Unlike Bolna's orchestration play, Smallest.ai's thesis is vertical integration — owning every layer of the voice pipeline. Their model family now covers the full stack, with Hydra (speech-to-speech) announced as a next-generation architecture.</p>
+
+<div class="diagram">
+  <div class="diagram-label">Exhibit A — Smallest.ai Model Stack: Owned vs. Optional Third-Party</div>
+  <div style="display:flex;flex-direction:column;gap:0;">
+    <div class="model-layer">
+      <div class="ml-label vendor">Telephony<div class="ml-label-sub">resold / 3rd party</div></div>
+      <div class="ml-content">
+        <span class="chip chip-vendor">Twilio (+1, +91)</span>
+        <span class="chip chip-vendor">Custom BYOT</span>
+        <span class="chip chip-vendor">SIP trunking</span>
+        <span class="chip chip-gold">EU/UK/LATAM/APAC custom</span>
+        <span class="ml-stat red">vendor dependency</span>
+      </div>
+    </div>
+    <div style="text-align:center;color:var(--muted);font-size:14px;background:white;padding:2px 0;border-left:1px solid var(--rule);border-right:1px solid var(--rule);">↓</div>
+
+    <div class="model-layer">
+      <div class="ml-label owned">ASR / STT<div class="ml-label-sub">Pulse — Proprietary</div></div>
+      <div class="ml-content">
+        <span class="chip chip-own">Pulse (36 languages)</span>
+        <span class="chip chip-own">Code-switching support</span>
+        <span class="chip chip-own">World's fastest RTF claimed</span>
+        <span class="chip chip-own">Streaming + batch</span>
+        <span class="chip chip-vendor">Deepgram (optional fallback)</span>
+        <span class="ml-stat">own inference</span>
+      </div>
+    </div>
+    <div style="text-align:center;color:var(--muted);font-size:14px;background:white;padding:2px 0;border-left:1px solid var(--rule);border-right:1px solid var(--rule);">↓</div>
+
+    <div class="model-layer" style="border-left:3px solid var(--accent);">
+      <div class="ml-label owned">Agent Logic<div class="ml-label-sub">Atoms — Proprietary</div></div>
+      <div class="ml-content">
+        <span class="chip chip-own">Multi-node graph architecture</span>
+        <span class="chip chip-own">Per-node fallback definitions</span>
+        <span class="chip chip-own">Real-time barge-in</span>
+        <span class="chip chip-own">100+ corner case handlers</span>
+        <span class="chip chip-own">Simulated pre-deployment testing</span>
+        <span class="ml-stat" style="color:var(--accent)">← Core Moat #1</span>
+      </div>
+    </div>
+    <div style="text-align:center;color:var(--muted);font-size:14px;background:white;padding:2px 0;border-left:1px solid var(--rule);border-right:1px solid var(--rule);">↓</div>
+
+    <div class="model-layer" style="border-left:3px solid var(--accent2);">
+      <div class="ml-label mixed">LLM<div class="ml-label-sub">Electron V2 + BYO</div></div>
+      <div class="ml-content">
+        <span class="chip chip-own">Electron V2 (beats GPT mini)</span>
+        <span class="chip chip-own">45ms TTFT</span>
+        <span class="chip chip-own">Fine-tunable on enterprise data</span>
+        <span class="chip chip-vendor">OpenAI GPT-4 (optional)</span>
+        <span class="chip chip-vendor">Anthropic Claude (optional)</span>
+        <span class="chip chip-vendor">Bring Your Own LLM</span>
+        <span class="ml-stat" style="color:var(--accent)">← Core Moat #2</span>
+      </div>
+    </div>
+    <div style="text-align:center;color:var(--muted);font-size:14px;background:white;padding:2px 0;border-left:1px solid var(--rule);border-right:1px solid var(--rule);">↓</div>
+
+    <div class="model-layer" style="border-left:3px solid var(--accent);">
+      <div class="ml-label owned">TTS / Synthesis<div class="ml-label-sub">Lightning V2 — Proprietary</div></div>
+      <div class="ml-content">
+        <span class="chip chip-own">Lightning V2 (100ms TTFB)</span>
+        <span class="chip chip-own">Non-autoregressive architecture</span>
+        <span class="chip chip-own">&lt;1GB VRAM</span>
+        <span class="chip chip-own">30 languages, 1000s of accents</span>
+        <span class="chip chip-own">Voice clone from 10s audio</span>
+        <span class="chip chip-own">$0.05 per 10K chars</span>
+        <span class="ml-stat" style="color:var(--accent)">← Core Moat #3</span>
+      </div>
+    </div>
+    <div style="text-align:center;color:var(--muted);font-size:14px;background:white;padding:2px 0;border-left:1px solid var(--rule);border-right:1px solid var(--rule);">↓</div>
+
+    <div class="model-layer">
+      <div class="ml-label mixed">Post-Call<div class="ml-label-sub">Analytics + Insights</div></div>
+      <div class="ml-content">
+        <span class="chip chip-own">Custom analytics dashboard</span>
+        <span class="chip chip-own">Call logs + disposition tracking</span>
+        <span class="chip chip-own">Per-token observability</span>
+        <span class="chip chip-own">Model stall detection</span>
+        <span class="chip chip-vendor">CRM via API / webhooks</span>
+        <span class="ml-stat">growing capability</span>
+      </div>
+    </div>
+
+    <div class="model-layer" style="border:2px dashed var(--accent2);">
+      <div class="ml-label" style="background:#f0eeff;color:var(--accent2);">Hydra<div class="ml-label-sub">Speech-to-Speech</div></div>
+      <div class="ml-content">
+        <span class="chip chip-gold">Full duplex multimodal</span>
+        <span class="chip chip-gold">Long context + tool calling</span>
+        <span class="chip chip-gold">Emotional voice output</span>
+        <span class="chip chip-gold">Eliminates ASR→LLM→TTS hops</span>
+        <span class="ml-stat" style="color:var(--accent2)">← Next-gen architecture (announced)</span>
+      </div>
+    </div>
+  </div>
+  <div class="footnote">Owned = Smallest.ai-trained proprietary model. Mixed = own model + optional 3rd party. Vendor = resold/API. The dark border indicates proprietary moat layers.</div>
+</div>
+
+<div class="callout">"This design makes Smallest.ai one of the few companies globally to own the entire conversational loop from waveform to response at production scale." — 3one4 Capital investor memo</div>
+
+<!-- SECTION 2 -->
+<div class="section-header">
+  <div class="section-num">02</div>
+  <div class="section-text">
+    <div class="section-title">Vertical Integration Score</div>
+    <div class="section-desc">How much of the stack does each company actually own?</div>
+  </div>
+</div>
+
+<p class="body">This is the defining difference between Smallest and every other voice AI company in India. The comparison below shows proprietary ownership by stack layer — this is what the "not a wrapper" claim rests on.</p>
+
+<div class="diagram">
+  <div class="diagram-label">Exhibit B — Vertical Integration by Layer: Smallest.ai vs. Bolna vs. Retell</div>
+  <div style="display:grid;grid-template-columns:160px 1fr;gap:0;margin-bottom:12px;">
+    <div></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+      <div class="rb-col-label">Smallest.ai</div>
+      <div class="rb-col-label">Bolna</div>
+      <div class="rb-col-label">Retell/Bland</div>
+    </div>
+  </div>
+
+  <div class="radar-bars">
+    <div class="rb-row">
+      <div class="rb-label">ASR / STT</div>
+      <div class="rb-bar-wrap"><div class="rb-bar-fill" style="width:90%;background:var(--accent)">Pulse (own)</div></div>
+      <div class="rb-bar-wrap"><div class="rb-bar-fill" style="width:10%;background:#aaa">vendor</div></div>
+      <div class="rb-bar-wrap"><div class="rb-bar-fill" style="width:5%;background:#ccc">vendor</div></div>
+    </div>
+    <div class="rb-row">
+      <div class="rb-label">LLM / Brain</div>
+      <div class="rb-bar-wrap"><div class="rb-bar-fill" style="width:75%;background:var(--accent2)">Electron V2 + BYO</div></div>
+      <div class="rb-bar-wrap"><div class="rb-bar-fill" style="width:5%;background:#aaa">vendor</div></div>
+      <div class="rb-bar-wrap"><div class="rb-bar-fill" style="width:5%;background:#ccc">vendor</div></div>
+    </div>
+    <div class="rb-row">
+      <div class="rb-label">TTS / Voice</div>
+      <div class="rb-bar-wrap"><div class="rb-bar-fill" style="width:95%;background:var(--accent)">Lightning V2 (own)</div></div>
+      <div class="rb-bar-wrap"><div class="rb-bar-fill" style="width:20%;background:#aaa">partial</div></div>
+      <div class="rb-bar-wrap"><div class="rb-bar-fill" style="width:5%;background:#ccc">vendor</div></div>
+    </div>
+    <div class="rb-row">
+      <div class="rb-label">Orchestration</div>
+      <div class="rb-bar-wrap"><div class="rb-bar-fill" style="width:80%;background:var(--accent2)">Atoms (own)</div></div>
+      <div class="rb-bar-wrap"><div class="rb-bar-fill" style="width:80%;background:#8b4513">orchestration layer</div></div>
+      <div class="rb-bar-wrap"><div class="rb-bar-fill" style="width:60%;background:#7a7a7a">partial</div></div>
+    </div>
+    <div class="rb-row">
+      <div class="rb-label">On-Prem Deploy</div>
+      <div class="rb-bar-wrap"><div class="rb-bar-fill" style="width:90%;background:var(--green)">full support</div></div>
+      <div class="rb-bar-wrap"><div class="rb-bar-fill" style="width:70%;background:#555">enterprise only</div></div>
+      <div class="rb-bar-wrap"><div class="rb-bar-fill" style="width:5%;background:#ccc">cloud only</div></div>
+    </div>
+    <div class="rb-row">
+      <div class="rb-label">Fine-tuning</div>
+      <div class="rb-bar-wrap"><div class="rb-bar-fill" style="width:85%;background:var(--accent)">enterprise + data</div></div>
+      <div class="rb-bar-wrap"><div class="rb-bar-fill" style="width:15%;background:#aaa">limited</div></div>
+      <div class="rb-bar-wrap"><div class="rb-bar-fill" style="width:5%;background:#ccc">not offered</div></div>
+    </div>
+  </div>
+  <div class="footnote">Bar width ≈ degree of proprietary ownership / control of that layer. Smallest.ai's ownership is disproportionately deeper across 5 of 6 dimensions.</div>
+</div>
+
+<!-- SECTION 3 -->
+<div class="section-header">
+  <div class="section-num">03</div>
+  <div class="section-text">
+    <div class="section-title">Smallest vs. Bolna — Head to Head</div>
+    <div class="section-desc">Two different bets on how to win voice AI in India</div>
+  </div>
+</div>
+
+<p class="body">These companies are not competing on the same strategy. Bolna is betting on <strong>distribution + orchestration</strong>. Smallest is betting on <strong>model ownership + vertical integration</strong>. One will look smarter in 3 years depending on how the AI model commodity curve plays out.</p>
+
+<div class="diagram">
+  <div class="diagram-label">Exhibit C — Strategic Comparison: Smallest.ai vs. Bolna</div>
+  <div class="compare-grid">
+    <div class="cg-header">Dimension</div>
+    <div class="cg-header smallest">Smallest.ai</div>
+    <div class="cg-header bolna">Bolna</div>
+
+    <div class="cg-row-label">Architecture</div>
+    <div class="cg-cell win"><strong>Full vertical stack</strong><span class="win-badge">WIN</span><br>Owns ASR, LLM, TTS</div>
+    <div class="cg-cell">Orchestration layer<br>Stitches 3rd-party APIs</div>
+
+    <div class="cg-row-label">TTS Latency</div>
+    <div class="cg-cell win"><strong>100ms TTFB</strong><span class="win-badge">WIN</span><br>Lightning V2 benchmarked vs ElevenLabs</div>
+    <div class="cg-cell">~150–250ms via ElevenLabs<br>Pre-recorded buffers reduce perceived delay</div>
+
+    <div class="cg-row-label">LLM Control</div>
+    <div class="cg-cell win"><strong>Electron V2 (own) + BYO</strong><span class="win-badge">WIN</span><br>Fine-tunable on private data</div>
+    <div class="cg-cell">100% 3rd-party (OpenAI, Claude)<br>No fine-tuning pathway today</div>
+
+    <div class="cg-row-label">India Languages</div>
+    <div class="cg-cell">16 languages<br>Strong Hindi/English</div>
+    <div class="cg-cell win"><strong>10+ Indian languages</strong><span class="win-badge">WIN</span><br>50+ accents, Hinglish, TRAI compliance</div>
+
+    <div class="cg-row-label">On-Prem / Security</div>
+    <div class="cg-cell win"><strong>Full on-prem + air-gap</strong><span class="win-badge">WIN</span><br>SOC2, HIPAA, ISO 27001, GDPR, PCI</div>
+    <div class="cg-cell">On-prem enterprise only<br>India + US data residency</div>
+
+    <div class="cg-row-label">No-Code Builder</div>
+    <div class="cg-cell win"><strong>3-click agent creation</strong><span class="win-badge">WIN</span><br>Simulated pre-deployment testing</div>
+    <div class="cg-cell">Agent builder exists<br>No visual flow designer (gap)</div>
+
+    <div class="cg-row-label">Traction</div>
+    <div class="cg-cell">Millions of calls/month<br>BFSI + healthcare strong</div>
+    <div class="cg-cell win"><strong>200K calls/day</strong><span class="win-badge">WIN</span><br>1,050 paying customers, 25+ case studies</div>
+
+    <div class="cg-row-label">Pricing</div>
+    <div class="cg-cell win"><strong>$0.01/min at scale</strong><span class="win-badge">WIN</span><br>4× cheaper than peers; transparent tiers</div>
+    <div class="cg-cell">$0.03/min starting<br>Volume discounts available</div>
+
+    <div class="cg-row-label">Research Depth</div>
+    <div class="cg-cell win"><strong>Published papers, CPAL 2026</strong><span class="win-badge">WIN</span><br>ASI framework, SonoEdit, Hydra</div>
+    <div class="cg-cell">No research output<br>Engineering-led</div>
+  </div>
+  <div class="footnote">WIN badge indicates which company holds the structural advantage on that dimension today. This is not a zero-sum race — both can win in different enterprise segments.</div>
+</div>
+
+<!-- SECTION 4 -->
+<div class="section-header">
+  <div class="section-num">04</div>
+  <div class="section-text">
+    <div class="section-title">The Moat Map</div>
+    <div class="section-desc">Where defensibility actually lives in Smallest's stack</div>
+  </div>
+</div>
+
+<div class="diagram">
+  <div class="diagram-label">Exhibit D — Smallest.ai's Moat Layers (Howard Marks Style: Bottom = Commodity → Top = Deepest Defense)</div>
+  <div style="display:flex;flex-direction:column;gap:0;max-width:600px;margin:0 auto;">
+    <div style="background:#f0f0f2;border:1px solid #ddd;padding:13px 20px;display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <div style="font-size:12px;font-weight:600;">Telephony Infrastructure</div>
+        <div style="font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace;">Twilio/Plivo resold. Same as every competitor.</div>
+      </div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:9px;background:#ddd;padding:3px 8px;color:#666;">COMMODITY</div>
+    </div>
+    <div style="background:#ede9fc;border:1px solid #cfc9f0;padding:13px 20px;margin-top:-1px;display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <div style="font-size:12px;font-weight:600;">Agent Platform (Atoms)</div>
+        <div style="font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace;">Graph-based orchestration with node-level fallbacks. Replicable in 6–9 months.</div>
+      </div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:9px;background:#cfc9f0;padding:3px 8px;color:var(--accent);">LOW MOAT</div>
+    </div>
+    <div style="background:#e8f5ee;border:1px solid #a0d4b8;padding:13px 20px;margin-top:-1px;display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <div style="font-size:12px;font-weight:600;">Lightning V2 TTS Performance</div>
+        <div style="font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace;">Non-autoregressive architecture. 100ms TTFB benchmark lead. 4× cost advantage.</div>
+      </div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:9px;background:#60c090;padding:3px 8px;color:white;">REAL MOAT</div>
+    </div>
+    <div style="background:#e0dbfa;border:1px solid #a090e0;padding:13px 20px;margin-top:-1px;display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <div style="font-size:12px;font-weight:600;">Electron V2 — Fine-Tunable Voice LLM</div>
+        <div style="font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace;">SLM purpose-built for spoken language. Enterprises train on proprietary data → lock-in.</div>
+      </div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:9px;background:#7060d0;padding:3px 8px;color:white;">STRONG MOAT</div>
+    </div>
+    <div style="background:#fef3d6;border:1px solid #e0b060;padding:13px 20px;margin-top:-1px;display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <div style="font-size:12px;font-weight:600;">Vertical Fine-Tuning + Enterprise Data Loops</div>
+        <div style="font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace;">BFSI, healthcare, retail-specific models trained on customer data. Compounding advantage.</div>
+      </div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:9px;background:#c08020;padding:3px 8px;color:white;">DATA FLYWHEEL</div>
+    </div>
+    <div style="background:#f5e8fc;border:1px solid #c090e0;padding:13px 20px;margin-top:-1px;display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <div style="font-size:12px;font-weight:600;">Hydra — Speech-to-Speech Architecture</div>
+        <div style="font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace;">Full-duplex multimodal. Eliminates the ASR→LLM→TTS latency chain entirely. If this ships, moat widens to years.</div>
+      </div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:9px;background:var(--accent2);padding:3px 8px;color:white;">POTENTIAL FORTRESS</div>
+    </div>
+    <div style="background:#fde8e2;border:2px solid var(--accent);padding:13px 20px;margin-top:-1px;display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <div style="font-size:12px;font-weight:600;color:var(--accent);">Research Credibility + Talent Loop</div>
+        <div style="font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace;">Published papers, CPAL 2026, ASI framework. Attracts researchers other voice AI companies can't hire.</div>
+      </div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:9px;background:var(--accent);padding:3px 8px;color:white;">DEEPEST MOAT</div>
+    </div>
+  </div>
+  <div class="footnote">The top two layers are speculative but structurally important. If Hydra ships and works, Smallest leapfrogs all orchestration-based competitors simultaneously.</div>
+</div>
+
+<!-- SECTION 5 -->
+<div class="section-header">
+  <div class="section-num">05</div>
+  <div class="section-text">
+    <div class="section-title">Product Gaps & Vulnerabilities</div>
+    <div class="section-desc">Where the full-stack bet creates exposure</div>
+  </div>
+</div>
+
+<p class="body">The same vertical integration that creates Smallest's moat also creates a specific class of risk: <strong>everything is their problem</strong>. When Bolna's TTS degrades, it's ElevenLabs' problem. When Smallest's does, it's theirs. Here are the real gaps a PM would flag.</p>
+
+<div class="diagram">
+  <div class="diagram-label">Exhibit E — Gap Analysis: Where Smallest.ai is Exposed</div>
+  <table class="gap-table">
+    <thead>
+      <tr>
+        <th>Gap</th>
+        <th>Current State</th>
+        <th>Risk to Business</th>
+        <th>Severity</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Customer Traction Disclosure</strong></td>
+        <td>"Millions of calls/month" — no customer count, no named case studies equivalent to Bolna's 1,050 customers. Stealth go-to-market.</td>
+        <td>Harder to win enterprise deals without social proof. Sales cycle drags. Harder to raise Series A on ARR story.</td>
+        <td><span class="pill pill-high">HIGH</span></td>
+      </tr>
+      <tr>
+        <td><strong>Indian Language Depth vs. Bolna</strong></td>
+        <td>Pulse supports 36 languages but the India-specific depth (Hinglish, 50+ accents, TRAI compliance, DND) lags Bolna's 2+ year head start.</td>
+        <td>Loses India enterprise deals in tier-2/3 cities and vernacular-heavy sectors (rural BFSI, agri-fintech)</td>
+        <td><span class="pill pill-high">HIGH</span></td>
+      </tr>
+      <tr>
+        <td><strong>Integration Ecosystem</strong></td>
+        <td>No native CRM connectors. No Zapier/Make listed. API-only for most enterprise integrations.</td>
+        <td>Non-technical buyers cannot deploy without developer support. Blocks SMB/mid-market.</td>
+        <td><span class="pill pill-high">HIGH</span></td>
+      </tr>
+      <tr>
+        <td><strong>Hydra Execution Risk</strong></td>
+        <td>Full-duplex speech-to-speech announced but not production-ready. Speech-to-speech is a hard ML problem — GPT-4o Voice has shown its own limitations.</td>
+        <td>If Hydra is delayed, the roadmap premium embedded in their valuation deflates.</td>
+        <td><span class="pill pill-high">HIGH</span></td>
+      </tr>
+      <tr>
+        <td><strong>Outbound Campaign Infrastructure</strong></td>
+        <td>No mention of batch calling campaigns, concurrent call tiers, or campaign management UI. Bolna does 200K calls/day with campaign tools.</td>
+        <td>Misses the large SMB outbound use case (sales, collections, reminders) — biggest call volume segment in India.</td>
+        <td><span class="pill pill-med">MED</span></td>
+      </tr>
+      <tr>
+        <td><strong>Model Maintenance Burden</strong></td>
+        <td>3 proprietary models (Lightning, Electron, Pulse) to maintain + Hydra in development. Each needs continuous retraining as data and use cases evolve.</td>
+        <td>Engineering bandwidth gets consumed by model upkeep rather than product features. Bolna can ship faster at the application layer.</td>
+        <td><span class="pill pill-med">MED</span></td>
+      </tr>
+      <tr>
+        <td><strong>Multi-Channel (Email, Chat, Social)</strong></td>
+        <td>Website mentions "voice, email, chat, social" but actual product is voice-first. Channel breadth appears aspirational.</td>
+        <td>Credibility gap if enterprise evaluators test omnichannel claims and find voice-only depth.</td>
+        <td><span class="pill pill-low">LOW</span></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- SECTION 6 -->
+<div class="section-header">
+  <div class="section-num">06</div>
+  <div class="section-text">
+    <div class="section-title">How Hard Is This to Clone?</div>
+    <div class="section-desc">The replication cost curve — model research is a different beast</div>
+  </div>
+</div>
+
+<p class="body">This is where Smallest diverges sharply from Bolna. You cannot replicate Smallest by reading a GitHub repo. The proprietary models require ML research talent, compute, and curated speech data that take years — not months — to accumulate.</p>
+
+<div class="diagram">
+  <div class="diagram-label">Exhibit F — Replication Effort by Layer (3-person engineering team + 2 ML researchers)</div>
+  <table class="bt-table">
+    <thead>
+      <tr>
+        <th style="width:180px;">Layer</th>
+        <th>Effort Visualization</th>
+        <th style="width:100px;">Time Est.</th>
+        <th style="width:120px;">Hardest Part</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Basic agent pipeline</strong><br><span style="color:var(--muted);font-size:11px;">ASR + LLM + TTS (3rd party)</span></td>
+        <td><div class="bt-track"><div class="bt-fill" style="width:12%;background:#aaa;">2 weeks</div></div></td>
+        <td style="font-family:'JetBrains Mono',monospace;font-size:11px;">2 wks</td>
+        <td style="font-size:11px;color:var(--muted);">Nothing hard</td>
+      </tr>
+      <tr>
+        <td><strong>Atoms-style graph</strong><br><span style="color:var(--muted);font-size:11px;">Multi-node orchestration</span></td>
+        <td><div class="bt-track"><div class="bt-fill" style="width:30%;background:#7a7a9a;">5–8 wks</div></div></td>
+        <td style="font-family:'JetBrains Mono',monospace;font-size:11px;">5–8 wks</td>
+        <td style="font-size:11px;color:var(--muted);">Edge case handling</td>
+      </tr>
+      <tr>
+        <td><strong>TTS model (match quality)</strong><br><span style="color:var(--muted);font-size:11px;">Like Lightning V2</span></td>
+        <td><div class="bt-track"><div class="bt-fill" style="width:60%;background:var(--accent2);">6–12 months · 100K+ hrs speech data</div></div></td>
+        <td style="font-family:'JetBrains Mono',monospace;font-size:11px;">6–12 mo</td>
+        <td style="font-size:11px;color:var(--muted);">Training data + VRAM optimization</td>
+      </tr>
+      <tr>
+        <td><strong>SLM (match Electron V2)</strong><br><span style="color:var(--muted);font-size:11px;">Voice-optimized reasoning</span></td>
+        <td><div class="bt-track"><div class="bt-fill" style="width:75%;background:var(--accent);">9–18 months · PhD-level work</div></div></td>
+        <td style="font-family:'JetBrains Mono',monospace;font-size:11px;">9–18 mo</td>
+        <td style="font-size:11px;color:var(--muted);">Benchmarking + hallucination control</td>
+      </tr>
+      <tr>
+        <td><strong>ASR (Pulse-quality)</strong><br><span style="color:var(--muted);font-size:11px;">36 language streaming</span></td>
+        <td><div class="bt-track"><div class="bt-fill" style="width:55%;background:#6040b0;">8–14 months · multilingual data</div></div></td>
+        <td style="font-family:'JetBrains Mono',monospace;font-size:11px;">8–14 mo</td>
+        <td style="font-size:11px;color:var(--muted);">Code-switching training data</td>
+      </tr>
+      <tr>
+        <td><strong>On-prem + compliance</strong><br><span style="color:var(--muted);font-size:11px;">ISO 27001, HIPAA, air-gap</span></td>
+        <td><div class="bt-track"><div class="bt-fill" style="width:35%;background:var(--green);">4–6 months</div></div></td>
+        <td style="font-family:'JetBrains Mono',monospace;font-size:11px;">4–6 mo</td>
+        <td style="font-size:11px;color:var(--muted);">Audit + certification cost</td>
+      </tr>
+      <tr>
+        <td><strong>Speech-to-speech (Hydra)</strong><br><span style="color:var(--muted);font-size:11px;">Full duplex multimodal</span></td>
+        <td><div class="bt-track"><div class="bt-fill" style="width:90%;background:#200060;color:white;">18–36 months · frontier ML research</div></div></td>
+        <td style="font-family:'JetBrains Mono',monospace;font-size:11px;">18–36 mo</td>
+        <td style="font-size:11px;color:var(--muted);">No proven blueprint exists yet</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="footnote">Total to replicate: 24–36 months for a well-funded team (5+ people including 2 senior ML researchers). Unlike Bolna, there is no open-source shortcut. The models are the product.</div>
+</div>
+
+<!-- SECTION 7 -->
+<div class="section-header">
+  <div class="section-num">07</div>
+  <div class="section-text">
+    <div class="section-title">Strategic Risk Map</div>
+    <div class="section-desc">The full-stack bet's specific failure modes</div>
+  </div>
+</div>
+
+<div class="diagram">
+  <div class="diagram-label">Exhibit G — Risk Matrix: Smallest.ai's Existential Threats</div>
+  <div style="display:flex;gap:16px;height:300px;">
+    <div style="display:flex;align-items:center;width:30px;">
+      <div style="writing-mode:vertical-rl;transform:rotate(180deg);font-family:'JetBrains Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);">← Impact →</div>
+    </div>
+    <div style="flex:1;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:4px;height:260px;">
+        <div class="rg-cell q1">
+          <div class="rg-cell-title">High Impact / High Likelihood</div>
+          <span class="rg-tag">OpenAI releases cheap S2S</span>
+          <span class="rg-tag">Hydra ships late</span>
+          <span class="rg-tag">Engineering bottleneck from 3-model upkeep</span>
+        </div>
+        <div class="rg-cell q2">
+          <div class="rg-cell-title">High Impact / Low Likelihood</div>
+          <span class="rg-tag">Google enters India voice AI</span>
+          <span class="rg-tag">ElevenLabs acquires Retell</span>
+          <span class="rg-tag">TRAI bans automated outbound calls</span>
+        </div>
+        <div class="rg-cell q3">
+          <div class="rg-cell-title">Low Impact / High Likelihood</div>
+          <span class="rg-tag">Bolna launches no-code builder (hurts conversion)</span>
+          <span class="rg-tag">Competitor copies TTS architecture</span>
+          <span class="rg-tag">Pricing pressure from Vapi/Bland</span>
+        </div>
+        <div class="rg-cell q4">
+          <div class="rg-cell-title">Low Impact / Low Likelihood</div>
+          <span class="rg-tag">Key researcher leaves</span>
+          <span class="rg-tag">On-prem customer security breach</span>
+        </div>
+      </div>
+      <div style="text-align:center;font-family:'JetBrains Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-top:8px;">← Likelihood →</div>
+    </div>
+  </div>
+  <div class="footnote">The top-left quadrant is the most critical: if OpenAI's Realtime API (or similar) becomes cheap enough, it may commoditize the SLM advantage that Electron V2 provides. Hydra must ship before that window closes.</div>
+</div>
+
+<!-- VERDICT -->
+<div class="verdict">
+  <div class="verdict-title">Final PM Verdict — Smallest.ai</div>
+  <div class="verdict-body">
+    <div class="verdict-item">
+      <h5>Wrapper Score</h5>
+      <div class="verdict-num accent">15%</div>
+      <p>Only the telephony layer (Twilio) is rented. ASR, LLM, TTS, and agent orchestration are all proprietary. The least "wrapper" company in Indian voice AI.</p>
+    </div>
+    <div class="verdict-item">
+      <h5>Replication Time</h5>
+      <div class="verdict-num red">30mo</div>
+      <p>For a well-funded 5-person team including 2 ML researchers. No open-source shortcut. The models ARE the product. This is a moat in time.</p>
+    </div>
+    <div class="verdict-item">
+      <h5>Defensibility Horizon</h5>
+      <div class="verdict-num green">5yr</div>
+      <p>Deeper than Bolna's 3-year window. If Hydra ships and Electron fine-tuning compounds per enterprise customer, this becomes a 5–7 year structural advantage.</p>
+    </div>
+  </div>
+</div>
+
+<div class="two-col">
+  <div class="insight-card">
+    <h4>The Bull Case</h4>
+    <p>Smallest.ai is building the <em>infrastructure layer</em> of Indian voice AI — not the application. They own TTS, ASR, and LLM simultaneously, which means their cost structure at scale is fundamentally better than every orchestration-based competitor. If Hydra ships, they leapfrog the entire ASR→LLM→TTS latency chain and become the only real-time speech-to-speech platform in production. The 20× cost reduction they've already demonstrated (from $0.20 to $0.01/min) is the template for what happens next.</p>
+  </div>
+  <div class="insight-card">
+    <h4>The Bear Case</h4>
+    <p>Full-stack ownership means full-stack maintenance burden. Three proprietary models to continuously retrain, benchmark, and defend — while Bolna ships product features twice as fast by composing APIs. The traction gap is real: Bolna has 1,050 named customers and 200K calls/day; Smallest says "millions of calls/month" with no customer names. In enterprise sales, social proof is a product feature. The clock is ticking: OpenAI Realtime, Gemini Live, and similar products are making the SLM advantage narrower every quarter.</p>
+  </div>
+</div>
+
+<hr class="rule">
+<div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);padding-top:8px;">
+  Analysis based on: smallest.ai product pages, GitHub SDK, 3one4 Capital investor memo, $8M seed announcement, comparison blogs (Smallest vs Retell, vs Poly AI, vs Observe.AI), ElevenLabs benchmark data, and Tracxn profile. Howard Marks-style layered risk framing applied. Prepared for PM review · Feb 2026. Legal entity: Awaaz Labs Private Limited.
+</div>
+
+</body>
+</html>
