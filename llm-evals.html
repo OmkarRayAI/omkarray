@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LLM Evaluation — Mathematical Deep Dive</title>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg:       #f9f8f5;
+  --ink:      #171717;
+  --muted:    #666;
+  --faint:    #bbb;
+  --rule:     #d4d0c8;
+  --card:     #f1efe9;
+  --deep:     #eceae3;
+  --red:      #8b1a1a;
+  --blue:     #163a5f;
+  --green:    #1a5c34;
+  --amber:    #7a4800;
+  --teal:     #0f4a56;
+  --purple:   #4a1a6e;
+  --orange:   #8a3a00;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Newsreader', serif;
+  background: var(--bg);
+  color: var(--ink);
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 52px 44px;
+  line-height: 1.7;
+  font-size: 15px;
+  background-image: linear-gradient(rgba(0,0,0,0.012) 1px, transparent 1px);
+  background-size: 100% 28px;
+}
+
+.back-nav { padding: 0 0 20px; }
+.back-nav a {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px; color: var(--muted);
+  text-decoration: none; letter-spacing: 0.3px;
+}
+.back-nav a:hover { color: var(--ink); }
+
+.masthead {
+  border-top: 3px solid var(--ink);
+  border-bottom: 1px solid var(--ink);
+  padding: 0 0 20px;
+  margin-bottom: 52px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 32px;
+  align-items: end;
+}
+.mast-left { padding-top: 20px; }
+.doc-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px; letter-spacing: .2em;
+  text-transform: uppercase; color: var(--muted);
+  margin-bottom: 14px; display: flex; gap: 16px;
+}
+.doc-label span { border-left: 1px solid var(--faint); padding-left: 10px; }
+h1 {
+  font-family: 'Newsreader', serif;
+  font-size: 50px; font-weight: 500;
+  line-height: 1.02; letter-spacing: -.015em;
+}
+h1 .sub {
+  display: block; font-size: 19px; font-weight: 400;
+  font-style: italic; color: var(--muted);
+  margin-top: 6px; letter-spacing: 0; line-height: 1.4;
+}
+.mast-right { text-align: right; padding-top: 20px; }
+.doc-stamp {
+  border: 1.5px solid var(--ink); padding: 8px 14px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px; letter-spacing: .12em;
+  text-transform: uppercase; line-height: 2;
+  color: var(--muted); display: inline-block;
+  margin-bottom: 10px; transform: rotate(.8deg);
+}
+.doc-meta {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px; color: var(--muted);
+  line-height: 2; letter-spacing: .04em; text-align: right;
+}
+
+.abstract {
+  margin-bottom: 52px; padding: 18px 24px;
+  border-left: 3px solid var(--ink);
+  font-size: 14px; font-style: italic;
+  color: var(--muted); line-height: 1.85; max-width: 780px;
+}
+.abstract strong { font-style: normal; color: var(--ink); font-weight: 600; }
+
+.section {
+  margin: 64px 0 24px; display: grid;
+  grid-template-columns: 64px 1fr;
+  gap: 10px; align-items: baseline;
+}
+.sec-n {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px; color: var(--muted);
+  letter-spacing: .12em; text-transform: uppercase; padding-top: 4px;
+}
+.sec-body { border-bottom: 1.5px solid var(--ink); padding-bottom: 8px; }
+.sec-title { font-size: 24px; font-weight: 500; line-height: 1.1; }
+.sec-sub {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px; color: var(--muted);
+  letter-spacing: .1em; text-transform: uppercase; margin-top: 4px;
+}
+
+p.body {
+  font-size: 15px; line-height: 1.82;
+  color: var(--ink); margin-bottom: 18px; max-width: 780px;
+}
+p.body strong { font-weight: 600; }
+p.body em { font-style: italic; }
+
+.def {
+  margin: 18px 0; padding: 14px 20px 14px 0;
+  border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);
+  display: grid; grid-template-columns: 120px 1fr; gap: 16px;
+}
+.def-tag {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px; text-transform: uppercase; letter-spacing: .12em;
+  color: var(--muted); padding-top: 3px;
+}
+.def-body { font-size: 14px; line-height: 1.75; }
+.def-body strong { font-weight: 600; }
+
+.math-block {
+  font-family: 'IBM Plex Mono', monospace; font-size: 12.5px;
+  background: var(--card); border: 1px solid var(--rule);
+  border-left: 3px solid var(--ink); padding: 16px 22px;
+  margin: 16px 0; color: var(--ink); line-height: 2.1; overflow-x: auto;
+}
+.math-block .lbl {
+  font-size: 9px; text-transform: uppercase; letter-spacing: .15em;
+  color: var(--muted); display: block; margin-bottom: 8px;
+  border-bottom: 1px dashed var(--rule); padding-bottom: 6px;
+}
+.math-block .eq { display: block; margin: 2px 0 2px 20px; }
+.math-block .cmt { color: var(--muted); }
+.m { font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; background: rgba(0,0,0,.055); padding: 1px 4px; border-radius: 1px; color: var(--red); }
+
+.diagram { margin: 20px 0; border: 1px solid var(--rule); background: var(--card); overflow: hidden; }
+.diagram-hdr {
+  padding: 9px 18px; background: var(--ink); color: var(--bg);
+  font-family: 'IBM Plex Mono', monospace; font-size: 9px;
+  text-transform: uppercase; letter-spacing: .12em;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.diagram-hdr span { opacity: .45; font-size: 8px; }
+.diagram-body { padding: 24px; }
+.diagram-note {
+  padding: 9px 18px; border-top: 1px dashed var(--rule);
+  font-family: 'IBM Plex Mono', monospace; font-size: 9px;
+  color: var(--muted); line-height: 1.75;
+}
+
+.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
+.tbl th {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px; text-transform: uppercase; letter-spacing: .1em;
+  padding: 10px 14px; background: var(--ink); color: var(--bg);
+  text-align: left; font-weight: 500;
+  border-right: 1px solid rgba(255,255,255,.1);
+}
+.tbl td {
+  padding: 10px 14px; border-bottom: 1px solid var(--rule);
+  vertical-align: top; line-height: 1.6; color: var(--muted);
+  border-right: 1px solid var(--rule);
+}
+.tbl td.key { color: var(--ink); font-weight: 500; }
+.tbl tr:nth-child(even) td { background: rgba(0,0,0,.018); }
+.good { color: var(--green) !important; font-family: 'IBM Plex Mono', monospace; font-size: 11px; }
+.warn { color: var(--amber) !important; font-family: 'IBM Plex Mono', monospace; font-size: 11px; }
+.bad  { color: var(--red) !important;   font-family: 'IBM Plex Mono', monospace; font-size: 11px; }
+
+.cmp-grid { display: grid; gap: 1px; background: var(--rule); }
+.cmp-cell { background: var(--card); padding: 18px; }
+.cmp-name { font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600; letter-spacing: .06em; margin-bottom: 6px; color: var(--ink); }
+.cmp-formula { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--red); background: rgba(139,26,26,.06); padding: 5px 8px; margin-bottom: 10px; line-height: 1.55; }
+.cmp-prop { font-size: 12.5px; color: var(--muted); margin-bottom: 3px; padding-left: 12px; position: relative; line-height: 1.5; }
+.cmp-prop::before { content: '—'; position: absolute; left: 0; color: var(--faint); }
+.cmp-prop strong { color: var(--ink); font-weight: 600; }
+
+.spectrum { display: flex; flex-direction: column; }
+.sp-row {
+  display: grid; grid-template-columns: 170px 1fr 200px;
+  border: 1px solid var(--rule); margin-bottom: -1px;
+}
+.sp-lbl { padding: 13px 16px; border-right: 1px solid var(--rule); background: rgba(0,0,0,.022); font-family: 'IBM Plex Mono', monospace; }
+.sp-lbl strong { display: block; font-size: 12px; color: var(--ink); margin-bottom: 3px; }
+.sp-lbl span { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; }
+.sp-viz { padding: 12px 16px; display: flex; align-items: center; }
+.sp-note { padding: 12px 14px; border-left: 1px solid var(--rule); font-size: 12px; color: var(--muted); line-height: 1.55; }
+.sp-note strong { color: var(--ink); font-weight: 600; }
+.bar-track { width: 100%; height: 20px; background: var(--rule); border-radius: 1px; overflow: hidden; }
+.bar-fill { height: 100%; display: flex; align-items: center; padding-left: 8px; font-family: 'IBM Plex Mono', monospace; font-size: 9px; font-weight: 600; color: white; }
+
+.pyramid { max-width: 700px; margin: 0 auto; display: flex; flex-direction: column; }
+.pyr-row { display: flex; align-items: center; justify-content: space-between; border: 1px solid var(--rule); margin-bottom: -1px; padding: 14px 20px; gap: 16px; }
+.pyr-t { font-size: 14px; font-weight: 500; margin-bottom: 3px; }
+.pyr-d { font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; color: var(--muted); line-height: 1.55; }
+.pyr-b { font-family: 'IBM Plex Mono', monospace; font-size: 9px; padding: 3px 10px; white-space: nowrap; flex-shrink: 0; border: 1px solid; border-radius: 1px; }
+
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0; }
+.note-box { background: var(--card); border: 1px solid var(--rule); padding: 18px; }
+.note-box h4 { font-size: 15px; font-weight: 500; margin-bottom: 8px; }
+.note-box p { font-size: 12.5px; color: var(--muted); line-height: 1.65; }
+
+hr.rule { border: none; border-top: 1px solid var(--rule); margin: 36px 0; }
+.footer {
+  margin-top: 52px; padding-top: 16px; border-top: 1px solid var(--rule);
+  font-family: 'IBM Plex Mono', monospace; font-size: 9px; color: var(--muted);
+  display: flex; justify-content: space-between; letter-spacing: .05em; line-height: 1.9;
+}
+
+.sr { opacity: 0; transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1); }
+.sr.sr-up { transform: translateY(32px); }
+.sr.sr-left { transform: translateX(-28px); }
+.sr.sr-right { transform: translateX(28px); }
+.sr.sr-scale { transform: scale(0.96); }
+.sr.sr-visible { opacity: 1; transform: none; }
+.diagram.sr { transition-duration: 0.9s; }
+.math-block.sr { transition-duration: 0.8s; }
+.section.sr { transition-duration: 0.6s; }
+.pyr-row.sr { transition-delay: calc(var(--sr-i, 0) * 0.08s); }
+@media (prefers-reduced-motion: reduce) {
+  .sr { transition: opacity 0.3s ease !important; transform: none !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="back-nav">
+  <a href="index.html">&larr; Back</a>
+</div>
+
+<div class="masthead">
+  <div class="mast-left">
+    <div class="doc-label">
+      Mathematical Deep Dive
+      <span>Measurement Theory</span>
+      <span>NLP Evaluation</span>
+      <span>February 2026</span>
+    </div>
+    <h1>
+      LLM Evaluation
+      <span class="sub">A mathematical treatment of what benchmark scores measure,<br>
+      how they break, and when to trust them</span>
+    </h1>
+  </div>
+  <div class="mast-right">
+    <div class="doc-stamp">Pure Maths<br>No PM Framing</div>
+    <div class="doc-meta">
+      Sections: 9<br>
+      Exhibits: 8<br>
+      Scope: measurement theory,<br>
+      contamination, calibration,<br>
+      construct validity, trust matrix
+    </div>
+  </div>
+</div>
+
+<div class="abstract">
+  <strong>Abstract.</strong> An LLM evaluation is a measurement instrument. Like all instruments, it has a signal model, a noise floor, systematic biases, and a validity boundary beyond which its readings are meaningless. This document derives the mathematics of each: the decomposition of a benchmark score into signal, variance, and contamination terms; inter-rater reliability measures for human evaluation; the calibration gap between stated confidence and empirical accuracy; Goodhart's Law formalised as optimisation-induced proxy decoupling; and the construct validity chain from observable behavior to inferred capability to alignment. The goal is to give practitioners the formal tools to characterise precisely what a score means &mdash; and when it means nothing.
+</div>
+
+
+<!-- ══════════════════════ §1 TAXONOMY -->
+<div class="section">
+  <div class="sec-n">&sect; 1</div>
+  <div class="sec-body">
+    <div class="sec-title">The Evaluation Taxonomy</div>
+    <div class="sec-sub">Three distinct measurement objects &mdash; capability, alignment, deployment behavior</div>
+  </div>
+</div>
+
+<p class="body">The LLM evaluation literature conflates three fundamentally distinct objects, often without acknowledging that they require different measurement instruments, different validity assumptions, and different statistical treatments. Before measuring, one must define precisely what is being measured.</p>
+
+<div class="diagram">
+  <div class="diagram-hdr">Exhibit 1 &mdash; Evaluation Taxonomy: Three Objects, Five Modes, One Critical Error <span>full map</span></div>
+  <div class="diagram-body">
+    <svg viewBox="0 0 900 390" xmlns="http://www.w3.org/2000/svg" width="100%" style="display:block;">
+      <rect width="900" height="390" fill="#f1efe9"/>
+      <rect x="10" y="10" width="275" height="370" fill="white" stroke="#d4d0c8" stroke-width="1"/>
+      <rect x="10" y="10" width="275" height="26" fill="#163a5f"/>
+      <text x="147" y="28" font-family="'IBM Plex Mono',monospace" font-size="10" fill="white" text-anchor="middle" letter-spacing="1.5">CAPABILITY</text>
+      <rect x="308" y="10" width="275" height="370" fill="white" stroke="#d4d0c8" stroke-width="1"/>
+      <rect x="308" y="10" width="275" height="26" fill="#1a5c34"/>
+      <text x="445" y="28" font-family="'IBM Plex Mono',monospace" font-size="10" fill="white" text-anchor="middle" letter-spacing="1.5">ALIGNMENT</text>
+      <rect x="606" y="10" width="284" height="370" fill="white" stroke="#d4d0c8" stroke-width="1"/>
+      <rect x="606" y="10" width="284" height="26" fill="#4a1a6e"/>
+      <text x="748" y="28" font-family="'IBM Plex Mono',monospace" font-size="10" fill="white" text-anchor="middle" letter-spacing="1.5">DEPLOYMENT BEHAVIOR</text>
+      <g font-size="13" fill="#171717">
+        <text x="22" y="62" font-family="'Newsreader',serif">Knowledge breadth</text>
+        <text x="22" y="78" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#888">MMLU, TriviaQA, NaturalQQ</text>
+        <text x="22" y="106" font-family="'Newsreader',serif">Reasoning depth</text>
+        <text x="22" y="122" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#888">GSM8K, MATH, ARC, BIG-Bench</text>
+        <text x="22" y="150" font-family="'Newsreader',serif">Code generation</text>
+        <text x="22" y="166" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#888">HumanEval, MBPP, SWE-bench</text>
+        <text x="22" y="194" font-family="'Newsreader',serif">Language understanding</text>
+        <text x="22" y="210" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#888">GLUE, SuperGLUE, HellaSwag</text>
+        <text x="22" y="238" font-family="'Newsreader',serif">Long-context recall</text>
+        <text x="22" y="254" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#888">NIAH (needle-in-haystack)</text>
+        <text x="22" y="282" font-family="'Newsreader',serif">Instruction following</text>
+        <text x="22" y="298" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#888">IFEval, FollowBench</text>
+      </g>
+      <line x1="10" y1="318" x2="285" y2="318" stroke="#d4d0c8" stroke-width="1"/>
+      <text x="22" y="334" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#163a5f">Measure: automated, deterministic</text>
+      <text x="22" y="350" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#163a5f">Ground truth: objective</text>
+      <text x="22" y="366" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#163a5f">Primary threat: contamination</text>
+      <g font-size="13" fill="#171717">
+        <text x="320" y="62" font-family="'Newsreader',serif">Harmlessness</text>
+        <text x="320" y="78" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#888">ToxiGen, BBQ, WinoBias</text>
+        <text x="320" y="106" font-family="'Newsreader',serif">Honesty / calibration</text>
+        <text x="320" y="122" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#888">TruthfulQA, ECE measurement</text>
+        <text x="320" y="150" font-family="'Newsreader',serif">Helpfulness</text>
+        <text x="320" y="166" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#888">MT-Bench, AlpacaEval, Chatbot Arena</text>
+        <text x="320" y="194" font-family="'Newsreader',serif">Value alignment</text>
+        <text x="320" y="210" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#888">ETHICS benchmark, ValueBench</text>
+        <text x="320" y="238" font-family="'Newsreader',serif">Refusal appropriateness</text>
+        <text x="320" y="254" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#888">StrongREJECT, WildGuard</text>
+        <text x="320" y="282" font-family="'Newsreader',serif">Sycophancy</text>
+        <text x="320" y="298" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#888">TruthfulQA adversarial, Perez 2023</text>
+      </g>
+      <line x1="308" y1="318" x2="583" y2="318" stroke="#d4d0c8" stroke-width="1"/>
+      <text x="320" y="334" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#1a5c34">Measure: human + LLM-as-judge</text>
+      <text x="320" y="350" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#1a5c34">Ground truth: contested, normative</text>
+      <text x="320" y="366" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#1a5c34">Primary threat: label ambiguity, IRR</text>
+      <g font-size="13" fill="#171717">
+        <text x="618" y="62" font-family="'Newsreader',serif">Latency / throughput</text>
+        <text x="618" y="78" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#888">TTFT, tokens/sec &mdash; not eval quality</text>
+        <text x="618" y="106" font-family="'Newsreader',serif">Perturbation robustness</text>
+        <text x="618" y="122" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#888">PromptBench, Advglue</text>
+        <text x="618" y="150" font-family="'Newsreader',serif">Consistency / variance</text>
+        <text x="618" y="166" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#888">sigma across temperature, seeds</text>
+        <text x="618" y="194" font-family="'Newsreader',serif">Task-specific accuracy</text>
+        <text x="618" y="210" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#888">Domain benchmarks, A/B tests</text>
+        <text x="618" y="238" font-family="'Newsreader',serif">Cost-quality frontier</text>
+        <text x="618" y="254" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#888">Pareto curve vs. API cost</text>
+        <text x="618" y="282" font-family="'Newsreader',serif">Human pref in context</text>
+        <text x="618" y="298" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#888">Live A/B, RLHF reward models</text>
+      </g>
+      <line x1="606" y1="318" x2="890" y2="318" stroke="#d4d0c8" stroke-width="1"/>
+      <text x="618" y="334" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#4a1a6e">Measure: production systems</text>
+      <text x="618" y="350" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#4a1a6e">Ground truth: business outcome</text>
+      <text x="618" y="366" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#4a1a6e">Primary threat: distribution shift</text>
+    </svg>
+  </div>
+  <div class="diagram-note">The critical error in LLM evaluation practice: treating all three columns as interchangeable. A model that tops MMLU (capability) can simultaneously fail TruthfulQA (alignment) and underperform in production (deployment). Scores from different columns cannot be averaged, ranked, or compared without an explicit aggregation model that assigns weights &mdash; and that weighting is a normative judgment, not a technical one.</div>
+</div>
+
+
+<!-- ══════════════════════ §2 THE MEASUREMENT MODEL -->
+<div class="section">
+  <div class="sec-n">&sect; 2</div>
+  <div class="sec-body">
+    <div class="sec-title">The Measurement Model</div>
+    <div class="sec-sub">Decomposing a benchmark score into signal, variance, and bias terms</div>
+  </div>
+</div>
+
+<p class="body">An evaluation score is not a direct reading of model capability. It is a measurement with a noise floor, systematic biases, and a construct validity gap. The correct model is:</p>
+
+<div class="math-block">
+  <span class="lbl">Score Decomposition &mdash; what a benchmark score S actually contains</span>
+  <span class="eq"></span>
+  <span class="eq">S  =  theta  +  epsilon_sampling  +  epsilon_prompt  +  delta_contamination  +  delta_construct</span>
+  <span class="eq"></span>
+  <span class="eq"><span class="cmt">theta             = true underlying capability on the measured construct</span></span>
+  <span class="eq"><span class="cmt">epsilon_sampling  = random error from finite test set (n questions)</span></span>
+  <span class="eq"><span class="cmt">epsilon_prompt    = variance from prompt wording, format, few-shot examples</span></span>
+  <span class="eq"><span class="cmt">delta_contamination = systematic positive bias from train/test overlap</span></span>
+  <span class="eq"><span class="cmt">delta_construct   = systematic bias from construct invalidity</span></span>
+  <span class="eq"><span class="cmt">                  (benchmark does not measure what it claims to measure)</span></span>
+</div>
+
+<p class="body"><strong>Sampling error.</strong> For a binary accuracy metric on <span class="m">n</span> i.i.d. questions with true accuracy <span class="m">p</span>, the observed accuracy <span class="m">S = k/n</span> is the MLE. By the CLT:</p>
+
+<div class="math-block">
+  <span class="lbl">Sampling Variance &mdash; confidence interval on benchmark accuracy</span>
+  <span class="eq"></span>
+  <span class="eq">SE(S)  =  sqrt( p(1-p) / n )  ~=  sqrt( S(1-S) / n )</span>
+  <span class="eq"></span>
+  <span class="eq">95% CI:  S  +-  1.96 * sqrt( S(1-S) / n )</span>
+  <span class="eq"></span>
+  <span class="eq"><span class="cmt">n=1000, S=0.85:  SE ~= 0.011  |  95% CI = [0.828, 0.872]   (tight)</span></span>
+  <span class="eq"><span class="cmt">n=100,  S=0.85:  SE ~= 0.036  |  95% CI = [0.780, 0.920]   (useless)</span></span>
+  <span class="eq"><span class="cmt">Most MMLU subcategories: n ~= 100-300. Many reported improvements lie within SE.</span></span>
+  <span class="eq"><span class="cmt">Minimum detectable difference at n=1000, p=0.85:  delta_min ~= 2*SE ~= 2.2pp</span></span>
+</div>
+
+<p class="body"><strong>Prompt variance.</strong> The same model on the same questions can produce accuracy scores varying by 5&ndash;15 percentage points across prompt formulations, few-shot example choice, and system prompt content. This variance is rarely reported. A model's score on a benchmark is implicitly conditioned on a specific prompt template &mdash; a hidden degree of freedom that is not part of the model's capability.</p>
+
+<div class="math-block">
+  <span class="lbl">Prompt Sensitivity &mdash; score as a random variable over prompt space Pi</span>
+  <span class="eq"></span>
+  <span class="eq">S(pi)  =  (1/n)  sum_i  1[ f(x_i; pi) = y_i ]</span>
+  <span class="eq"></span>
+  <span class="eq"><span class="cmt">pi in Pi = prompt template (few-shot examples, instruction wording, output format)</span></span>
+  <span class="eq"></span>
+  <span class="eq">E_pi[S(pi)]  =/=  theta   in general</span>
+  <span class="eq">Var_pi[S(pi)]  =  prompt sensitivity &mdash; rarely reported, often large</span>
+  <span class="eq"></span>
+  <span class="eq"><span class="cmt">Calibrated reporting:  mean S_bar = E_pi[S], std sigma_pi = sqrt(Var_pi[S(pi)])</span></span>
+  <span class="eq"><span class="cmt">over a distribution of k>=5 reasonable prompt templates.</span></span>
+</div>
+
+
+<!-- ══════════════════════ §3 CONTAMINATION -->
+<div class="section">
+  <div class="sec-n">&sect; 3</div>
+  <div class="sec-body">
+    <div class="sec-title">Benchmark Contamination</div>
+    <div class="sec-sub">The mathematics of train/test overlap and score inflation</div>
+  </div>
+</div>
+
+<p class="body">Contamination is the most consequential systematic bias in LLM evaluation. If benchmark questions or their paraphrases appear in pretraining data, the model has effectively memorised answers rather than reasoning from capability. The score inflates by <span class="m">delta_c</span>, which is invisible in the headline number.</p>
+
+<div class="math-block">
+  <span class="lbl">Contamination Bias &mdash; formal decomposition and magnitude</span>
+  <span class="eq"></span>
+  <span class="eq">c  =  |{i : dist(x_i, D_train) &lt; tau}| / |B|   (contamination rate)</span>
+  <span class="eq"></span>
+  <span class="eq"><span class="cmt">dist(x, D) = min_{d in D} edit_distance(x,d)  or  1 - max_d cos_sim(embed(x), embed(d))</span></span>
+  <span class="eq"></span>
+  <span class="eq">S_c         =  c * p_mem  +  (1-c) * p_clean      (contaminated score)</span>
+  <span class="eq">delta_c     =  S_c - p_clean  =  c * (p_mem - p_clean)   (contamination bias)</span>
+  <span class="eq"></span>
+  <span class="eq"><span class="cmt">p_mem   = accuracy on contaminated questions (near-perfect if memorised)</span></span>
+  <span class="eq"><span class="cmt">p_clean = accuracy on uncontaminated questions (true capability)</span></span>
+  <span class="eq"></span>
+  <span class="eq"><span class="cmt">Worst case: c=0.30, p_mem=0.95, p_clean=0.70:</span></span>
+  <span class="eq"><span class="cmt">delta_c = 0.30 * 0.25 = +7.5pp  &mdash; invisible in the headline score.</span></span>
+</div>
+
+<div class="diagram">
+  <div class="diagram-hdr">Exhibit 2 &mdash; Contamination Detection Methods and Statistical Power <span>four approaches</span></div>
+  <div class="diagram-body">
+    <div class="cmp-grid" style="grid-template-columns:1fr 1fr;">
+      <div class="cmp-cell">
+        <div class="cmp-name">N-Gram Overlap (Exact)</div>
+        <div class="cmp-formula">c_exact = |{i : ngrams(x_i) &cap; ngrams(D_train) >= theta}| / |B|</div>
+        <div class="cmp-prop">Fast, deterministic. 13-gram match threshold is standard.</div>
+        <div class="cmp-prop">Misses semantic paraphrases &mdash; underestimates contamination.</div>
+        <div class="cmp-prop">Used by: OpenAI (GPT-4 report), most open model releases.</div>
+        <div class="cmp-prop"><strong>Limitation:</strong> same question with different phrasing evades detection entirely.</div>
+      </div>
+      <div class="cmp-cell">
+        <div class="cmp-name">Embedding Similarity (Semantic)</div>
+        <div class="cmp-formula">c_sem = |{i : max_{d in D} cos(embed(x_i), embed(d)) >= tau}| / |B|</div>
+        <div class="cmp-prop">Catches paraphrases. tau in [0.85, 0.95] typical.</div>
+        <div class="cmp-prop">O(|B| x |D|) comparisons &mdash; expensive at web-corpus scale.</div>
+        <div class="cmp-prop">Embedding space may not capture answer-level similarity.</div>
+        <div class="cmp-prop"><strong>Better than n-gram</strong> but misses concept-level contamination.</div>
+      </div>
+      <div class="cmp-cell">
+        <div class="cmp-name">Canary Insertion</div>
+        <div class="cmp-formula">Insert synthetic Q_canary into train; P(memorised) = P(model answers Q_canary correctly)</div>
+        <div class="cmp-prop">Prospective &mdash; must be done before training begins.</div>
+        <div class="cmp-prop">Cannot be applied retroactively to deployed models.</div>
+        <div class="cmp-prop">Provides controlled estimate of model's memorisation rate.</div>
+        <div class="cmp-prop"><strong>Gold standard</strong> for controlled studies; impractical for external evaluators.</div>
+      </div>
+      <div class="cmp-cell">
+        <div class="cmp-name">Membership Inference Attack</div>
+        <div class="cmp-formula">LR(x) = log p_model(x) / log p_ref(x) >= lambda &rarr; in train. Min-K% Prob: use lowest-probability tokens</div>
+        <div class="cmp-prop">Black-box: requires only API access. Retroactive.</div>
+        <div class="cmp-prop">High false positive rate &mdash; requires per-model calibration.</div>
+        <div class="cmp-prop">Min-K% Prob (Shi et al. 2024) more robust than mean perplexity.</div>
+        <div class="cmp-prop"><strong>Only available retroactive method</strong> for closed-weight models.</div>
+      </div>
+    </div>
+  </div>
+  <div class="diagram-note">None of these methods have simultaneously high precision and recall for the general contamination problem. The structural solution is dynamic benchmarks: LiveBench, LMSYS Chatbot Arena live evaluations, and similar approaches generate evaluation data after the model's training cutoff &mdash; making contamination structurally impossible.</div>
+</div>
+
+
+<!-- ══════════════════════ §4 INTER-RATER RELIABILITY -->
+<div class="section">
+  <div class="sec-n">&sect; 4</div>
+  <div class="sec-body">
+    <div class="sec-title">Inter-Rater Reliability and Human Evaluation</div>
+    <div class="sec-sub">Cohen's kappa, Krippendorff's alpha, and where annotation breaks down</div>
+  </div>
+</div>
+
+<p class="body">For alignment, safety, and preference collection, there is no deterministic ground truth &mdash; humans must judge. Human annotation introduces agreement noise that must be quantified before a label can be treated as a signal.</p>
+
+<div class="math-block">
+  <span class="lbl">Cohen's kappa &mdash; agreement beyond chance, two raters, categorical labels</span>
+  <span class="eq"></span>
+  <span class="eq">kappa  =  (P_o  -  P_e)  /  (1  -  P_e)</span>
+  <span class="eq"></span>
+  <span class="eq"><span class="cmt">P_o = observed agreement = sum_i p_ii</span></span>
+  <span class="eq"><span class="cmt">P_e = expected chance agreement = sum_i p_i. * p_.i</span></span>
+  <span class="eq"></span>
+  <span class="eq"><span class="cmt">Interpretation thresholds (Landis and Koch 1977):</span></span>
+  <span class="eq">  kappa &lt; 0.20         slight</span>
+  <span class="eq">  kappa in [0.20,0.40)  fair</span>
+  <span class="eq">  kappa in [0.40,0.60)  moderate</span>
+  <span class="eq">  kappa in [0.60,0.80)  substantial</span>
+  <span class="eq">  kappa >= 0.80         near-perfect</span>
+</div>
+
+<div class="math-block">
+  <span class="lbl">Krippendorff's alpha &mdash; generalised IRR for k raters, any scale type</span>
+  <span class="eq"></span>
+  <span class="eq">alpha  =  1  -  D_o  /  D_e</span>
+  <span class="eq"></span>
+  <span class="eq"><span class="cmt">D_o = observed disagreement</span></span>
+  <span class="eq"><span class="cmt">D_e = expected disagreement by chance from marginal label distribution</span></span>
+  <span class="eq"><span class="cmt">Handles missing data, ordinal/interval scales, k>2 raters.</span></span>
+  <span class="eq"><span class="cmt">Krippendorff minimum: alpha >= 0.667 tentative, alpha >= 0.800 reliable.</span></span>
+</div>
+
+<div class="diagram">
+  <div class="diagram-hdr">Exhibit 3 &mdash; Observed kappa/alpha Values Across LLM Evaluation Tasks <span>where agreement lands in practice</span></div>
+  <div class="diagram-body">
+    <div class="spectrum">
+      <div class="sp-row" style="border-left:3px solid var(--red);">
+        <div class="sp-lbl"><strong>Toxicity / harm</strong><span>borderline cases</span></div>
+        <div class="sp-viz"><div class="bar-track"><div class="bar-fill" style="width:22%;background:#8b1a1a;">kappa ~0.20-0.38</div></div></div>
+        <div class="sp-note"><strong>Fair at best.</strong> Disagreement concentrates on borderline cases &mdash; exactly the cases that matter most for safety decisions.</div>
+      </div>
+      <div class="sp-row" style="border-left:3px solid var(--orange);">
+        <div class="sp-lbl"><strong>Helpfulness</strong><span>user preference</span></div>
+        <div class="sp-viz"><div class="bar-track"><div class="bar-fill" style="width:42%;background:#8a3a00;">kappa ~0.40-0.55</div></div></div>
+        <div class="sp-note">Moderate. Raters agree on clearly good/bad responses but diverge on length, formality, depth vs. conciseness.</div>
+      </div>
+      <div class="sp-row" style="border-left:3px solid var(--amber);">
+        <div class="sp-lbl"><strong>Factual accuracy</strong><span>verifiable claims</span></div>
+        <div class="sp-viz"><div class="bar-track"><div class="bar-fill" style="width:62%;background:#7a4800;">kappa ~0.60-0.75</div></div></div>
+        <div class="sp-note">Substantial for unambiguous factual claims. Degrades for domain expertise or compound statements.</div>
+      </div>
+      <div class="sp-row" style="border-left:3px solid var(--green);">
+        <div class="sp-lbl"><strong>Code correctness</strong><span>pass/fail execution</span></div>
+        <div class="sp-viz"><div class="bar-track"><div class="bar-fill" style="width:88%;background:#1a5c34;">kappa ~0.85-0.95</div></div></div>
+        <div class="sp-note"><strong>Near-perfect &mdash; because raters are replaced by test runners.</strong> The lesson: replace human annotation with deterministic oracles wherever possible.</div>
+      </div>
+      <div class="sp-row" style="border-left:3px solid var(--green);">
+        <div class="sp-lbl"><strong>Math / logic</strong><span>exact answer</span></div>
+        <div class="sp-viz"><div class="bar-track"><div class="bar-fill" style="width:92%;background:#1a5c34;">kappa ~0.88-0.97</div></div></div>
+        <div class="sp-note"><strong>Near-perfect at final-answer level.</strong> Degrades substantially when checking intermediate reasoning steps.</div>
+      </div>
+    </div>
+  </div>
+  <div class="diagram-note">IRR is highest precisely when evaluation is least needed (problems with known answers) and lowest when evaluation matters most (safety, alignment, nuanced preference).</div>
+</div>
+
+
+<!-- ══════════════════════ §5 LLM-AS-JUDGE -->
+<div class="section">
+  <div class="sec-n">&sect; 5</div>
+  <div class="sec-body">
+    <div class="sec-title">LLM-as-Judge: Bias Structure and Validity Conditions</div>
+    <div class="sec-sub">The mathematics of using a model to evaluate another model</div>
+  </div>
+</div>
+
+<p class="body">Using a strong LLM as an automated judge has become the dominant approach for alignment and quality evaluation, replacing costly human annotation. The method has measurable failure modes that must be explicitly corrected.</p>
+
+<div class="math-block">
+  <span class="lbl">Judge Score Decomposition &mdash; full bias structure</span>
+  <span class="eq"></span>
+  <span class="eq">score_judge(A vs B)  =  theta_true  +  bias_position  +  bias_verbosity</span>
+  <span class="eq">                     +  bias_self_pref  +  bias_format  +  epsilon</span>
+  <span class="eq"></span>
+  <span class="eq"><span class="cmt">bias_position  ~ 10-20pp systematic preference for response in position A</span></span>
+  <span class="eq"><span class="cmt">bias_verbosity = preference for longer responses independent of quality</span></span>
+  <span class="eq"><span class="cmt">bias_self_pref = judge prefers outputs stylistically similar to its own generation</span></span>
+  <span class="eq"><span class="cmt">bias_format   = preference for markdown, headers, bullet points</span></span>
+  <span class="eq"></span>
+  <span class="eq"><span class="cmt">Calibration:  rho(score_judge, score_human) ~= 0.60-0.80 (Spearman) for GPT-4 judge</span></span>
+</div>
+
+<div class="two-col">
+  <div class="note-box">
+    <h4>Position Bias Correction</h4>
+    <p>Compare A-then-B and B-then-A; the debiased win rate is the geometric mean <span class="m">sqrt(p * q)</span> where <span class="m">p</span> = win rate in position 1, <span class="m">q</span> = win rate in position 2. Cost: 2&times; evaluations. Correction for verbosity bias (AlpacaEval 2.0 LC): regress out response length from judge score &mdash; <span class="m">score_corrected = score - beta * length</span>.</p>
+  </div>
+  <div class="note-box">
+    <h4>Self-Preference Validity Threat</h4>
+    <p>A GPT-4 judge evaluating GPT-4 outputs has a circular validity problem: the judge's preferences are not independent of the evaluated model's generation distribution. Solution: use a judge from a different model family, or use multiple diverse judges.</p>
+  </div>
+</div>
+
+
+<!-- ══════════════════════ §6 CALIBRATION -->
+<div class="section">
+  <div class="sec-n">&sect; 6</div>
+  <div class="sec-body">
+    <div class="sec-title">Calibration</div>
+    <div class="sec-sub">Expected calibration error, reliability diagrams, and what RLHF does to uncertainty</div>
+  </div>
+</div>
+
+<p class="body">A model is <em>calibrated</em> if its stated confidence equals its empirical accuracy: when it says it is 80% confident, it should be correct 80% of the time. Calibration is a property of uncertainty estimates, separate from accuracy.</p>
+
+<div class="math-block">
+  <span class="lbl">Calibration Error Measures &mdash; ECE, MCE, and proper scoring rules</span>
+  <span class="eq"></span>
+  <span class="eq"><strong>Expected Calibration Error (ECE):</strong></span>
+  <span class="eq"></span>
+  <span class="eq">ECE  =  sum_{b=1}^{B}  (|B_b| / n)  *  |acc(B_b)  -  conf(B_b)|</span>
+  <span class="eq"></span>
+  <span class="eq"><span class="cmt">B_b = samples with predicted confidence in bin b</span></span>
+  <span class="eq"><span class="cmt">ECE in [0,1]. Well-calibrated: ECE ~= 0.02-0.05.</span></span>
+  <span class="eq"></span>
+  <span class="eq"><strong>Maximum Calibration Error (MCE):</strong></span>
+  <span class="eq"></span>
+  <span class="eq">MCE  =  max_b  |acc(B_b)  -  conf(B_b)|</span>
+  <span class="eq"></span>
+  <span class="eq"><strong>Proper Scoring Rules:</strong></span>
+  <span class="eq"></span>
+  <span class="eq">NLL  =  -(1/n)  sum_i  [y_i * log(p_i)  +  (1-y_i) * log(1-p_i)]</span>
+  <span class="eq">BS   =  (1/n)   sum_i  (p_i  -  y_i)^2                      (Brier Score)</span>
+  <span class="eq"></span>
+  <span class="eq"><span class="cmt">Both uniquely minimised by p_i = P(y_i=1|x_i). ECE is NOT a proper scoring rule.</span></span>
+  <span class="eq"></span>
+  <span class="eq"><strong>Post-hoc calibration &mdash; temperature scaling:</strong></span>
+  <span class="eq"></span>
+  <span class="eq">T*  =  arg min_{T>0}  NLL( sigma(logits / T), y )</span>
+  <span class="eq"></span>
+  <span class="eq"><span class="cmt">Single parameter T fitted on held-out calibration set. Does not change accuracy.</span></span>
+</div>
+
+<div class="diagram">
+  <div class="diagram-hdr">Exhibit 4 &mdash; Reliability Diagrams: Three Calibration Pathologies <span>confidence vs empirical accuracy</span></div>
+  <div class="diagram-body">
+    <svg viewBox="0 0 880 250" xmlns="http://www.w3.org/2000/svg" width="100%" style="display:block;">
+      <rect width="880" height="250" fill="#f1efe9"/>
+      <rect x="5" y="5" width="272" height="240" fill="white" stroke="#d4d0c8" stroke-width="1"/>
+      <rect x="5" y="5" width="272" height="18" fill="#8b1a1a"/>
+      <text x="141" y="18" font-family="'IBM Plex Mono',monospace" font-size="9" fill="white" text-anchor="middle">OVERCONFIDENT &mdash; common in LLMs</text>
+      <line x1="32" y1="202" x2="260" y2="202" stroke="#d4d0c8" stroke-width="1"/>
+      <line x1="32" y1="28" x2="32" y2="204" stroke="#d4d0c8" stroke-width="1"/>
+      <line x1="32" y1="202" x2="260" y2="28" stroke="#d4d0c8" stroke-width="1" stroke-dasharray="4,3"/>
+      <g fill="rgba(139,26,26,0.15)" stroke="#8b1a1a" stroke-width="1">
+        <rect x="38" y="178" width="20" height="24"/><rect x="61" y="162" width="20" height="18"/><rect x="84" y="148" width="20" height="16"/><rect x="107" y="136" width="20" height="14"/><rect x="130" y="118" width="20" height="16"/><rect x="153" y="102" width="20" height="18"/><rect x="176" y="88" width="20" height="20"/><rect x="199" y="74" width="20" height="24"/><rect x="222" y="64" width="20" height="28"/><rect x="245" y="55" width="14" height="30"/>
+      </g>
+      <text x="141" y="222" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#666" text-anchor="middle">Confidence &rarr;</text>
+      <text x="141" y="240" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#8b1a1a" text-anchor="middle">bars below diagonal &mdash; ECE high</text>
+      <rect x="300" y="5" width="272" height="240" fill="white" stroke="#d4d0c8" stroke-width="1"/>
+      <rect x="300" y="5" width="272" height="18" fill="#7a4800"/>
+      <text x="436" y="18" font-family="'IBM Plex Mono',monospace" font-size="9" fill="white" text-anchor="middle">UNDERCONFIDENT &mdash; post-RLHF typical</text>
+      <line x1="327" y1="202" x2="555" y2="202" stroke="#d4d0c8" stroke-width="1"/>
+      <line x1="327" y1="28" x2="327" y2="204" stroke="#d4d0c8" stroke-width="1"/>
+      <line x1="327" y1="202" x2="555" y2="28" stroke="#d4d0c8" stroke-width="1" stroke-dasharray="4,3"/>
+      <g fill="rgba(122,72,0,0.15)" stroke="#7a4800" stroke-width="1">
+        <rect x="333" y="156" width="20" height="46"/><rect x="356" y="136" width="20" height="44"/><rect x="379" y="116" width="20" height="42"/><rect x="402" y="98" width="20" height="38"/><rect x="425" y="80" width="20" height="36"/><rect x="448" y="62" width="20" height="36"/><rect x="471" y="46" width="20" height="36"/><rect x="494" y="32" width="20" height="36"/><rect x="517" y="28" width="20" height="38"/><rect x="535" y="28" width="19" height="38"/>
+      </g>
+      <text x="436" y="222" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#666" text-anchor="middle">Confidence &rarr;</text>
+      <text x="436" y="240" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#7a4800" text-anchor="middle">bars above diagonal &mdash; hedging</text>
+      <rect x="595" y="5" width="280" height="240" fill="white" stroke="#1a5c34" stroke-width="1.5"/>
+      <rect x="595" y="5" width="280" height="18" fill="#1a5c34"/>
+      <text x="735" y="18" font-family="'IBM Plex Mono',monospace" font-size="9" fill="white" text-anchor="middle">WELL-CALIBRATED &mdash; target state</text>
+      <line x1="622" y1="202" x2="857" y2="202" stroke="#d4d0c8" stroke-width="1"/>
+      <line x1="622" y1="28" x2="622" y2="204" stroke="#d4d0c8" stroke-width="1"/>
+      <line x1="622" y1="202" x2="857" y2="28" stroke="#1a5c34" stroke-width="1.5"/>
+      <g fill="rgba(26,92,52,0.15)" stroke="#1a5c34" stroke-width="1">
+        <rect x="628" y="188" width="20" height="14"/><rect x="651" y="170" width="20" height="12"/><rect x="674" y="154" width="20" height="12"/><rect x="697" y="136" width="20" height="12"/><rect x="720" y="119" width="20" height="13"/><rect x="743" y="102" width="20" height="13"/><rect x="766" y="84" width="20" height="14"/><rect x="789" y="66" width="20" height="14"/><rect x="812" y="50" width="20" height="14"/><rect x="832" y="35" width="22" height="14"/>
+      </g>
+      <text x="735" y="222" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#666" text-anchor="middle">Confidence &rarr;</text>
+      <text x="735" y="240" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#1a5c34" text-anchor="middle">bars straddle diagonal &mdash; ECE &lt; 0.05</text>
+    </svg>
+  </div>
+  <div class="diagram-note">RLHF training systematically degrades calibration toward underconfidence. Temperature scaling corrects this without changing accuracy: find T* = arg min NLL(sigma(logits/T), y) on a held-out calibration set.</div>
+</div>
+
+
+<!-- ══════════════════════ §7 GOODHART'S LAW -->
+<div class="section">
+  <div class="sec-n">&sect; 7</div>
+  <div class="sec-body">
+    <div class="sec-title">Goodhart's Law &mdash; The Mathematics of Metric Collapse</div>
+    <div class="sec-sub">When a measure becomes a target, the correlation to the underlying construct collapses</div>
+  </div>
+</div>
+
+<p class="body">Goodhart's Law (1975), formalised for ML by Krakovna et al. (2020) and Gao et al. (2022), describes the failure mode of optimising for a proxy metric: as optimisation pressure increases, the proxy decouples from the underlying construct it was designed to measure.</p>
+
+<div class="math-block">
+  <span class="lbl">Goodhart's Law &mdash; formal statement and overoptimisation model</span>
+  <span class="eq"></span>
+  <span class="eq">Let M : Theta &rarr; R  be a metric (e.g., MMLU accuracy, reward model score)</span>
+  <span class="eq">Let U : Theta &rarr; R  be true utility (actual capability, alignment, safety)</span>
+  <span class="eq"></span>
+  <span class="eq">Goodhart's Law:  lim_{M(theta) &rarr; M_max}  Corr(M(theta), U(theta))  &rarr;  0</span>
+  <span class="eq"></span>
+  <span class="eq"><span class="cmt">Formalised as overoptimisation (Gao et al. 2022):</span></span>
+  <span class="eq"></span>
+  <span class="eq">U(theta)  ~=  alpha * sqrt( KL(theta || theta_0) )  -  beta * KL(theta || theta_0)</span>
+  <span class="eq"></span>
+  <span class="eq"><span class="cmt">True utility increases as sqrt(KL) (sublinear), then decreases as -beta*KL.</span></span>
+  <span class="eq"><span class="cmt">This is the theoretical basis for KL penalties in RLHF.</span></span>
+</div>
+
+<div class="diagram">
+  <div class="diagram-hdr">Exhibit 5 &mdash; The Overoptimisation Curve: Metric vs. Utility Under Increasing KL Divergence <span>Gao et al. 2022</span></div>
+  <div class="diagram-body">
+    <svg viewBox="0 0 860 240" xmlns="http://www.w3.org/2000/svg" width="100%" style="display:block;">
+      <rect width="860" height="240" fill="white"/>
+      <line x1="60" y1="20" x2="60" y2="210" stroke="#171717" stroke-width="1.5"/>
+      <line x1="60" y1="210" x2="840" y2="210" stroke="#171717" stroke-width="1.5"/>
+      <text x="450" y="232" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#666" text-anchor="middle" letter-spacing="1">KL DIVERGENCE FROM BASE POLICY &rarr;</text>
+      <text x="18" y="115" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#171717" text-anchor="middle" transform="rotate(-90,18,115)" letter-spacing="1">VALUE &rarr;</text>
+      <path d="M60,200 C200,185 400,130 600,68 C720,32 800,22 840,20" fill="none" stroke="#163a5f" stroke-width="1.5" stroke-dasharray="6,3"/>
+      <path d="M60,200 C150,168 300,102 450,68 C530,52 580,48 620,52 C680,62 740,92 800,142 C822,162 835,180 840,194" fill="none" stroke="#8b1a1a" stroke-width="2.5"/>
+      <path d="M580,48 L620,52 C680,62 740,92 800,142 C822,162 835,180 840,194 L840,20 L800,22 L720,32 L600,68 L580,48 Z" fill="rgba(139,26,26,0.06)"/>
+      <line x1="580" y1="48" x2="580" y2="210" stroke="#8b1a1a" stroke-width="1" stroke-dasharray="3,2"/>
+      <text x="580" y="43" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#8b1a1a" text-anchor="middle">utility peak</text>
+      <path d="M60,200 C150,168 300,102 450,68 C530,52 560,47 580,48 L580,210 L60,210 Z" fill="rgba(26,92,52,0.05)"/>
+      <text x="280" y="185" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#1a5c34" text-anchor="middle">KL penalty keeps policy here</text>
+      <text x="200" y="140" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#163a5f">M(theta) &mdash; proxy metric</text>
+      <text x="400" y="112" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#8b1a1a">U(theta) &mdash; true utility</text>
+      <text x="700" y="90" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#8b1a1a">overoptimisation regime</text>
+      <text x="700" y="102" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#8b1a1a">M high, U declining</text>
+      <circle cx="250" cy="118" r="4" fill="#1a5c34"/>
+      <text x="262" y="114" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#1a5c34">moderate RLHF</text>
+      <circle cx="650" cy="72" r="4" fill="#8b1a1a"/>
+      <text x="662" y="68" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#8b1a1a">reward hacking</text>
+      <circle cx="160" cy="158" r="4" fill="#163a5f"/>
+      <text x="172" y="154" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#163a5f">pre-train eval</text>
+    </svg>
+  </div>
+  <div class="diagram-note">Four empirical LLM instances: (1) MMLU saturation; (2) sycophancy from RLHF; (3) HumanEval gaming; (4) TruthfulQA/RLHF confident falsehoods. The operational fix is regular benchmark rotation.</div>
+</div>
+
+
+<!-- ══════════════════════ §8 CONSTRUCT VALIDITY -->
+<div class="section">
+  <div class="sec-n">&sect; 8</div>
+  <div class="sec-body">
+    <div class="sec-title">Construct Validity</div>
+    <div class="sec-sub">The chain from observable behavior to inferred meaning &mdash; four links that each can break</div>
+  </div>
+</div>
+
+<p class="body">Construct validity (Cronbach and Meehl, 1955) is the degree to which an instrument measures the theoretical construct it purports to measure. In LLM evaluation, this is the core problem: does a score on benchmark <span class="m">B</span> actually measure capability or alignment property <span class="m">C</span>?</p>
+
+<div class="diagram">
+  <div class="diagram-hdr">Exhibit 6 &mdash; Construct Validity Chain: Four Inference Levels <span>from string output to claimed value</span></div>
+  <div class="diagram-body">
+    <div class="pyramid">
+      <div class="pyr-row" style="background:rgba(0,0,0,.02);">
+        <div>
+          <div class="pyr-t">Observable behavior &mdash; the literal token sequence output</div>
+          <div class="pyr-d">The string generated by the model for input x. Not the model's "reasoning," not its "beliefs" &mdash; only the token sequence.</div>
+        </div>
+        <div class="pyr-b" style="background:rgba(0,0,0,.05);border-color:var(--faint);color:var(--muted);">MEASURED DIRECTLY</div>
+      </div>
+      <div class="pyr-row" style="background:rgba(22,58,95,.035);">
+        <div>
+          <div class="pyr-t">Surface task performance &mdash; accuracy on the specific benchmark format</div>
+          <div class="pyr-d">Does the output match the expected answer format? Failure modes: MCQ vs. free-form format sensitivity. Evidence required: cross-format replication.</div>
+        </div>
+        <div class="pyr-b" style="border-color:var(--blue);color:var(--blue);">INFERRED &mdash; STEP 1</div>
+      </div>
+      <div class="pyr-row" style="background:rgba(26,92,52,.035);">
+        <div>
+          <div class="pyr-t">Capability &mdash; the underlying cognitive skill the benchmark probes</div>
+          <div class="pyr-d">Threats: contamination, format gaming, shortcut learning. Evidence required: cross-benchmark correlation, transfer to novel instances.</div>
+        </div>
+        <div class="pyr-b" style="border-color:var(--green);color:var(--green);">INFERRED &mdash; STEP 2</div>
+      </div>
+      <div class="pyr-row" style="background:rgba(74,26,110,.035);">
+        <div>
+          <div class="pyr-t">Alignment &mdash; the normative property (safety, helpfulness, honesty)</div>
+          <div class="pyr-d">MMLU measures knowledge breadth, not whether the model uses that knowledge helpfully. IRR is lowest at this level because it requires normative agreement.</div>
+        </div>
+        <div class="pyr-b" style="border-color:var(--purple);color:var(--purple);">INFERRED &mdash; STEP 3</div>
+      </div>
+      <div class="pyr-row" style="background:rgba(139,26,26,.06);border-left:3px solid var(--red);">
+        <div>
+          <div class="pyr-t">Values / character &mdash; what the model does under adversarial pressure</div>
+          <div class="pyr-d">No static benchmark can fully evaluate this level &mdash; it requires ongoing adversarial red-teaming, behavioral monitoring, and mechanistic interpretability.</div>
+        </div>
+        <div class="pyr-b" style="border-color:var(--red);color:var(--red);">INFERRED &mdash; STEP 4</div>
+      </div>
+    </div>
+  </div>
+  <div class="diagram-note">Each inference step multiplies uncertainty. A high MMLU score (steps 1-2) says little about deployment alignment (step 4). Never report a capability score as evidence for an alignment claim without explicit justification of the inference steps.</div>
+</div>
+
+<p class="body"><strong>Convergent and discriminant validity.</strong> A valid measure of construct <span class="m">C</span> should: (a) correlate with other measures of the same construct (convergent validity) and (b) not correlate with measures of different constructs (discriminant validity). MMLU, ARC, and HellaSwag correlate at <span class="m">r &asymp; 0.85&ndash;0.95</span> across models, supporting convergent validity for "language understanding." But helpfulness and harmlessness should be approximately independent &mdash; yet RLHF-trained models show a confounded tradeoff driven by sycophancy.</p>
+
+
+<!-- ══════════════════════ §9 TRUST MATRIX -->
+<div class="section">
+  <div class="sec-n">&sect; 9</div>
+  <div class="sec-body">
+    <div class="sec-title">When to Trust a Score &mdash; The Trust Matrix</div>
+    <div class="sec-sub">Decision framework across five validity dimensions, with benchmark audit</div>
+  </div>
+</div>
+
+<p class="body">A benchmark score is trustworthy only when all five validity axes are controlled. A score failing three or more should not be used to make comparative capability claims.</p>
+
+<div class="diagram">
+  <div class="diagram-hdr">Exhibit 7 &mdash; Five-Dimension Trust Matrix for Evaluation Scores <span>decision framework</span></div>
+  <div class="diagram-body">
+    <table class="tbl">
+      <thead>
+        <tr>
+          <th style="width:190px;">Dimension</th>
+          <th>High Trust</th>
+          <th>Medium Trust</th>
+          <th>Low Trust</th>
+          <th>Diagnostic</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="key">1. Sampling variance</td>
+          <td class="good">n &gt; 1000, SE &lt; 1.5pp</td>
+          <td class="warn">n = 200&ndash;1000, SE 2&ndash;4pp</td>
+          <td class="bad">n &lt; 200, SE &gt; 4pp</td>
+          <td>SE = sqrt(S(1-S)/n). Improvement must exceed 2&times;SE.</td>
+        </tr>
+        <tr>
+          <td class="key">2. Prompt sensitivity</td>
+          <td class="good">sigma_prompt &lt; 1pp across 5+ templates</td>
+          <td class="warn">sigma_prompt 1&ndash;5pp, reported</td>
+          <td class="bad">sigma_prompt unreported or &gt; 5pp</td>
+          <td>Run 5+ prompt variations; report mean and std.</td>
+        </tr>
+        <tr>
+          <td class="key">3. Contamination</td>
+          <td class="good">Benchmark post-dates training cutoff</td>
+          <td class="warn">N-gram overlap tested; c &lt; 5%</td>
+          <td class="bad">No contamination analysis performed</td>
+          <td>Min-K% Prob or n-gram overlap. Gap &gt;5pp indicates inflation.</td>
+        </tr>
+        <tr>
+          <td class="key">4. Annotation reliability</td>
+          <td class="good">Deterministic oracle or kappa &ge; 0.80</td>
+          <td class="warn">Human annotation kappa [0.60, 0.80)</td>
+          <td class="bad">Single annotator. kappa &lt; 0.40.</td>
+          <td>For LLM-as-judge: report rho(judge, human) on &ge;100 items.</td>
+        </tr>
+        <tr>
+          <td class="key">5. Construct validity</td>
+          <td class="good">3+ benchmarks of same construct agree</td>
+          <td class="warn">Single benchmark; limitations documented</td>
+          <td class="bad">Capability score cited as alignment evidence</td>
+          <td>Cross-benchmark correlation for convergent validity.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="diagram-note">Reporting minimum for a trustworthy comparative claim: score &plusmn; SE(n), sigma_prompt over k&ge;5 templates, contamination rate c, IRR measure, and construct validity inference level.</div>
+</div>
+
+<div class="diagram">
+  <div class="diagram-hdr">Exhibit 8 &mdash; Major Benchmarks Audited on All Five Dimensions <span>current state of the field</span></div>
+  <div class="diagram-body">
+    <table class="tbl">
+      <thead>
+        <tr>
+          <th style="width:110px;">Benchmark</th>
+          <th style="width:95px;">n (test)</th>
+          <th>Sampling SE</th>
+          <th>Contamination</th>
+          <th>Ground truth / IRR</th>
+          <th>Construct claim</th>
+          <th>Primary failure mode</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="key">MMLU</td>
+          <td style="font-family:'IBM Plex Mono',monospace;font-size:10px;">14,042 total ~150/subcat</td>
+          <td class="warn">&plusmn;2&ndash;4pp per subcategory</td>
+          <td class="bad">High. 2021 data, extensively crawled.</td>
+          <td class="good">MCQ automated, deterministic</td>
+          <td class="warn">Knowledge breadth &rarr; claimed "general intelligence"</td>
+          <td>Contamination + construct leap from MCQ to reasoning.</td>
+        </tr>
+        <tr>
+          <td class="key">HumanEval</td>
+          <td style="font-family:'IBM Plex Mono',monospace;font-size:10px;">164</td>
+          <td class="bad">&plusmn;4&ndash;6pp on pass@1</td>
+          <td class="warn">Moderate. GitHub in training.</td>
+          <td class="good">Unit test execution. Near-perfect.</td>
+          <td class="good">Code generation (narrow scope)</td>
+          <td>n=164 is very small. SWE-bench harder and more realistic.</td>
+        </tr>
+        <tr>
+          <td class="key">MT-Bench</td>
+          <td style="font-family:'IBM Plex Mono',monospace;font-size:10px;">80 questions</td>
+          <td class="bad">SE large on 80 items</td>
+          <td class="good">Low. Multi-turn, harder to contaminate.</td>
+          <td class="warn">GPT-4 judge. rho ~= 0.77 to human.</td>
+          <td class="warn">Conversational quality &rarr; alignment</td>
+          <td>80 questions yields large CIs. Judge biases.</td>
+        </tr>
+        <tr>
+          <td class="key">Chatbot Arena</td>
+          <td style="font-family:'IBM Plex Mono',monospace;font-size:10px;">100K+ battles</td>
+          <td class="good">SE tiny on Elo ratings</td>
+          <td class="good">Live data post-training</td>
+          <td class="warn">Human pref. Selection bias in user population.</td>
+          <td class="good">Human preference on diverse natural prompts</td>
+          <td>User population selection bias. Verbosity inflates win rates.</td>
+        </tr>
+        <tr>
+          <td class="key">TruthfulQA</td>
+          <td style="font-family:'IBM Plex Mono',monospace;font-size:10px;">817</td>
+          <td class="warn">&plusmn;2&ndash;3pp on 817</td>
+          <td class="good">Adversarially designed to resist memorisation.</td>
+          <td class="warn">GPT-4 judge for free-form answers.</td>
+          <td class="warn">Honesty on adversarial Qs &rarr; general honesty</td>
+          <td>Models learn TruthfulQA distribution. Generalisation untested.</td>
+        </tr>
+        <tr>
+          <td class="key">MATH / GSM8K</td>
+          <td style="font-family:'IBM Plex Mono',monospace;font-size:10px;">5000 / 1319</td>
+          <td class="good">SE small at 5000</td>
+          <td class="warn">Moderate. Math in web text.</td>
+          <td class="good">Deterministic answer matching</td>
+          <td class="good">Mathematical reasoning (specified domain)</td>
+          <td>Final-answer matching misses incorrect reasoning chains.</td>
+        </tr>
+        <tr>
+          <td class="key">SWE-bench</td>
+          <td style="font-family:'IBM Plex Mono',monospace;font-size:10px;">2294 (verified: 500)</td>
+          <td class="good">SE &lt; 2pp on verified set</td>
+          <td class="warn">GitHub history partial overlap.</td>
+          <td class="good">Test suite pass rate. Deterministic.</td>
+          <td class="good">Real-world software engineering</td>
+          <td>Harness complexity &mdash; test environment errors can mask failures.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="diagram-note">No widely-used benchmark achieves high trust on all five dimensions simultaneously. The best-performing are Chatbot Arena (live data, large n, diverse prompts) and SWE-bench (deterministic oracle, real engineering tasks). MMLU &mdash; the most commonly cited &mdash; has high contamination risk and a large construct validity gap.</div>
+</div>
+
+
+<hr class="rule">
+<div class="footer">
+  <div>
+    References: Cronbach and Meehl 1955 &middot; Landis and Koch 1977 &middot; Goodhart 1975 &middot; Krippendorff 2011 &middot;
+    Guo et al. (calibration of NNs) 2017 &middot; Hendrycks et al. (MMLU) 2021 &middot;<br>
+    Chen et al. (HumanEval) 2021 &middot; Zheng et al. (MT-Bench) 2023 &middot; Lin et al. (TruthfulQA) 2022 &middot;
+    Gao et al. (overoptimisation) 2022 &middot; Shi et al. (Min-K%) 2024 &middot; Krakovna et al. 2020 &middot;
+    Chiang et al. (Chatbot Arena) 2024 &middot; Geirhos et al. (shortcut learning) 2020
+  </div>
+  <div style="text-align:right;">
+    Mathematical Deep Dive &mdash; LLM Evaluation<br>
+    February 2026
+  </div>
+</div>
+
+<script>
+(function () {
+  var rules = [
+    { sel: 'p.body',       cls: 'sr-up' },
+    { sel: '.section',     cls: 'sr-left' },
+    { sel: '.math-block',  cls: 'sr-right' },
+    { sel: '.diagram',     cls: 'sr-scale' },
+    { sel: '.def',         cls: 'sr-up' },
+    { sel: '.two-col',     cls: 'sr-up' },
+    { sel: '.pyr-row',     cls: 'sr-up', indexed: true },
+  ];
+  var all = [];
+  rules.forEach(function (r) {
+    var els = document.querySelectorAll(r.sel);
+    var idx = 0;
+    els.forEach(function (el) {
+      el.classList.add('sr', r.cls);
+      if (r.indexed) { el.style.setProperty('--sr-i', idx); idx++; }
+      all.push(el);
+    });
+  });
+  var mast = document.querySelector('.masthead');
+  if (mast) { mast.classList.add('sr', 'sr-up'); all.push(mast); mast.classList.add('sr-visible'); }
+  var obs = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting) { e.target.classList.add('sr-visible'); obs.unobserve(e.target); }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -60px 0px' });
+  all.forEach(function (el) { obs.observe(el); });
+})();
+</script>
+
+</body>
+</html>
