@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bolna AI — PM Deep Dive</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0f0e0c;
+    --paper: #f5f0e8;
+    --accent: #c8401a;
+    --gold: #b8860b;
+    --muted: #6b6560;
+    --light: #e8e2d6;
+    --rule: #d0c8bc;
+    --green: #2d6a4f;
+    --blue: #1a3a5c;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'IBM Plex Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 48px 32px;
+    line-height: 1.6;
+  }
+
+  /* BACK LINK */
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    text-decoration: none;
+    margin-bottom: 32px;
+    transition: color 0.2s;
+  }
+  .back-link:hover { color: var(--ink); }
+
+  /* MASTHEAD */
+  .masthead {
+    border-top: 4px solid var(--ink);
+    border-bottom: 1px solid var(--ink);
+    padding: 24px 0 20px;
+    margin-bottom: 48px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+  .masthead-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .masthead h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 38px;
+    font-weight: 900;
+    line-height: 1.1;
+    margin: 8px 0 4px;
+  }
+  .masthead-sub {
+    font-size: 13px;
+    color: var(--muted);
+    font-weight: 300;
+    letter-spacing: 0.04em;
+  }
+  .verdict-badge {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    background: var(--accent);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 2px;
+  }
+
+  /* SECTION HEADERS */
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 56px 0 24px;
+  }
+  .section-number {
+    font-family: 'Playfair Display', serif;
+    font-size: 48px;
+    font-weight: 900;
+    color: var(--rule);
+    line-height: 1;
+  }
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 700;
+    border-bottom: 2px solid var(--ink);
+    padding-bottom: 4px;
+  }
+  .section-desc {
+    font-size: 12px;
+    color: var(--muted);
+    font-family: 'IBM Plex Mono', monospace;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  p.body {
+    font-size: 14px;
+    color: var(--ink);
+    margin-bottom: 16px;
+    max-width: 680px;
+  }
+
+  /* DIAGRAM CONTAINERS */
+  .diagram {
+    background: white;
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 32px;
+    margin: 24px 0;
+    position: relative;
+  }
+  .diagram-title {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .diagram-title::before {
+    content: '';
+    display: block;
+    width: 20px;
+    height: 1px;
+    background: var(--accent);
+  }
+
+  /* EXHIBIT A: Pipeline Stack */
+  .pipeline-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    position: relative;
+  }
+  .pipeline-layer {
+    display: flex;
+    align-items: stretch;
+    border: 1px solid var(--rule);
+    margin-bottom: -1px;
+    position: relative;
+  }
+  .pipeline-label {
+    width: 140px;
+    min-width: 140px;
+    background: var(--ink);
+    color: white;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+  }
+  .pipeline-content {
+    flex: 1;
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    font-size: 12px;
+  }
+  .pipeline-layer.highlight .pipeline-label { background: var(--accent); }
+  .pipeline-layer.highlight .pipeline-content { background: #fff8f5; }
+  .pipeline-chip {
+    background: var(--light);
+    border: 1px solid var(--rule);
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-family: 'IBM Plex Mono', monospace;
+    color: var(--ink);
+  }
+  .pipeline-chip.bolna-own {
+    background: #fef3ef;
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .pipeline-arrow {
+    text-align: center;
+    padding: 4px 0;
+    color: var(--muted);
+    font-size: 16px;
+    background: white;
+  }
+  .pipeline-latency {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--green);
+    margin-left: auto;
+    white-space: nowrap;
+  }
+
+  /* EXHIBIT C: Wrapper Analysis */
+  .wrapper-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+  }
+  .wrapper-cell {
+    background: white;
+    padding: 20px;
+  }
+  .wrapper-cell.header {
+    background: var(--ink);
+    color: white;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 10px 20px;
+  }
+  .wrapper-cell h4 {
+    font-family: 'Playfair Display', serif;
+    font-size: 15px;
+    margin-bottom: 8px;
+  }
+  .wrapper-cell p {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+  .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+  .dot-red { background: var(--accent); }
+  .dot-green { background: var(--green); }
+
+  /* EXHIBIT D: Competitive Positioning */
+  .positioning-chart {
+    position: relative;
+    width: 100%;
+    height: 320px;
+    border-left: 2px solid var(--ink);
+    border-bottom: 2px solid var(--ink);
+  }
+  .pc-axis-x {
+    position: absolute;
+    bottom: -28px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-between;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+  }
+  .pc-axis-y {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: -100px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-end;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    width: 90px;
+  }
+  .pc-bubble {
+    position: absolute;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    text-align: center;
+    line-height: 1.2;
+    cursor: default;
+    transition: transform 0.2s;
+    border: 2px solid rgba(0,0,0,0.15);
+  }
+  .pc-bubble:hover { transform: scale(1.1); }
+
+  /* EXHIBIT E: Gap Analysis */
+  .gap-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+  .gap-table th {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: white;
+    background: var(--ink);
+    padding: 10px 12px;
+    text-align: left;
+    font-weight: 500;
+  }
+  .gap-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--rule);
+    vertical-align: top;
+    line-height: 1.4;
+  }
+  .gap-table tr:nth-child(even) td { background: #fafaf8; }
+  .severity-pill {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 500;
+  }
+  .sev-high { background: #fde8e2; color: var(--accent); }
+  .sev-med { background: #fff3d6; color: #8b6914; }
+  .sev-low { background: #e5f5ee; color: var(--green); }
+
+  /* EXHIBIT F: Build Complexity */
+  .build-timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .bt-row {
+    display: flex;
+    align-items: stretch;
+    border-bottom: 1px solid var(--rule);
+  }
+  .bt-phase {
+    width: 160px;
+    min-width: 160px;
+    padding: 14px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    border-right: 1px solid var(--rule);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .bt-phase-sub {
+    font-size: 10px;
+    color: var(--muted);
+    font-weight: 400;
+    font-family: 'IBM Plex Mono', monospace;
+    margin-top: 2px;
+  }
+  .bt-bar-container {
+    flex: 1;
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+  }
+  .bt-bar {
+    height: 20px;
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    padding: 0 8px;
+    font-size: 10px;
+    font-family: 'IBM Plex Mono', monospace;
+    color: white;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .bt-effort {
+    width: 80px;
+    text-align: right;
+    padding: 14px 16px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+  }
+
+  /* RISK MATRIX */
+  .rm-cell {
+    border-radius: 3px;
+    padding: 12px;
+    font-size: 11px;
+    line-height: 1.4;
+    position: relative;
+  }
+  .rm-cell .risk-item {
+    display: inline-block;
+    background: rgba(0,0,0,0.06);
+    border-radius: 2px;
+    padding: 2px 6px;
+    margin: 2px 2px 2px 0;
+    font-size: 10px;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .rm-cell.q1 { background: #fff0ec; border: 1px solid #f5b8a0; }
+  .rm-cell.q2 { background: #fff8ec; border: 1px solid #f5d8a0; }
+  .rm-cell.q3 { background: #f0f5ec; border: 1px solid #b0d4a0; }
+  .rm-cell.q4 { background: #f5f5f5; border: 1px solid var(--rule); }
+
+  /* VERDICT BOX */
+  .verdict-box {
+    border: 2px solid var(--ink);
+    padding: 32px;
+    margin: 48px 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 24px;
+  }
+  .verdict-box-title {
+    grid-column: 1 / -1;
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    font-weight: 700;
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 12px;
+    margin-bottom: 8px;
+  }
+  .verdict-item h5 {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .verdict-score {
+    font-family: 'Playfair Display', serif;
+    font-size: 36px;
+    font-weight: 900;
+    line-height: 1;
+  }
+  .verdict-score.red { color: var(--accent); }
+  .verdict-score.green { color: var(--green); }
+  .verdict-score.gold { color: var(--gold); }
+  .verdict-item p {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  .footnote {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    border-top: 1px solid var(--rule);
+    padding-top: 12px;
+    margin-top: 12px;
+    letter-spacing: 0.03em;
+  }
+
+  .callout {
+    border-left: 3px solid var(--accent);
+    padding: 12px 20px;
+    background: #fff8f5;
+    margin: 16px 0;
+    font-size: 13px;
+    font-style: italic;
+    color: var(--ink);
+  }
+
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 16px 0;
+  }
+
+  .insight-card {
+    border: 1px solid var(--rule);
+    padding: 16px;
+    background: white;
+  }
+  .insight-card h4 {
+    font-family: 'Playfair Display', serif;
+    font-size: 14px;
+    margin-bottom: 6px;
+  }
+  .insight-card p {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  hr.rule { border: none; border-top: 1px solid var(--rule); margin: 32px 0; }
+
+  @media (max-width: 640px) {
+    body { padding: 24px 16px; }
+    .masthead { flex-direction: column; align-items: flex-start; gap: 16px; }
+    .masthead h1 { font-size: 28px; }
+    .pipeline-label { width: 100px; min-width: 100px; font-size: 9px; padding: 10px 8px; }
+    .pipeline-content { padding: 10px 12px; }
+    .wrapper-grid { grid-template-columns: 1fr; }
+    .verdict-box { grid-template-columns: 1fr; }
+    .two-col { grid-template-columns: 1fr; }
+    .bt-phase { width: 120px; min-width: 120px; }
+    .positioning-chart { height: 240px; }
+    .pc-axis-y { left: -80px; width: 70px; }
+  }
+</style>
+</head>
+<body>
+
+<a href="index.html" class="back-link">&larr; Back to omkarray.com</a>
+
+<!-- MASTHEAD -->
+<div class="masthead">
+  <div>
+    <div class="masthead-label">PM Analysis · Voice AI · February 2026</div>
+    <h1>Bolna AI<br>Deep Dive</h1>
+    <div class="masthead-sub">Product Capabilities · Gaps · Competitive Moat · Build Complexity</div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end">
+    <div class="verdict-badge">Not a Pure Wrapper</div>
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted)">YC W25 · $6.3M Seed · 200K calls/day</div>
+  </div>
+</div>
+
+<!-- SECTION 1: Architecture -->
+<div class="section-header">
+  <div class="section-number">01</div>
+  <div>
+    <div class="section-title">What Bolna Actually Builds</div>
+    <div class="section-desc">The full pipeline — what's theirs vs. what they stitch</div>
+  </div>
+</div>
+
+<p class="body">Bolna is best described as a <strong>Voice AI Orchestration Layer</strong> — sitting between commodity AI providers and enterprise telephony. The key question is: how much proprietary surface area do they own?</p>
+
+<div class="diagram">
+  <div class="diagram-title">Exhibit A — Bolna's Full Technical Stack (Theirs vs. Vendor)</div>
+  <div class="pipeline-stack">
+
+    <div class="pipeline-layer">
+      <div class="pipeline-label">Input</div>
+      <div class="pipeline-content">
+        <span class="pipeline-chip">Phone Call (PSTN)</span>
+        <span class="pipeline-chip">Web Widget</span>
+        <span class="pipeline-chip bolna-own">Caller ID Matching ✦</span>
+        <span class="pipeline-chip bolna-own">Spam Guard ✦</span>
+        <span class="pipeline-latency">customer touchpoint</span>
+      </div>
+    </div>
+    <div class="pipeline-arrow">↓</div>
+
+    <div class="pipeline-layer">
+      <div class="pipeline-label">Telephony</div>
+      <div class="pipeline-content">
+        <span class="pipeline-chip">Twilio</span>
+        <span class="pipeline-chip">Plivo</span>
+        <span class="pipeline-chip">Exotel</span>
+        <span class="pipeline-chip bolna-own">Bolna Phone Numbers ✦</span>
+        <span class="pipeline-latency">~0ms added</span>
+      </div>
+    </div>
+    <div class="pipeline-arrow">↓</div>
+
+    <div class="pipeline-layer highlight">
+      <div class="pipeline-label">ASR</div>
+      <div class="pipeline-content">
+        <span class="pipeline-chip">Deepgram</span>
+        <span class="pipeline-chip">Azure Speech</span>
+        <span class="pipeline-chip">AssemblyAI</span>
+        <span class="pipeline-chip">Sarvam (India)</span>
+        <span class="pipeline-chip bolna-own">Auto Language Switch ✦</span>
+        <span class="pipeline-latency">~80–120ms</span>
+      </div>
+    </div>
+    <div class="pipeline-arrow">↓</div>
+
+    <div class="pipeline-layer highlight">
+      <div class="pipeline-label">Orchestration</div>
+      <div class="pipeline-content">
+        <span class="pipeline-chip bolna-own">Routing Engine ✦</span>
+        <span class="pipeline-chip bolna-own">Interruption Handler ✦</span>
+        <span class="pipeline-chip bolna-own">Context Manager ✦</span>
+        <span class="pipeline-chip bolna-own">Guardrails ✦</span>
+        <span class="pipeline-chip bolna-own">Silence Detection ✦</span>
+        <span class="pipeline-latency" style="color:var(--accent)">← Core Moat</span>
+      </div>
+    </div>
+    <div class="pipeline-arrow">↓</div>
+
+    <div class="pipeline-layer">
+      <div class="pipeline-label">LLM</div>
+      <div class="pipeline-content">
+        <span class="pipeline-chip">OpenAI GPT-4</span>
+        <span class="pipeline-chip">Anthropic Claude</span>
+        <span class="pipeline-chip">DeepSeek</span>
+        <span class="pipeline-chip">Azure OpenAI</span>
+        <span class="pipeline-chip bolna-own">Custom LLM Support ✦</span>
+        <span class="pipeline-latency">~200–400ms</span>
+      </div>
+    </div>
+    <div class="pipeline-arrow">↓</div>
+
+    <div class="pipeline-layer">
+      <div class="pipeline-label">TTS</div>
+      <div class="pipeline-content">
+        <span class="pipeline-chip">ElevenLabs</span>
+        <span class="pipeline-chip">Cartesia</span>
+        <span class="pipeline-chip">Azure TTS</span>
+        <span class="pipeline-chip bolna-own">Voice Cloning ✦</span>
+        <span class="pipeline-chip bolna-own">Pre-recorded Buffers ✦</span>
+        <span class="pipeline-latency">~100–150ms</span>
+      </div>
+    </div>
+    <div class="pipeline-arrow">↓</div>
+
+    <div class="pipeline-layer highlight">
+      <div class="pipeline-label">Post-Call</div>
+      <div class="pipeline-content">
+        <span class="pipeline-chip bolna-own">Auto Summarization ✦</span>
+        <span class="pipeline-chip bolna-own">Structured Extraction ✦</span>
+        <span class="pipeline-chip bolna-own">Webhook Dispatch ✦</span>
+        <span class="pipeline-chip">CRM Sync</span>
+        <span class="pipeline-chip">Cal.com</span>
+        <span class="pipeline-chip">Zapier / Make</span>
+        <span class="pipeline-latency">async</span>
+      </div>
+    </div>
+  </div>
+  <div class="footnote">✦ = Bolna-built proprietary capability. Non-marked = vendor API integration.</div>
+</div>
+
+<div class="callout">"The orchestration layer routes every call to the best-fit model for the desired outcome, rather than forcing enterprises into one provider." — Prateek Sachan, CTO</div>
+
+
+<!-- SECTION 2: Moat Layers -->
+<div class="section-header">
+  <div class="section-number">02</div>
+  <div>
+    <div class="section-title">Layers of Competitive Moat</div>
+    <div class="section-desc">Inspired by Howard Marks' risk/return layering — value compounds upward</div>
+  </div>
+</div>
+
+<p class="body">Like a geological cross-section, Bolna's defensibility is not uniform. The bottom layers are commodity; the value and moat compound as you move up.</p>
+
+<div class="diagram">
+  <div class="diagram-title">Exhibit B — The Moat Pyramid (Bottom = Commodity, Top = Defensible)</div>
+  <div style="display:flex;flex-direction:column;gap:0;max-width:580px;margin:0 auto;">
+    
+    <div style="background:#f0f0f0;border:1px solid #ddd;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <div style="font-size:12px;font-weight:600;">Provider APIs</div>
+        <div style="font-size:11px;color:var(--muted);font-family:'IBM Plex Mono',monospace;">OpenAI · ElevenLabs · Deepgram · Twilio</div>
+      </div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;background:#e0e0e0;padding:3px 8px;border-radius:2px;color:#666;">COMMODITY</div>
+    </div>
+    
+    <div style="background:#e8e4d8;border:1px solid #d0c8bc;padding:12px 20px;margin-top:-1px;display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <div style="font-size:12px;font-weight:600;">Pipeline Assembly</div>
+        <div style="font-size:11px;color:var(--muted);font-family:'IBM Plex Mono',monospace;">ASR → LLM → TTS in websocket, &lt;600ms</div>
+      </div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;background:#d0c8bc;padding:3px 8px;border-radius:2px;">REPLICABLE (6–12 mo)</div>
+    </div>
+
+    <div style="background:#d4e8e0;border:1px solid #a0ccb8;padding:12px 20px;margin-top:-1px;display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <div style="font-size:12px;font-weight:600;">Multi-Provider Routing Engine</div>
+        <div style="font-size:11px;color:var(--muted);font-family:'IBM Plex Mono',monospace;">Cost/quality/language-aware model switching per call</div>
+      </div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;background:#a0ccb8;padding:3px 8px;border-radius:2px;color:white;">MODERATE MOAT</div>
+    </div>
+
+    <div style="background:#c8dff5;border:1px solid #8ab8e8;padding:12px 20px;margin-top:-1px;display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <div style="font-size:12px;font-weight:600;">Indian Language + Accent Stack</div>
+        <div style="font-size:11px;color:var(--muted);font-family:'IBM Plex Mono',monospace;">10+ languages, 50+ accents, Hinglish, noise-resilient</div>
+      </div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;background:#5a9ad8;padding:3px 8px;border-radius:2px;color:white;">STRONG MOAT</div>
+    </div>
+
+    <div style="background:#f5e8d4;border:1px solid #d4a870;padding:12px 20px;margin-top:-1px;display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <div style="font-size:12px;font-weight:600;">Conversation Data + Call Intelligence</div>
+        <div style="font-size:11px;color:var(--muted);font-family:'IBM Plex Mono',monospace;">200K calls/day → training signal, benchmark data</div>
+      </div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;background:#d4a050;padding:3px 8px;border-radius:2px;color:white;">DATA FLYWHEEL</div>
+    </div>
+
+    <div style="background:#fde8e2;border:1px solid #e87858;padding:12px 20px;margin-top:-1px;display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <div style="font-size:12px;font-weight:600;">Network Effects + Distribution</div>
+        <div style="font-size:11px;color:var(--muted);font-family:'IBM Plex Mono',monospace;">1,050+ customers · Agent Library · Compliance infra</div>
+      </div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;background:var(--accent);padding:3px 8px;border-radius:2px;color:white;">DEEPEST MOAT</div>
+    </div>
+  </div>
+  <div class="footnote" style="margin-top:16px">The bottom two layers are table stakes. Bolna's defensibility lives in layers 3–6 — especially the India-specific language stack and emerging data flywheel.</div>
+</div>
+
+
+<!-- SECTION 3: Wrapper Test -->
+<div class="section-header">
+  <div class="section-number">03</div>
+  <div>
+    <div class="section-title">The Wrapper Test</div>
+    <div class="section-desc">A structured verdict: is this just GPT with a phone number?</div>
+  </div>
+</div>
+
+<p class="body">The "wrapper" label is a spectrum, not a binary. A pure wrapper adds zero proprietary logic and would collapse if the underlying API changed its terms. Bolna falls somewhere in the middle — with increasing lean toward genuine platform.</p>
+
+<div class="diagram">
+  <div class="diagram-title">Exhibit C — Wrapper Spectrum Analysis</div>
+  <div class="wrapper-grid">
+    <div class="wrapper-cell header">Dimension</div>
+    <div class="wrapper-cell header">Verdict</div>
+
+    <div class="wrapper-cell">
+      <h4>Orchestration Logic</h4>
+      <p>Interrupt handling, silence detection, real-time routing decisions mid-call. Context persistence across turns.</p>
+    </div>
+    <div class="wrapper-cell">
+      <span class="dot dot-green"></span><strong>Proprietary.</strong><br><p style="font-size:12px;color:var(--muted);margin-top:4px">This is genuinely hard to replicate — sub-600ms real-time coordination of 3 separate APIs simultaneously.</p>
+    </div>
+
+    <div class="wrapper-cell">
+      <h4>Language Model Usage</h4>
+      <p>Uses third-party LLMs — OpenAI, Anthropic, DeepSeek. No fine-tuned proprietary model yet.</p>
+    </div>
+    <div class="wrapper-cell">
+      <span class="dot dot-red"></span><strong>Wrapper.</strong><br><p style="font-size:12px;color:var(--muted);margin-top:4px">Full dependency on OpenAI/Anthropic. No Bolna-trained LLM in production. Key vulnerability.</p>
+    </div>
+
+    <div class="wrapper-cell">
+      <h4>Voice / Speech</h4>
+      <p>ElevenLabs as default TTS. But: pre-recorded buffer system for common utterances, voice cloning pipeline.</p>
+    </div>
+    <div class="wrapper-cell">
+      <span class="dot dot-green"></span><strong>Partially Proprietary.</strong><br><p style="font-size:12px;color:var(--muted);margin-top:4px">The pre-recorded buffer trick meaningfully reduces latency beyond what a raw ElevenLabs call would deliver.</p>
+    </div>
+
+    <div class="wrapper-cell">
+      <h4>Telephony</h4>
+      <p>Twilio, Plivo, Exotel — no self-built PSTN infrastructure. Phone numbers resold.</p>
+    </div>
+    <div class="wrapper-cell">
+      <span class="dot dot-red"></span><strong>Wrapper.</strong><br><p style="font-size:12px;color:var(--muted);margin-top:4px">Complete dependency. However, not a differentiable layer for any competitor either — table stakes.</p>
+    </div>
+
+    <div class="wrapper-cell">
+      <h4>India Language Stack</h4>
+      <p>Sarvam ASR integration + accent-training data + compliance infra for Indian DND/TRAI regulations.</p>
+    </div>
+    <div class="wrapper-cell">
+      <span class="dot dot-green"></span><strong>Genuine Differentiation.</strong><br><p style="font-size:12px;color:var(--muted);margin-top:4px">No Western competitor has invested here. This is the most defensible layer today.</p>
+    </div>
+
+    <div class="wrapper-cell">
+      <h4>Data + Analytics Layer</h4>
+      <p>Call summaries, structured extraction, post-call webhooks. 200K calls/day = accumulating dataset.</p>
+    </div>
+    <div class="wrapper-cell">
+      <span class="dot dot-green"></span><strong>Emerging Moat.</strong><br><p style="font-size:12px;color:var(--muted);margin-top:4px">Not there yet, but 200K calls/day × enterprise use cases = a future fine-tuning advantage.</p>
+    </div>
+  </div>
+  <div class="footnote" style="margin-top:12px">Verdict: Bolna is approximately 40% wrapper / 60% platform today. That ratio improves over time as data compounds.</div>
+</div>
+
+
+<!-- SECTION 4: Competitive Positioning -->
+<div class="section-header">
+  <div class="section-number">04</div>
+  <div>
+    <div class="section-title">Competitive Landscape</div>
+    <div class="section-desc">Positioning map across cost sensitivity and market focus</div>
+  </div>
+</div>
+
+<div class="diagram">
+  <div class="diagram-title">Exhibit D — Voice AI Positioning: India/Global × Developer/No-Code</div>
+  <div style="position:relative;padding:20px 0 60px 120px;">
+    <div class="positioning-chart">
+      <div class="pc-axis-x">
+        <span>Developer-First</span>
+        <span style="text-align:center">← Market Focus →</span>
+        <span>No-Code / Enterprise</span>
+      </div>
+      <div class="pc-axis-y">
+        <span>Global</span>
+        <span>India / EM</span>
+      </div>
+
+      <div class="pc-bubble" style="width:70px;height:70px;background:rgba(100,100,200,0.15);color:#334;left:5%;bottom:60%;margin-left:-35px;margin-bottom:-35px;font-size:9px;border-color:rgba(100,100,200,0.4)">Bland<br>AI</div>
+      <div class="pc-bubble" style="width:80px;height:80px;background:rgba(80,160,100,0.15);color:#264;left:30%;bottom:65%;margin-left:-40px;margin-bottom:-40px;font-size:9px;border-color:rgba(80,160,100,0.4)">Retell<br>AI</div>
+      <div class="pc-bubble" style="width:60px;height:60px;background:rgba(160,100,200,0.15);color:#424;left:8%;bottom:80%;margin-left:-30px;margin-bottom:-30px;font-size:9px;border-color:rgba(160,100,200,0.4)">Vapi<br>AI</div>
+      <div class="pc-bubble" style="width:110px;height:110px;background:rgba(200,64,26,0.12);color:var(--accent);left:70%;bottom:15%;margin-left:-55px;margin-bottom:-55px;font-size:11px;font-weight:700;border-color:var(--accent);border-width:2px;">Bolna<br>AI</div>
+      <div class="pc-bubble" style="width:60px;height:60px;background:rgba(180,134,11,0.12);color:#6b4a00;left:80%;bottom:30%;margin-left:-30px;margin-bottom:-30px;font-size:9px;border-color:rgba(180,134,11,0.4)">Exotel<br>(legacy)</div>
+      <div class="pc-bubble" style="width:55px;height:55px;background:rgba(30,100,180,0.12);color:#1a3a5c;left:85%;bottom:65%;margin-left:-27px;margin-bottom:-27px;font-size:9px;border-color:rgba(30,100,180,0.3)">Air<br>AI</div>
+
+      <div style="position:absolute;left:0;right:0;top:50%;border-top:1px dashed var(--rule);"></div>
+      <div style="position:absolute;top:0;bottom:0;left:50%;border-left:1px dashed var(--rule);"></div>
+    </div>
+  </div>
+  <div class="footnote">Bubble size ≈ relative market opportunity in target segment. Bolna occupies a unique quadrant with no direct global competitor as of Feb 2026.</div>
+</div>
+
+
+<!-- SECTION 5: Gap Analysis -->
+<div class="section-header">
+  <div class="section-number">05</div>
+  <div>
+    <div class="section-title">Product Gaps & Vulnerabilities</div>
+    <div class="section-desc">Where the platform is incomplete or exposed</div>
+  </div>
+</div>
+
+<div class="diagram">
+  <div class="diagram-title">Exhibit E — Gap Analysis Matrix</div>
+  <table class="gap-table">
+    <thead>
+      <tr>
+        <th>Gap</th>
+        <th>Current State</th>
+        <th>Risk</th>
+        <th>Severity</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>No Proprietary LLM</strong></td>
+        <td>100% reliant on OpenAI/Anthropic. If OpenAI changes pricing or terms, margins compress immediately.</td>
+        <td>Cost blowup at scale; margin squeeze; feature lock-in by LLM provider</td>
+        <td><span class="severity-pill sev-high">HIGH</span></td>
+      </tr>
+      <tr>
+        <td><strong>Visual / Multimodal Agents</strong></td>
+        <td>"Coming soon" in their docs. No visual input support today.</td>
+        <td>Misses screen-sharing, document-reading calls that enterprise wants</td>
+        <td><span class="severity-pill sev-med">MED</span></td>
+      </tr>
+      <tr>
+        <td><strong>Weak CRM Integrations</strong></td>
+        <td>Zapier/Make bridges only. No native Salesforce, HubSpot, Freshdesk connectors.</td>
+        <td>Enterprise deals blocked at procurement stage; manual webhook setup deters non-technical buyers</td>
+        <td><span class="severity-pill sev-high">HIGH</span></td>
+      </tr>
+      <tr>
+        <td><strong>No Conversation Flow Designer</strong></td>
+        <td>Prompt-only agent setup. Retell/Bland both have visual pathway builders.</td>
+        <td>Churn from non-technical users who can't think in prompts</td>
+        <td><span class="severity-pill sev-high">HIGH</span></td>
+      </tr>
+      <tr>
+        <td><strong>Analytics Depth</strong></td>
+        <td>Post-call summaries exist, but no real-time dashboards, funnel analytics, or A/B testing of agent prompts.</td>
+        <td>Operators can't optimize without data; limits upsell to analytics tier</td>
+        <td><span class="severity-pill sev-med">MED</span></td>
+      </tr>
+      <tr>
+        <td><strong>Concurrency Ceiling</strong></td>
+        <td>Tiered concurrency (max ~900 concurrent calls as of Q1 2026). Hyperscale campaigns need more.</td>
+        <td>Loses Tier-1 enterprise RFPs to Bland's self-hosted infra offering</td>
+        <td><span class="severity-pill sev-med">MED</span></td>
+      </tr>
+      <tr>
+        <td><strong>No Global Compliance Suite</strong></td>
+        <td>India DND/TRAI handled. US/EU GDPR/TCPA compliance is developer's responsibility.</td>
+        <td>Blocks regulated verticals in Western markets (BFSI, healthcare)</td>
+        <td><span class="severity-pill sev-med">MED</span></td>
+      </tr>
+      <tr>
+        <td><strong>Agent Debugging UX</strong></td>
+        <td>No real-time agent testing with simulated callers; no replay/debug tooling visible.</td>
+        <td>Longer time-to-production; developer frustration; churn in devs</td>
+        <td><span class="severity-pill sev-low">LOW</span></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+
+<!-- SECTION 6: Build Complexity -->
+<div class="section-header">
+  <div class="section-number">06</div>
+  <div>
+    <div class="section-title">How Hard Is It to Clone This?</div>
+    <div class="section-desc">Build effort estimation by layer — the replication cost curve</div>
+  </div>
+</div>
+
+<p class="body">The open-source GitHub repo means a team of 3–4 engineers can replicate the basic pipeline in 2–3 months. But replicating Bolna's full platform is a different question. Here's where the time actually goes:</p>
+
+<div class="diagram">
+  <div class="diagram-title">Exhibit F — Replication Effort by Layer (3-person engineering team)</div>
+  <div class="build-timeline">
+    <div class="bt-row" style="background:var(--light);">
+      <div class="bt-phase" style="font-size:10px;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:0.08em;">Layer</div>
+      <div class="bt-bar-container" style="font-size:10px;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:0.08em;">Effort Bar (weeks)</div>
+      <div class="bt-effort" style="font-size:10px;font-family:'IBM Plex Mono',monospace;">Time</div>
+    </div>
+
+    <div class="bt-row">
+      <div class="bt-phase">Basic Pipeline<div class="bt-phase-sub">ASR → LLM → TTS</div></div>
+      <div class="bt-bar-container">
+        <div class="bt-bar" style="width:20%;background:#aaa;">2 weeks · Open source repo</div>
+      </div>
+      <div class="bt-effort">2 wks</div>
+    </div>
+
+    <div class="bt-row">
+      <div class="bt-phase">Telephony Integration<div class="bt-phase-sub">Twilio/Plivo</div></div>
+      <div class="bt-bar-container">
+        <div class="bt-bar" style="width:15%;background:#999;">1.5 weeks · Twilio docs</div>
+      </div>
+      <div class="bt-effort">1.5 wks</div>
+    </div>
+
+    <div class="bt-row">
+      <div class="bt-phase">Interruption Handling<div class="bt-phase-sub">Real-time detection</div></div>
+      <div class="bt-bar-container">
+        <div class="bt-bar" style="width:30%;background:var(--blue);color:white;">3–4 weeks · Hard edge cases</div>
+      </div>
+      <div class="bt-effort">3–4 wks</div>
+    </div>
+
+    <div class="bt-row">
+      <div class="bt-phase">Multi-language Support<div class="bt-phase-sub">10+ Indian languages</div></div>
+      <div class="bt-bar-container">
+        <div class="bt-bar" style="width:65%;background:var(--accent);color:white;">8–12 weeks · Language data, accent models, testing infra</div>
+      </div>
+      <div class="bt-effort">8–12 wks</div>
+    </div>
+
+    <div class="bt-row">
+      <div class="bt-phase">Routing Engine<div class="bt-phase-sub">Cost/quality/language</div></div>
+      <div class="bt-bar-container">
+        <div class="bt-bar" style="width:45%;background:var(--blue);color:white;">6–8 weeks · Logic + tuning</div>
+      </div>
+      <div class="bt-effort">6–8 wks</div>
+    </div>
+
+    <div class="bt-row">
+      <div class="bt-phase">Platform UI<div class="bt-phase-sub">No-code dashboard</div></div>
+      <div class="bt-bar-container">
+        <div class="bt-bar" style="width:55%;background:var(--green);color:white;">8–10 weeks · Campaign builder, analytics, agent mgmt</div>
+      </div>
+      <div class="bt-effort">8–10 wks</div>
+    </div>
+
+    <div class="bt-row">
+      <div class="bt-phase">Compliance Layer<div class="bt-phase-sub">India DND, TRAI</div></div>
+      <div class="bt-bar-container">
+        <div class="bt-bar" style="width:35%;background:#8b5e3c;color:white;">4–6 weeks · Regulatory nav</div>
+      </div>
+      <div class="bt-effort">4–6 wks</div>
+    </div>
+
+    <div class="bt-row">
+      <div class="bt-phase">Scale / Reliability<div class="bt-phase-sub">99.5% uptime @ 200K/day</div></div>
+      <div class="bt-bar-container">
+        <div class="bt-bar" style="width:80%;background:#333;color:white;">12–20 weeks · Infra, failover, load testing, on-call</div>
+      </div>
+      <div class="bt-effort">12–20 wks</div>
+    </div>
+  </div>
+  <div class="footnote" style="margin-top:12px">Total to replicate core: ~12–16 months for a 3-person team. The Indian language stack alone takes 2–3 months and requires proprietary data access. The open-source repo gives you ~10% of the work done.</div>
+</div>
+
+
+<!-- SECTION 7: Risk Matrix -->
+<div class="section-header">
+  <div class="section-number">07</div>
+  <div>
+    <div class="section-title">Strategic Risk Map</div>
+    <div class="section-desc">Impact × Likelihood — the classic Howard Marks risk framing</div>
+  </div>
+</div>
+
+<div class="diagram">
+  <div class="diagram-title">Exhibit G — Risk Matrix: Bolna's Key Exposures</div>
+  <div style="display:flex;gap:16px;height:300px;">
+    <div style="display:flex;align-items:center;width:30px;">
+      <div style="writing-mode:vertical-rl;transform:rotate(180deg);font-family:'IBM Plex Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);">← Impact →</div>
+    </div>
+    <div style="flex:1;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:4px;height:260px;">
+        
+        <div class="rm-cell q1" style="border-radius:3px 0 0 0;">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;text-transform:uppercase;color:var(--accent);margin-bottom:8px;">High Impact / High Likelihood</div>
+          <span class="risk-item">LLM cost inflation</span>
+          <span class="risk-item">No-code builder gap</span>
+          <span class="risk-item">OpenAI ToS change</span>
+        </div>
+        
+        <div class="rm-cell q2" style="border-radius:0 3px 0 0;">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;text-transform:uppercase;color:#8b6914;margin-bottom:8px;">High Impact / Low Likelihood</div>
+          <span class="risk-item">Twilio enters orchestration</span>
+          <span class="risk-item">Google builds India ASR</span>
+          <span class="risk-item">Regulatory ban on AI calls</span>
+        </div>
+        
+        <div class="rm-cell q3" style="border-radius:0 0 0 3px;">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;text-transform:uppercase;color:var(--green);margin-bottom:8px;">Low Impact / High Likelihood</div>
+          <span class="risk-item">ElevenLabs pricing change</span>
+          <span class="risk-item">Retell targets India</span>
+          <span class="risk-item">Churn from no CRM integrations</span>
+        </div>
+        
+        <div class="rm-cell q4" style="border-radius:0 0 3px 0;">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Low Impact / Low Likelihood</div>
+          <span class="risk-item">Open source fork competition</span>
+          <span class="risk-item">Single-market recession</span>
+        </div>
+      </div>
+      <div style="text-align:center;font-family:'IBM Plex Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-top:8px;">← Likelihood →</div>
+    </div>
+  </div>
+  <div class="footnote" style="margin-top:8px">Top-left quadrant demands immediate product attention: building a no-code flow designer + reducing LLM cost exposure through fine-tuned vertical models are the highest-ROI bets.</div>
+</div>
+
+
+<!-- VERDICT -->
+<div class="verdict-box">
+  <div class="verdict-box-title">Final PM Verdict</div>
+  <div class="verdict-item">
+    <h5>Wrapper Score</h5>
+    <div class="verdict-score gold">40%</div>
+    <p>40% of value from assembled APIs. 60% from proprietary orchestration, India language stack, and compliance infra.</p>
+  </div>
+  <div class="verdict-item">
+    <h5>Replication Time</h5>
+    <div class="verdict-score red">14mo</div>
+    <p>For a well-funded 4-person team to reach Bolna's current state. The India language data is the hardest part to buy.</p>
+  </div>
+  <div class="verdict-item">
+    <h5>Defensibility Horizon</h5>
+    <div class="verdict-score green">3yr</div>
+    <p>Data flywheel + compliance infra + 1,050 customer relationships = ~3 years of runway before a well-capitalized global player catches up in India.</p>
+  </div>
+</div>
+
+<div class="two-col">
+  <div class="insight-card">
+    <h4>The Bull Case</h4>
+    <p>India processes 1 billion voice calls/day. No single platform does this well in Indian languages. Bolna's data flywheel at 200K calls/day will compound into a fine-tuning advantage that is nearly impossible to buy. First-mover + YC + General Catalyst + Blume gives them sufficient runway to get there.</p>
+  </div>
+  <div class="insight-card">
+    <h4>The Bear Case</h4>
+    <p>They are fundamentally a middleware business. When Twilio, Deepgram, or ElevenLabs choose to integrate "one layer up," Bolna's orchestration value erodes. The no-code gap is already costing them enterprise deals today. The window to build a proprietary LLM is narrowing.</p>
+  </div>
+</div>
+
+<hr class="rule">
+<div class="footnote">
+  Analysis based on public documentation, GitHub, YC profile, ElevenLabs case study, and $6.3M seed funding announcement (Jan 2026). 
+  Framework inspired by Howard Marks' second-level thinking on risk and value layers. 
+  Prepared for PM lens review · Feb 2026.
+</div>
+
+</body>
+</html>
