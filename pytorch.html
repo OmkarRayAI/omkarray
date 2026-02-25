@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PyTorch in One Hour &mdash; Visual Map</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@300;400;500;700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --paper:#f9f6f0; --paper2:#f2ede4; --ink:#1a1810; --ink2:#3a3428; --ink3:#6b6155;
+  --torch:#ee4c2c; --torch2:#c73e23; --torch-bg:#fff0ed;
+  --blue:#1a4480; --blue-bg:#edf3fc; --green:#1a6640; --green-bg:#edf7f1;
+  --gold:#8a6a00; --gold-bg:#fdf8e8; --rule:#d5cec4;
+  --serif:'Lora',Georgia,serif; --mono:'JetBrains Mono','Courier New',monospace;
+  --bask:'Libre Baskerville',Georgia,serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);min-height:100vh;position:relative;}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");pointer-events:none;z-index:0;}
+body::after{content:'';position:fixed;inset:0;background-image:repeating-linear-gradient(transparent,transparent 27px,rgba(180,170,155,0.18) 27px,rgba(180,170,155,0.18) 28px);pointer-events:none;z-index:0;}
+.page{position:relative;z-index:1;max-width:960px;margin:0 auto;padding:56px 48px 80px;}
+.back-link{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink3);text-decoration:none;margin-bottom:36px;transition:color .2s;}
+.back-link:hover{color:var(--torch);}
+.header{margin-bottom:56px;padding-bottom:28px;border-bottom:2px solid var(--ink);position:relative;}
+.header::after{content:'';position:absolute;bottom:-5px;left:0;width:100%;height:1px;background:var(--rule);}
+.header-kicker{font-family:var(--mono);font-size:10px;letter-spacing:.25em;text-transform:uppercase;color:var(--torch);margin-bottom:10px;}
+h1{font-family:var(--bask);font-size:clamp(28px,4vw,48px);font-weight:700;line-height:1.1;color:var(--ink);margin-bottom:8px;}
+h1 em{font-style:italic;color:var(--torch);}
+.header-sub{font-family:var(--serif);font-size:15px;color:var(--ink3);font-style:italic;max-width:600px;line-height:1.6;}
+.header-meta{display:flex;gap:20px;margin-top:16px;flex-wrap:wrap;}
+.tag{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;border:1px solid var(--rule);padding:3px 10px;color:var(--ink3);background:var(--paper2);}
+.sec-header{display:flex;align-items:baseline;gap:16px;margin-bottom:20px;margin-top:48px;}
+.sec-num{font-family:var(--mono);font-size:11px;color:var(--torch);letter-spacing:.1em;flex-shrink:0;}
+.sec-title{font-family:var(--bask);font-size:18px;font-weight:700;color:var(--ink);border-bottom:1px solid var(--rule);padding-bottom:6px;flex:1;}
+.three-cols{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:var(--ink);border:2px solid var(--ink);margin-bottom:8px;}
+.comp-card{background:var(--paper);padding:24px 20px;position:relative;overflow:hidden;transition:background .2s;}
+.comp-card:hover{background:var(--paper2);}
+.comp-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.comp-card.tensor::before{background:var(--torch);}
+.comp-card.autograd::before{background:var(--blue);}
+.comp-card.dl::before{background:var(--green);}
+.comp-num{font-family:var(--mono);font-size:9px;color:var(--ink3);letter-spacing:.15em;margin-bottom:6px;}
+.comp-name{font-family:var(--bask);font-size:16px;font-weight:700;margin-bottom:4px;}
+.comp-card.tensor .comp-name{color:var(--torch);}
+.comp-card.autograd .comp-name{color:var(--blue);}
+.comp-card.dl .comp-name{color:var(--green);}
+.comp-sub{font-family:var(--mono);font-size:9px;color:var(--ink3);margin-bottom:10px;letter-spacing:.05em;}
+.comp-desc{font-size:12px;line-height:1.65;color:var(--ink2);}
+.comp-analogy{margin-top:10px;font-size:11px;font-style:italic;color:var(--ink3);border-top:1px solid var(--rule);padding-top:8px;}
+.tensor-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;background:var(--rule);border:1px solid var(--rule);margin-bottom:16px;}
+.tensor-cell{background:var(--paper);padding:18px 14px;text-align:center;transition:background .2s;}
+.tensor-cell:hover{background:var(--torch-bg);}
+.tensor-rank{font-family:var(--mono);font-size:9px;color:var(--ink3);letter-spacing:.1em;margin-bottom:8px;}
+.tensor-name{font-family:var(--bask);font-size:14px;font-weight:700;color:var(--ink);margin-bottom:8px;}
+.tensor-vis{height:52px;display:flex;align-items:center;justify-content:center;margin-bottom:8px;}
+.tensor-code{font-family:var(--mono);font-size:9px;color:var(--torch);letter-spacing:.03em;line-height:1.5;}
+.tensor-example{font-size:11px;color:var(--ink3);margin-top:6px;font-style:italic;}
+.scalar-dot{width:16px;height:16px;border-radius:50%;background:var(--torch);display:inline-block;}
+.vec-bar{display:flex;flex-direction:column;gap:3px;}
+.vec-bar span{width:24px;height:8px;background:var(--torch);display:block;opacity:0.7;}
+.vec-bar span:first-child{opacity:1;}
+.mat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;width:54px;}
+.mat-grid span{height:14px;background:var(--torch);display:block;}
+.mat-grid span:nth-child(even){opacity:.5;}
+.mat-grid span:nth-child(3n){opacity:.3;}
+.tensor3d-wrap{position:relative;width:54px;height:48px;}
+.tensor3d-layer{position:absolute;width:34px;height:28px;background:var(--torch);border:1px solid var(--paper);}
+.tensor3d-layer:nth-child(1){top:0;left:0;opacity:.3;}
+.tensor3d-layer:nth-child(2){top:8px;left:8px;opacity:.6;}
+.tensor3d-layer:nth-child(3){top:16px;left:16px;opacity:1;}
+.dtype-table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:11px;border:1px solid var(--rule);}
+.dtype-table th{background:var(--ink);color:var(--paper);padding:8px 12px;text-align:left;letter-spacing:.08em;font-size:9px;text-transform:uppercase;}
+.dtype-table td{padding:7px 12px;border-bottom:1px solid var(--rule);vertical-align:top;}
+.dtype-table tr:nth-child(even) td{background:var(--paper2);}
+.dtype-table tr:hover td{background:var(--torch-bg);}
+.dtype-key{color:var(--torch);font-weight:700;}
+.compgraph-wrap{display:grid;grid-template-columns:1fr 1fr;gap:2px;background:var(--rule);border:1px solid var(--rule);}
+.compgraph-panel{background:var(--paper);padding:24px;}
+.compgraph-panel h3{font-family:var(--mono);font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--ink3);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--rule);}
+.fwd-flow,.bwd-flow{display:flex;flex-direction:column;gap:2px;}
+.fwd-node,.bwd-node{display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--paper2);border:1px solid var(--rule);transition:background .2s;}
+.fwd-node:hover{background:var(--blue-bg);}
+.bwd-node:hover{background:var(--gold-bg);}
+.fwd-symbol{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--blue);width:40px;text-align:center;flex-shrink:0;}
+.bwd-symbol{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--gold);width:48px;text-align:center;flex-shrink:0;}
+.fwd-label,.bwd-label{flex:1;}
+.fwd-label strong,.bwd-label strong{display:block;font-family:var(--mono);font-size:11px;color:var(--ink);margin-bottom:2px;}
+.fwd-label span,.bwd-label span{font-size:10px;color:var(--ink3);font-style:italic;}
+.fwd-code{font-family:var(--mono);font-size:9px;color:var(--torch);flex-shrink:0;text-align:right;}
+.bwd-code{font-family:var(--mono);font-size:9px;color:var(--gold);flex-shrink:0;text-align:right;}
+.chain-rule-box{margin-top:14px;background:var(--gold-bg);border:1px solid #e8d88a;padding:12px 14px;}
+.chain-rule-box .label{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:6px;}
+.chain-rule-math{font-family:var(--mono);font-size:12px;color:var(--ink);line-height:2;}
+.chain-rule-note{font-size:11px;color:var(--ink3);font-style:italic;margin-top:6px;}
+.pipeline{display:flex;flex-direction:column;gap:0;border:1px solid var(--ink);}
+.pipe-step{display:grid;grid-template-columns:52px 1fr 1fr;gap:0;border-bottom:1px solid var(--rule);min-height:80px;}
+.pipe-step:last-child{border-bottom:none;}
+.pipe-num{background:var(--ink);color:var(--paper);display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:var(--mono);font-size:18px;font-weight:700;gap:2px;}
+.pipe-num small{font-size:7px;letter-spacing:.1em;text-transform:uppercase;opacity:.5;}
+.pipe-info{padding:16px 18px;border-right:1px solid var(--rule);}
+.pipe-name{font-family:var(--bask);font-size:15px;font-weight:700;color:var(--ink);margin-bottom:4px;}
+.pipe-desc{font-size:12px;color:var(--ink3);line-height:1.6;}
+.pipe-gotcha{margin-top:8px;font-size:11px;background:var(--torch-bg);border-left:3px solid var(--torch);padding:5px 8px;color:var(--torch2);font-style:italic;}
+.pipe-code{padding:14px 16px;background:var(--paper2);font-family:var(--mono);font-size:10px;line-height:1.7;color:var(--ink);overflow:hidden;}
+.pipe-code .comment{color:var(--ink3);font-style:italic;}
+.pipe-code .kw{color:var(--blue);font-weight:700;}
+.pipe-code .fn{color:var(--torch);}
+.pipe-code .str{color:var(--green);}
+.pipe-code .num{color:var(--gold);}
+.loop-box{border:2px solid var(--torch);padding:14px;background:var(--torch-bg);margin-top:10px;}
+.loop-box .loop-label{font-family:var(--mono);font-size:8px;letter-spacing:.2em;text-transform:uppercase;color:var(--torch);margin-bottom:8px;}
+.loop-steps{display:flex;flex-direction:column;gap:4px;}
+.loop-step{display:flex;align-items:center;gap:10px;font-size:12px;padding:5px 8px;background:var(--paper);border-left:2px solid transparent;transition:all .2s;}
+.loop-step:hover{border-left-color:var(--torch);background:white;}
+.loop-step-num{font-family:var(--mono);font-size:9px;font-weight:700;color:var(--torch);width:18px;flex-shrink:0;}
+.loop-step-name{font-weight:600;color:var(--ink);margin-right:4px;}
+.loop-step-why{color:var(--ink3);font-style:italic;font-size:11px;}
+.gpu-grid{display:grid;grid-template-columns:1fr 48px 1fr;gap:0;background:var(--rule);border:1px solid var(--rule);align-items:center;}
+.gpu-side{background:var(--paper);padding:24px;}
+.gpu-arrow{background:var(--paper2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;height:100%;padding:12px 0;}
+.gpu-arrow span{font-size:20px;color:var(--torch);animation:pulse-arrow 2s ease-in-out infinite;}
+.gpu-arrow small{font-family:var(--mono);font-size:8px;color:var(--ink3);writing-mode:vertical-rl;letter-spacing:.1em;text-transform:uppercase;}
+@keyframes pulse-arrow{0%,100%{opacity:.4;}50%{opacity:1;}}
+.device-label{font-family:var(--mono);font-size:9px;letter-spacing:.2em;text-transform:uppercase;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--rule);}
+.gpu-side.cpu .device-label{color:var(--blue);}
+.gpu-side.gpu .device-label{color:var(--green);}
+.device-code{font-family:var(--mono);font-size:10.5px;line-height:1.75;background:var(--paper2);border:1px solid var(--rule);padding:12px 14px;margin-bottom:12px;}
+.device-note{font-size:11px;color:var(--ink3);font-style:italic;line-height:1.6;}
+.device-tip{margin-top:10px;background:var(--green-bg);border-left:3px solid var(--green);padding:8px 10px;font-size:11px;color:var(--green);font-family:var(--mono);}
+.ddp-diagram{border:1px solid var(--rule);background:var(--paper2);padding:24px;}
+.ddp-title{font-family:var(--mono);font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink3);margin-bottom:20px;}
+.ddp-row{display:flex;gap:16px;align-items:flex-start;margin-bottom:16px;}
+.ddp-label-col{width:100px;flex-shrink:0;font-family:var(--mono);font-size:9px;color:var(--ink3);text-transform:uppercase;letter-spacing:.08em;padding-top:10px;}
+.ddp-gpus{display:flex;gap:8px;flex:1;}
+.ddp-gpu{flex:1;border:1.5px solid var(--rule);background:var(--paper);padding:12px 10px;text-align:center;transition:background .2s;}
+.ddp-gpu:hover{background:var(--blue-bg);border-color:var(--blue);}
+.ddp-gpu-id{font-family:var(--mono);font-size:8px;font-weight:700;color:var(--blue);letter-spacing:.1em;margin-bottom:6px;}
+.ddp-gpu-content{font-size:10px;color:var(--ink3);line-height:1.5;}
+.ddp-sync-bar{height:28px;background:linear-gradient(90deg,var(--paper) 0%,var(--blue-bg) 50%,var(--paper) 100%);border:1px dashed var(--blue);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:9px;color:var(--blue);letter-spacing:.15em;text-transform:uppercase;margin:4px 0;}
+.ddp-note{margin-top:16px;background:var(--paper);border-left:3px solid var(--blue);padding:10px 12px;font-size:11px;color:var(--ink3);font-style:italic;line-height:1.6;}
+.ddp-cmd{margin-top:12px;background:var(--ink);color:var(--paper);padding:12px 16px;font-family:var(--mono);font-size:11px;letter-spacing:.04em;}
+.ddp-cmd .prompt{color:var(--torch);margin-right:6px;}
+.ref-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:2px;background:var(--rule);border:1px solid var(--rule);}
+.ref-cell{background:var(--paper);padding:18px 16px;}
+.ref-cell-title{font-family:var(--mono);font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--ink3);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--rule);}
+.ref-item{display:flex;gap:8px;align-items:baseline;padding:4px 0;border-bottom:1px solid transparent;transition:border-color .15s;}
+.ref-item:hover{border-bottom-color:var(--rule);}
+.ref-code{font-family:var(--mono);font-size:10px;color:var(--torch);flex-shrink:0;}
+.ref-desc{font-size:11px;color:var(--ink3);}
+.footer{margin-top:48px;padding-top:16px;border-top:1px solid var(--rule);display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);font-size:9px;color:var(--ink3);letter-spacing:.08em;}
+.note{display:flex;gap:10px;align-items:flex-start;background:var(--gold-bg);border:1px solid #e8d470;padding:12px 14px;margin-top:10px;font-size:12px;line-height:1.6;color:var(--ink2);}
+.note-icon{font-size:14px;flex-shrink:0;margin-top:1px;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+.three-cols,.tensor-grid,.compgraph-wrap,.pipeline,.gpu-grid,.ddp-diagram,.ref-grid{animation:fadeIn .5s ease both;}
+.three-cols{animation-delay:.05s;}.tensor-grid{animation-delay:.10s;}
+.compgraph-wrap{animation-delay:.15s;}.pipeline{animation-delay:.20s;}
+.gpu-grid{animation-delay:.25s;}.ddp-diagram{animation-delay:.30s;}.ref-grid{animation-delay:.35s;}
+</style>
+</head>
+<body>
+<div class="page">
+<a href="index.html" class="back-link">&#8592; Back to index</a>
+<div class="header">
+  <div class="header-kicker">Visual Reference &middot; Sebastian Raschka, PhD</div>
+  <h1>PyTorch in <em>One Hour</em></h1>
+  <div class="header-sub">From tensors to multi-GPU training &mdash; every essential concept mapped, annotated, and connected.</div>
+  <div class="header-meta">
+    <span class="tag">PyTorch 2.4.1</span>
+    <span class="tag">9 Sections</span>
+    <span class="tag">Tensors &middot; Autograd &middot; Training &middot; GPU</span>
+    <span class="tag">DDP Multi-GPU</span>
+  </div>
+</div>
+
+<!-- sec 1 -->
+<div class="sec-header"><span class="sec-num">&sect; 01</span><span class="sec-title">The Three Core Components of PyTorch</span></div>
+<div class="three-cols">
+  <div class="comp-card tensor">
+    <div class="comp-num">COMPONENT I</div>
+    <div class="comp-name">Tensor Library</div>
+    <div class="comp-sub">torch.Tensor &middot; NumPy-like API</div>
+    <div class="comp-desc">Multi-dimensional array containers for all data and parameters. GPU-accelerated. The fundamental unit of every PyTorch computation &mdash; scalars, vectors, matrices, and beyond.</div>
+    <div class="comp-analogy">Like NumPy, but your arrays can live on a GPU and know how to differentiate themselves.</div>
+  </div>
+  <div class="comp-card autograd">
+    <div class="comp-num">COMPONENT II</div>
+    <div class="comp-name">Autograd Engine</div>
+    <div class="comp-sub">torch.autograd &middot; Dynamic computation graphs</div>
+    <div class="comp-desc">Automatically computes gradients of any tensor expression. Builds a computation graph on every forward pass and runs backpropagation via <code>.backward()</code> &mdash; no calculus by hand.</div>
+    <div class="comp-analogy">The engine that turns forward passes into backward passes without you writing a single derivative.</div>
+  </div>
+  <div class="comp-card dl">
+    <div class="comp-num">COMPONENT III</div>
+    <div class="comp-name">Deep Learning Utilities</div>
+    <div class="comp-sub">torch.nn &middot; Layers, losses, optimizers</div>
+    <div class="comp-desc">Modular building blocks: <code>nn.Module</code>, <code>nn.Linear</code>, <code>nn.Sequential</code>, loss functions, optimizers (SGD, Adam), data loading (<code>Dataset</code>, <code>DataLoader</code>).</div>
+    <div class="comp-analogy">A Lego kit for neural networks &mdash; mix, match, subclass, and extend.</div>
+  </div>
+</div>
+
+<!-- sec 2 -->
+<div class="sec-header"><span class="sec-num">&sect; 02</span><span class="sec-title">Tensors &mdash; The Universal Data Container</span></div>
+<div class="tensor-grid">
+  <div class="tensor-cell">
+    <div class="tensor-rank">RANK 0 &middot; 0D</div>
+    <div class="tensor-name">Scalar</div>
+    <div class="tensor-vis"><div class="scalar-dot"></div></div>
+    <div class="tensor-code">torch.tensor(42)</div>
+    <div class="tensor-example">A single loss value, a learning rate</div>
+  </div>
+  <div class="tensor-cell">
+    <div class="tensor-rank">RANK 1 &middot; 1D</div>
+    <div class="tensor-name">Vector</div>
+    <div class="tensor-vis"><div class="vec-bar"><span></span><span></span><span></span><span></span></div></div>
+    <div class="tensor-code">torch.tensor([1, 2, 3, 4])</div>
+    <div class="tensor-example">A bias term, a 1D feature vector</div>
+  </div>
+  <div class="tensor-cell">
+    <div class="tensor-rank">RANK 2 &middot; 2D</div>
+    <div class="tensor-name">Matrix</div>
+    <div class="tensor-vis"><div class="mat-grid"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div></div>
+    <div class="tensor-code">torch.tensor([[1,2],[3,4]])</div>
+    <div class="tensor-example">A weight matrix, a batch of embeddings</div>
+  </div>
+  <div class="tensor-cell">
+    <div class="tensor-rank">RANK 3+ &middot; nD</div>
+    <div class="tensor-name">Tensor</div>
+    <div class="tensor-vis"><div class="tensor3d-wrap"><div class="tensor3d-layer"></div><div class="tensor3d-layer"></div><div class="tensor3d-layer"></div></div></div>
+    <div class="tensor-code">shape: [batch, seq, dim]</div>
+    <div class="tensor-example">A batch of token embeddings for an LLM</div>
+  </div>
+</div>
+<table class="dtype-table" style="margin-top:2px;">
+  <thead><tr><th>dtype</th><th>bits</th><th>created from</th><th>use case</th><th>convert with</th></tr></thead>
+  <tbody>
+    <tr><td><span class="dtype-key">torch.float32</span></td><td>32</td><td><span style="color:var(--torch)">Python float</span></td><td>Default for training &mdash; GPU-optimized, sufficient precision</td><td><span class="dtype-key">.to(torch.float32)</span></td></tr>
+    <tr><td><span class="dtype-key">torch.float16 / bfloat16</span></td><td>16</td><td>explicit cast</td><td>Mixed-precision training, LLM inference, saves memory</td><td><span class="dtype-key">.half() / .to(torch.bfloat16)</span></td></tr>
+    <tr><td><span class="dtype-key">torch.int64</span></td><td>64</td><td><span style="color:var(--torch)">Python int</span></td><td>Class labels, token IDs, indices</td><td><span class="dtype-key">.long()</span></td></tr>
+    <tr><td><span class="dtype-key">torch.bool</span></td><td>8</td><td>comparison ops</td><td>Attention masks, padding masks</td><td><span class="dtype-key">.bool()</span></td></tr>
+  </tbody>
+</table>
+<div class="note" style="margin-top:10px;">
+  <span class="note-icon">&#9888;</span>
+  <span><strong>Key operations:</strong> <code style="font-family:var(--mono);font-size:11px;color:var(--torch)">.shape</code> &middot; <code style="font-family:var(--mono);font-size:11px;color:var(--torch)">.view()/.reshape()</code> &middot; <code style="font-family:var(--mono);font-size:11px;color:var(--torch)">.T</code> (transpose) &middot; <code style="font-family:var(--mono);font-size:11px;color:var(--torch)">@</code> (matmul) &middot; <code style="font-family:var(--mono);font-size:11px;color:var(--torch)">.to(device)</code>. All operations preserve the computation graph when <code style="font-family:var(--mono);font-size:11px;color:var(--torch)">requires_grad=True</code>.</span>
+</div>
+
+<!-- sec 3-4 -->
+<div class="sec-header"><span class="sec-num">&sect; 03 &ndash; 04</span><span class="sec-title">Computation Graphs &amp; Automatic Differentiation</span></div>
+<div class="compgraph-wrap">
+  <div class="compgraph-panel">
+    <h3>Forward Pass &mdash; building the graph</h3>
+    <div class="fwd-flow">
+      <div class="fwd-node">
+        <div class="fwd-symbol">x&#8321;,w&#8321;</div>
+        <div class="fwd-label"><strong>Input &amp; Parameters</strong><span>feature tensor + weight with requires_grad=True</span></div>
+        <div class="fwd-code">tensor([1.1])<br>tensor([2.2],&#10003;grad)</div>
+      </div>
+      <div class="fwd-node">
+        <div class="fwd-symbol">z</div>
+        <div class="fwd-label"><strong>Net Input</strong><span>linear combination: z = x&#8321;&middot;w&#8321; + b</span></div>
+        <div class="fwd-code">z = x1 * w1 + b</div>
+      </div>
+      <div class="fwd-node">
+        <div class="fwd-symbol">a</div>
+        <div class="fwd-label"><strong>Activation</strong><span>nonlinearity: a = &sigma;(z)</span></div>
+        <div class="fwd-code">torch.sigmoid(z)</div>
+      </div>
+      <div class="fwd-node" style="background:var(--blue-bg);border-color:var(--blue);">
+        <div class="fwd-symbol" style="color:var(--blue);">L</div>
+        <div class="fwd-label"><strong>Loss</strong><span>compare prediction to true label y</span></div>
+        <div class="fwd-code">F.binary_cross_entropy(a,y)</div>
+      </div>
+    </div>
+  </div>
+  <div class="compgraph-panel" style="background:var(--paper2);">
+    <h3>Backward Pass &mdash; computing gradients</h3>
+    <div class="bwd-flow">
+      <div class="bwd-node" style="background:var(--gold-bg);border-color:#e8d470;">
+        <div class="bwd-symbol">&part;L</div>
+        <div class="bwd-label"><strong>Trigger Backprop</strong><span>PyTorch traverses graph right-to-left</span></div>
+        <div class="bwd-code">loss.backward()</div>
+      </div>
+      <div class="bwd-node">
+        <div class="bwd-symbol">&part;L/&part;a</div>
+        <div class="bwd-label"><strong>Gradient at Activation</strong><span>derivative of BCE w.r.t. sigmoid output</span></div>
+        <div class="bwd-code">auto-computed</div>
+      </div>
+      <div class="bwd-node">
+        <div class="bwd-symbol">&part;L/&part;z</div>
+        <div class="bwd-label"><strong>Gradient at Net Input</strong><span>chain rule through sigmoid</span></div>
+        <div class="bwd-code">auto-computed</div>
+      </div>
+      <div class="bwd-node" style="background:var(--gold-bg);border-color:#e8d470;">
+        <div class="bwd-symbol">&part;L/&part;w&#8321;</div>
+        <div class="bwd-label"><strong>Parameter Gradient</strong><span>how much does the loss change w.r.t. w&#8321;?</span></div>
+        <div class="bwd-code">w1.grad &rarr; &minus;0.0898</div>
+      </div>
+    </div>
+    <div class="chain-rule-box">
+      <div class="label">Chain Rule</div>
+      <div class="chain-rule-math">&part;L/&part;w&#8321; = (&part;L/&part;a) &middot; (&part;a/&part;z) &middot; (&part;z/&part;w&#8321;)</div>
+      <div class="chain-rule-note">PyTorch does this automatically. You never compute derivatives by hand.</div>
+    </div>
+  </div>
+</div>
+
+<!-- sec 5-7 training pipeline -->
+<div class="sec-header"><span class="sec-num">&sect; 05 &ndash; 07</span><span class="sec-title">The Full Training Pipeline</span></div>
+<div class="pipeline">
+
+  <div class="pipe-step">
+    <div class="pipe-num">1<small>define</small></div>
+    <div class="pipe-info">
+      <div class="pipe-name">Dataset</div>
+      <div class="pipe-desc">Subclass <code>torch.utils.data.Dataset</code>. Implement three methods: <code>__init__</code> (store data), <code>__getitem__</code> (return one example by index), <code>__len__</code> (total size).</div>
+      <div class="pipe-gotcha">&#9888; Class labels must start at 0. Largest label = num_outputs &minus; 1.</div>
+    </div>
+    <div class="pipe-code">
+      <span class="kw">class</span> <span class="fn">MyDataset</span>(Dataset):<br>
+      &nbsp;&nbsp;<span class="kw">def</span> <span class="fn">__init__</span>(self, X, y):<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;self.X, self.y = X, y<br>
+      &nbsp;&nbsp;<span class="kw">def</span> <span class="fn">__getitem__</span>(self, i):<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">return</span> self.X[i], self.y[i]<br>
+      &nbsp;&nbsp;<span class="kw">def</span> <span class="fn">__len__</span>(self):<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">return</span> <span class="fn">len</span>(self.y)
+    </div>
+  </div>
+
+  <div class="pipe-step">
+    <div class="pipe-num">2<small>load</small></div>
+    <div class="pipe-info">
+      <div class="pipe-name">DataLoader</div>
+      <div class="pipe-desc">Wraps Dataset to handle batching, shuffling, and parallelism. <code>num_workers&gt;0</code> loads next batch in background while GPU trains on current batch.</div>
+      <div class="pipe-gotcha">&#9888; Use <code>drop_last=True</code> to avoid a tiny last batch. Use <code>shuffle=True</code> only for train, not test.</div>
+    </div>
+    <div class="pipe-code">
+      DataLoader(<br>
+      &nbsp;&nbsp;dataset=train_ds,<br>
+      &nbsp;&nbsp;batch_size=<span class="num">32</span>,<br>
+      &nbsp;&nbsp;shuffle=<span class="kw">True</span>,<br>
+      &nbsp;&nbsp;num_workers=<span class="num">4</span>,<br>
+      &nbsp;&nbsp;drop_last=<span class="kw">True</span><br>
+      )
+    </div>
+  </div>
+
+  <div class="pipe-step">
+    <div class="pipe-num">3<small>build</small></div>
+    <div class="pipe-info">
+      <div class="pipe-name">Model &mdash; nn.Module</div>
+      <div class="pipe-desc">Subclass <code>nn.Module</code>. Define layers in <code>__init__</code>, connect them in <code>forward()</code>. Return raw <strong>logits</strong> &mdash; PyTorch loss functions apply softmax/sigmoid internally.</div>
+    </div>
+    <div class="pipe-code">
+      <span class="kw">class</span> <span class="fn">Net</span>(nn.Module):<br>
+      &nbsp;&nbsp;<span class="kw">def</span> <span class="fn">__init__</span>(self):<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">super</span>().__init__()<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;self.layers = nn.Sequential(<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nn.Linear(<span class="num">50</span>,<span class="num">30</span>), nn.ReLU(),<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nn.Linear(<span class="num">30</span>,<span class="num">3</span>), <span class="comment"># logits</span><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;)<br>
+      &nbsp;&nbsp;<span class="kw">def</span> <span class="fn">forward</span>(self, x):<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">return</span> self.layers(x)
+    </div>
+  </div>
+
+  <div class="pipe-step" style="min-height:200px;">
+    <div class="pipe-num">4<small>train</small></div>
+    <div class="pipe-info">
+      <div class="pipe-name">Training Loop</div>
+      <div class="pipe-desc">Iterate epochs &rarr; batches. Five operations in strict order each batch:</div>
+      <div class="loop-box">
+        <div class="loop-label">Per-batch update &mdash; repeat for every epoch</div>
+        <div class="loop-steps">
+          <div class="loop-step"><span class="loop-step-num">&#9312;</span><span class="loop-step-name">Forward pass</span><span class="loop-step-why">&mdash; compute logits from features</span></div>
+          <div class="loop-step"><span class="loop-step-num">&#9313;</span><span class="loop-step-name">Compute loss</span><span class="loop-step-why">&mdash; F.cross_entropy(logits, labels)</span></div>
+          <div class="loop-step"><span class="loop-step-num">&#9314;</span><span class="loop-step-name">Zero gradients</span><span class="loop-step-why">&mdash; optimizer.zero_grad() &mdash; prevents accumulation!</span></div>
+          <div class="loop-step"><span class="loop-step-num">&#9315;</span><span class="loop-step-name">Backward pass</span><span class="loop-step-why">&mdash; loss.backward() &mdash; fills .grad attributes</span></div>
+          <div class="loop-step"><span class="loop-step-num">&#9316;</span><span class="loop-step-name">Update params</span><span class="loop-step-why">&mdash; optimizer.step() &mdash; w &larr; w &minus; lr&middot;&part;L/&part;w</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="pipe-code">
+      model.<span class="fn">train</span>()<br>
+      <span class="kw">for</span> features, labels <span class="kw">in</span> loader:<br>
+      &nbsp;&nbsp;logits = model(features)<br>
+      &nbsp;&nbsp;loss = F.<span class="fn">cross_entropy</span>(logits, labels)<br>
+      &nbsp;&nbsp;optimizer.<span class="fn">zero_grad</span>() <span class="comment"># &#9314;</span><br>
+      &nbsp;&nbsp;loss.<span class="fn">backward</span>()&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># &#9315;</span><br>
+      &nbsp;&nbsp;optimizer.<span class="fn">step</span>()&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># &#9316;</span>
+    </div>
+  </div>
+
+  <div class="pipe-step">
+    <div class="pipe-num">5<small>eval</small></div>
+    <div class="pipe-info">
+      <div class="pipe-name">Inference &amp; Save</div>
+      <div class="pipe-desc"><code>model.eval()</code> disables dropout/batchnorm training behavior. Wrap in <code>torch.no_grad()</code> to skip building the computation graph &mdash; saves memory and compute during inference.</div>
+      <div class="pipe-gotcha">&#9888; Always call model.eval() before any prediction. Forgetting this with dropout gives different results each run.</div>
+    </div>
+    <div class="pipe-code">
+      <span class="comment"># Inference</span><br>
+      model.<span class="fn">eval</span>()<br>
+      <span class="kw">with</span> torch.<span class="fn">no_grad</span>():<br>
+      &nbsp;&nbsp;probs = torch.<span class="fn">softmax</span>(model(X), dim=<span class="num">1</span>)<br>
+      &nbsp;&nbsp;preds = torch.<span class="fn">argmax</span>(probs, dim=<span class="num">1</span>)<br>
+      <br>
+      <span class="comment"># Save / Load</span><br>
+      torch.<span class="fn">save</span>(model.<span class="fn">state_dict</span>(), <span class="str">"model.pth"</span>)<br>
+      model.<span class="fn">load_state_dict</span>(<br>
+      &nbsp;&nbsp;torch.<span class="fn">load</span>(<span class="str">"model.pth"</span>, weights_only=<span class="kw">True</span>))
+    </div>
+  </div>
+
+</div>
+
+<!-- sec 9.1-9.2 GPU -->
+<div class="sec-header"><span class="sec-num">&sect; 09.1 &ndash; 09.2</span><span class="sec-title">GPU Computing &mdash; Device Model</span></div>
+<div class="gpu-grid">
+  <div class="gpu-side cpu">
+    <div class="device-label">CPU (Default)</div>
+    <div class="device-code">
+      <span style="color:var(--ink3);"># All tensors start here</span><br>
+      t = torch.tensor([1., 2., 3.])<br>
+      <span style="color:var(--ink3);"># t.device &rarr; cpu</span>
+    </div>
+    <div class="device-note">Every tensor and model parameter starts on CPU. Operations between tensors must be on the same device &mdash; mixing CPU and GPU raises <code>RuntimeError</code>.</div>
+  </div>
+  <div class="gpu-arrow">
+    <span>&rarr;</span>
+    <small>.to(device)</small>
+  </div>
+  <div class="gpu-side gpu">
+    <div class="device-label">GPU (cuda / mps)</div>
+    <div class="device-code">
+      <span style="color:var(--ink3);"># Best practice device setup</span><br>
+      device = torch.device(<br>
+      &nbsp;&nbsp;<span style="color:var(--green);">"cuda"</span> <span style="color:var(--blue);">if</span> torch.cuda.is_available()<br>
+      &nbsp;&nbsp;<span style="color:var(--blue);">else</span> <span style="color:var(--green);">"cpu"</span><br>
+      )<br>
+      model.to(device)<br>
+      X, y = X.to(device), y.to(device)
+    </div>
+    <div class="device-tip">Apple Silicon: replace "cuda" with "mps" &mdash; torch.backends.mps.is_available()</div>
+  </div>
+</div>
+<div class="note" style="margin-top:10px;">
+  <span class="note-icon">&#128161;</span>
+  <span>Only <strong>3 lines change</strong> to go from CPU to single-GPU training: <code style="font-family:var(--mono);font-size:11px;color:var(--torch)">device = ...</code> &middot; <code style="font-family:var(--mono);font-size:11px;color:var(--torch)">model.to(device)</code> &middot; <code style="font-family:var(--mono);font-size:11px;color:var(--torch)">features.to(device), labels.to(device)</code> inside the loop. GPU won&rsquo;t speed up tiny datasets &mdash; transfer overhead dominates.</span>
+</div>
+
+<!-- sec 9.3 DDP -->
+<div class="sec-header"><span class="sec-num">&sect; 09.3</span><span class="sec-title">Distributed Training &mdash; DistributedDataParallel (DDP)</span></div>
+<div class="ddp-diagram">
+  <div class="ddp-title">How DDP Works &mdash; One Process Per GPU, Synchronized Gradients</div>
+  <div class="ddp-row">
+    <div class="ddp-label-col">Training Data</div>
+    <div class="ddp-gpus">
+      <div class="ddp-gpu"><div class="ddp-gpu-id">BATCH A</div><div class="ddp-gpu-content">examples 1, 3, 5, 7<br><em>DistributedSampler</em><br>ensures no overlap</div></div>
+      <div class="ddp-gpu"><div class="ddp-gpu-id">BATCH B</div><div class="ddp-gpu-content">examples 2, 4, 6, 8<br><em>different subset</em><br>per GPU process</div></div>
+      <div class="ddp-gpu" style="border-style:dashed;opacity:.5;"><div class="ddp-gpu-id">BATCH C &hellip;</div><div class="ddp-gpu-content">scales linearly<br>with N GPUs</div></div>
+    </div>
+  </div>
+  <div style="display:flex;gap:8px;padding:0 116px;">
+    <div style="flex:1;text-align:center;font-size:20px;color:var(--ink3);">&#8595;</div>
+    <div style="flex:1;text-align:center;font-size:20px;color:var(--ink3);">&#8595;</div>
+    <div style="flex:1;text-align:center;font-size:20px;color:var(--ink3);">&#8595;</div>
+  </div>
+  <div class="ddp-row">
+    <div class="ddp-label-col">Model Copy<br>(identical)</div>
+    <div class="ddp-gpus">
+      <div class="ddp-gpu" style="border-color:var(--blue);"><div class="ddp-gpu-id">GPU 0 &middot; rank=0</div><div class="ddp-gpu-content">full model copy<br>forward &rarr; loss<br>&rarr; backward &rarr; &nabla;w</div></div>
+      <div class="ddp-gpu" style="border-color:var(--blue);"><div class="ddp-gpu-id">GPU 1 &middot; rank=1</div><div class="ddp-gpu-content">full model copy<br>forward &rarr; loss<br>&rarr; backward &rarr; &nabla;w</div></div>
+      <div class="ddp-gpu" style="border-color:var(--blue);border-style:dashed;opacity:.5;"><div class="ddp-gpu-id">GPU N &hellip;</div><div class="ddp-gpu-content">&hellip;</div></div>
+    </div>
+  </div>
+  <div class="ddp-sync-bar">&#8596; &nbsp; All-Reduce: average gradients across all GPUs (NCCL) &nbsp; &#8596;</div>
+  <div class="ddp-row" style="margin-bottom:0;">
+    <div class="ddp-label-col">Synchronized<br>Weight Update</div>
+    <div class="ddp-gpus">
+      <div class="ddp-gpu" style="border-color:var(--green);"><div class="ddp-gpu-id" style="color:var(--green);">GPU 0 &middot; updated</div><div class="ddp-gpu-content">optimizer.step()<br>same weights as GPU 1</div></div>
+      <div class="ddp-gpu" style="border-color:var(--green);"><div class="ddp-gpu-id" style="color:var(--green);">GPU 1 &middot; updated</div><div class="ddp-gpu-content">optimizer.step()<br>same weights as GPU 0</div></div>
+      <div class="ddp-gpu" style="border-color:var(--green);border-style:dashed;opacity:.5;"><div class="ddp-gpu-id" style="color:var(--green);">GPU N &hellip;</div><div class="ddp-gpu-content">&hellip;</div></div>
+    </div>
+  </div>
+  <div class="ddp-note"><strong>The key insight:</strong> each GPU sees a different data subset per iteration, but their gradients are averaged before each weight update &mdash; so all model copies stay identical. With 2 GPUs you process 2&times; more data per wall-clock second. With 8 GPUs, ~8&times;. Overhead: one all-reduce communication step per iteration.</div>
+  <div class="ddp-cmd">
+    <span class="prompt">$</span>torchrun --nproc_per_node=2 train.py &nbsp;&nbsp;&nbsp;<span style="color:var(--ink3);font-size:10px;"># 2 GPUs</span><br>
+    <span class="prompt">$</span>torchrun --nproc_per_node=$(nvidia-smi -L | wc -l) train.py &nbsp;&nbsp;&nbsp;<span style="color:var(--ink3);font-size:10px;"># all GPUs</span>
+  </div>
+</div>
+
+<!-- REF -->
+<div class="sec-header"><span class="sec-num">REF</span><span class="sec-title">Quick Reference Card</span></div>
+<div class="ref-grid">
+  <div class="ref-cell">
+    <div class="ref-cell-title">Tensor Operations</div>
+    <div class="ref-item"><span class="ref-code">t.shape</span><span class="ref-desc">dimensions, e.g. torch.Size([2, 3])</span></div>
+    <div class="ref-item"><span class="ref-code">t.view(3,2)</span><span class="ref-desc">reshape (shares memory)</span></div>
+    <div class="ref-item"><span class="ref-code">t.T</span><span class="ref-desc">transpose (flip along diagonal)</span></div>
+    <div class="ref-item"><span class="ref-code">A @ B</span><span class="ref-desc">matrix multiply (= A.matmul(B))</span></div>
+    <div class="ref-item"><span class="ref-code">t.to(device)</span><span class="ref-desc">move to CPU / GPU / MPS</span></div>
+    <div class="ref-item"><span class="ref-code">t.item()</span><span class="ref-desc">extract Python scalar from 0D tensor</span></div>
+  </div>
+  <div class="ref-cell">
+    <div class="ref-cell-title">Model &amp; Training</div>
+    <div class="ref-item"><span class="ref-code">model.train()</span><span class="ref-desc">enable dropout / batchnorm training mode</span></div>
+    <div class="ref-item"><span class="ref-code">model.eval()</span><span class="ref-desc">disable dropout, freeze batchnorm stats</span></div>
+    <div class="ref-item"><span class="ref-code">torch.no_grad()</span><span class="ref-desc">skip graph construction (inference)</span></div>
+    <div class="ref-item"><span class="ref-code">optimizer.zero_grad()</span><span class="ref-desc">clear gradients before each backward</span></div>
+    <div class="ref-item"><span class="ref-code">loss.backward()</span><span class="ref-desc">compute all gradients via chain rule</span></div>
+    <div class="ref-item"><span class="ref-code">optimizer.step()</span><span class="ref-desc">update parameters using computed gradients</span></div>
+  </div>
+  <div class="ref-cell">
+    <div class="ref-cell-title">Model Persistence</div>
+    <div class="ref-item"><span class="ref-code">model.state_dict()</span><span class="ref-desc">dict of all parameter tensors</span></div>
+    <div class="ref-item"><span class="ref-code">torch.save(sd, "f.pth")</span><span class="ref-desc">save to disk</span></div>
+    <div class="ref-item"><span class="ref-code">torch.load("f.pth", weights_only=True)</span><span class="ref-desc">load dict</span></div>
+    <div class="ref-item"><span class="ref-code">model.load_state_dict(sd)</span><span class="ref-desc">restore weights (architecture must match)</span></div>
+    <div class="ref-item"><span class="ref-code">sum(p.numel() for p in model.parameters())</span><span class="ref-desc">total params</span></div>
+  </div>
+  <div class="ref-cell">
+    <div class="ref-cell-title">Common Gotchas</div>
+    <div class="ref-item"><span class="ref-code">zero_grad()</span><span class="ref-desc">must call before backward() &mdash; gradients accumulate by default</span></div>
+    <div class="ref-item"><span class="ref-code">logits (not softmax)</span><span class="ref-desc">return raw logits from model &mdash; loss fns apply softmax internally</span></div>
+    <div class="ref-item"><span class="ref-code">same device</span><span class="ref-desc">model and data must be on identical device or RuntimeError</span></div>
+    <div class="ref-item"><span class="ref-code">drop_last=True</span><span class="ref-desc">prevents tiny last batch destabilizing gradient updates</span></div>
+    <div class="ref-item"><span class="ref-code">shuffle=False</span><span class="ref-desc">test/val loaders must not shuffle &mdash; use DistributedSampler for DDP</span></div>
+  </div>
+</div>
+
+<div class="footer">
+  <span>SOURCE: SEBASTIANRASCHKA.COM/TEACHING/PYTORCH-1H &middot; JUL 1, 2025</span>
+  <span>VIZ: CLAUDE &middot; FEB 2026</span>
+</div>
+
+</div>
+</body>
+</html>
