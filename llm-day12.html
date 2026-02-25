@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Day 12 &mdash; Batch Normalization &mdash; Taming Internal Covariate Shift</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,300;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#1a1a2e;--cream:#faf8f4;--cream-dark:#f0ece4;--accent:#c0392b;--blue:#2c3e6b;--green:#27654a;--gold:#d4a843;--gray:#7f8c8d;--gray-light:#bdc3c7;--purple:#5b2c6f;--orange:#d35400;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--cream);color:var(--ink);font-family:'Source Serif 4',Georgia,serif;line-height:1.7;}
+.progress-strip{position:sticky;top:0;z-index:100;background:var(--ink);padding:0.6rem 2rem;display:flex;align-items:center;gap:0.4rem;font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:#888;}
+.p-dot{width:8px;height:8px;border-radius:50%;border:1.5px solid #555;flex-shrink:0;}
+.p-dot.done{background:var(--green);border-color:var(--green);}
+.p-dot.now{background:var(--accent);border-color:var(--accent);box-shadow:0 0 6px rgba(192,57,43,0.5);}
+.p-line{width:24px;height:1.5px;background:#444;flex-shrink:0;}.p-line.done{background:var(--green);}
+.p-label{color:#666;margin-left:0.3rem;margin-right:0.5rem;}.p-label.done{color:var(--green);}.p-label.now{color:var(--accent);font-weight:600;}
+.back-link{display:block;font-family:'JetBrains Mono',monospace;font-size:0.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gray);text-decoration:none;padding:1.2rem 2rem 0;max-width:1100px;margin:0 auto;transition:color .2s;}.back-link:hover{color:var(--accent);}
+.header{padding:2rem 2rem 2rem;max-width:1100px;margin:0 auto;border-bottom:3px double var(--ink);}
+.header-meta{font-family:'JetBrains Mono',monospace;font-size:0.72rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--gray);margin-bottom:0.5rem;}
+.phase-tag{background:var(--ink);color:white;padding:0.15rem 0.5rem;border-radius:2px;font-size:0.62rem;margin-right:0.4rem;}
+.header h1{font-family:'Playfair Display',serif;font-size:clamp(2rem,5vw,3.1rem);font-weight:700;line-height:1.15;margin-bottom:0.5rem;}
+.header h1 span{color:var(--accent);}
+.header-sub{font-style:italic;font-size:1.05rem;color:var(--blue);max-width:700px;}
+.content{max-width:1100px;margin:0 auto;padding:2rem 2rem 3rem;}
+.memo-quote{background:var(--cream-dark);border-left:4px solid var(--accent);padding:1.5rem 2rem;margin:0 0 3rem;font-style:italic;font-size:1.02rem;color:var(--blue);position:relative;}
+.memo-quote::before{content:'"\27';font-family:'Playfair Display',serif;font-size:4rem;color:var(--accent);position:absolute;top:-0.5rem;left:0.5rem;opacity:0.25;}
+.memo-quote .attr{display:block;margin-top:0.6rem;font-style:normal;font-size:0.8rem;color:var(--gray);font-family:'JetBrains Mono',monospace;}
+.sh{font-family:'Playfair Display',serif;font-size:1.55rem;font-weight:700;margin:3rem 0 1.25rem;padding-bottom:0.5rem;border-bottom:1px solid var(--gray-light);}
+.sh .n{color:var(--accent);font-style:italic;margin-right:0.2rem;}
+.prose{font-size:1rem;max-width:720px;margin-bottom:1.25rem;}
+.prose strong{color:var(--blue);}
+.prose code,code{font-family:'JetBrains Mono',monospace;font-size:0.83rem;background:var(--cream-dark);padding:0.1rem 0.35rem;border-radius:2px;color:var(--accent);}
+.vf{background:white;border:1px solid var(--gray-light);border-radius:2px;padding:2rem 1.5rem 1.5rem;margin:1.5rem 0 2rem;position:relative;overflow:hidden;}
+.vf::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.vf.green::before{background:linear-gradient(90deg,var(--green),var(--blue));}
+.vf.gold::before{background:linear-gradient(90deg,var(--gold),var(--accent));}
+.vf.purple::before{background:linear-gradient(90deg,var(--purple),var(--blue));}
+.vf-label{font-family:'JetBrains Mono',monospace;font-size:0.68rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--gray);margin-bottom:1rem;}
+svg text{font-family:'Source Serif 4',Georgia,serif;}
+svg .m{font-family:'JetBrains Mono',monospace;}
+.box{border-radius:2px;padding:1.4rem 1.8rem;margin:2rem 0;position:relative;}
+.box::before{position:absolute;top:-0.75rem;left:1rem;font-size:1.2rem;background:var(--cream);padding:0 0.5rem;}
+.box h4{font-family:'Playfair Display',serif;margin-bottom:0.4rem;font-size:1rem;}
+.box p{font-size:0.93rem;color:#555;}
+.box.insight{background:linear-gradient(135deg,#fdf6e8,#fef9f0);border:1px solid var(--gold);}.box.insight::before{content:'\1F4A1';}.box.insight h4{color:var(--gold);}
+.box.danger{background:linear-gradient(135deg,#fdf0ef,#fef5f4);border:1px solid var(--accent);}.box.danger::before{content:'\26A0\FE0F';}.box.danger h4{color:var(--accent);}
+.code-block{background:#1e1e2e;color:#cdd6f4;border-radius:4px;padding:1.5rem;margin:1.5rem 0;overflow-x:auto;font-family:'JetBrains Mono',monospace;font-size:0.82rem;line-height:1.8;}
+.code-block .comment{color:#6c7086;}.code-block .keyword{color:#cba6f7;}.code-block .string{color:#a6e3a1;}.code-block .number{color:#fab387;}.code-block .func{color:#89b4fa;}.code-block .class-name{color:#f9e2af;}.code-block .op{color:#89dceb;}.code-block .self{color:#f38ba8;}
+.mx{display:grid;grid-template-columns:auto 1fr 1fr;grid-template-rows:auto 1fr 1fr;gap:0;margin:2rem 0;background:white;border:1px solid var(--gray-light);border-radius:2px;overflow:hidden;}
+.mx-corner{background:var(--ink);padding:0.8rem;}
+.mx-ch{background:var(--ink);color:white;padding:0.8rem;font-family:'JetBrains Mono',monospace;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;text-align:center;display:flex;align-items:center;justify-content:center;}
+.mx-rh{background:var(--ink);color:white;padding:0.8rem;font-family:'JetBrains Mono',monospace;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;writing-mode:vertical-lr;text-orientation:mixed;transform:rotate(180deg);display:flex;align-items:center;justify-content:center;}
+.mx-cell{padding:1.2rem;border:1px solid var(--cream-dark);}.mx-cell h4{font-family:'Playfair Display',serif;font-size:0.95rem;margin-bottom:0.4rem;}.mx-cell p{font-size:0.83rem;color:#555;line-height:1.5;}.mx-cell.best{background:#f0faf4;}.mx-cell.worst{background:#fdf0ef;}.mx-cell .e{font-size:1.4rem;display:block;margin-bottom:0.4rem;}
+.mx-cell code{font-family:'JetBrains Mono',monospace;font-size:0.8rem;background:var(--cream-dark);padding:0.1rem 0.3rem;border-radius:2px;color:var(--accent);}
+.cl{list-style:none;margin:1.5rem 0;}.cl li{padding:0.55rem 0 0.55rem 2rem;position:relative;font-size:0.93rem;border-bottom:1px dotted var(--gray-light);}.cl li::before{content:'\2610';position:absolute;left:0;color:var(--accent);font-size:1.1rem;}.cl li strong{font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:var(--blue);}
+.footer{max-width:1100px;margin:0 auto;padding:2rem;border-top:3px double var(--ink);display:flex;justify-content:space-between;align-items:center;font-family:'JetBrains Mono',monospace;font-size:0.68rem;color:var(--gray);text-transform:uppercase;letter-spacing:0.1em;flex-wrap:wrap;gap:0.5rem;}
+.fi{opacity:0;transform:translateY(16px);animation:fu 0.5s ease forwards;}
+@keyframes fu{to{opacity:1;transform:translateY(0);}}
+.fi:nth-child(2){animation-delay:0.08s;}.fi:nth-child(3){animation-delay:0.16s;}.fi:nth-child(4){animation-delay:0.24s;}
+@media(max-width:600px){.header{padding:1.5rem 1rem;}.content{padding:1.5rem 1rem;}.footer{flex-direction:column;text-align:center;}}
+</style>
+</head>
+<body>
+
+<div class="progress-strip">
+  <span class="p-dot done"></span><span class="p-label done">1-11</span><span class="p-line done"></span>
+  <span class="p-dot now"></span><span class="p-label now">12</span><span class="p-line"></span>
+  <span class="p-dot"></span><span class="p-label">13</span>
+  <span style="color:#555;margin-left:0.5rem;">&middot; &middot; &middot;</span>
+  <span class="p-dot" style="margin-left:0.5rem;"></span><span class="p-label">80</span>
+</div>
+
+<a href="index.html" class="back-link">&larr; Back to index</a>
+
+<header class="header fi">
+  <div class="header-meta"><span class="phase-tag">PHASE 2</span> Deep Networks &middot; Day 12 of 80 &middot; makemore &amp; GPT</div>
+  <h1>Batch Normalization &mdash; <span>Taming</span> Internal Covariate Shift</h1>
+  <p class="header-sub">Implement BatchNorm from scratch: running mean, running variance, gamma, beta. Understand why it makes deep networks trainable.</p>
+</header>
+
+<main class="content">
+
+  <div class="memo-quote fi">
+    Diversification doesn&rsquo;t just reduce risk &mdash; it changes the <em>nature</em> of what you&rsquo;re managing. By normalizing each position relative to the portfolio mean, you create stability that allows for more aggressive strategy. BatchNorm does the same for neural networks: by normalizing each layer&rsquo;s inputs, it creates the stability that allows for deeper architectures and higher learning rates.
+    <span class="attr">&mdash; Day 12 Principle, adapted from the Marks framework</span>
+  </div>
+
+
+  <h2 class="sh fi"><span class="n">I.</span> The Problem BatchNorm Solves</h2>
+  <p class="prose fi">
+    As training progresses, the distribution of each layer&rsquo;s inputs shifts (because the previous layer&rsquo;s
+    weights change). This <strong>internal covariate shift</strong> forces each layer to continuously re-adapt.
+    BatchNorm fixes this by normalizing each layer&rsquo;s inputs to zero mean and unit variance, then learning
+    a scale (<code>&gamma;</code>) and shift (<code>&beta;</code>) per feature.
+  </p>
+
+  <div class="code-block fi">
+<span class="keyword">class</span> <span class="class-name">BatchNorm1d</span>:
+    <span class="keyword">def</span> <span class="func">__init__</span>(<span class="self">self</span>, dim, eps=<span class="number">1e-5</span>, momentum=<span class="number">0.1</span>):
+        <span class="self">self</span>.eps = eps
+        <span class="self">self</span>.momentum = momentum
+        <span class="self">self</span>.training = <span class="keyword">True</span>
+        <span class="comment"># Learnable parameters</span>
+        <span class="self">self</span>.gamma = torch.<span class="func">ones</span>(dim)
+        <span class="self">self</span>.beta  = torch.<span class="func">zeros</span>(dim)
+        <span class="comment"># Running stats for inference</span>
+        <span class="self">self</span>.running_mean = torch.<span class="func">zeros</span>(dim)
+        <span class="self">self</span>.running_var  = torch.<span class="func">ones</span>(dim)
+
+    <span class="keyword">def</span> <span class="func">__call__</span>(<span class="self">self</span>, x):
+        <span class="keyword">if</span> <span class="self">self</span>.training:
+            xmean = x.<span class="func">mean</span>(<span class="number">0</span>, keepdim=<span class="keyword">True</span>)
+            xvar  = x.<span class="func">var</span>(<span class="number">0</span>, keepdim=<span class="keyword">True</span>)
+        <span class="keyword">else</span>:
+            xmean = <span class="self">self</span>.running_mean
+            xvar  = <span class="self">self</span>.running_var
+        xhat = (x <span class="op">-</span> xmean) <span class="op">/</span> torch.<span class="func">sqrt</span>(xvar <span class="op">+</span> <span class="self">self</span>.eps)
+        <span class="self">self</span>.out = <span class="self">self</span>.gamma <span class="op">*</span> xhat <span class="op">+</span> <span class="self">self</span>.beta
+        <span class="keyword">if</span> <span class="self">self</span>.training:
+            <span class="keyword">with</span> torch.<span class="func">no_grad</span>():
+                <span class="self">self</span>.running_mean = (<span class="number">1</span><span class="op">-</span><span class="self">self</span>.momentum) <span class="op">*</span> <span class="self">self</span>.running_mean <span class="op">+</span> <span class="self">self</span>.momentum <span class="op">*</span> xmean
+                <span class="self">self</span>.running_var  = (<span class="number">1</span><span class="op">-</span><span class="self">self</span>.momentum) <span class="op">*</span> <span class="self">self</span>.running_var  <span class="op">+</span> <span class="self">self</span>.momentum <span class="op">*</span> xvar
+        <span class="keyword">return</span> <span class="self">self</span>.out
+  </div>
+
+  <div class="box insight fi">
+    <h4>Train vs. Eval Mode</h4>
+    <p>During training, BatchNorm uses per-batch statistics. During inference, it uses exponentially smoothed running statistics accumulated during training. Forgetting to switch to eval mode (<code>model.eval()</code>) is a common source of inference bugs &mdash; your model uses noisy batch stats instead of stable running stats.</p>
+  </div>
+
+  <div class="fi">
+    <div class="vf green">
+      <div class="vf-label">Exhibit A &mdash; Before vs. After BatchNorm: Activation Distribution</div>
+      <svg viewBox="0 0 700 160" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;">
+        <text x="170" y="20" text-anchor="middle" class="m" font-size="9" fill="#c0392b">WITHOUT BATCHNORM</text>
+        <text x="530" y="20" text-anchor="middle" class="m" font-size="9" fill="#27654a">WITH BATCHNORM</text>
+
+        <path d="M50,130 Q80,128 100,100 Q120,40 140,30 Q150,28 160,30 Q180,60 200,120 Q210,128 240,130" fill="none" stroke="#c0392b" stroke-width="2"/>
+        <text x="145" y="150" text-anchor="middle" class="m" font-size="8" fill="#888">shifted, wide</text>
+        <line x1="50" y1="130" x2="300" y2="130" stroke="#ddd" stroke-width="0.5"/>
+
+        <path d="M410,130 Q440,125 470,90 Q500,35 530,25 Q535,24 540,25 Q560,35 590,90 Q620,125 650,130" fill="none" stroke="#27654a" stroke-width="2"/>
+        <text x="530" y="150" text-anchor="middle" class="m" font-size="8" fill="#888">centered, unit variance</text>
+        <line x1="410" y1="130" x2="660" y2="130" stroke="#ddd" stroke-width="0.5"/>
+
+        <line x1="530" y1="25" x2="530" y2="130" stroke="#27654a" stroke-width="0.5" stroke-dasharray="3"/>
+        <text x="530" y="145" text-anchor="middle" class="m" font-size="7" fill="#27654a">mean=0</text>
+      </svg>
+    </div>
+  </div>
+
+  <h2 class="sh fi"><span class="n">III.</span> The Matrix &mdash; What Matters Today</h2>
+  <div class="mx fi">
+    <div class="mx-corner"></div>
+    <div class="mx-ch">Builds Deep Intuition</div>
+    <div class="mx-ch">Surface-Level Only</div>
+    <div class="mx-rh">Quick to Do</div>
+    <div class="mx-cell best"><span class="e">&#127919;</span><h4>DO FIRST</h4><p>Implement <code>BatchNorm1d</code> from scratch. Insert it between linear layers in your MLP. Verify activations become centered.</p></div>
+    <div class="mx-cell"><span class="e">&#9197;&#65039;</span><h4>DO IF TIME</h4><p>Compare training curves with and without BatchNorm. Note the faster convergence and tolerance for higher learning rates.</p></div>
+    <div class="mx-rh">Slow but Worth It</div>
+    <div class="mx-cell"><span class="e">&#128400;</span><h4>DO CAREFULLY</h4><p>Switch to eval mode and verify inference uses running stats. Confirm results differ from training mode batch stats.</p></div>
+    <div class="mx-cell worst"><span class="e">&#128683;</span><h4>AVOID TODAY</h4><p>LayerNorm (that&rsquo;s the Transformer variant, coming in Phase 2). Today is strictly BatchNorm.</p></div>
+  </div>
+
+  <h2 class="sh fi"><span class="n">V.</span> Today&rsquo;s Deliverables</h2>
+  <ul class="cl fi">
+    <li><strong>BatchNorm1d:</strong> Implement from scratch with gamma, beta, running_mean, running_var</li>
+    <li><strong>Integration:</strong> Add BatchNorm between each linear layer in the makemore MLP</li>
+    <li><strong>Histograms:</strong> Show activation distributions before and after BatchNorm</li>
+    <li><strong>Train vs. eval:</strong> Demonstrate the difference between batch stats and running stats</li>
+    <li><strong>Learning rate:</strong> Show that BatchNorm allows 2-5&times; higher learning rates</li>
+    <li><strong>Loss improvement:</strong> Achieve lower dev NLL than Day 10&rsquo;s best model</li>
+  </ul>
+
+  <div class="memo-quote fi" style="margin-top:3rem;">
+    BatchNorm was the breakthrough that made deep networks practical. Before it, training a 10-layer network was an art. After it, it became engineering. Tomorrow you become a backprop ninja &mdash; computing gradients by hand through every tensor operation.
+    <span class="attr">&mdash; Day 12 Closing Principle</span>
+  </div>
+
+</main>
+
+<footer class="footer">
+  <span>RAG &amp; LLM Engineer &middot; 80-Day Plan</span>
+  <span>Day 12 of 80 &middot; Phase 2: Deep Networks</span>
+  <span>&larr; <a href="llm-day11.html" style="color:inherit;">Day 11</a> &nbsp;|&nbsp; &rarr; Day 13: Backprop Ninja</span>
+</footer>
+</body>
+</html>
