@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Day 3 &mdash; Topological Sort &amp; Full Autograd</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,300;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#1a1a2e;--cream:#faf8f4;--cream-dark:#f0ece4;--accent:#c0392b;--blue:#2c3e6b;--green:#27654a;--gold:#d4a843;--gray:#7f8c8d;--gray-light:#bdc3c7;--purple:#5b2c6f;--orange:#d35400;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--cream);color:var(--ink);font-family:'Source Serif 4',Georgia,serif;line-height:1.7;}
+.progress-strip{position:sticky;top:0;z-index:100;background:var(--ink);padding:0.6rem 2rem;display:flex;align-items:center;gap:0.4rem;font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:#888;}
+.p-dot{width:8px;height:8px;border-radius:50%;border:1.5px solid #555;flex-shrink:0;}
+.p-dot.done{background:var(--green);border-color:var(--green);}
+.p-dot.now{background:var(--accent);border-color:var(--accent);box-shadow:0 0 6px rgba(192,57,43,0.5);}
+.p-line{width:24px;height:1.5px;background:#444;flex-shrink:0;}.p-line.done{background:var(--green);}
+.p-label{color:#666;margin-left:0.3rem;margin-right:0.5rem;}.p-label.done{color:var(--green);}.p-label.now{color:var(--accent);font-weight:600;}
+.back-link{display:block;font-family:'JetBrains Mono',monospace;font-size:0.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gray);text-decoration:none;padding:1.2rem 2rem 0;max-width:1100px;margin:0 auto;transition:color .2s;}.back-link:hover{color:var(--accent);}
+.header{padding:2rem 2rem 2rem;max-width:1100px;margin:0 auto;border-bottom:3px double var(--ink);}
+.header-meta{font-family:'JetBrains Mono',monospace;font-size:0.72rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--gray);margin-bottom:0.5rem;}
+.phase-tag{background:var(--ink);color:white;padding:0.15rem 0.5rem;border-radius:2px;font-size:0.62rem;margin-right:0.4rem;}
+.header h1{font-family:'Playfair Display',serif;font-size:clamp(2rem,5vw,3.1rem);font-weight:700;line-height:1.15;margin-bottom:0.5rem;}
+.header h1 span{color:var(--accent);}
+.header-sub{font-style:italic;font-size:1.05rem;color:var(--blue);max-width:700px;}
+.content{max-width:1100px;margin:0 auto;padding:2rem 2rem 3rem;}
+.memo-quote{background:var(--cream-dark);border-left:4px solid var(--accent);padding:1.5rem 2rem;margin:0 0 3rem;font-style:italic;font-size:1.02rem;color:var(--blue);position:relative;}
+.memo-quote::before{content:'"\27';font-family:'Playfair Display',serif;font-size:4rem;color:var(--accent);position:absolute;top:-0.5rem;left:0.5rem;opacity:0.25;}
+.memo-quote .attr{display:block;margin-top:0.6rem;font-style:normal;font-size:0.8rem;color:var(--gray);font-family:'JetBrains Mono',monospace;}
+.sh{font-family:'Playfair Display',serif;font-size:1.55rem;font-weight:700;margin:3rem 0 1.25rem;padding-bottom:0.5rem;border-bottom:1px solid var(--gray-light);}
+.sh .n{color:var(--accent);font-style:italic;margin-right:0.2rem;}
+.prose{font-size:1rem;max-width:720px;margin-bottom:1.25rem;}
+.prose strong{color:var(--blue);}
+.prose code,code{font-family:'JetBrains Mono',monospace;font-size:0.83rem;background:var(--cream-dark);padding:0.1rem 0.35rem;border-radius:2px;color:var(--accent);}
+.vf{background:white;border:1px solid var(--gray-light);border-radius:2px;padding:2rem 1.5rem 1.5rem;margin:1.5rem 0 2rem;position:relative;overflow:hidden;}
+.vf::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.vf.green::before{background:linear-gradient(90deg,var(--green),var(--blue));}
+.vf.gold::before{background:linear-gradient(90deg,var(--gold),var(--accent));}
+.vf.purple::before{background:linear-gradient(90deg,var(--purple),var(--blue));}
+.vf-label{font-family:'JetBrains Mono',monospace;font-size:0.68rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--gray);margin-bottom:1rem;}
+svg text{font-family:'Source Serif 4',Georgia,serif;}
+svg .m{font-family:'JetBrains Mono',monospace;}
+.box{border-radius:2px;padding:1.4rem 1.8rem;margin:2rem 0;position:relative;}
+.box::before{position:absolute;top:-0.75rem;left:1rem;font-size:1.2rem;background:var(--cream);padding:0 0.5rem;}
+.box h4{font-family:'Playfair Display',serif;margin-bottom:0.4rem;font-size:1rem;}
+.box p{font-size:0.93rem;color:#555;}
+.box.insight{background:linear-gradient(135deg,#fdf6e8,#fef9f0);border:1px solid var(--gold);}.box.insight::before{content:'\1F4A1';}.box.insight h4{color:var(--gold);}
+.box.danger{background:linear-gradient(135deg,#fdf0ef,#fef5f4);border:1px solid var(--accent);}.box.danger::before{content:'\26A0\FE0F';}.box.danger h4{color:var(--accent);}
+.code-block{background:#1e1e2e;color:#cdd6f4;border-radius:4px;padding:1.5rem;margin:1.5rem 0;overflow-x:auto;font-family:'JetBrains Mono',monospace;font-size:0.82rem;line-height:1.8;}
+.code-block .comment{color:#6c7086;}.code-block .keyword{color:#cba6f7;}.code-block .string{color:#a6e3a1;}.code-block .number{color:#fab387;}.code-block .func{color:#89b4fa;}.code-block .class-name{color:#f9e2af;}.code-block .op{color:#89dceb;}.code-block .self{color:#f38ba8;}
+.mx{display:grid;grid-template-columns:auto 1fr 1fr;grid-template-rows:auto 1fr 1fr;gap:0;margin:2rem 0;background:white;border:1px solid var(--gray-light);border-radius:2px;overflow:hidden;}
+.mx-corner{background:var(--ink);padding:0.8rem;}
+.mx-ch{background:var(--ink);color:white;padding:0.8rem;font-family:'JetBrains Mono',monospace;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;text-align:center;display:flex;align-items:center;justify-content:center;}
+.mx-rh{background:var(--ink);color:white;padding:0.8rem;font-family:'JetBrains Mono',monospace;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;writing-mode:vertical-lr;text-orientation:mixed;transform:rotate(180deg);display:flex;align-items:center;justify-content:center;}
+.mx-cell{padding:1.2rem;border:1px solid var(--cream-dark);}.mx-cell h4{font-family:'Playfair Display',serif;font-size:0.95rem;margin-bottom:0.4rem;}.mx-cell p{font-size:0.83rem;color:#555;line-height:1.5;}.mx-cell.best{background:#f0faf4;}.mx-cell.worst{background:#fdf0ef;}.mx-cell .e{font-size:1.4rem;display:block;margin-bottom:0.4rem;}
+.mx-cell code{font-family:'JetBrains Mono',monospace;font-size:0.8rem;background:var(--cream-dark);padding:0.1rem 0.3rem;border-radius:2px;color:var(--accent);}
+.cl{list-style:none;margin:1.5rem 0;}.cl li{padding:0.55rem 0 0.55rem 2rem;position:relative;font-size:0.93rem;border-bottom:1px dotted var(--gray-light);}.cl li::before{content:'\2610';position:absolute;left:0;color:var(--accent);font-size:1.1rem;}.cl li strong{font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:var(--blue);}
+.footer{max-width:1100px;margin:0 auto;padding:2rem;border-top:3px double var(--ink);display:flex;justify-content:space-between;align-items:center;font-family:'JetBrains Mono',monospace;font-size:0.68rem;color:var(--gray);text-transform:uppercase;letter-spacing:0.1em;flex-wrap:wrap;gap:0.5rem;}
+.fi{opacity:0;transform:translateY(16px);animation:fu 0.5s ease forwards;}
+@keyframes fu{to{opacity:1;transform:translateY(0);}}
+.fi:nth-child(2){animation-delay:0.08s;}.fi:nth-child(3){animation-delay:0.16s;}.fi:nth-child(4){animation-delay:0.24s;}
+@media(max-width:600px){.header{padding:1.5rem 1rem;}.content{padding:1.5rem 1rem;}.footer{flex-direction:column;text-align:center;}}
+</style>
+</head>
+<body>
+
+<div class="progress-strip">
+  <span class="p-dot done"></span><span class="p-label done">1</span>
+  <span class="p-line done"></span>
+  <span class="p-dot done"></span><span class="p-label done">2</span>
+  <span class="p-line done"></span>
+  <span class="p-dot now"></span><span class="p-label now">3</span>
+  <span class="p-line"></span>
+  <span class="p-dot"></span><span class="p-label">4</span>
+  <span style="color:#555;margin-left:0.5rem;">&middot; &middot; &middot;</span>
+  <span class="p-dot" style="margin-left:0.5rem;"></span><span class="p-label">80</span>
+</div>
+
+<a href="index.html" class="back-link">&larr; Back to index</a>
+
+<header class="header fi">
+  <div class="header-meta"><span class="phase-tag">PHASE 1</span> Foundations &middot; Day 3 of 80 &middot; Neural Networks &amp; Backprop</div>
+  <h1><span>Topological Sort</span> &amp; the Full Autograd Engine</h1>
+  <p class="header-sub">Automate the backward pass. Build the engine that knows the right order to propagate gradients &mdash; so you never call _backward() by hand again.</p>
+</header>
+
+<main class="content">
+
+  <div class="memo-quote fi">
+    You can&rsquo;t assess risk by only looking at the present. You have to trace the chain of dependencies &mdash;
+    which dominos fall first, which fall last, and in what order. A topological sort does exactly this for a
+    computation graph: it finds the one correct ordering in which every node&rsquo;s inputs are resolved before
+    the node itself. Get the order wrong, and the entire system produces garbage.
+    <span class="attr">&mdash; Day 3 Principle, adapted from the Marks framework</span>
+  </div>
+
+  <h2 class="sh fi"><span class="n">I.</span> Why Order Matters &mdash; The Dependency Problem</h2>
+  <p class="prose fi">
+    Yesterday you called <code>_backward()</code> by hand, right-to-left, on each node. That works for 5 nodes.
+    It does <strong>not</strong> work for 5 million. The question today: <em>can we find the correct backward order
+    automatically?</em> The answer is <strong>topological sort</strong> &mdash; an algorithm that arranges nodes so every
+    parent is visited before its children. In graph theory, this is a solved problem. In neural networks, it is
+    the engine that makes training possible.
+  </p>
+
+  <div class="fi">
+    <div class="vf green">
+      <div class="vf-label">Exhibit A &mdash; Forward Order vs. Backward Order (Topological Sort)</div>
+      <svg viewBox="0 0 860 300" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;">
+        <text x="100" y="22" class="m" font-size="10" fill="#27654a" letter-spacing="0.15em">FORWARD ORDER (left &rarr; right): a, b, c &rarr; d &rarr; e &rarr; L</text>
+
+        <rect x="30" y="45" width="80" height="42" rx="4" fill="#f5f8f5" stroke="#27654a" stroke-width="1.5"/>
+        <text x="70" y="72" text-anchor="middle" class="m" font-size="11" fill="#27654a">a</text>
+        <rect x="30" y="100" width="80" height="42" rx="4" fill="#f5f8f5" stroke="#27654a" stroke-width="1.5"/>
+        <text x="70" y="127" text-anchor="middle" class="m" font-size="11" fill="#27654a">b</text>
+
+        <circle cx="190" cy="90" r="18" fill="#27654a"/>
+        <text x="190" y="96" text-anchor="middle" font-size="14" fill="white" font-weight="700">&times;</text>
+
+        <rect x="240" y="68" width="80" height="42" rx="4" fill="#eef5ee" stroke="#27654a" stroke-width="1.5"/>
+        <text x="280" y="95" text-anchor="middle" class="m" font-size="11" fill="#27654a">d</text>
+
+        <rect x="240" y="130" width="80" height="42" rx="4" fill="#f5f8f5" stroke="#27654a" stroke-width="1.5"/>
+        <text x="280" y="157" text-anchor="middle" class="m" font-size="11" fill="#27654a">c</text>
+
+        <circle cx="400" cy="115" r="18" fill="#27654a"/>
+        <text x="400" y="121" text-anchor="middle" font-size="14" fill="white" font-weight="700">+</text>
+
+        <rect x="450" y="94" width="80" height="42" rx="4" fill="#fdf6e8" stroke="#d4a843" stroke-width="2"/>
+        <text x="490" y="121" text-anchor="middle" class="m" font-size="11" fill="#d4a843">L</text>
+
+        <line x1="110" y1="66" x2="172" y2="82" stroke="#27654a" stroke-width="1.2" marker-end="url(#ag3)"/>
+        <line x1="110" y1="121" x2="172" y2="98" stroke="#27654a" stroke-width="1.2" marker-end="url(#ag3)"/>
+        <line x1="208" y1="90" x2="240" y2="89" stroke="#27654a" stroke-width="1.2" marker-end="url(#ag3)"/>
+        <line x1="320" y1="89" x2="382" y2="108" stroke="#27654a" stroke-width="1.2" marker-end="url(#ag3)"/>
+        <line x1="320" y1="151" x2="382" y2="122" stroke="#27654a" stroke-width="1.2" marker-end="url(#ag3)"/>
+        <line x1="418" y1="115" x2="450" y2="115" stroke="#d4a843" stroke-width="1.5" marker-end="url(#ago3)"/>
+
+        <line x1="30" y1="200" x2="530" y2="200" stroke="#ddd" stroke-width="1" stroke-dasharray="5"/>
+
+        <text x="100" y="228" class="m" font-size="10" fill="#c0392b" letter-spacing="0.15em">BACKWARD ORDER (reverse topological): L &rarr; e &rarr; d, c &rarr; a, b</text>
+
+        <rect x="450" y="245" width="80" height="36" rx="4" fill="#fdf6e8" stroke="#d4a843" stroke-width="2"/>
+        <text x="490" y="268" text-anchor="middle" class="m" font-size="10" fill="#d4a843">L: 1.0</text>
+
+        <rect x="310" y="245" width="80" height="36" rx="4" fill="#fef5f4" stroke="#c0392b" stroke-width="1.2"/>
+        <text x="350" y="260" text-anchor="middle" class="m" font-size="9" fill="#c0392b">d: 1.0</text>
+        <text x="350" y="274" text-anchor="middle" class="m" font-size="9" fill="#c0392b">c: 1.0</text>
+
+        <rect x="140" y="245" width="110" height="36" rx="4" fill="#fef5f4" stroke="#c0392b" stroke-width="1.2"/>
+        <text x="195" y="260" text-anchor="middle" class="m" font-size="9" fill="#c0392b">a: &minus;3.0</text>
+        <text x="195" y="274" text-anchor="middle" class="m" font-size="9" fill="#c0392b">b: 2.0</text>
+
+        <line x1="450" y1="263" x2="392" y2="263" stroke="#c0392b" stroke-width="1.5" stroke-dasharray="5 3" marker-end="url(#ar3)"/>
+        <line x1="310" y1="263" x2="252" y2="263" stroke="#c0392b" stroke-width="1.5" stroke-dasharray="5 3" marker-end="url(#ar3)"/>
+
+        <text x="420" y="295" class="m" font-size="8" fill="#888">step 1</text>
+        <text x="270" y="295" class="m" font-size="8" fill="#888">step 2</text>
+        <text x="160" y="295" class="m" font-size="8" fill="#888">step 3</text>
+
+        <defs>
+          <marker id="ag3" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#27654a"/></marker>
+          <marker id="ago3" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#d4a843"/></marker>
+          <marker id="ar3" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#c0392b"/></marker>
+        </defs>
+      </svg>
+    </div>
+  </div>
+
+  <div class="box insight fi">
+    <h4>The Key Insight</h4>
+    <p>Topological sort gives you the forward order. <strong>Reverse</strong> it and you get the backward order. This guarantees that when you compute a node&rsquo;s gradient, all downstream gradients that feed into it have already been computed. The algorithm is a single DFS &mdash; ~15 lines of Python &mdash; and it is the entire &ldquo;scheduler&rdquo; behind PyTorch&rsquo;s <code>loss.backward()</code>.</p>
+  </div>
+
+  <h2 class="sh fi"><span class="n">II.</span> The Algorithm &mdash; DFS with a Visited Set</h2>
+  <p class="prose fi">
+    The topological sort works by depth-first search. Start from the output node. Recurse into each child.
+    After all children have been visited, add the current node to the list. The final list, reversed, gives
+    the correct backward order. It is the same pattern as <strong>post-order traversal</strong> in tree algorithms.
+  </p>
+
+  <div class="code-block fi">
+<span class="keyword">def</span> <span class="func">backward</span>(<span class="self">self</span>):
+    <span class="comment"># Step 1: Build topological order via DFS</span>
+    topo = []
+    visited = <span class="func">set</span>()
+
+    <span class="keyword">def</span> <span class="func">build_topo</span>(v):
+        <span class="keyword">if</span> v <span class="keyword">not</span> <span class="keyword">in</span> visited:
+            visited.<span class="func">add</span>(v)
+            <span class="keyword">for</span> child <span class="keyword">in</span> v._prev:
+                <span class="func">build_topo</span>(child)
+            topo.<span class="func">append</span>(v)        <span class="comment"># post-order: add AFTER children</span>
+
+    <span class="func">build_topo</span>(<span class="self">self</span>)
+
+    <span class="comment"># Step 2: Seed and propagate</span>
+    <span class="self">self</span>.grad = <span class="number">1.0</span>
+    <span class="keyword">for</span> v <span class="keyword">in</span> <span class="func">reversed</span>(topo):   <span class="comment"># reversed = backward order</span>
+        v.<span class="func">_backward</span>()
+  </div>
+
+  <h2 class="sh fi"><span class="n">III.</span> Before &amp; After &mdash; Manual vs. Automated</h2>
+  <p class="prose fi">
+    Marks writes that the value of a system lies in what it <em>automates away</em>. Yesterday you wrote 5 lines
+    of manual backward calls. Today, a single <code>L.backward()</code> replaces them all &mdash; and scales to
+    any graph size.
+  </p>
+
+  <div class="fi" style="display:grid;grid-template-columns:1fr 1fr;gap:2px;border:1px solid var(--gray-light);border-radius:2px;overflow:hidden;margin:2rem 0;">
+    <div style="background:var(--accent);color:white;padding:0.8rem 1.2rem;font-family:'JetBrains Mono',monospace;font-size:0.72rem;letter-spacing:0.12em;text-transform:uppercase;text-align:center;font-weight:600;">&#10007; Day 2: Manual</div>
+    <div style="background:var(--green);color:white;padding:0.8rem 1.2rem;font-family:'JetBrains Mono',monospace;font-size:0.72rem;letter-spacing:0.12em;text-transform:uppercase;text-align:center;font-weight:600;">&#10003; Day 3: Automated</div>
+    <div style="padding:1rem 1.2rem;font-family:'JetBrains Mono',monospace;font-size:0.82rem;line-height:1.8;background:white;">
+      L.grad = <span style="color:var(--accent)">1.0</span><br>
+      L._backward()<br>
+      d._backward()<br>
+      c._backward()<br>
+      a._backward() <span style="color:#999"># fragile!</span>
+    </div>
+    <div style="padding:1rem 1.2rem;font-family:'JetBrains Mono',monospace;font-size:0.82rem;line-height:1.8;background:#f0faf4;">
+      L.backward() <span style="color:#999"># that&rsquo;s it.</span><br>
+      <br>
+      <span style="color:var(--green)"># handles any graph</span><br>
+      <span style="color:var(--green)"># any depth</span><br>
+      <span style="color:var(--green)"># correct order always</span>
+    </div>
+  </div>
+
+  <h2 class="sh fi"><span class="n">IV.</span> The Full Value Class &mdash; Complete Engine</h2>
+  <p class="prose fi">
+    With topological sort, <code>_backward</code> closures from Day 2, and operator overloading, the Value class
+    becomes a <strong>complete autograd engine</strong>. This 40-line class is functionally equivalent to the core of
+    <code>torch.autograd</code> &mdash; just operating on scalars instead of tensors.
+  </p>
+
+  <div class="code-block fi">
+<span class="keyword">class</span> <span class="class-name">Value</span>:
+    <span class="keyword">def</span> <span class="func">__init__</span>(<span class="self">self</span>, data, _children=(), _op=<span class="string">&#39;&#39;</span>):
+        <span class="self">self</span>.data = data
+        <span class="self">self</span>.grad = <span class="number">0.0</span>
+        <span class="self">self</span>._backward = <span class="keyword">lambda</span>: <span class="keyword">None</span>
+        <span class="self">self</span>._prev = <span class="func">set</span>(_children)
+        <span class="self">self</span>._op = _op
+
+    <span class="keyword">def</span> <span class="func">__add__</span>(<span class="self">self</span>, other):
+        other = other <span class="keyword">if</span> <span class="func">isinstance</span>(other, <span class="class-name">Value</span>) <span class="keyword">else</span> <span class="class-name">Value</span>(other)
+        out = <span class="class-name">Value</span>(<span class="self">self</span>.data <span class="op">+</span> other.data, (<span class="self">self</span>, other), <span class="string">&#39;+&#39;</span>)
+        <span class="keyword">def</span> <span class="func">_backward</span>():
+            <span class="self">self</span>.grad <span class="op">+=</span> out.grad
+            other.grad <span class="op">+=</span> out.grad
+        out._backward = _backward
+        <span class="keyword">return</span> out
+
+    <span class="keyword">def</span> <span class="func">__mul__</span>(<span class="self">self</span>, other):
+        other = other <span class="keyword">if</span> <span class="func">isinstance</span>(other, <span class="class-name">Value</span>) <span class="keyword">else</span> <span class="class-name">Value</span>(other)
+        out = <span class="class-name">Value</span>(<span class="self">self</span>.data <span class="op">*</span> other.data, (<span class="self">self</span>, other), <span class="string">&#39;*&#39;</span>)
+        <span class="keyword">def</span> <span class="func">_backward</span>():
+            <span class="self">self</span>.grad <span class="op">+=</span> other.data <span class="op">*</span> out.grad
+            other.grad <span class="op">+=</span> <span class="self">self</span>.data <span class="op">*</span> out.grad
+        out._backward = _backward
+        <span class="keyword">return</span> out
+
+    <span class="keyword">def</span> <span class="func">backward</span>(<span class="self">self</span>):
+        topo = []
+        visited = <span class="func">set</span>()
+        <span class="keyword">def</span> <span class="func">build_topo</span>(v):
+            <span class="keyword">if</span> v <span class="keyword">not</span> <span class="keyword">in</span> visited:
+                visited.<span class="func">add</span>(v)
+                <span class="keyword">for</span> child <span class="keyword">in</span> v._prev:
+                    <span class="func">build_topo</span>(child)
+                topo.<span class="func">append</span>(v)
+        <span class="func">build_topo</span>(<span class="self">self</span>)
+        <span class="self">self</span>.grad = <span class="number">1.0</span>
+        <span class="keyword">for</span> v <span class="keyword">in</span> <span class="func">reversed</span>(topo):
+            v.<span class="func">_backward</span>()
+  </div>
+
+  <div class="box danger fi">
+    <h4>The Zero-Gradient Trap</h4>
+    <p>If you call <code>.backward()</code> twice without resetting gradients, they <strong>accumulate</strong>. The second pass adds to the first pass&rsquo;s gradients &mdash; giving you 2&times; the correct values. In real training loops, you must call <code>optimizer.zero_grad()</code> or manually zero <code>.grad</code> before each backward pass. PyTorch has the same behavior by design (it enables gradient accumulation for large batches).</p>
+  </div>
+
+  <h2 class="sh fi"><span class="n">V.</span> The Matrix &mdash; What Matters Today</h2>
+  <div class="mx fi">
+    <div class="mx-corner"></div>
+    <div class="mx-ch">Builds Deep Intuition</div>
+    <div class="mx-ch">Surface-Level Only</div>
+    <div class="mx-rh">Quick to Do</div>
+    <div class="mx-cell best">
+      <span class="e">&#127919;</span>
+      <h4>DO FIRST</h4>
+      <p>Add <code>backward()</code> with topo sort to your Value class. Test it on the Day 2 expression. Verify all gradients match PyTorch.</p>
+    </div>
+    <div class="mx-cell">
+      <span class="e">&#9197;&#65039;</span>
+      <h4>DO IF TIME</h4>
+      <p>Add <code>__radd__</code>, <code>__rmul__</code>, <code>__neg__</code>, <code>__sub__</code> so you can write <code>2 * a</code> and <code>a - b</code> naturally.</p>
+    </div>
+    <div class="mx-rh">Slow but Worth It</div>
+    <div class="mx-cell">
+      <span class="e">&#128400;</span>
+      <h4>DO CAREFULLY</h4>
+      <p>Add <code>tanh()</code> and <code>exp()</code> with correct <code>_backward</code> closures. These are the activation functions you&rsquo;ll need for neurons tomorrow.</p>
+    </div>
+    <div class="mx-cell worst">
+      <span class="e">&#128683;</span>
+      <h4>AVOID TODAY</h4>
+      <p>Building neurons or training loops. The autograd engine must be bulletproof first. Tomorrow you build on top of it.</p>
+    </div>
+  </div>
+
+  <h2 class="sh fi"><span class="n">VI.</span> Today&rsquo;s Deliverables</h2>
+  <ul class="cl fi">
+    <li><strong>Topo sort:</strong> Implement <code>build_topo()</code> using DFS with a visited set</li>
+    <li><strong>backward():</strong> Seed <code>self.grad = 1.0</code>, iterate reversed topo, call each <code>_backward()</code></li>
+    <li><strong>One-line test:</strong> <code>L.backward()</code> &mdash; verify all gradients match Day 2&rsquo;s manual results exactly</li>
+    <li><strong>Reuse test:</strong> Call <code>backward()</code> twice &mdash; observe the accumulation bug, understand why</li>
+    <li><strong>Operator overloading:</strong> Add <code>__radd__</code>, <code>__rmul__</code>, <code>__neg__</code>, <code>__sub__</code>, <code>__truediv__</code></li>
+    <li><strong>Activation:</strong> Implement <code>tanh()</code> with correct backward: <code>self.grad += (1 - t**2) * out.grad</code></li>
+    <li><strong>PyTorch verify:</strong> Rebuild full expression in PyTorch, confirm every gradient matches</li>
+  </ul>
+
+  <div class="memo-quote fi" style="margin-top:3rem;">
+    The best systems are invisible. Once <code>.backward()</code> works, you never think about topological sort again &mdash;
+    just as a well-structured portfolio doesn&rsquo;t require daily rebalancing. The infrastructure disappears, and you
+    focus on what matters: the architecture built on top of it. Tomorrow, that architecture is a <strong>neuron</strong>.
+    <span class="attr">&mdash; Day 3 Closing Principle</span>
+  </div>
+
+</main>
+
+<footer class="footer">
+  <span>RAG &amp; LLM Engineer &middot; 80-Day Plan</span>
+  <span>Day 3 of 80 &middot; Phase 1: Foundations</span>
+  <span>&larr; <a href="llm-day2.html" style="color:inherit;">Day 2</a> &nbsp;|&nbsp; &rarr; Day 4: Neuron &amp; MLP</span>
+</footer>
+
+</body>
+</html>
