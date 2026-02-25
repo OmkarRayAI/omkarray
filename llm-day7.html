@@ -59,6 +59,19 @@ svg .m{font-family:'JetBrains Mono',monospace;}
 @keyframes fu{to{opacity:1;transform:translateY(0);}}
 .fi:nth-child(2){animation-delay:0.08s;}.fi:nth-child(3){animation-delay:0.16s;}.fi:nth-child(4){animation-delay:0.24s;}
 @media(max-width:600px){.header{padding:1.5rem 1rem;}.content{padding:1.5rem 1rem;}.footer{flex-direction:column;text-align:center;}}
+
+.notebook-card{margin:2.5rem 0;border:2px solid var(--ink);background:white;overflow:hidden;}
+.notebook-card-hdr{padding:14px 20px;background:var(--ink);color:white;display:flex;justify-content:space-between;align-items:center;}
+.notebook-card-hdr .nb-title{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;}
+.notebook-card-hdr .nb-badge{font-family:'JetBrains Mono',monospace;font-size:9px;padding:3px 10px;border:1px solid rgba(255,255,255,.3);letter-spacing:.08em;text-transform:uppercase;opacity:.7;}
+.notebook-card-body{padding:20px;}
+.notebook-card-body p{font-size:0.95rem;color:#555;line-height:1.7;margin-bottom:12px;}
+.notebook-links{display:flex;gap:12px;flex-wrap:wrap;}
+.notebook-links a{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.06em;text-transform:uppercase;padding:8px 16px;text-decoration:none;border:1.5px solid;transition:all .15s;font-weight:600;}
+.nb-colab{background:#f9ab00;color:#1c1c1c;border-color:#f9ab00;}.nb-colab:hover{background:#e09800;border-color:#e09800;}
+.nb-github{background:white;color:var(--ink);border-color:var(--ink);}.nb-github:hover{background:var(--ink);color:white;}
+.nb-nbviewer{background:white;color:#2c3e6b;border-color:#2c3e6b;}.nb-nbviewer:hover{background:#2c3e6b;color:white;}
+
 </style>
 </head>
 <body>
@@ -263,6 +276,20 @@ logits = xenc <span class="op">@</span> W  <span class="comment"># [3, 27] @ [27
     <span class="attr">&mdash; Day 7 Closing Principle</span>
   </div>
 
+  <div class="notebook-card fade-in">
+    <div class="notebook-card-hdr">
+      <span class="nb-title">Day 7 Notebook — Tensors, Broadcasting & torch.Tensor</span>
+      <span class="nb-badge">Runnable Python</span>
+    </div>
+    <div class="notebook-card-body">
+      <p>PyTorch tensor deep dive: shapes, broadcasting rules, one-hot encoding, matrix multiply for neural nets, and softmax.</p>
+      <div class="notebook-links">
+        <a href="https://colab.research.google.com/github/OmkarRayAI/omkarray/blob/main/notebooks/llm_day07_tensors.ipynb" target="_blank" class="nb-colab">&#9654; Open in Colab</a>
+        <a href="https://github.com/OmkarRayAI/omkarray/blob/main/notebooks/llm_day07_tensors.ipynb" target="_blank" class="nb-github">View on GitHub</a>
+        <a href="https://nbviewer.org/github/OmkarRayAI/omkarray/blob/main/notebooks/llm_day07_tensors.ipynb" target="_blank" class="nb-nbviewer">nbviewer</a>
+      </div>
+    </div>
+  </div>
 </main>
 
 <footer class="footer">

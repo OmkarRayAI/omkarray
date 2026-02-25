@@ -329,6 +329,99 @@ hr.rule { border: none; border-top: 1px solid var(--rule); margin: 36px 0; }
   letter-spacing: .06em;
   line-height: 1.8;
 }
+
+.notebook-card {
+  margin: 24px 0;
+  border: 2px solid var(--ink);
+  background: white;
+  overflow: hidden;
+}
+.notebook-card-hdr {
+  padding: 14px 20px;
+  background: var(--ink);
+  color: var(--bg);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.notebook-card-hdr .nb-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+.notebook-card-hdr .nb-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  padding: 3px 10px;
+  border: 1px solid rgba(255,255,255,.3);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  opacity: .7;
+}
+.notebook-card-body {
+  padding: 20px;
+}
+.notebook-card-body p {
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.7;
+  margin-bottom: 12px;
+}
+.notebook-card-body ul {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 16px 0;
+}
+.notebook-card-body ul li {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--muted);
+  padding: 4px 0 4px 16px;
+  position: relative;
+  line-height: 1.6;
+}
+.notebook-card-body ul li::before {
+  content: '→';
+  position: absolute;
+  left: 0;
+  color: var(--faint);
+}
+.notebook-links {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.notebook-links a {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  padding: 8px 16px;
+  text-decoration: none;
+  border: 1.5px solid;
+  transition: all .15s;
+  font-weight: 600;
+}
+.nb-colab {
+  background: #f9ab00;
+  color: #1c1c1c;
+  border-color: #f9ab00;
+}
+.nb-colab:hover { background: #e09800; border-color: #e09800; }
+.nb-github {
+  background: white;
+  color: var(--ink);
+  border-color: var(--ink);
+}
+.nb-github:hover { background: var(--ink); color: white; }
+.nb-nbviewer {
+  background: white;
+  color: var(--blue);
+  border-color: var(--blue);
+}
+.nb-nbviewer:hover { background: var(--blue); color: white; }
 </style>
 </head>
 <body>
@@ -473,59 +566,25 @@ hr.rule { border: none; border-top: 1px solid var(--rule); margin: 36px 0; }
 
 <p class="body">The <strong>posterior mean</strong> <span class="m">μₙ(x*)</span> is the GP's best prediction of <span class="m">f(x*)</span> given all data seen so far. The <strong>posterior variance</strong> <span class="m">σ²ₙ(x*)</span> quantifies uncertainty: it equals the prior variance at <span class="m">x*</span> minus the information gained from observations. Points near observed data have low variance; unexplored regions retain high variance.</p>
 
-<div class="diagram">
-  <div class="diagram-hdr">Exhibit 2 — GP Prior to Posterior: How Observations Collapse Uncertainty <span>3-panel sequence</span></div>
-  <div class="diagram-body">
-    <svg viewBox="0 0 860 260" xmlns="http://www.w3.org/2000/svg" width="100%" style="display:block;">
-      <rect x="0" y="0" width="273" height="260" fill="white" stroke="#d8d3c8" stroke-width="1"/>
-      <rect x="287" y="0" width="273" height="260" fill="white" stroke="#d8d3c8" stroke-width="1"/>
-      <rect x="574" y="0" width="286" height="260" fill="white" stroke="#1c1c1c" stroke-width="1.5"/>
-      <text x="136" y="18" font-family="'JetBrains Mono',monospace" font-size="9" fill="#6e6e6e" text-anchor="middle">PRIOR (n=0)</text>
-      <text x="424" y="18" font-family="'JetBrains Mono',monospace" font-size="9" fill="#6e6e6e" text-anchor="middle">POSTERIOR (n=3 observations)</text>
-      <text x="717" y="18" font-family="'JetBrains Mono',monospace" font-size="9" fill="#1c1c1c" text-anchor="middle">POSTERIOR (n=7, converging)</text>
-      <path d="M10,130 C50,130 100,130 263,130 L263,40 C200,40 100,40 10,40 Z" fill="rgba(26,74,122,0.07)"/>
-      <path d="M10,120 C40,100 80,155 120,130 C160,105 200,160 263,140" fill="none" stroke="#d8d3c8" stroke-width="1"/>
-      <path d="M10,140 C40,160 80,110 120,145 C160,175 200,125 263,150" fill="none" stroke="#d8d3c8" stroke-width="1"/>
-      <path d="M10,110 C40,85 80,95 120,120 C160,140 200,100 263,115" fill="none" stroke="#d8d3c8" stroke-width="1"/>
-      <path d="M10,150 C40,170 80,140 120,160 C160,145 200,175 263,155" fill="none" stroke="#d8d3c8" stroke-width="1"/>
-      <line x1="10" y1="130" x2="263" y2="130" stroke="#1a4a7a" stroke-width="1.5" stroke-dasharray="4,3"/>
-      <text x="136" y="240" font-family="'JetBrains Mono',monospace" font-size="9" fill="#6e6e6e" text-anchor="middle">m(x)=0, wide σ everywhere</text>
-      <line x1="10" y1="210" x2="263" y2="210" stroke="#d8d3c8" stroke-width="1"/>
-      <line x1="10" y1="30" x2="10" y2="210" stroke="#d8d3c8" stroke-width="1"/>
-      <path d="M297,145 C330,140 360,80 395,75 C430,72 450,78 465,85 C490,95 530,115 557,120 L557,165 C530,158 490,150 465,145 C450,142 430,138 395,140 C360,145 330,175 297,178 Z" fill="rgba(26,74,122,0.09)"/>
-      <path d="M297,155 C330,148 360,110 395,95 C430,82 450,88 465,105 C490,120 530,135 557,142" fill="none" stroke="#1a4a7a" stroke-width="2"/>
-      <circle cx="360" cy="110" r="4" fill="#1c1c1c"/>
-      <circle cx="430" cy="85"  r="4" fill="#1c1c1c"/>
-      <circle cx="510" cy="128" r="4" fill="#1c1c1c"/>
-      <path d="M297,100 C310,90 325,60 335,50 L335,200 C325,190 310,185 297,195 Z" fill="rgba(26,74,122,0.06)"/>
-      <line x1="297" y1="210" x2="557" y2="210" stroke="#d8d3c8" stroke-width="1"/>
-      <line x1="297" y1="30"  x2="297" y2="210" stroke="#d8d3c8" stroke-width="1"/>
-      <text x="424" y="240" font-family="'JetBrains Mono',monospace" font-size="9" fill="#6e6e6e" text-anchor="middle">low σ near data, high σ elsewhere</text>
-      <path d="M584,148 C610,138 630,108 660,98 C690,90 720,86 750,92 C770,96 795,105 850,120 L850,136 C795,120 770,112 750,108 C720,102 690,105 660,113 C630,122 610,148 584,158 Z" fill="rgba(26,74,122,0.1)"/>
-      <path d="M584,153 C610,143 630,118 660,105 C690,93 720,88 750,98 C770,104 795,114 850,128" fill="none" stroke="#1a4a7a" stroke-width="2.5"/>
-      <circle cx="600" cy="155" r="3.5" fill="#1c1c1c"/>
-      <circle cx="630" cy="118" r="3.5" fill="#1c1c1c"/>
-      <circle cx="660" cy="105" r="3.5" fill="#1c1c1c"/>
-      <circle cx="695" cy="90"  r="3.5" fill="#1c1c1c"/>
-      <circle cx="720" cy="88"  r="3.5" fill="#1c1c1c"/>
-      <circle cx="750" cy="99"  r="3.5" fill="#1c1c1c"/>
-      <circle cx="800" cy="115" r="3.5" fill="#1c1c1c"/>
-      <line x1="720" y1="60" x2="720" y2="86" stroke="#9b2335" stroke-width="1.5"/>
-      <text x="720" y="56" font-family="'JetBrains Mono',monospace" font-size="9" fill="#9b2335" text-anchor="middle">x̂* (current best)</text>
-      <line x1="584" y1="210" x2="850" y2="210" stroke="#d8d3c8" stroke-width="1"/>
-      <line x1="584" y1="30"  x2="584" y2="210" stroke="#d8d3c8" stroke-width="1"/>
-      <text x="717" y="240" font-family="'JetBrains Mono',monospace" font-size="9" fill="#1c1c1c" text-anchor="middle">posterior tightens around observed f</text>
-      <g transform="translate(584,25)">
-        <line x1="0" y1="8" x2="24" y2="8" stroke="#1a4a7a" stroke-width="2"/>
-        <text x="28" y="12" font-family="'JetBrains Mono',monospace" font-size="8" fill="#6e6e6e">posterior mean μₙ(x)</text>
-        <rect x="0" y="20" width="24" height="8" fill="rgba(26,74,122,0.1)"/>
-        <text x="28" y="28" font-family="'JetBrains Mono',monospace" font-size="8" fill="#6e6e6e">±2σₙ(x) uncertainty</text>
-        <circle cx="12" cy="40" r="3.5" fill="#1c1c1c"/>
-        <text x="28" y="44" font-family="'JetBrains Mono',monospace" font-size="8" fill="#6e6e6e">observed y = f(x)+ε</text>
-      </g>
-    </svg>
+<div class="notebook-card">
+  <div class="notebook-card-hdr">
+    <span class="nb-title">Notebook 1 — GP Surrogate: From Prior to Posterior</span>
+    <span class="nb-badge">Runnable Python</span>
   </div>
-  <div class="diagram-note">Key property: <span class="m">σ²ₙ(xᵢ) → σ²ₙ</span> (noise variance) at observed points, and <span class="m">σ²ₙ(x*)</span> collapses to near-zero between observations as <span class="m">n → ∞</span>. The posterior update is exact under the GP model — no approximation is made during the update step, only during kernel and hyperparameter specification.</div>
+  <div class="notebook-card-body">
+    <p>Implements a Gaussian Process from scratch (NumPy only). Visualises the prior → posterior progression as observations collapse uncertainty, and demonstrates the effect of noise on the posterior.</p>
+    <ul>
+      <li>RBF kernel implementation and Cholesky sampling from the GP prior</li>
+      <li>Closed-form posterior: μₙ(x*) and σ²ₙ(x*) with 0, 3, and 7 observations</li>
+      <li>Effect of noise variance σ²ₙ on posterior smoothness</li>
+      <li>O(n³) computational cost benchmark</li>
+    </ul>
+    <div class="notebook-links">
+      <a href="https://colab.research.google.com/github/OmkarRayAI/omkarray/blob/main/notebooks/01_gp_surrogate.ipynb" target="_blank" class="nb-colab">▶ Open in Colab</a>
+      <a href="https://github.com/OmkarRayAI/omkarray/blob/main/notebooks/01_gp_surrogate.ipynb" target="_blank" class="nb-github">View on GitHub</a>
+      <a href="https://nbviewer.org/github/OmkarRayAI/omkarray/blob/main/notebooks/01_gp_surrogate.ipynb" target="_blank" class="nb-nbviewer">nbviewer</a>
+    </div>
+  </div>
 </div>
 
 <p class="body"><strong>Computational cost.</strong> The critical bottleneck is matrix inversion: computing <span class="m">[K(X,X) + σ²ₙ I]⁻¹</span> costs <span class="m">O(n³)</span> time and <span class="m">O(n²)</span> space. This is acceptable for small <span class="m">n</span> (say, <span class="m">n ≤ 10⁴</span>), but becomes prohibitive as the evaluation budget grows. Sparse GPs, inducing point methods (SGPR), and Cholesky decompositions with rank-1 updates mitigate this in practice.</p>
@@ -541,68 +600,26 @@ hr.rule { border: none; border-top: 1px solid var(--rule); margin: 36px 0; }
 
 <p class="body">The kernel function <span class="m">k(x, x')</span> is the only place where prior knowledge about <span class="m">f</span> enters the model. It must be <em>positive semi-definite</em> (so that <span class="m">K(X,X)</span> is always a valid covariance matrix). Every valid kernel corresponds to a specific class of functions that the GP prior places mass on.</p>
 
-<div class="diagram">
-  <div class="diagram-hdr">Exhibit 3 — Canonical Kernels: Formula, Geometry, and Implied Function Prior <span>4 kernels</span></div>
-  <div class="diagram-body">
-    <div class="cmp-grid" style="grid-template-columns:1fr 1fr;">
-      <div class="cmp-cell">
-        <div class="cmp-name">RBF / Squared Exponential</div>
-        <div class="cmp-formula">k(x,x') = σ²_f · exp( −|x−x'|² / 2ℓ² )</div>
-        <div class="cmp-prop">Functions are infinitely differentiable (C∞)</div>
-        <div class="cmp-prop">Controlled by length-scale ℓ (smoothness) and signal variance σ²_f</div>
-        <div class="cmp-prop">Over-smoothing: real functions rarely this regular</div>
-        <div class="cmp-prop">Strong stationarity: correlation depends only on distance |x−x'|</div>
-        <div class="cmp-prop"><strong>Use when:</strong> f known to be very smooth; good default starting point</div>
-        <div style="margin-top:12px;">
-          <svg viewBox="0 0 220 60" width="100%" style="display:block;">
-            <text x="0" y="12" font-family="'JetBrains Mono',monospace" font-size="8" fill="#6e6e6e">k(r) vs r = |x−x'|</text>
-            <line x1="0" y1="50" x2="220" y2="50" stroke="#d8d3c8" stroke-width="1"/>
-            <line x1="0" y1="20" x2="0" y2="52" stroke="#d8d3c8" stroke-width="1"/>
-            <path d="M0,20 C20,20 40,22 60,30 C90,42 120,50 220,51" fill="none" stroke="#1a4a7a" stroke-width="2"/>
-            <text x="2" y="32" font-family="'JetBrains Mono',monospace" font-size="8" fill="#6e6e6e">σ²_f</text>
-            <text x="180" y="46" font-family="'JetBrains Mono',monospace" font-size="8" fill="#6e6e6e">ℓ →</text>
-          </svg>
-        </div>
-      </div>
-      <div class="cmp-cell">
-        <div class="cmp-name">Matérn 5/2</div>
-        <div class="cmp-formula">k(x,x') = σ²_f (1 + √5r/ℓ + 5r²/3ℓ²) exp(−√5r/ℓ)&#10;r = |x−x'|</div>
-        <div class="cmp-prop">Functions are twice differentiable (C²) only</div>
-        <div class="cmp-prop">Less smooth than RBF — empirically more realistic for engineering/ML functions</div>
-        <div class="cmp-prop">Recommended default for most BO applications (Snoek et al., 2012)</div>
-        <div class="cmp-prop">Matérn ν=1/2 → exponential kernel (C⁰ only, very rough)</div>
-        <div class="cmp-prop"><strong>Use when:</strong> hyperparameter tuning, black-box engineering optimisation</div>
-        <div style="margin-top:12px;">
-          <svg viewBox="0 0 220 60" width="100%" style="display:block;">
-            <text x="0" y="12" font-family="'JetBrains Mono',monospace" font-size="8" fill="#6e6e6e">k(r) vs r — steeper initial decay</text>
-            <line x1="0" y1="50" x2="220" y2="50" stroke="#d8d3c8" stroke-width="1"/>
-            <line x1="0" y1="20" x2="0" y2="52" stroke="#d8d3c8" stroke-width="1"/>
-            <path d="M0,20 C10,20 20,24 35,34 C55,44 90,50 220,51" fill="none" stroke="#1e6b3c" stroke-width="2"/>
-            <path d="M0,20 C10,20 20,22 60,30 C90,42 120,50 220,51" fill="none" stroke="#1a4a7a" stroke-width="1" stroke-dasharray="3,2" opacity="0.5"/>
-            <text x="140" y="38" font-family="'JetBrains Mono',monospace" font-size="8" fill="#6e6e6e">Matérn 5/2</text>
-            <text x="140" y="28" font-family="'JetBrains Mono',monospace" font-size="8" fill="#1a4a7a" opacity="0.6">RBF (ref)</text>
-          </svg>
-        </div>
-      </div>
-      <div class="cmp-cell">
-        <div class="cmp-name">Periodic</div>
-        <div class="cmp-formula">k(x,x') = σ²_f · exp( −2 sin²(π|x−x'|/p) / ℓ² )</div>
-        <div class="cmp-prop">Encodes exact periodicity with period p</div>
-        <div class="cmp-prop">Combine with RBF for "locally periodic" functions: decay in periodicity over long distances</div>
-        <div class="cmp-prop">p is a hyperparameter — must be specified or marginalised over</div>
-        <div class="cmp-prop"><strong>Use when:</strong> f has known periodic structure (seasonal effects, oscillating systems)</div>
-      </div>
-      <div class="cmp-cell">
-        <div class="cmp-name">Kernel Composition Rules</div>
-        <div class="cmp-formula">k₁+k₂ and k₁·k₂ both yield valid kernels</div>
-        <div class="cmp-prop">Sum k₁+k₂: models functions with multiple additive components (e.g., trend + noise)</div>
-        <div class="cmp-prop">Product k₁·k₂: models functions that are simultaneously smooth and periodic (e.g., RBF × Periodic)</div>
-        <div class="cmp-prop">Linear kernel k(x,x')=xᵀx' → GP recovers Bayesian linear regression as a special case</div>
-        <div class="cmp-prop"><strong>Key insight:</strong> kernel choice = prior over function class. Wrong kernel = wrong inductive bias regardless of data quantity.</div>
-      </div>
+<div class="notebook-card">
+  <div class="notebook-card-hdr">
+    <span class="nb-title">Notebook 2 — Kernel Design & Function Priors</span>
+    <span class="nb-badge">Runnable Python</span>
+  </div>
+  <div class="notebook-card-body">
+    <p>Implements RBF, Matérn 5/2, Matérn 3/2, and Periodic kernels from scratch. Visualises how each kernel shapes the GP prior, how length-scale controls smoothness, and how kernels compose.</p>
+    <ul>
+      <li>Kernel correlation profiles: k(r) vs distance for all four kernels</li>
+      <li>GP prior samples under each kernel — same randomness, different function classes</li>
+      <li>Length-scale effect: ℓ = 0.3 vs 1.0 vs 3.0</li>
+      <li>Kernel composition: RBF + Periodic, RBF × Periodic, multi-scale</li>
+      <li>Log marginal likelihood for hyperparameter selection</li>
+    </ul>
+    <div class="notebook-links">
+      <a href="https://colab.research.google.com/github/OmkarRayAI/omkarray/blob/main/notebooks/02_kernels.ipynb" target="_blank" class="nb-colab">▶ Open in Colab</a>
+      <a href="https://github.com/OmkarRayAI/omkarray/blob/main/notebooks/02_kernels.ipynb" target="_blank" class="nb-github">View on GitHub</a>
+      <a href="https://nbviewer.org/github/OmkarRayAI/omkarray/blob/main/notebooks/02_kernels.ipynb" target="_blank" class="nb-nbviewer">nbviewer</a>
     </div>
   </div>
-  <div class="diagram-note">The length-scale ℓ controls the correlation distance: large ℓ → smooth, slow-varying <span class="m">f</span>; small ℓ → rapidly changing <span class="m">f</span>. In practice ℓ is estimated by maximum marginal likelihood: <span class="m">log p(y|X,θ) = −½ yᵀ(K+σ²ₙI)⁻¹y − ½ log|K+σ²ₙI| − n/2 log 2π</span>. This log marginal likelihood is differentiable in all kernel hyperparameters θ and is typically maximised by L-BFGS.</div>
 </div>
 <!-- §4 ACQUISITION FUNCTIONS -->
 <div class="section">
@@ -651,72 +668,26 @@ hr.rule { border: none; border-top: 1px solid var(--rule); margin: 36px 0; }
   <span class="eq">   <span class="comment">UCB has the strongest theoretical convergence guarantees of the three.</span></span>
 </div>
 
-<div class="diagram">
-  <div class="diagram-hdr">Exhibit 4 — Acquisition Functions Visualised: Same GP Posterior, Three Different Next Points <span>geometric interpretation</span></div>
-  <div class="diagram-body">
-    <svg viewBox="0 0 860 320" xmlns="http://www.w3.org/2000/svg" width="100%" style="display:block;">
-      <rect x="0" y="0" width="268" height="320" fill="white" stroke="#d8d3c8" stroke-width="1"/>
-      <rect x="284" y="0" width="268" height="320" fill="white" stroke="#d8d3c8" stroke-width="1"/>
-      <rect x="568" y="0" width="292" height="320" fill="white" stroke="#1c1c1c" stroke-width="1.5"/>
-      <rect x="0" y="0" width="268" height="18" fill="#6e6e6e"/>
-      <text x="134" y="13" font-family="'JetBrains Mono',monospace" font-size="9" fill="white" text-anchor="middle">PI — Probability of Improvement</text>
-      <rect x="284" y="0" width="268" height="18" fill="#6e6e6e"/>
-      <text x="418" y="13" font-family="'JetBrains Mono',monospace" font-size="9" fill="white" text-anchor="middle">EI — Expected Improvement</text>
-      <rect x="568" y="0" width="292" height="18" fill="#1c1c1c"/>
-      <text x="714" y="13" font-family="'JetBrains Mono',monospace" font-size="9" fill="white" text-anchor="middle">UCB — Upper Confidence Bound</text>
-      <!-- PI panel -->
-      <path d="M12,170 C50,165 90,130 120,115 C145,103 165,98 190,105 C215,113 240,130 256,142 L256,190 C240,178 215,162 190,155 C165,150 145,152 120,157 C90,165 50,195 12,205 Z" fill="rgba(26,74,122,0.1)"/>
-      <path d="M12,188 C50,180 90,148 120,136 C145,127 165,124 190,130 C215,137 240,154 256,166" fill="none" stroke="#1a4a7a" stroke-width="2"/>
-      <circle cx="80" cy="155" r="3" fill="#1c1c1c"/>
-      <circle cx="150" cy="127" r="3" fill="#1c1c1c"/>
-      <line x1="12" y1="127" x2="256" y2="127" stroke="#9b2335" stroke-width="1" stroke-dasharray="3,2"/>
-      <text x="14" y="123" font-family="'JetBrains Mono',monospace" font-size="8" fill="#9b2335">f* = best so far</text>
-      <line x1="12" y1="230" x2="256" y2="230" stroke="#d8d3c8" stroke-width="1"/>
-      <path d="M12,305 C50,300 90,285 120,260 C145,242 165,230 190,242 C215,260 240,290 256,302" fill="none" stroke="#8a5a00" stroke-width="1.5"/>
-      <path d="M12,305 C50,300 90,285 120,260 C145,242 165,230 190,242 C215,260 240,290 256,302 L256,320 L12,320 Z" fill="rgba(138,90,0,0.08)"/>
-      <line x1="165" y1="112" x2="165" y2="320" stroke="#8a5a00" stroke-width="1.5" stroke-dasharray="3,2"/>
-      <circle cx="165" cy="230" r="3" fill="#8a5a00"/>
-      <text x="175" y="250" font-family="'JetBrains Mono',monospace" font-size="8" fill="#8a5a00">x_next (PI)</text>
-      <text x="175" y="262" font-family="'JetBrains Mono',monospace" font-size="8" fill="#8a5a00">exploits mean</text>
-      <text x="134" y="245" font-family="'JetBrains Mono',monospace" font-size="8" fill="#8a5a00">α_PI(x)</text>
-      <text x="134" y="222" font-family="'JetBrains Mono',monospace" font-size="8" fill="#6e6e6e" text-anchor="middle">f(x) posterior</text>
-      <!-- EI panel -->
-      <path d="M296,170 C334,165 374,130 404,115 C429,103 449,98 474,105 C499,113 524,130 540,142 L540,190 C524,178 499,162 474,155 C449,150 429,152 404,157 C374,165 334,195 296,205 Z" fill="rgba(26,74,122,0.1)"/>
-      <path d="M296,188 C334,180 374,148 404,136 C429,127 449,124 474,130 C499,137 524,154 540,166" fill="none" stroke="#1a4a7a" stroke-width="2"/>
-      <circle cx="364" cy="155" r="3" fill="#1c1c1c"/>
-      <circle cx="434" cy="127" r="3" fill="#1c1c1c"/>
-      <line x1="296" y1="127" x2="540" y2="127" stroke="#9b2335" stroke-width="1" stroke-dasharray="3,2"/>
-      <text x="298" y="123" font-family="'JetBrains Mono',monospace" font-size="8" fill="#9b2335">f*</text>
-      <line x1="296" y1="230" x2="540" y2="230" stroke="#d8d3c8" stroke-width="1"/>
-      <path d="M296,315 C334,308 374,282 404,258 C429,238 449,224 474,240 C499,260 524,292 540,308" fill="none" stroke="#1e6b3c" stroke-width="1.5"/>
-      <path d="M296,315 C334,308 374,282 404,258 C429,238 449,224 474,240 C499,260 524,292 540,308 L540,320 L296,320 Z" fill="rgba(30,107,60,0.08)"/>
-      <line x1="450" y1="104" x2="450" y2="320" stroke="#1e6b3c" stroke-width="1.5" stroke-dasharray="3,2"/>
-      <circle cx="450" cy="230" r="3" fill="#1e6b3c"/>
-      <text x="460" y="248" font-family="'JetBrains Mono',monospace" font-size="8" fill="#1e6b3c">x_next (EI)</text>
-      <text x="460" y="260" font-family="'JetBrains Mono',monospace" font-size="8" fill="#1e6b3c">balances mean+σ</text>
-      <text x="418" y="245" font-family="'JetBrains Mono',monospace" font-size="8" fill="#1e6b3c">α_EI(x)</text>
-      <text x="418" y="222" font-family="'JetBrains Mono',monospace" font-size="8" fill="#6e6e6e" text-anchor="middle">f(x) posterior</text>
-      <!-- UCB panel -->
-      <path d="M580,170 C618,165 658,130 688,115 C713,103 733,98 758,105 C783,113 808,128 845,140 L845,190 C808,176 783,158 758,152 C733,148 713,150 688,156 C658,164 618,194 580,204 Z" fill="rgba(26,74,122,0.1)"/>
-      <path d="M580,188 C618,180 658,148 688,136 C713,127 733,124 758,130 C783,137 808,152 845,165" fill="none" stroke="#1a4a7a" stroke-width="2"/>
-      <path d="M580,160 C618,148 658,105 688,90 C713,78 733,72 758,80 C783,90 808,108 845,122" fill="none" stroke="#1a4a7a" stroke-width="1" stroke-dasharray="4,2" opacity="0.6"/>
-      <circle cx="648" cy="155" r="3" fill="#1c1c1c"/>
-      <circle cx="718" cy="127" r="3" fill="#1c1c1c"/>
-      <line x1="580" y1="127" x2="845" y2="127" stroke="#9b2335" stroke-width="1" stroke-dasharray="3,2"/>
-      <text x="582" y="123" font-family="'JetBrains Mono',monospace" font-size="8" fill="#9b2335">f*</text>
-      <line x1="580" y1="230" x2="845" y2="230" stroke="#d8d3c8" stroke-width="1"/>
-      <path d="M580,245 C618,235 658,205 688,182 C713,162 733,155 758,162 C783,172 808,200 845,215" fill="none" stroke="#5a2080" stroke-width="1.5"/>
-      <path d="M580,245 C618,235 658,205 688,182 C713,162 733,155 758,162 C783,172 808,200 845,215 L845,320 L580,320 Z" fill="rgba(90,32,128,0.07)"/>
-      <line x1="690" y1="72" x2="690" y2="320" stroke="#5a2080" stroke-width="1.5" stroke-dasharray="3,2"/>
-      <circle cx="690" cy="230" r="3" fill="#5a2080"/>
-      <text x="700" y="250" font-family="'JetBrains Mono',monospace" font-size="8" fill="#5a2080">x_next (UCB)</text>
-      <text x="700" y="262" font-family="'JetBrains Mono',monospace" font-size="8" fill="#5a2080">high mean+σ</text>
-      <text x="690" y="75" font-family="'JetBrains Mono',monospace" font-size="8" fill="#5a2080" text-anchor="middle">μₙ+β½σₙ</text>
-      <text x="712" y="245" font-family="'JetBrains Mono',monospace" font-size="8" fill="#5a2080">α_UCB(x)</text>
-      <text x="712" y="222" font-family="'JetBrains Mono',monospace" font-size="8" fill="#6e6e6e" text-anchor="middle">f(x) posterior</text>
-    </svg>
+<div class="notebook-card">
+  <div class="notebook-card-hdr">
+    <span class="nb-title">Notebook 3 — Acquisition Functions & Full BO Loop</span>
+    <span class="nb-badge">Runnable Python</span>
   </div>
-  <div class="diagram-note">The three functions select different <span class="m">x_next</span> from the same GP posterior. PI is most exploitative (pure probability, ignores magnitude). EI balances magnitude and probability analytically. UCB is most exploratory under high <span class="m">β</span> and has the strongest theoretical guarantees. EI is the empirical default; UCB is the theoretical default.</div>
+  <div class="notebook-card-body">
+    <p>Implements EI, PI, and UCB from scratch. Visualises all three on the same GP posterior, runs a complete BO loop on a multi-modal function, compares BO vs random search, and demonstrates the exploration–exploitation spectrum.</p>
+    <ul>
+      <li>PI, EI, UCB: same GP posterior → three different next points</li>
+      <li>Full Bayesian Optimisation loop with EI (step-by-step visualization)</li>
+      <li>BO vs Random Search convergence (20 runs, shaded IQR)</li>
+      <li>UCB β spectrum: β=0.01 (exploit) to β=20 (explore)</li>
+      <li>Simple regret and cumulative regret curves</li>
+    </ul>
+    <div class="notebook-links">
+      <a href="https://colab.research.google.com/github/OmkarRayAI/omkarray/blob/main/notebooks/03_acquisition_functions.ipynb" target="_blank" class="nb-colab">▶ Open in Colab</a>
+      <a href="https://github.com/OmkarRayAI/omkarray/blob/main/notebooks/03_acquisition_functions.ipynb" target="_blank" class="nb-github">View on GitHub</a>
+      <a href="https://nbviewer.org/github/OmkarRayAI/omkarray/blob/main/notebooks/03_acquisition_functions.ipynb" target="_blank" class="nb-nbviewer">nbviewer</a>
+    </div>
+  </div>
 </div>
 <!-- §5 EXPLORATION-EXPLOITATION -->
 <div class="section">
