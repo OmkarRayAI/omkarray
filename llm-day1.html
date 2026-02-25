@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Day 1 — The Value Class & Computation Graphs</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,300;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1a2e;
+    --cream: #faf8f4;
+    --cream-dark: #f0ece4;
+    --accent: #c0392b;
+    --accent-soft: #e74c3c;
+    --blue: #2c3e6b;
+    --blue-light: #3d5a99;
+    --green: #27654a;
+    --green-light: #2ecc71;
+    --gold: #d4a843;
+    --gray: #7f8c8d;
+    --gray-light: #bdc3c7;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--cream); color: var(--ink); font-family: 'Source Serif 4', Georgia, serif; line-height: 1.7; min-height: 100vh; }
+  .back-link { display: inline-flex; align-items: center; gap: 8px; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; letter-spacing: .18em; text-transform: uppercase; color: var(--gray); text-decoration: none; padding: 1.5rem 2rem 0; max-width: 1100px; margin: 0 auto; display: block; transition: color .2s; }
+  .back-link:hover { color: var(--accent); }
+  .header { padding: 2rem 2rem 2rem; max-width: 1100px; margin: 0 auto; border-bottom: 3px double var(--ink); }
+  .header-meta { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--gray); margin-bottom: 0.5rem; }
+  .header h1 { font-family: 'Playfair Display', serif; font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 700; line-height: 1.15; margin-bottom: 0.5rem; }
+  .header h1 span { color: var(--accent); }
+  .header-subtitle { font-style: italic; font-size: 1.1rem; color: var(--blue); max-width: 680px; }
+  .content { max-width: 1100px; margin: 0 auto; padding: 2.5rem 2rem; }
+  .memo-quote { background: var(--cream-dark); border-left: 4px solid var(--accent); padding: 1.5rem 2rem; margin: 0 0 3rem 0; font-style: italic; font-size: 1.05rem; color: var(--blue); position: relative; }
+  .memo-quote::before { content: '"\27'; font-family: 'Playfair Display', serif; font-size: 4rem; color: var(--accent); position: absolute; top: -0.5rem; left: 0.5rem; opacity: 0.3; }
+  .memo-quote .attribution { display: block; margin-top: 0.75rem; font-style: normal; font-size: 0.85rem; color: var(--gray); font-family: 'JetBrains Mono', monospace; }
+  .section-header { font-family: 'Playfair Display', serif; font-size: 1.6rem; font-weight: 700; margin: 3rem 0 1.5rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--gray-light); }
+  .section-header .number { color: var(--accent); font-style: italic; margin-right: 0.25rem; }
+  .viz-container { margin: 2rem 0; padding: 0; }
+  .viz-title { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gray); margin-bottom: 1rem; }
+  .bell-curve-wrap { background: white; border: 1px solid var(--gray-light); border-radius: 2px; padding: 2rem 1.5rem 1.5rem; position: relative; overflow: hidden; }
+  .bell-curve-wrap::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--accent), var(--blue), var(--green)); }
+  svg text { font-family: 'Source Serif 4', Georgia, serif; }
+  svg .mono { font-family: 'JetBrains Mono', monospace; }
+  .graph-wrap { background: white; border: 1px solid var(--gray-light); border-radius: 2px; padding: 2rem; margin: 2rem 0; position: relative; overflow: hidden; }
+  .graph-wrap::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--green), var(--blue)); }
+  .matrix-grid { display: grid; grid-template-columns: auto 1fr 1fr; grid-template-rows: auto 1fr 1fr; gap: 0; margin: 2rem 0; background: white; border: 1px solid var(--gray-light); border-radius: 2px; overflow: hidden; }
+  .matrix-corner { background: var(--ink); padding: 1rem; display: flex; align-items: center; justify-content: center; }
+  .matrix-col-header { background: var(--ink); color: white; padding: 1rem; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; text-align: center; display: flex; align-items: center; justify-content: center; }
+  .matrix-row-header { background: var(--ink); color: white; padding: 1rem; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; writing-mode: vertical-lr; text-orientation: mixed; transform: rotate(180deg); display: flex; align-items: center; justify-content: center; }
+  .matrix-cell { padding: 1.25rem; border: 1px solid var(--cream-dark); }
+  .matrix-cell h4 { font-family: 'Playfair Display', serif; font-size: 1rem; margin-bottom: 0.5rem; }
+  .matrix-cell p { font-size: 0.85rem; color: #555; line-height: 1.5; }
+  .matrix-cell.best { background: #f0faf4; }
+  .matrix-cell.worst { background: #fdf0ef; }
+  .matrix-cell .emoji { font-size: 1.5rem; display: block; margin-bottom: 0.5rem; }
+  .matrix-cell code { font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; background: var(--cream); padding: 0.15rem 0.4rem; border-radius: 2px; color: var(--accent); }
+  .code-block { background: #1e1e2e; color: #cdd6f4; border-radius: 4px; padding: 1.5rem; margin: 1.5rem 0; overflow-x: auto; font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; line-height: 1.8; }
+  .code-block .comment { color: #6c7086; }
+  .code-block .keyword { color: #cba6f7; }
+  .code-block .string { color: #a6e3a1; }
+  .code-block .number { color: #fab387; }
+  .code-block .func { color: #89b4fa; }
+  .code-block .class-name { color: #f9e2af; }
+  .code-block .op { color: #89dceb; }
+  .code-block .self { color: #f38ba8; }
+  .prose { font-size: 1.02rem; max-width: 720px; margin-bottom: 1.5rem; }
+  .prose strong { color: var(--blue); }
+  .prose code { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; background: var(--cream-dark); padding: 0.15rem 0.4rem; border-radius: 2px; color: var(--accent); }
+  .insight-box { background: linear-gradient(135deg, #fdf6e8 0%, #fef9f0 100%); border: 1px solid var(--gold); border-radius: 2px; padding: 1.5rem 2rem; margin: 2rem 0; position: relative; }
+  .insight-box::before { content: '\1F4A1'; position: absolute; top: -0.75rem; left: 1rem; font-size: 1.3rem; background: var(--cream); padding: 0 0.5rem; }
+  .insight-box h4 { font-family: 'Playfair Display', serif; color: var(--gold); margin-bottom: 0.5rem; font-size: 1rem; }
+  .insight-box p { font-size: 0.95rem; color: #555; }
+  .footer { max-width: 1100px; margin: 0 auto; padding: 2rem; border-top: 3px double var(--ink); display: flex; justify-content: space-between; align-items: center; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--gray); text-transform: uppercase; letter-spacing: 0.1em; }
+  .fade-in { opacity: 0; transform: translateY(20px); animation: fadeUp 0.6s ease forwards; }
+  @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+  .fade-in:nth-child(2) { animation-delay: 0.1s; }
+  .fade-in:nth-child(3) { animation-delay: 0.2s; }
+  .fade-in:nth-child(4) { animation-delay: 0.3s; }
+  .checklist { list-style: none; margin: 1.5rem 0; }
+  .checklist li { padding: 0.6rem 0; padding-left: 2rem; position: relative; font-size: 0.95rem; border-bottom: 1px dotted var(--gray-light); }
+  .checklist li::before { content: '\2610'; position: absolute; left: 0; color: var(--accent); font-size: 1.1rem; }
+  .checklist li strong { font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; color: var(--blue); }
+  .checklist li code { font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; background: var(--cream-dark); padding: 0.1rem 0.35rem; border-radius: 2px; color: var(--accent); }
+  @media (max-width: 600px) { .header { padding: 1.5rem 1rem; } .content { padding: 1.5rem 1rem; } .footer { flex-direction: column; gap: 0.5rem; text-align: center; } }
+</style>
+</head>
+<body>
+
+<a href="index.html" class="back-link">&larr; Back to index</a>
+
+<header class="header fade-in">
+  <div class="header-meta">Phase 1 &middot; Foundations &middot; Day 1 of 80</div>
+  <h1>The <span>Value Class</span> &amp; the Architecture of Thought</h1>
+  <p class="header-subtitle">Set up your environment. Implement the Value class. Understand basic operations. Today you learn to see computation the way a neural network does.</p>
+</header>
+
+<main class="content">
+
+  <div class="memo-quote fade-in">
+    The future should be viewed not as a fixed outcome that&rsquo;s destined to happen,
+    but as a range of possibilities. In learning, every concept is a probability
+    distribution &mdash; some paths lead to deep understanding, most lead to surface familiarity.
+    Your job today is to shift that distribution.
+    <span class="attribution">&mdash; Adapted from the Howard Marks framework, applied to learning</span>
+  </div>
+
+  <!-- SECTION I: BELL CURVE -->
+  <h2 class="section-header fade-in"><span class="number">I.</span> Where You Are &mdash; The Distribution of Understanding</h2>
+
+  <p class="prose fade-in">
+    Like an investment, your understanding of any concept follows a <strong>probability distribution</strong>.
+    Most learners cluster around shallow familiarity &mdash; they&rsquo;ve &ldquo;heard of&rdquo; backpropagation but can&rsquo;t implement it.
+    The goal of Day 1 is to push you <strong>rightward</strong> on this curve: from awareness to comprehension.
+  </p>
+
+  <div class="viz-container fade-in">
+    <div class="viz-title">Exhibit A &mdash; Distribution of Understanding: &ldquo;What is a Value Class?&rdquo;</div>
+    <div class="bell-curve-wrap">
+      <svg viewBox="0 0 800 340" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;">
+        <line x1="80" y1="260" x2="750" y2="260" stroke="#ddd" stroke-width="1"/>
+        <line x1="80" y1="200" x2="750" y2="200" stroke="#f0f0f0" stroke-width="0.5" stroke-dasharray="4"/>
+        <line x1="80" y1="140" x2="750" y2="140" stroke="#f0f0f0" stroke-width="0.5" stroke-dasharray="4"/>
+        <line x1="80" y1="80" x2="750" y2="80" stroke="#f0f0f0" stroke-width="0.5" stroke-dasharray="4"/>
+        <path d="M 100,260 C 130,260 160,258 200,250 C 240,240 270,200 300,120 C 330,40 350,40 380,120 C 410,200 440,250 480,258 C 520,260 550,260 580,260"
+              fill="rgba(192,57,43,0.12)" stroke="#c0392b" stroke-width="2.5" stroke-dasharray="8 4"/>
+        <path d="M 250,260 C 280,260 310,258 350,250 C 390,240 420,200 450,130 C 480,60 500,60 530,130 C 560,200 590,250 630,258 C 670,260 700,260 730,260"
+              fill="rgba(39,101,74,0.12)" stroke="#27654a" stroke-width="2.5"/>
+        <text x="80" y="290" class="mono" font-size="10" fill="#7f8c8d">NEVER HEARD OF IT</text>
+        <text x="290" y="290" class="mono" font-size="10" fill="#7f8c8d">SURFACE AWARENESS</text>
+        <text x="510" y="290" class="mono" font-size="10" fill="#7f8c8d">CAN IMPLEMENT</text>
+        <text x="680" y="290" class="mono" font-size="10" fill="#7f8c8d">MASTERY</text>
+        <text x="20" y="265" font-size="10" fill="#7f8c8d" class="mono">0%</text>
+        <text x="20" y="80" font-size="10" fill="#7f8c8d" class="mono">peak</text>
+        <line x1="100" y1="320" x2="130" y2="320" stroke="#c0392b" stroke-width="2.5" stroke-dasharray="8 4"/>
+        <text x="138" y="324" font-size="11" fill="#c0392b">Before Day 1 &mdash; you&rsquo;re here</text>
+        <line x1="400" y1="320" x2="430" y2="320" stroke="#27654a" stroke-width="2.5"/>
+        <text x="438" y="324" font-size="11" fill="#27654a">After Day 1 &mdash; target zone</text>
+        <line x1="340" y1="155" x2="420" y2="155" stroke="#d4a843" stroke-width="2" marker-end="url(#arrowGold)"/>
+        <text x="350" y="148" font-size="11" fill="#d4a843" font-weight="600">YOUR WORK TODAY</text>
+        <defs>
+          <marker id="arrowGold" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" fill="#d4a843"/>
+          </marker>
+        </defs>
+      </svg>
+    </div>
+  </div>
+
+  <!-- SECTION II: THE VALUE CLASS -->
+  <h2 class="section-header fade-in"><span class="number">II.</span> The Value Class &mdash; A Number That Remembers</h2>
+
+  <p class="prose fade-in">
+    A regular Python number like <code>3.0</code> is dead. It knows nothing about where it came from
+    or what created it. The <strong>Value class</strong> is a number that is <em>alive</em> &mdash; it remembers
+    its parents, the operation that created it, and can trace back through every step of its creation.
+    This &ldquo;memory&rdquo; is what makes backpropagation possible.
+  </p>
+
+  <div class="viz-container fade-in">
+    <div class="viz-title">Exhibit B &mdash; Computation Graph: How a + b &times; c Remembers Everything</div>
+    <div class="graph-wrap">
+      <svg viewBox="0 0 800 300" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;">
+        <rect x="40" y="40" width="120" height="60" rx="4" fill="#faf8f4" stroke="#2c3e6b" stroke-width="2"/>
+        <text x="100" y="65" text-anchor="middle" font-size="13" fill="#2c3e6b" font-weight="600">a</text>
+        <text x="100" y="85" text-anchor="middle" class="mono" font-size="12" fill="#c0392b">data = 2.0</text>
+        <rect x="40" y="170" width="120" height="60" rx="4" fill="#faf8f4" stroke="#2c3e6b" stroke-width="2"/>
+        <text x="100" y="195" text-anchor="middle" font-size="13" fill="#2c3e6b" font-weight="600">b</text>
+        <text x="100" y="215" text-anchor="middle" class="mono" font-size="12" fill="#c0392b">data = -3.0</text>
+        <circle cx="280" cy="135" r="28" fill="#2c3e6b" stroke="#1a1a2e" stroke-width="1"/>
+        <text x="280" y="141" text-anchor="middle" font-size="20" fill="white" font-weight="700">&times;</text>
+        <rect x="350" y="105" width="130" height="60" rx="4" fill="#f0faf4" stroke="#27654a" stroke-width="2"/>
+        <text x="415" y="130" text-anchor="middle" font-size="13" fill="#27654a" font-weight="600">d = a &times; b</text>
+        <text x="415" y="150" text-anchor="middle" class="mono" font-size="12" fill="#c0392b">data = -6.0</text>
+        <rect x="350" y="220" width="120" height="60" rx="4" fill="#faf8f4" stroke="#2c3e6b" stroke-width="2"/>
+        <text x="410" y="245" text-anchor="middle" font-size="13" fill="#2c3e6b" font-weight="600">c</text>
+        <text x="410" y="265" text-anchor="middle" class="mono" font-size="12" fill="#c0392b">data = 10.0</text>
+        <circle cx="560" cy="180" r="28" fill="#27654a" stroke="#1a1a2e" stroke-width="1"/>
+        <text x="560" y="187" text-anchor="middle" font-size="22" fill="white" font-weight="700">+</text>
+        <rect x="630" y="150" width="140" height="60" rx="4" fill="#fdf6e8" stroke="#d4a843" stroke-width="2.5"/>
+        <text x="700" y="175" text-anchor="middle" font-size="13" fill="#d4a843" font-weight="700">e = d + c</text>
+        <text x="700" y="195" text-anchor="middle" class="mono" font-size="12" fill="#c0392b">data = 4.0</text>
+        <line x1="160" y1="70" x2="252" y2="120" stroke="#2c3e6b" stroke-width="1.5" marker-end="url(#arrowBlue)"/>
+        <line x1="160" y1="200" x2="252" y2="150" stroke="#2c3e6b" stroke-width="1.5" marker-end="url(#arrowBlue)"/>
+        <line x1="308" y1="135" x2="350" y2="135" stroke="#27654a" stroke-width="1.5" marker-end="url(#arrowGreen)"/>
+        <line x1="480" y1="135" x2="532" y2="165" stroke="#27654a" stroke-width="1.5" marker-end="url(#arrowGreen)"/>
+        <line x1="470" y1="250" x2="532" y2="195" stroke="#27654a" stroke-width="1.5" marker-end="url(#arrowGreen)"/>
+        <line x1="588" y1="180" x2="630" y2="180" stroke="#d4a843" stroke-width="2" marker-end="url(#arrowGold2)"/>
+        <text x="185" y="82" font-size="9" fill="#999" class="mono">_children</text>
+        <text x="185" y="180" font-size="9" fill="#999" class="mono">_children</text>
+        <text x="310" y="125" font-size="9" fill="#999" class="mono">_op=&apos;*&apos;</text>
+        <text x="595" y="170" font-size="9" fill="#999" class="mono">_op=&apos;+&apos;</text>
+        <text x="700" y="230" text-anchor="middle" class="mono" font-size="9" fill="#d4a843" letter-spacing="0.15em">&#9650; OUTPUT</text>
+        <defs>
+          <marker id="arrowBlue" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#2c3e6b"/>
+          </marker>
+          <marker id="arrowGreen" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#27654a"/>
+          </marker>
+          <marker id="arrowGold2" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#d4a843"/>
+          </marker>
+        </defs>
+      </svg>
+    </div>
+  </div>
+
+  <div class="insight-box fade-in">
+    <h4>The Key Insight</h4>
+    <p>
+      Every Value node stores: <strong>(1)</strong> its data, <strong>(2)</strong> its gradient,
+      <strong>(3)</strong> its children (inputs), and <strong>(4)</strong> the operation that created it.
+      This is the entire backbone of neural network training.
+      <em>Without this graph, gradients have no path to flow backward.</em>
+    </p>
+  </div>
+
+  <!-- SECTION III: THE CODE -->
+  <h2 class="section-header fade-in"><span class="number">III.</span> The Implementation &mdash; Code That Captures the Graph</h2>
+
+  <div class="code-block fade-in">
+<span class="keyword">class</span> <span class="class-name">Value</span>:
+
+    <span class="keyword">def</span> <span class="func">__init__</span>(<span class="self">self</span>, data, _children=(), _op=<span class="string">&#39;&#39;</span>):
+        <span class="self">self</span>.data = data              <span class="comment"># the actual number</span>
+        <span class="self">self</span>.grad = <span class="number">0.0</span>               <span class="comment"># derivative of output w.r.t. this value</span>
+        <span class="self">self</span>._prev = <span class="func">set</span>(_children)  <span class="comment"># what created me?</span>
+        <span class="self">self</span>._op = _op               <span class="comment"># what operation created me?</span>
+
+    <span class="keyword">def</span> <span class="func">__add__</span>(<span class="self">self</span>, other):
+        out = <span class="class-name">Value</span>(<span class="self">self</span>.data <span class="op">+</span> other.data, (<span class="self">self</span>, other), <span class="string">&#39;+&#39;</span>)
+        <span class="keyword">return</span> out
+
+    <span class="keyword">def</span> <span class="func">__mul__</span>(<span class="self">self</span>, other):
+        out = <span class="class-name">Value</span>(<span class="self">self</span>.data <span class="op">*</span> other.data, (<span class="self">self</span>, other), <span class="string">&#39;*&#39;</span>)
+        <span class="keyword">return</span> out
+
+    <span class="keyword">def</span> <span class="func">__repr__</span>(<span class="self">self</span>):
+        <span class="keyword">return</span> <span class="string">f"Value(data={<span class="self">self</span>.data})"</span>
+
+<span class="comment"># Usage &mdash; this builds the graph from Exhibit B above:</span>
+a = <span class="class-name">Value</span>(<span class="number">2.0</span>)
+b = <span class="class-name">Value</span>(<span class="number">-3.0</span>)
+c = <span class="class-name">Value</span>(<span class="number">10.0</span>)
+d = a <span class="op">*</span> b          <span class="comment"># Value(data=-6.0), _children=(a,b), _op=&#39;*&#39;</span>
+e = d <span class="op">+</span> c          <span class="comment"># Value(data=4.0),  _children=(d,c), _op=&#39;+&#39;</span>
+  </div>
+
+  <!-- SECTION IV: PENDULUM -->
+  <h2 class="section-header fade-in"><span class="number">IV.</span> The Pendulum &mdash; Where Beginners Swing Too Far</h2>
+
+  <p class="prose fade-in">
+    Howard Marks describes how markets oscillate between extremes, rarely resting at equilibrium.
+    Learners do the same. Here&rsquo;s the pendulum of Day 1 mistakes:
+  </p>
+
+  <div class="viz-container fade-in">
+    <div class="bell-curve-wrap">
+      <svg viewBox="0 0 800 280" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;">
+        <path d="M 100,30 Q 400,320 700,30" fill="none" stroke="#ddd" stroke-width="2" stroke-dasharray="6"/>
+        <circle cx="400" cy="18" r="5" fill="#1a1a2e"/>
+        <line x1="400" y1="18" x2="400" y2="35" stroke="#1a1a2e" stroke-width="1.5"/>
+        <circle cx="130" cy="75" r="22" fill="#c0392b" opacity="0.15" stroke="#c0392b" stroke-width="2"/>
+        <text x="130" y="80" text-anchor="middle" font-size="16" fill="#c0392b" font-weight="700">!</text>
+        <circle cx="670" cy="75" r="22" fill="#c0392b" opacity="0.15" stroke="#c0392b" stroke-width="2"/>
+        <text x="670" y="80" text-anchor="middle" font-size="16" fill="#c0392b" font-weight="700">!</text>
+        <circle cx="400" cy="195" r="26" fill="#27654a" opacity="0.15" stroke="#27654a" stroke-width="2.5"/>
+        <text x="400" y="200" text-anchor="middle" font-size="14" fill="#27654a" font-weight="700">&#10003;</text>
+        <text x="130" y="120" text-anchor="middle" font-size="12" fill="#c0392b" font-weight="600">EXTREME 1</text>
+        <text x="130" y="138" text-anchor="middle" font-size="10" fill="#666">&ldquo;I&rsquo;ll just copy-paste</text>
+        <text x="130" y="152" text-anchor="middle" font-size="10" fill="#666">Karpathy&rsquo;s code&rdquo;</text>
+        <text x="130" y="172" text-anchor="middle" font-size="9" class="mono" fill="#999">Zero understanding.</text>
+        <text x="130" y="186" text-anchor="middle" font-size="9" class="mono" fill="#999">Fragile knowledge.</text>
+        <text x="670" y="120" text-anchor="middle" font-size="12" fill="#c0392b" font-weight="600">EXTREME 2</text>
+        <text x="670" y="138" text-anchor="middle" font-size="10" fill="#666">&ldquo;I need to master all</text>
+        <text x="670" y="152" text-anchor="middle" font-size="10" fill="#666">of calculus first&rdquo;</text>
+        <text x="670" y="172" text-anchor="middle" font-size="9" class="mono" fill="#999">Analysis paralysis.</text>
+        <text x="670" y="186" text-anchor="middle" font-size="9" class="mono" fill="#999">Never starts coding.</text>
+        <text x="400" y="240" text-anchor="middle" font-size="12" fill="#27654a" font-weight="600">THE BALANCE</text>
+        <text x="400" y="258" text-anchor="middle" font-size="10" fill="#555">&ldquo;Type every line. Pause to understand each one.&rdquo;</text>
+        <line x1="400" y1="18" x2="130" y2="57" stroke="#c0392b" stroke-width="1" opacity="0.4"/>
+        <line x1="400" y1="18" x2="670" y2="57" stroke="#c0392b" stroke-width="1" opacity="0.4"/>
+        <line x1="400" y1="18" x2="400" y2="170" stroke="#27654a" stroke-width="1.5"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- SECTION V: 2x2 MATRIX -->
+  <h2 class="section-header fade-in"><span class="number">V.</span> The Matrix &mdash; What Matters on Day 1</h2>
+
+  <p class="prose fade-in">
+    Just as Marks separates what you <em>can</em> know from what you <em>can&rsquo;t</em>,
+    here&rsquo;s how to allocate your limited hours today:
+  </p>
+
+  <div class="matrix-grid fade-in">
+    <div class="matrix-corner"></div>
+    <div class="matrix-col-header">High Understanding Value</div>
+    <div class="matrix-col-header">Low Understanding Value</div>
+    <div class="matrix-row-header">Quick to Do</div>
+    <div class="matrix-cell best">
+      <span class="emoji">&#127919;</span>
+      <h4>DO FIRST</h4>
+      <p>Install Python, PyTorch, Jupyter. Type out the Value class line by line. Run <code>a + b</code> and inspect <code>._prev</code> and <code>._op</code>.</p>
+    </div>
+    <div class="matrix-cell">
+      <span class="emoji">&#9197;&#65039;</span>
+      <h4>DO IF TIME</h4>
+      <p>Prettify your notebook, add markdown headers, organize file structure. Nice but not essential today.</p>
+    </div>
+    <div class="matrix-row-header">Slow to Do</div>
+    <div class="matrix-cell">
+      <span class="emoji">&#128400;</span>
+      <h4>DO CAREFULLY</h4>
+      <p>Draw the computation graph by hand for 3 different expressions. This is slow but builds deep intuition for tomorrow&rsquo;s backward pass.</p>
+    </div>
+    <div class="matrix-cell worst">
+      <span class="emoji">&#128683;</span>
+      <h4>AVOID TODAY</h4>
+      <p>Reading ahead about backprop, watching 5 other videos &ldquo;for context&rdquo;, setting up a fancy IDE. Stay focused. Go deep on one thing.</p>
+    </div>
+  </div>
+
+  <!-- SECTION VI: CHECKLIST -->
+  <h2 class="section-header fade-in"><span class="number">VI.</span> Today&rsquo;s Deliverables</h2>
+
+  <ul class="checklist fade-in">
+    <li><strong>Environment:</strong> Python 3.10+, PyTorch, Jupyter Notebook &mdash; all working</li>
+    <li><strong>Value class:</strong> Implement <code>__init__</code>, <code>__add__</code>, <code>__mul__</code>, <code>__repr__</code></li>
+    <li><strong>Test it:</strong> Create <code>a = Value(2.0); b = Value(-3.0); c = a * b</code> &mdash; verify <code>c.data == -6.0</code></li>
+    <li><strong>Trace it:</strong> Print <code>c._prev</code> and <code>c._op</code> &mdash; confirm the graph is being built</li>
+    <li><strong>Draw it:</strong> Hand-draw the computation graph for <code>(a * b) + c</code> on paper</li>
+    <li><strong>Stretch:</strong> Add <code>__sub__</code> and <code>__truediv__</code> on your own &mdash; think about what <code>_children</code> should be</li>
+  </ul>
+
+  <div class="memo-quote fade-in" style="margin-top:3rem;">
+    The most important thing in learning, as in investing, is not what you know &mdash;
+    it&rsquo;s the quality of your understanding. A shallow grasp of 10 concepts will always
+    lose to deep fluency in one. Today you master exactly one thing:
+    <strong>a number that remembers where it came from.</strong>
+    <span class="attribution">&mdash; Day 1 Principle</span>
+  </div>
+
+</main>
+
+<footer class="footer">
+  <span>RAG &amp; LLM Engineer &middot; 80-Day Plan</span>
+  <span>Day 1 of 80 &middot; Phase 1: Foundations</span>
+  <span>&rarr; Tomorrow: Backward Pass &amp; Chain Rule</span>
+</footer>
+
+</body>
+</html>
