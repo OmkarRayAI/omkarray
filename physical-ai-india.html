@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-62YF7Y81BS"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-62YF7Y81BS');
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Physical AI & Robotics — The India Thesis</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,700;1,400;1,500&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg:      #f8f7f4;
+  --ink:     #1c1c1c;
+  --muted:   #6e6e6e;
+  --faint:   #b8b3a8;
+  --rule:    #d8d3c8;
+  --card:    #f2f0eb;
+  --red:     #9b2335;
+  --blue:    #1a4a7a;
+  --green:   #1e6b3c;
+  --amber:   #8a5a00;
+  --teal:    #1a5a6b;
+  --purple:  #5a2080;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'EB Garamond', serif;
+  background: var(--bg);
+  color: var(--ink);
+  max-width: 1020px;
+  margin: 0 auto;
+  padding: 56px 44px;
+  line-height: 1.7;
+  font-size: 15px;
+}
+
+.doc-header {
+  border-top: 2px solid var(--ink);
+  padding-top: 20px;
+  margin-bottom: 48px;
+}
+.doc-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 28px;
+}
+.doc-id {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  line-height: 1.9;
+}
+.doc-classification {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: .15em;
+  color: var(--muted);
+  text-transform: uppercase;
+  text-align: right;
+  border: 1px solid var(--faint);
+  padding: 6px 12px;
+}
+h1 {
+  font-family: 'EB Garamond', serif;
+  font-size: 46px;
+  font-weight: 500;
+  line-height: 1.08;
+  letter-spacing: -.01em;
+}
+h1 .sub {
+  display: block;
+  font-size: 20px;
+  font-weight: 400;
+  font-style: italic;
+  color: var(--muted);
+  margin-top: 4px;
+  letter-spacing: 0;
+}
+.abstract {
+  margin-top: 20px;
+  padding: 18px 24px;
+  border-left: 3px solid var(--ink);
+  font-size: 14px;
+  font-style: italic;
+  color: var(--muted);
+  line-height: 1.8;
+  max-width: 740px;
+}
+.abstract strong { font-style: normal; color: var(--ink); }
+
+.section {
+  margin: 60px 0 24px;
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: 12px;
+  align-items: baseline;
+  border-bottom: 1px solid var(--ink);
+  padding-bottom: 8px;
+}
+.sec-n {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+.sec-title { font-size: 22px; font-weight: 500; }
+.sec-sub {
+  grid-column: 2;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  color: var(--muted);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  margin-top: -4px;
+}
+
+p.body {
+  font-size: 15px;
+  line-height: 1.8;
+  color: var(--ink);
+  margin-bottom: 16px;
+  max-width: 760px;
+}
+p.body strong { font-weight: 600; }
+p.body em { font-style: italic; }
+
+.def {
+  margin: 20px 0;
+  padding: 16px 20px 16px 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 16px;
+}
+.def-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  color: var(--muted);
+  padding-top: 2px;
+}
+.def-body { font-size: 14px; line-height: 1.75; }
+.def-body strong { font-weight: 600; }
+
+.math-block {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  background: var(--card);
+  border: 1px solid var(--rule);
+  padding: 16px 22px;
+  margin: 16px 0;
+  color: var(--ink);
+  line-height: 2;
+  overflow-x: auto;
+}
+.math-block .label {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  color: var(--muted);
+  display: block;
+  margin-bottom: 8px;
+  border-bottom: 1px dashed var(--rule);
+  padding-bottom: 6px;
+}
+.math-block .eq { display: block; margin: 4px 0 4px 20px; }
+.math-block .comment { color: var(--muted); }
+.m { font-family: 'JetBrains Mono', monospace; font-size: 12px; background: rgba(0,0,0,.05); padding: 1px 4px; border-radius: 2px; color: var(--red); }
+
+.diagram {
+  margin: 20px 0;
+  border: 1px solid var(--rule);
+  background: var(--card);
+  overflow: hidden;
+}
+.diagram-hdr {
+  padding: 10px 18px;
+  background: var(--ink);
+  color: var(--bg);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.diagram-hdr span { opacity: .5; }
+.diagram-body { padding: 24px; }
+.diagram-note {
+  padding: 10px 18px;
+  border-top: 1px dashed var(--rule);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.ex-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.ex-table th {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  padding: 10px 14px;
+  background: var(--ink);
+  color: var(--bg);
+  text-align: left;
+  font-weight: 500;
+}
+.ex-table td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--rule);
+  vertical-align: top;
+  line-height: 1.6;
+  color: var(--muted);
+}
+.ex-table td.key { color: var(--ink); font-weight: 500; }
+.ex-table tr:nth-child(even) td { background: rgba(0,0,0,.02); }
+
+.cmp-grid {
+  display: grid;
+  gap: 1px;
+  background: var(--rule);
+}
+.cmp-cell { background: var(--card); padding: 18px; }
+.cmp-name {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .06em;
+  margin-bottom: 6px;
+}
+.cmp-formula {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--red);
+  background: rgba(155,35,53,.06);
+  padding: 5px 8px;
+  margin-bottom: 10px;
+  line-height: 1.6;
+}
+.cmp-prop {
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 3px;
+  padding-left: 10px;
+  position: relative;
+  line-height: 1.5;
+}
+.cmp-prop::before { content: '—'; position: absolute; left: 0; color: var(--faint); }
+
+.spectrum { display: flex; flex-direction: column; gap: 0; }
+.sp-row {
+  display: grid;
+  grid-template-columns: 160px 1fr 180px;
+  border: 1px solid var(--rule);
+  margin-bottom: -1px;
+}
+.sp-lbl {
+  padding: 14px 16px;
+  border-right: 1px solid var(--rule);
+  background: rgba(0,0,0,.025);
+  font-family: 'JetBrains Mono', monospace;
+}
+.sp-lbl strong { display: block; font-size: 12px; color: var(--ink); margin-bottom: 3px; }
+.sp-lbl span { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+.sp-viz { padding: 10px 16px; display: flex; align-items: center; }
+.sp-note { padding: 12px 14px; border-left: 1px solid var(--rule); font-size: 12px; color: var(--muted); line-height: 1.5; }
+.sp-note strong { color: var(--ink); font-weight: 600; }
+.bar-track { width: 100%; height: 20px; background: var(--rule); border-radius: 1px; overflow: hidden; }
+.bar-fill  { height: 100%; display: flex; align-items: center; padding-left: 8px; font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 600; color: white; }
+
+.pyramid { max-width: 660px; margin: 0 auto; display: flex; flex-direction: column; }
+.pyr-row {
+  display: flex; align-items: center; justify-content: space-between;
+  border: 1px solid var(--rule); margin-bottom: -1px; padding: 14px 20px; gap: 16px;
+}
+.pyr-main { flex: 1; }
+.pyr-t { font-size: 14px; font-weight: 500; margin-bottom: 3px; }
+.pyr-d { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); line-height: 1.5; }
+.pyr-b {
+  font-family: 'JetBrains Mono', monospace; font-size: 9px;
+  padding: 3px 9px; border-radius: 1px; white-space: nowrap; flex-shrink: 0; border: 1px solid;
+}
+
+hr.rule { border: none; border-top: 1px solid var(--rule); margin: 36px 0; }
+
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0; }
+.note-box { background: var(--card); border: 1px solid var(--rule); padding: 18px; }
+.note-box h4 { font-size: 15px; font-weight: 500; margin-bottom: 8px; font-family: 'EB Garamond', serif; }
+.note-box p { font-size: 13px; color: var(--muted); line-height: 1.65; }
+
+.regret-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--rule);
+  margin: 16px 0;
+}
+.rg-cell { background: var(--card); padding: 20px; }
+.rg-name { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600; color: var(--ink); margin-bottom: 6px; letter-spacing: .05em; }
+.rg-formula { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--red); background: rgba(155,35,53,.06); padding: 6px 10px; margin-bottom: 10px; line-height: 1.5; }
+.rg-body { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+.doc-footer {
+  margin-top: 56px;
+  padding-top: 16px;
+  border-top: 1px solid var(--rule);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  color: var(--muted);
+  display: flex;
+  justify-content: space-between;
+  letter-spacing: .06em;
+  line-height: 1.8;
+}
+
+.notebook-card {
+  margin: 24px 0;
+  border: 2px solid var(--ink);
+  background: white;
+  overflow: hidden;
+}
+.notebook-card-hdr {
+  padding: 14px 20px;
+  background: var(--ink);
+  color: var(--bg);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.notebook-card-hdr .nb-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+.notebook-card-hdr .nb-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  padding: 3px 10px;
+  border: 1px solid rgba(255,255,255,.3);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  opacity: .7;
+}
+.notebook-card-body {
+  padding: 20px;
+}
+.notebook-card-body p {
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.7;
+  margin-bottom: 12px;
+}
+.notebook-card-body ul {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 16px 0;
+}
+.notebook-card-body ul li {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--muted);
+  padding: 4px 0 4px 16px;
+  position: relative;
+  line-height: 1.6;
+}
+.notebook-card-body ul li::before {
+  content: '→';
+  position: absolute;
+  left: 0;
+  color: var(--faint);
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="doc-header">
+  <div class="doc-meta">
+    <div class="doc-id">
+      Investment Thesis · Physical AI<br>
+      February 2026
+    </div>
+    <div class="doc-classification">
+      India Deep Dive<br>
+      First Principles
+    </div>
+  </div>
+  <h1>
+    Physical AI & Robotics
+    <span class="sub">The India thesis — supply chain positioning, domestic market inflection, and where India sits in the global physical intelligence stack</span>
+  </h1>
+  <div class="abstract">
+    <strong>Abstract.</strong> India's robotics market ($1.98B in 2025, 16.4% CAGR to $6.81B by 2033) sits at the intersection of three structural forces: a manufacturing capex super-cycle under Make in India and PLI schemes, the world's fifth-largest rare earth reserves being activated for the first time, and 20% of the world's chip design engineers concentrated in Bangalore and Hyderabad. While India is not competing to build the next humanoid OEM, it is quietly assembling the capability to own critical layers of the global physical AI supply chain — from rare earth magnets to semiconductor design to warehouse automation at Indian-market price points.
+  </div>
+</div>
+
+<!-- §1 — THE GLOBAL CONTEXT -->
+<div class="section">
+  <div class="sec-n">§ 1</div>
+  <div>
+    <div class="sec-title">The Global Context: Where India Fits</div>
+    <div class="sec-sub">Supply chain geography and India's position in the physical AI stack</div>
+  </div>
+</div>
+
+<p class="body">The global robotics market is $50B in 2025, growing to $111B by 2030 (ABI Research). Humanoid shipments forecast to exceed 50,000 units in 2026 (TrendForce, 700% YoY). China controls 63% of key component manufacturing and 90% of rare earth processing. Taiwan produces 90% of advanced AI chips. India is neither of these — but it controls something else.</p>
+
+<div class="diagram">
+  <div class="diagram-hdr">Exhibit 1 — India's Position in the Global Physical AI Stack <span>6-layer supply chain view</span></div>
+  <div class="diagram-body">
+    <svg viewBox="0 0 720 420" xmlns="http://www.w3.org/2000/svg" width="100%" style="display:block;">
+      <rect width="720" height="420" fill="#f2f0eb"/>
+      <!-- Layer 6 (top) - Deployment -->
+      <rect x="20" y="20" width="680" height="62" fill="white" stroke="#1c1c1c" stroke-width="1"/>
+      <rect x="20" y="20" width="680" height="18" fill="#1e6b3c"/>
+      <text x="360" y="33" font-family="'JetBrains Mono',monospace" font-size="9" fill="white" text-anchor="middle" letter-spacing="1">6. DEPLOYMENT (Warehouses, Factories)</text>
+      <text x="30" y="52" font-family="'JetBrains Mono',monospace" font-size="9" fill="#1c1c1c">Global</text>
+      <text x="30" y="68" font-family="'JetBrains Mono',monospace" font-size="8" fill="#1e6b3c">India: $342M warehouse robotics market, 22.8% CAGR</text>
+      <!-- Layer 5 - System Integration -->
+      <rect x="20" y="84" width="680" height="62" fill="white" stroke="#1c1c1c" stroke-width="1"/>
+      <rect x="20" y="84" width="680" height="18" fill="#8a5a00"/>
+      <text x="360" y="97" font-family="'JetBrains Mono',monospace" font-size="9" fill="white" text-anchor="middle" letter-spacing="1">5. SYSTEM INTEGRATION (OEMs)</text>
+      <text x="30" y="116" font-family="'JetBrains Mono',monospace" font-size="9" fill="#1c1c1c">US/China (Tesla, Figure, Unitree)</text>
+      <text x="30" y="132" font-family="'JetBrains Mono',monospace" font-size="8" fill="#8a5a00">India: Addverb (Reliance)</text>
+      <!-- Layer 4 - Software & AI Models -->
+      <rect x="20" y="148" width="680" height="62" fill="white" stroke="#1c1c1c" stroke-width="1"/>
+      <rect x="20" y="148" width="680" height="18" fill="#8a5a00"/>
+      <text x="360" y="161" font-family="'JetBrains Mono',monospace" font-size="9" fill="white" text-anchor="middle" letter-spacing="1">4. SOFTWARE & AI MODELS (VLA, Foundation Models)</text>
+      <text x="30" y="180" font-family="'JetBrains Mono',monospace" font-size="9" fill="#1c1c1c">US (Pi, Skild, Figure)</text>
+      <text x="30" y="196" font-family="'JetBrains Mono',monospace" font-size="8" fill="#8a5a00">India: IT services + integration</text>
+      <!-- Layer 3 - AI Compute -->
+      <rect x="20" y="212" width="680" height="62" fill="white" stroke="#1c1c1c" stroke-width="1"/>
+      <rect x="20" y="212" width="680" height="18" fill="#1e6b3c"/>
+      <text x="360" y="225" font-family="'JetBrains Mono',monospace" font-size="9" fill="white" text-anchor="middle" letter-spacing="1">3. AI COMPUTE (Chips, SoCs)</text>
+      <text x="30" y="244" font-family="'JetBrains Mono',monospace" font-size="9" fill="#1c1c1c">Taiwan (TSMC 90%)</text>
+      <text x="30" y="260" font-family="'JetBrains Mono',monospace" font-size="8" fill="#1e6b3c">India: 20% of global chip DESIGN talent</text>
+      <!-- Layer 2 - Precision Components -->
+      <rect x="20" y="276" width="680" height="62" fill="white" stroke="#1c1c1c" stroke-width="1"/>
+      <rect x="20" y="276" width="680" height="18" fill="#9b2335"/>
+      <text x="360" y="289" font-family="'JetBrains Mono',monospace" font-size="9" fill="white" text-anchor="middle" letter-spacing="1">2. PRECISION COMPONENTS (Reducers, Motors)</text>
+      <text x="30" y="308" font-family="'JetBrains Mono',monospace" font-size="9" fill="#1c1c1c">Japan duopoly (Harmonic Drive, Nabtesco)</text>
+      <text x="30" y="324" font-family="'JetBrains Mono',monospace" font-size="8" fill="#9b2335">India: absent</text>
+      <!-- Layer 1 (bottom) - Raw Materials -->
+      <rect x="20" y="340" width="680" height="62" fill="white" stroke="#1c1c1c" stroke-width="1"/>
+      <rect x="20" y="340" width="680" height="18" fill="#1e6b3c"/>
+      <text x="360" y="353" font-family="'JetBrains Mono',monospace" font-size="9" fill="white" text-anchor="middle" letter-spacing="1">1. RAW MATERIALS (Rare Earths, Magnets)</text>
+      <text x="30" y="372" font-family="'JetBrains Mono',monospace" font-size="9" fill="#1c1c1c">China 90% dominance</text>
+      <text x="30" y="388" font-family="'JetBrains Mono',monospace" font-size="8" fill="#1e6b3c">India: 5th largest reserves, activating</text>
+      <!-- Legend -->
+      <rect x="520" y="380" width="12" height="12" fill="#1e6b3c"/>
+      <text x="538" y="390" font-family="'JetBrains Mono',monospace" font-size="8" fill="#6e6e6e">Strong</text>
+      <rect x="580" y="380" width="12" height="12" fill="#8a5a00"/>
+      <text x="598" y="390" font-family="'JetBrains Mono',monospace" font-size="8" fill="#6e6e6e">Developing</text>
+      <rect x="650" y="380" width="12" height="12" fill="#9b2335"/>
+      <text x="668" y="390" font-family="'JetBrains Mono',monospace" font-size="8" fill="#6e6e6e">Absent</text>
+    </svg>
+  </div>
+  <div class="diagram-note">India's strength is concentrated in raw materials (rare earth activation), chip design talent, and deployment (warehouse automation). Precision components and OEM integration remain gaps. Green = India strong; Amber = developing; Red = absent.</div>
+</div>
+
+<!-- §2 — THE DEMAND PICTURE -->
+<div class="section">
+  <div class="sec-n">§ 2</div>
+  <div>
+    <div class="sec-title">The Demand Picture: India-Specific</div>
+    <div class="sec-sub">Macro backdrop and segment breakdown</div>
+  </div>
+</div>
+
+<p class="body">India's industrial production growing at 5.2% YoY (Nov 2025, MoSPI). Capital goods production at 6.3% growth. Consumer durables at 7.2%. Manufacturing GVA at 4.8%. GDP steady at 6.5–6.7%. The macro backdrop is constructive for automation capex.</p>
+
+<div class="diagram">
+  <div class="diagram-hdr">Exhibit 2 — India Robotics Market — Segment Breakdown ($1.98B, 2025) <span>horizontal bar chart</span></div>
+  <div class="diagram-body">
+    <div class="spectrum">
+      <div class="sp-row">
+        <div class="sp-lbl"><strong>Warehouse/Logistics</strong><span>$342M → $1.24B by 2030</span></div>
+        <div class="sp-viz"><div class="bar-track"><div class="bar-fill" style="width:17.3%;background:#1e6b3c;">$342M · 22.8% CAGR</div></div></div>
+        <div class="sp-note">Largest growth driver. E-commerce + fulfillment centers scaling.</div>
+      </div>
+      <div class="sp-row">
+        <div class="sp-lbl"><strong>Industrial Arms</strong><span>$577M</span></div>
+        <div class="sp-viz"><div class="bar-track"><div class="bar-fill" style="width:29.1%;background:#1a4a7a;">$577M · 16.8% CAGR</div></div></div>
+        <div class="sp-note">ABB, Siemens, KUKA. Manufacturing automation.</div>
+      </div>
+      <div class="sp-row">
+        <div class="sp-lbl"><strong>Services/Other</strong><span>~$700M</span></div>
+        <div class="sp-viz"><div class="bar-track"><div class="bar-fill" style="width:35.4%;background:#5a2080;">~$700M</div></div></div>
+        <div class="sp-note">Cleaning, hospitality, agriculture, education.</div>
+      </div>
+      <div class="sp-row">
+        <div class="sp-lbl"><strong>Defense/UGV</strong><span>~$200M</span></div>
+        <div class="sp-viz"><div class="bar-track"><div class="bar-fill" style="width:10.1%;background:#8a5a00;">~$200M · DRDO + private</div></div></div>
+        <div class="sp-note">MUNTRA, SapperScout, Bhairav.</div>
+      </div>
+      <div class="sp-row">
+        <div class="sp-lbl"><strong>Medical/Surgical</strong><span>~$150M</span></div>
+        <div class="sp-viz"><div class="bar-track"><div class="bar-fill" style="width:7.6%;background:#1a5a6b;">~$150M</div></div></div>
+        <div class="sp-note">Surgical robots, diagnostics.</div>
+      </div>
+    </div>
+  </div>
+  <div class="diagram-note">Total market $1.98B (2025). Warehouse segment has highest CAGR (22.8%). Bar width proportional to segment size.</div>
+</div>
+
+<table class="ex-table">
+  <thead>
+    <tr>
+      <th style="width:180px;">Sector</th>
+      <th style="width:100px;">YoY Growth</th>
+      <th>Signal</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td class="key">Capital Goods</td>
+      <td>6.3%</td>
+      <td>Strong — automation capex cycle</td>
+    </tr>
+    <tr>
+      <td class="key">Consumer Durables</td>
+      <td>7.2%</td>
+      <td>Domestic demand driving factory buildout</td>
+    </tr>
+    <tr>
+      <td class="key">Infrastructure Goods</td>
+      <td>5.1%</td>
+      <td>Construction + logistics investment</td>
+    </tr>
+    <tr>
+      <td class="key">Manufacturing (overall)</td>
+      <td>5.2%</td>
+      <td>Broad-based recovery</td>
+    </tr>
+    <tr>
+      <td class="key">Primary Goods</td>
+      <td>4.8%</td>
+      <td>Upstream commodities steady</td>
+    </tr>
+  </tbody>
+</table>
+<p class="body" style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);margin-top:-8px;">India IIP — Manufacturing Momentum (MoSPI, Nov 2025)</p>
+
+<!-- §3 — INDIA'S THREE STRUCTURAL ADVANTAGES -->
+<div class="section">
+  <div class="sec-n">§ 3</div>
+  <div>
+    <div class="sec-title">India's Three Structural Advantages</div>
+    <div class="sec-sub">Rare earths, chip design, warehouse automation</div>
+  </div>
+</div>
+
+<div class="def">
+  <div class="def-tag">3A</div>
+  <div class="def-body"><strong>Rare Earth Activation.</strong> India holds 8.52 million tonnes of REO resources (5th globally). 13.15 MT of monazite deposits identified across Tamil Nadu, Kerala, AP, Odisha. Union Cabinet approved ₹7,280 crore Scheme for Rare Earth Permanent Magnets (Nov 2025). National Critical Mineral Mission: ₹16,300 crore through 2030-31. Development corridors in Odisha, Kerala, AP, Tamil Nadu. <strong>BUT:</strong> India still imports 87–95% of processed rare earths from China. IREL can mine but lacks refining at scale. This is a 5–7 year thesis, not a 2026 trade.</div>
+</div>
+
+<div class="def">
+  <div class="def-tag">3B</div>
+  <div class="def-body"><strong>Chip Design Talent Moat.</strong> 20% of the world's chip design engineers are in India (Economic Times, 2025). 95+ semiconductor GCCs in India (up from 70 in 2024). Qualcomm, Intel, Nvidia, Broadcom, MediaTek all have major design centers in Bangalore/Hyderabad. India Semiconductor Mission 2.0: ₹1,000 crore for FY26-27. 10 approved projects totaling ₹1.60 lakh crore investment across 6 states. Target: 70–75% of domestic chip applications by 2029.</div>
+</div>
+
+<div class="def">
+  <div class="def-tag">3C</div>
+  <div class="def-body"><strong>Warehouse Automation at Indian Price Points.</strong> India's warehouse robotics market: $342M (2024), growing to $1.24B by 2030 (22.8% CAGR). E-commerce $200B+ by 2026. Flipkart: 100+ fulfillment centers, 3.5M sqft expansion. Amazon, Reliance, Delhivery all scaling. Addverb: Reliance-backed, targeting $100M revenue FY25, $1B in 5 years. Key insight: Addverb designs for Indian conditions (dust, heat, power fluctuations) — European/Japanese robots fail in these environments.</div>
+</div>
+
+<!-- §4 — INDIA'S LISTED COMPANY UNIVERSE -->
+<div class="section">
+  <div class="sec-n">§ 4</div>
+  <div>
+    <div class="sec-title">India's Listed Company Universe</div>
+    <div class="sec-sub">NSE/BSE companies with physical AI exposure</div>
+  </div>
+</div>
+
+<table class="ex-table">
+  <thead>
+    <tr>
+      <th style="width:90px;">Ticker</th>
+      <th style="width:120px;">Company</th>
+      <th style="width:100px;">Segment</th>
+      <th style="width:90px;">Robotics Purity</th>
+      <th style="width:80px;">Market Cap</th>
+      <th style="width:50px;">P/E</th>
+      <th>Thesis</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td class="key">NSE:ABB</td>
+      <td>ABB India</td>
+      <td>Robotics + Electrification + Motion</td>
+      <td>5% pure robotics</td>
+      <td>₹1.27L Cr</td>
+      <td>76x</td>
+      <td>Robotics revenue +63% YoY, planned R&D spin-off. Premium valuation prices in decade of growth.</td>
+    </tr>
+    <tr>
+      <td class="key">NSE:SIEMENS</td>
+      <td>Siemens India</td>
+      <td>Digital Industries + Automation</td>
+      <td>~8%</td>
+      <td>₹2.1L Cr</td>
+      <td>~65x</td>
+      <td>Factory automation, PLCs, industrial IoT. PLI scheme beneficiary.</td>
+    </tr>
+    <tr>
+      <td class="key">NSE:HONAUT</td>
+      <td>Honeywell Automation</td>
+      <td>Integrated automation + controls</td>
+      <td>~15%</td>
+      <td>₹27K Cr</td>
+      <td>~55x</td>
+      <td>Niche but expensive. Revenue ₹1,149 Cr Q2 FY26 (+12% YoY).</td>
+    </tr>
+    <tr>
+      <td class="key">NSE:BEL</td>
+      <td>Bharat Electronics</td>
+      <td>Defense sensors + controls</td>
+      <td>~5% UGV</td>
+      <td>₹2L Cr</td>
+      <td>~45x</td>
+      <td>DRDO supply chain. Defense robotics proxy. Cheapest P/E of the set.</td>
+    </tr>
+    <tr>
+      <td class="key">NSE:HAL</td>
+      <td>Hindustan Aero</td>
+      <td>Defense UGV + UAV</td>
+      <td>~3%</td>
+      <td>₹3.5L Cr</td>
+      <td>~35x</td>
+      <td>Defense autonomous systems. Government order book.</td>
+    </tr>
+    <tr>
+      <td class="key">NSE:LT</td>
+      <td>L&T</td>
+      <td>Industrial automation + integration</td>
+      <td>~3%</td>
+      <td>₹5L Cr</td>
+      <td>~32x</td>
+      <td>Largest industrial integrator. Smart manufacturing. Most diversified.</td>
+    </tr>
+    <tr>
+      <td class="key">NSE:TATAELXSI</td>
+      <td>Tata Elxsi</td>
+      <td>Robotics software + autonomous</td>
+      <td>~20%</td>
+      <td>₹25K Cr</td>
+      <td>~55x</td>
+      <td>Design/software for autonomous systems. IT services play.</td>
+    </tr>
+    <tr>
+      <td class="key">NSE:KPITTECH</td>
+      <td>KPIT Technologies</td>
+      <td>Automotive software + ADAS</td>
+      <td>~25%</td>
+      <td>₹40K Cr</td>
+      <td>~65x</td>
+      <td>Autonomous vehicle stack. India's closest play to self-driving software.</td>
+    </tr>
+    <tr>
+      <td class="key">NSE:BOSCHLTD</td>
+      <td>Bosch India</td>
+      <td>Industrial sensors + automation</td>
+      <td>~8%</td>
+      <td>₹75K Cr</td>
+      <td>~45x</td>
+      <td>Sensor + motor control play. Global parent R&D.</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- §5 — THE PRIVATE MARKET -->
+<div class="section">
+  <div class="sec-n">§ 5</div>
+  <div>
+    <div class="sec-title">The Private Market: Addverb and Beyond</div>
+    <div class="sec-sub">India's pre-IPO robotics landscape</div>
+  </div>
+</div>
+
+<div class="diagram">
+  <div class="diagram-hdr">Exhibit 3 — India's Pre-IPO Robotics Landscape <span>4 companies in card format</span></div>
+  <div class="diagram-body">
+    <div class="cmp-grid" style="grid-template-columns: 1fr 1fr;">
+      <div class="cmp-cell">
+        <div class="cmp-name">Addverb Technologies</div>
+        <div class="cmp-formula">Valuation: ~$270M (2022) · Revenue: $100M FY25 target</div>
+        <div class="cmp-prop">Backer: Reliance (56% stake)</div>
+        <div class="cmp-prop">Products: warehouse AMRs, picking robots, humanoid in development</div>
+        <div class="cmp-prop">USP: Designed for Indian conditions, 80–90% hardware localization target</div>
+      </div>
+      <div class="cmp-cell">
+        <div class="cmp-name">Gridbots</div>
+        <div class="cmp-formula">Valuation: ₹160 Cr · Revenue: Early stage</div>
+        <div class="cmp-prop">Focus: Industrial manipulators, AGVs, machine vision</div>
+        <div class="cmp-prop">Based: Ahmedabad</div>
+      </div>
+      <div class="cmp-cell">
+        <div class="cmp-name">Bhairav Robotics</div>
+        <div class="cmp-formula">Defense UGVs (Vrishabh Combat ATV) · Pre-revenue</div>
+        <div class="cmp-prop">Focus: Military autonomous platforms</div>
+      </div>
+      <div class="cmp-cell">
+        <div class="cmp-name">Hi-Tech Robotic Systemz</div>
+        <div class="cmp-formula">Defense + agriculture autonomous vehicles</div>
+        <div class="cmp-prop">Based: Gurugram</div>
+      </div>
+    </div>
+  </div>
+  <div class="diagram-note">Addverb is the only scaled private robotics company with clear path to IPO. Reliance ownership makes NSE:RELIANCE the public proxy.</div>
+</div>
+
+<!-- §6 — GOVERNMENT POLICY STACK -->
+<div class="section">
+  <div class="sec-n">§ 6</div>
+  <div>
+    <div class="sec-title">Government Policy Stack</div>
+    <div class="sec-sub">From foundational to frontier — policy pyramid</div>
+  </div>
+</div>
+
+<div class="diagram">
+  <div class="diagram-hdr">Exhibit 4 — Government Policy Pyramid <span>layered from foundational to frontier</span></div>
+  <div class="diagram-body">
+    <div class="pyramid">
+      <div class="pyr-row" style="background:rgba(30,107,60,.06);">
+        <div class="pyr-main">
+          <div class="pyr-t">1. BASE: Make in India + PLI Schemes</div>
+          <div class="pyr-d">₹1.97L Cr allocated, 108% budget increase. Manufacturing incentives across 14 sectors.</div>
+        </div>
+        <div class="pyr-b" style="border-color:#1e6b3c;color:#1e6b3c;">FUNDED & EXECUTING</div>
+      </div>
+      <div class="pyr-row" style="background:rgba(30,107,60,.04);">
+        <div class="pyr-main">
+          <div class="pyr-t">2. India Semiconductor Mission 2.0</div>
+          <div class="pyr-d">₹1,000 Cr FY26-27. 10 fab projects, ₹1.6L Cr investment across 6 states.</div>
+        </div>
+        <div class="pyr-b" style="border-color:#1e6b3c;color:#1e6b3c;">FUNDED & EXECUTING</div>
+      </div>
+      <div class="pyr-row" style="background:rgba(30,107,60,.04);">
+        <div class="pyr-main">
+          <div class="pyr-t">3. National Critical Mineral Mission</div>
+          <div class="pyr-d">₹16,300 Cr through 2030-31. Rare earth development corridors.</div>
+        </div>
+        <div class="pyr-b" style="border-color:#1e6b3c;color:#1e6b3c;">FUNDED & EXECUTING</div>
+      </div>
+      <div class="pyr-row" style="background:rgba(138,90,0,.04);">
+        <div class="pyr-main">
+          <div class="pyr-t">4. Rare Earth Permanent Magnets Scheme</div>
+          <div class="pyr-d">₹7,280 Cr, 6,000 MTPA target. Cabinet approved Nov 2025.</div>
+        </div>
+        <div class="pyr-b" style="border-color:#8a5a00;color:#8a5a00;">APPROVED BUT EARLY</div>
+      </div>
+      <div class="pyr-row" style="background:rgba(138,90,0,.04);">
+        <div class="pyr-main">
+          <div class="pyr-t">5. DRDO Autonomous Systems R&D</div>
+          <div class="pyr-d">MUNTRA UGV, SapperScout, defense platforms. Ongoing development.</div>
+        </div>
+        <div class="pyr-b" style="border-color:#8a5a00;color:#8a5a00;">APPROVED BUT EARLY</div>
+      </div>
+      <div class="pyr-row" style="background:rgba(26,74,122,.04);border-left:3px solid var(--blue);">
+        <div class="pyr-main">
+          <div class="pyr-t">6. TOP: Electronics Components Manufacturing Scheme (ECMS)</div>
+          <div class="pyr-d">The "missing middle" — components between chips and finished products. Aspirational.</div>
+        </div>
+        <div class="pyr-b" style="border-color:#1a4a7a;color:#1a4a7a;">ASPIRATIONAL</div>
+      </div>
+    </div>
+  </div>
+  <div class="diagram-note">Green = funded & executing; Amber = approved but early; Blue = aspirational. ECMS addresses the gap between semiconductor fabs and end-product assembly.</div>
+</div>
+
+<!-- §7 — THE THESIS -->
+<div class="section">
+  <div class="sec-n">§ 7</div>
+  <div>
+    <div class="sec-title">The Thesis: Where to Allocate</div>
+    <div class="sec-sub">Investment buckets and allocation logic</div>
+  </div>
+</div>
+
+<p class="body">Synthesizing the investment argument across four buckets:</p>
+
+<div class="regret-grid">
+  <div class="rg-cell">
+    <div class="rg-name">Bucket 1: Bottleneck owners already listed</div>
+    <div class="rg-formula">ABB India · BEL · KPIT Tech</div>
+    <div class="rg-body"><strong>ABB India:</strong> Only pure-play robotics revenue on NSE. 63% YoY robotics growth. Premium P/E (76x) but robotics is 5% of revenue — the optionality is in the spin-off. <strong>BEL:</strong> Defense robotics proxy at the cheapest P/E (45x). DRDO supply chain lock-in. <strong>KPIT Tech:</strong> India's autonomous vehicle software layer. 25% purity. Expensive but growing 30%+ organically.</div>
+  </div>
+  <div class="rg-cell">
+    <div class="rg-name">Bucket 2: Picks-and-shovels (global, India-listed)</div>
+    <div class="rg-formula">Siemens India · Honeywell · Bosch India</div>
+    <div class="rg-body">PLI beneficiaries. Factory automation demand rising with manufacturing GVA at 4.8%. <strong>Bosch India:</strong> Sensor + motor control. Benefits from any automation adoption regardless of OEM.</div>
+  </div>
+  <div class="rg-cell">
+    <div class="rg-name">Bucket 3: The Addverb thesis (private)</div>
+    <div class="rg-formula">Reliance-backed · $1B revenue target in 5 years</div>
+    <div class="rg-body">Designed for Indian conditions. If Addverb IPOs at 10–15x revenue, it's a $1–1.5B listing. The proxy today is <strong>Reliance Industries (NSE:RELIANCE)</strong> which owns 56%.</div>
+  </div>
+  <div class="rg-cell">
+    <div class="rg-name">Bucket 4: The rare earth long-term call</div>
+    <div class="rg-formula">IREL (unlisted) · 5–7 year structural play</div>
+    <div class="rg-body">Indian Rare Earths Ltd is government-owned and not listed. The supply chain beneficiaries are rare earth magnet consumers (motor makers, EV companies). Not actionable now.</div>
+  </div>
+</div>
+
+<!-- §8 — RISKS -->
+<div class="section">
+  <div class="sec-n">§ 8</div>
+  <div>
+    <div class="sec-title">Risks</div>
+    <div class="sec-sub">Key downside scenarios</div>
+  </div>
+</div>
+
+<table class="ex-table">
+  <thead>
+    <tr>
+      <th style="width:220px;">Risk</th>
+      <th style="width:90px;">Severity</th>
+      <th>Detail</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td class="key">China rare earth export restrictions</td>
+      <td style="color:#9b2335;font-weight:500;">Critical</td>
+      <td>India imports 87–95% of processed RE from China. Any restriction cascades into motor supply.</td>
+    </tr>
+    <tr>
+      <td class="key">Premium valuations on NSE</td>
+      <td style="color:#8a5a00;font-weight:500;">High</td>
+      <td>ABB at 76x, KPIT at 65x, Siemens at 65x — already pricing in multi-year growth.</td>
+    </tr>
+    <tr>
+      <td class="key">PLI execution risk</td>
+      <td style="color:#8a5a00;font-weight:500;">High</td>
+      <td>₹1.97L Cr allocated but historically India's manufacturing schemes underdeliver vs target.</td>
+    </tr>
+    <tr>
+      <td class="key">Talent drain to global cos</td>
+      <td style="color:#6e6e6e;font-weight:500;">Moderate</td>
+      <td>India trains 20% of chip designers but most work for US companies (Qualcomm, Nvidia GCCs).</td>
+    </tr>
+    <tr>
+      <td class="key">Addverb IPO timeline</td>
+      <td style="color:#6e6e6e;font-weight:500;">Moderate</td>
+      <td>No announced IPO. Reliance may keep it private for years.</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- FOOTER -->
+<hr class="rule">
+<div class="doc-footer">
+  <div>
+    References: ABI Research (global robotics $50B→$111B) · TrendForce (humanoid shipments 50K+ 2026) ·<br>
+    MoSPI (IIP Nov 2025, manufacturing GVA) · Economic Times (20% chip design engineers) ·<br>
+    India Semiconductor Mission 2.0 · National Critical Mineral Mission · Rare Earth Permanent Magnets Scheme (Cabinet Nov 2025) ·<br>
+    Addverb Technologies · DRDO (MUNTRA, SapperScout) · PLI scheme allocations
+  </div>
+  <div style="text-align:right;">
+    Investment Thesis — Physical AI & Robotics · India Deep Dive<br>
+    February 2026
+  </div>
+</div>
+
+</body>
+</html>
