@@ -233,6 +233,97 @@ p.body em { font-style: italic; }
 .ex-table td.key { color: var(--ink); font-weight: 500; }
 .ex-table tr:nth-child(even) td { background: rgba(0,0,0,.02); }
 
+/* Company-grouped initiative table */
+.init-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.init-table th {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px; text-transform: uppercase; letter-spacing: .1em;
+  padding: 10px 14px; background: var(--ink); color: var(--bg);
+  text-align: left; font-weight: 500;
+}
+.init-table td {
+  padding: 11px 14px; border-bottom: 1px solid var(--rule);
+  vertical-align: middle; line-height: 1.55; color: var(--muted);
+}
+.init-table .co-group td { border-top: 2px solid var(--rule); }
+.init-table .co-name {
+  font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  font-weight: 700; color: var(--ink); letter-spacing: .03em;
+  white-space: nowrap; position: relative; padding-left: 22px;
+}
+.init-table .co-name::before {
+  content: ''; position: absolute; left: 0; top: 4px; bottom: 4px;
+  width: 4px; border-radius: 2px;
+}
+.co-eternal .co-name::before { background: var(--red); }
+.co-swiggy .co-name::before { background: #ff5722; }
+.co-meesho .co-name::before { background: var(--purple); }
+.co-flipkart .co-name::before { background: var(--blue); }
+.co-amazon .co-name::before { background: var(--amber); }
+.init-table .co-logo {
+  font-family: 'JetBrains Mono', monospace; font-size: 9px;
+  color: var(--faint); display: block; margin-top: 2px;
+}
+.init-table .init-desc { color: var(--ink); font-weight: 400; }
+.init-table .init-detail {
+  font-family: 'JetBrains Mono', monospace; font-size: 10px;
+  color: var(--muted); display: block; margin-top: 3px;
+}
+.init-table .cat-badge {
+  font-family: 'JetBrains Mono', monospace; font-size: 9px;
+  padding: 3px 8px; border-radius: 2px; white-space: nowrap;
+  display: inline-block; letter-spacing: .04em; border: 1px solid;
+}
+.cat-customer { background: rgba(26,74,122,.06); color: var(--blue); border-color: rgba(26,74,122,.2); }
+.cat-platform { background: rgba(26,90,107,.06); color: var(--teal); border-color: rgba(26,90,107,.2); }
+.cat-support { background: rgba(138,90,0,.06); color: var(--amber); border-color: rgba(138,90,0,.2); }
+.cat-logistics { background: rgba(30,107,60,.06); color: var(--green); border-color: rgba(30,107,60,.2); }
+.cat-trust { background: rgba(90,32,128,.06); color: var(--purple); border-color: rgba(90,32,128,.2); }
+.cat-internal { background: rgba(0,0,0,.04); color: var(--muted); border-color: var(--rule); }
+.cat-supplier { background: rgba(155,35,53,.06); color: var(--red); border-color: rgba(155,35,53,.2); }
+.status-pill {
+  font-family: 'JetBrains Mono', monospace; font-size: 9px;
+  padding: 3px 10px; border-radius: 10px; white-space: nowrap;
+  display: inline-block; font-weight: 600; letter-spacing: .04em;
+}
+.status-live { background: rgba(30,107,60,.1); color: var(--green); }
+.status-beta { background: rgba(138,90,0,.1); color: var(--amber); }
+.status-planned { background: rgba(155,35,53,.08); color: var(--red); }
+
+/* Financial comparison cards */
+.fin-compare {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 0;
+  border: 1px solid var(--rule); margin: 16px 0;
+}
+.fin-col { padding: 0; }
+.fin-col:first-child { border-right: 1px solid var(--rule); }
+.fin-hdr {
+  padding: 16px 20px; text-align: center;
+  font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+}
+.fin-hdr-eternal { background: var(--red); color: white; }
+.fin-hdr-swiggy { background: #ff5722; color: white; }
+.fin-row {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding: 10px 20px; border-bottom: 1px solid var(--rule);
+}
+.fin-row:last-child { border-bottom: none; }
+.fin-label {
+  font-family: 'JetBrains Mono', monospace; font-size: 9px;
+  text-transform: uppercase; letter-spacing: .06em; color: var(--muted);
+}
+.fin-val {
+  font-family: 'JetBrains Mono', monospace; font-size: 13px;
+  font-weight: 600; color: var(--ink);
+}
+.fin-val.positive { color: var(--green); }
+.fin-val.negative { color: var(--red); }
+.fin-val .yoy {
+  font-size: 9px; font-weight: 400; color: var(--muted);
+  margin-left: 4px;
+}
+
 .cmp-grid {
   display: grid;
   gap: 1px;
@@ -590,43 +681,142 @@ hr.rule { border: none; border-top: 1px solid var(--rule); margin: 36px 0; }
 <p class="body">Here is a comprehensive map of GenAI initiatives across the five major Indian e-commerce/delivery players.</p>
 
 <div class="diagram">
-  <div class="diagram-hdr">GenAI Initiatives — Company × Category Matrix <span>live, beta, planned</span></div>
+  <div class="diagram-hdr">GenAI Initiatives — Company × Category Matrix <span>22 initiatives · 5 companies · live / beta / planned</span></div>
   <div class="diagram-body">
-    <table class="ex-table">
+    <table class="init-table">
       <thead>
         <tr>
-          <th style="width:100px;">Company</th>
+          <th style="width:120px;">Company</th>
           <th>Initiative</th>
-          <th style="width:140px;">Category</th>
+          <th style="width:130px;">Category</th>
           <th style="width:80px;">Status</th>
         </tr>
       </thead>
       <tbody>
-        <tr><td class="key">Eternal</td><td>Strategic partnership with OpenAI across platforms (Zomato, Blinkit, District, Hyperpure, Nugget)</td><td>Platform-wide</td><td>Live</td></tr>
-        <tr><td class="key">Eternal</td><td>GPT-5.3-Codex integration into Stitch (internal automation platform)</td><td>Internal Ops</td><td>Live</td></tr>
-        <tr><td class="key">Eternal</td><td>AI-powered healthy mode (personalized nutrition)</td><td>Customer</td><td>Live</td></tr>
-        <tr><td class="key">Eternal</td><td>Nugget: AI-native customer support platform &amp; bots</td><td>Customer Support</td><td>Live</td></tr>
-        <tr><td class="key">Eternal</td><td>Partner Upskilling Program (AI tools for restaurant partners)</td><td>Suppliers</td><td>Planned</td></tr>
-        <tr><td class="key">Swiggy</td><td>MCP integration for Food, Instamart, Dineout (first Q-commerce globally to adopt MCP)</td><td>Customer</td><td>Live</td></tr>
-        <tr><td class="key">Swiggy</td><td>Gen-AI Neural Search (conversational queries across 50M+ catalog items)</td><td>Customer</td><td>Live</td></tr>
-        <tr><td class="key">Swiggy</td><td>Dineout Gen-AI bot (restaurant discovery assistant)</td><td>Customer</td><td>Beta</td></tr>
-        <tr><td class="key">Swiggy</td><td>Customer support chatbot (Databricks)</td><td>Customer Support</td><td>Live</td></tr>
-        <tr><td class="key">Swiggy</td><td>Catalogue enrichment — image &amp; text generation</td><td>Platform</td><td>Live</td></tr>
-        <tr><td class="key">Swiggy</td><td>Driver Dost — AI bot for delivery riders (onboarding, tracking, route planning)</td><td>Delivery Partner</td><td>Live</td></tr>
-        <tr><td class="key">Meesho</td><td>BharatML Stack — open-sourced production ML platform (<span class="m">66.9T</span> feature retrievals FY25)</td><td>Platform</td><td>Live</td></tr>
-        <tr><td class="key">Meesho</td><td>AI in Valmo — logistics &amp; cost optimization</td><td>Logistics</td><td>Live</td></tr>
-        <tr><td class="key">Meesho</td><td>ElevenLabs Gen-AI voice bot — <span class="m">60K</span> calls/day, Hindi + English, <span class="m">95%</span> resolution</td><td>Customer Support</td><td>Live</td></tr>
-        <tr><td class="key">Meesho</td><td>ViSenze visual search — image-based product discovery</td><td>Customer</td><td>Live</td></tr>
-        <tr><td class="key">Meesho</td><td>Project Suraksha — AI fraud detection (<span class="m">42L</span> counterfeit listings removed)</td><td>Trust &amp; Safety</td><td>Live</td></tr>
-        <tr><td class="key">Flipkart</td><td>GenAI-powered dark store inventory orchestration</td><td>Logistics</td><td>Live</td></tr>
-        <tr><td class="key">Flipkart</td><td>Inter-Warehouse Inventory Transfer (IWIT) — real-time AI redistribution</td><td>Logistics</td><td>Live</td></tr>
-        <tr><td class="key">Flipkart</td><td>Real-time geocoding demand prediction</td><td>Logistics</td><td>Live</td></tr>
-        <tr><td class="key">Amazon India</td><td>Computer vision quality detection (produce defects)</td><td>Logistics</td><td>Live</td></tr>
-        <tr><td class="key">Amazon India</td><td>Phonetic transliteration across 8 Indian languages</td><td>Customer</td><td>Live</td></tr>
-        <tr><td class="key">Amazon India</td><td>Address Deliverability Score (ML-based delivery accuracy prediction)</td><td>Logistics</td><td>Live</td></tr>
+        <!-- ETERNAL -->
+        <tr class="co-group co-eternal">
+          <td class="co-name" rowspan="5">Eternal<span class="co-logo">Zomato · Blinkit</span></td>
+          <td><span class="init-desc">Strategic partnership with OpenAI</span><span class="init-detail">Spanning Zomato, Blinkit, District, Hyperpure, Nugget</span></td>
+          <td><span class="cat-badge cat-platform">Platform</span></td>
+          <td><span class="status-pill status-live">Live</span></td>
+        </tr>
+        <tr class="co-eternal">
+          <td><span class="init-desc">GPT-5.3-Codex → Stitch</span><span class="init-detail">Internal automation &amp; orchestration platform</span></td>
+          <td><span class="cat-badge cat-internal">Internal Ops</span></td>
+          <td><span class="status-pill status-live">Live</span></td>
+        </tr>
+        <tr class="co-eternal">
+          <td><span class="init-desc">AI-powered healthy mode</span><span class="init-detail">Personalized nutrition recommendations</span></td>
+          <td><span class="cat-badge cat-customer">Customer</span></td>
+          <td><span class="status-pill status-live">Live</span></td>
+        </tr>
+        <tr class="co-eternal">
+          <td><span class="init-desc">Nugget: AI-native support platform</span><span class="init-detail">Customer support chatbots &amp; automation</span></td>
+          <td><span class="cat-badge cat-support">Support</span></td>
+          <td><span class="status-pill status-live">Live</span></td>
+        </tr>
+        <tr class="co-eternal">
+          <td><span class="init-desc">Partner Upskilling Program</span><span class="init-detail">AI tools for restaurant partners</span></td>
+          <td><span class="cat-badge cat-supplier">Suppliers</span></td>
+          <td><span class="status-pill status-planned">Planned</span></td>
+        </tr>
+        <!-- SWIGGY -->
+        <tr class="co-group co-swiggy">
+          <td class="co-name" rowspan="6">Swiggy<span class="co-logo">Food · Instamart · Dineout</span></td>
+          <td><span class="init-desc">MCP integration (Food, Instamart, Dineout)</span><span class="init-detail">First Q-commerce globally to adopt MCP · 40K+ products exposed</span></td>
+          <td><span class="cat-badge cat-customer">Customer</span></td>
+          <td><span class="status-pill status-live">Live</span></td>
+        </tr>
+        <tr class="co-swiggy">
+          <td><span class="init-desc">Gen-AI Neural Search</span><span class="init-detail">Conversational queries across 50M+ catalog items</span></td>
+          <td><span class="cat-badge cat-customer">Customer</span></td>
+          <td><span class="status-pill status-live">Live</span></td>
+        </tr>
+        <tr class="co-swiggy">
+          <td><span class="init-desc">Dineout Gen-AI bot</span><span class="init-detail">Restaurant discovery assistant</span></td>
+          <td><span class="cat-badge cat-customer">Customer</span></td>
+          <td><span class="status-pill status-beta">Beta</span></td>
+        </tr>
+        <tr class="co-swiggy">
+          <td><span class="init-desc">Customer support chatbot</span><span class="init-detail">Built on Databricks</span></td>
+          <td><span class="cat-badge cat-support">Support</span></td>
+          <td><span class="status-pill status-live">Live</span></td>
+        </tr>
+        <tr class="co-swiggy">
+          <td><span class="init-desc">Catalogue enrichment</span><span class="init-detail">Image &amp; text generation for listings</span></td>
+          <td><span class="cat-badge cat-platform">Platform</span></td>
+          <td><span class="status-pill status-live">Live</span></td>
+        </tr>
+        <tr class="co-swiggy">
+          <td><span class="init-desc">Driver Dost — AI delivery bot</span><span class="init-detail">Onboarding, tracking, route planning for riders</span></td>
+          <td><span class="cat-badge cat-logistics">Delivery</span></td>
+          <td><span class="status-pill status-live">Live</span></td>
+        </tr>
+        <!-- MEESHO -->
+        <tr class="co-group co-meesho">
+          <td class="co-name" rowspan="5">Meesho<span class="co-logo">Social Commerce</span></td>
+          <td><span class="init-desc">BharatML Stack (open-sourced)</span><span class="init-detail">Production ML platform · <span class="m">66.9T</span> feature retrievals FY25</span></td>
+          <td><span class="cat-badge cat-platform">Platform</span></td>
+          <td><span class="status-pill status-live">Live</span></td>
+        </tr>
+        <tr class="co-meesho">
+          <td><span class="init-desc">AI in Valmo</span><span class="init-detail">Logistics &amp; cost optimization engine</span></td>
+          <td><span class="cat-badge cat-logistics">Logistics</span></td>
+          <td><span class="status-pill status-live">Live</span></td>
+        </tr>
+        <tr class="co-meesho">
+          <td><span class="init-desc">ElevenLabs Gen-AI voice bot</span><span class="init-detail"><span class="m">60K</span> calls/day · Hindi + English · <span class="m">95%</span> resolution rate</span></td>
+          <td><span class="cat-badge cat-support">Support</span></td>
+          <td><span class="status-pill status-live">Live</span></td>
+        </tr>
+        <tr class="co-meesho">
+          <td><span class="init-desc">ViSenze visual search</span><span class="init-detail">Image-based product discovery</span></td>
+          <td><span class="cat-badge cat-customer">Customer</span></td>
+          <td><span class="status-pill status-live">Live</span></td>
+        </tr>
+        <tr class="co-meesho">
+          <td><span class="init-desc">Project Suraksha</span><span class="init-detail">AI fraud detection · <span class="m">42L</span> counterfeit listings removed</span></td>
+          <td><span class="cat-badge cat-trust">Trust</span></td>
+          <td><span class="status-pill status-live">Live</span></td>
+        </tr>
+        <!-- FLIPKART -->
+        <tr class="co-group co-flipkart">
+          <td class="co-name" rowspan="3">Flipkart<span class="co-logo">E-Commerce · Minutes</span></td>
+          <td><span class="init-desc">GenAI dark store orchestration</span><span class="init-detail">Inventory placement optimization in dark stores</span></td>
+          <td><span class="cat-badge cat-logistics">Logistics</span></td>
+          <td><span class="status-pill status-live">Live</span></td>
+        </tr>
+        <tr class="co-flipkart">
+          <td><span class="init-desc">IWIT — Inventory Transfer</span><span class="init-detail">Real-time AI redistribution between warehouses</span></td>
+          <td><span class="cat-badge cat-logistics">Logistics</span></td>
+          <td><span class="status-pill status-live">Live</span></td>
+        </tr>
+        <tr class="co-flipkart">
+          <td><span class="init-desc">Geocoding demand prediction</span><span class="init-detail">Real-time granular demand forecasting</span></td>
+          <td><span class="cat-badge cat-logistics">Logistics</span></td>
+          <td><span class="status-pill status-live">Live</span></td>
+        </tr>
+        <!-- AMAZON INDIA -->
+        <tr class="co-group co-amazon">
+          <td class="co-name" rowspan="3">Amazon India<span class="co-logo">Marketplace · Fresh</span></td>
+          <td><span class="init-desc">Computer vision quality detection</span><span class="init-detail">Produce defect identification</span></td>
+          <td><span class="cat-badge cat-logistics">Logistics</span></td>
+          <td><span class="status-pill status-live">Live</span></td>
+        </tr>
+        <tr class="co-amazon">
+          <td><span class="init-desc">Phonetic transliteration</span><span class="init-detail">Search improvement across 8 Indian languages</span></td>
+          <td><span class="cat-badge cat-customer">Customer</span></td>
+          <td><span class="status-pill status-live">Live</span></td>
+        </tr>
+        <tr class="co-amazon">
+          <td><span class="init-desc">Address Deliverability Score</span><span class="init-detail">ML-based delivery accuracy prediction for Tier 3+ India</span></td>
+          <td><span class="cat-badge cat-logistics">Logistics</span></td>
+          <td><span class="status-pill status-live">Live</span></td>
+        </tr>
       </tbody>
     </table>
   </div>
+  <div class="diagram-note">Source: Company press releases, Bernstein SG, engineering blogs. Status as of Feb 2026. Categories color-coded: <span style="color:var(--blue);">Customer</span> · <span style="color:var(--teal);">Platform</span> · <span style="color:var(--amber);">Support</span> · <span style="color:var(--green);">Logistics/Delivery</span> · <span style="color:var(--purple);">Trust</span> · <span style="color:var(--red);">Suppliers</span></div>
 </div>
 
 <!-- §4 — MCP: THE NEW COMMERCE INTERFACE -->
@@ -712,23 +902,32 @@ hr.rule { border: none; border-top: 1px solid var(--rule); margin: 36px 0; }
 
 <p class="body">India's two listed food delivery platforms show divergent paths.</p>
 
-<table class="ex-table">
-  <thead>
-    <tr>
-      <th style="width:180px;">Metric</th>
-      <th>Eternal (Zomato)</th>
-      <th>Swiggy</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr><td class="key">Revenue (Q3 FY26)</td><td>₹16,315 Cr (+200% YoY)</td><td>₹6,148 Cr (+54% YoY)</td></tr>
-    <tr><td class="key">Net Profit / Loss</td><td>₹102 Cr profit (+73% YoY)</td><td>(₹1,065 Cr) loss (widened 33%)</td></tr>
-    <tr><td class="key">Food Delivery EBITDA</td><td>₹272 Cr (+1.5x YoY)</td><td>₹282 Cr (+46% YoY)</td></tr>
-    <tr><td class="key">Market Share (Food Delivery)</td><td>~58%</td><td>~42%</td></tr>
-    <tr><td class="key">AI Strategy</td><td>OpenAI enterprise partnership</td><td>MCP-first, neural search</td></tr>
-    <tr><td class="key">Quick Commerce</td><td>Blinkit (profitable)</td><td>Instamart (<span class="m">₹791 Cr</span> loss)</td></tr>
-  </tbody>
-</table>
+<div class="diagram">
+  <div class="diagram-hdr">Eternal vs Swiggy — Q3 FY26 Head-to-Head <span>financials + AI strategy</span></div>
+  <div class="diagram-body">
+    <div class="fin-compare">
+      <div class="fin-col">
+        <div class="fin-hdr fin-hdr-eternal">Eternal (Zomato)</div>
+        <div class="fin-row"><span class="fin-label">Revenue</span><span class="fin-val positive">₹16,315 Cr<span class="yoy">+200% YoY</span></span></div>
+        <div class="fin-row"><span class="fin-label">Net Profit</span><span class="fin-val positive">₹102 Cr<span class="yoy">+73% YoY</span></span></div>
+        <div class="fin-row"><span class="fin-label">Food EBITDA</span><span class="fin-val positive">₹272 Cr<span class="yoy">+1.5× YoY</span></span></div>
+        <div class="fin-row"><span class="fin-label">Market Share</span><span class="fin-val">~58%</span></div>
+        <div class="fin-row"><span class="fin-label">AI Strategy</span><span class="fin-val" style="font-size:11px;">OpenAI enterprise partnership</span></div>
+        <div class="fin-row"><span class="fin-label">Quick Commerce</span><span class="fin-val positive" style="font-size:11px;">Blinkit (profitable)</span></div>
+      </div>
+      <div class="fin-col">
+        <div class="fin-hdr fin-hdr-swiggy">Swiggy</div>
+        <div class="fin-row"><span class="fin-label">Revenue</span><span class="fin-val">₹6,148 Cr<span class="yoy">+54% YoY</span></span></div>
+        <div class="fin-row"><span class="fin-label">Net Loss</span><span class="fin-val negative">(₹1,065 Cr)<span class="yoy">widened 33%</span></span></div>
+        <div class="fin-row"><span class="fin-label">Food EBITDA</span><span class="fin-val positive">₹282 Cr<span class="yoy">+46% YoY</span></span></div>
+        <div class="fin-row"><span class="fin-label">Market Share</span><span class="fin-val">~42%</span></div>
+        <div class="fin-row"><span class="fin-label">AI Strategy</span><span class="fin-val" style="font-size:11px;">MCP-first, neural search</span></div>
+        <div class="fin-row"><span class="fin-label">Quick Commerce</span><span class="fin-val negative" style="font-size:11px;">Instamart (₹791 Cr loss)</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="diagram-note">Source: Q3 FY26 earnings. Revenue includes all segments. Food Delivery EBITDA is segment-level. Market share is food delivery only (Bernstein estimates).</div>
+</div>
 
 <p class="body">Eternal has clearer profitability trajectory. Swiggy is burning on Instamart expansion. Both are investing in AI — Eternal through a top-down OpenAI partnership, Swiggy through bottom-up MCP/neural search integration.</p>
 
