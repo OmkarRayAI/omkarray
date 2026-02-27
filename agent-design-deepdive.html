@@ -15,22 +15,22 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --ink: #111111;
+    --ink: #1A1A1E;
     --paper: #ffffff;
-    --accent: #1a6bff;
-    --accent-light: #e8f0ff;
-    --gold: #c77d15;
-    --muted: #71717a;
-    --light: #f4f4f5;
-    --rule: #e4e4e7;
-    --green: #16a34a;
-    --green-light: #f0fdf4;
-    --red: #dc2626;
-    --red-light: #fef2f2;
-    --purple: #7c3aed;
-    --purple-light: #f5f3ff;
-    --orange: #ea580c;
-    --orange-light: #fff7ed;
+    --accent: #3D6B9E;
+    --accent-light: #ECF1F7;
+    --gold: #A08840;
+    --muted: #7A7A80;
+    --light: #F6F5F3;
+    --rule: #E2E0DC;
+    --green: #4A7A5C;
+    --green-light: #EFF5F1;
+    --red: #B85450;
+    --red-light: #F5EDEC;
+    --purple: #7A6B8D;
+    --purple-light: #F2F0F5;
+    --orange: #B87840;
+    --orange-light: #F5F0EA;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -60,8 +60,8 @@
 
   /* MASTHEAD */
   .masthead {
-    border-top: 4px solid var(--ink);
-    border-bottom: 1px solid var(--ink);
+    border-top: 3px solid var(--ink);
+    border-bottom: 1px solid var(--rule);
     padding: 24px 0 20px;
     margin-bottom: 48px;
     display: flex;
@@ -93,7 +93,7 @@
     font-size: 9px;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    background: var(--ink);
+    background: var(--accent);
     color: white;
     padding: 6px 12px;
     border-radius: 2px;
@@ -117,7 +117,7 @@
     font-family: 'Playfair Display', serif;
     font-size: 22px;
     font-weight: 700;
-    border-bottom: 2px solid var(--ink);
+    border-bottom: 1.5px solid var(--ink);
     padding-bottom: 4px;
   }
   .section-desc {
@@ -180,7 +180,7 @@
   .pipeline-label {
     width: 160px;
     min-width: 160px;
-    background: var(--ink);
+    background: #3a3a3e;
     color: white;
     font-family: 'IBM Plex Mono', monospace;
     font-size: 10px;
@@ -257,7 +257,7 @@
     text-transform: uppercase;
     letter-spacing: 0.1em;
     color: white;
-    background: var(--ink);
+    background: #3a3a3e;
     padding: 10px 12px;
     text-align: left;
     font-weight: 500;
@@ -271,9 +271,9 @@
   }
   .gap-table tr:nth-child(even) td { background: var(--light); }
 
-  .check { color: var(--green); font-weight: 700; font-size: 14px; }
-  .cross { color: #ccc; font-size: 14px; }
-  .partial { color: var(--gold); font-weight: 700; font-size: 14px; }
+  .check { color: var(--green); font-weight: 600; font-size: 13px; }
+  .cross { color: #ccc; font-size: 13px; }
+  .partial { color: var(--gold); font-weight: 600; font-size: 13px; }
 
   /* SEVERITY PILLS */
   .severity-pill {
@@ -323,7 +323,7 @@
 
   /* VERDICT BOX */
   .verdict-box {
-    border: 2px solid var(--ink);
+    border: 1.5px solid var(--ink);
     padding: 32px;
     margin: 48px 0;
     display: grid;
@@ -357,6 +357,7 @@
   .verdict-score.blue { color: var(--accent); }
   .verdict-score.green { color: var(--green); }
   .verdict-score.gold { color: var(--gold); }
+  .verdict-score.red { color: var(--red); }
   .verdict-item p {
     font-size: 12px;
     color: var(--muted);
@@ -364,7 +365,7 @@
   }
 
   .callout {
-    border-left: 3px solid var(--accent);
+    border-left: 2px solid var(--accent);
     padding: 12px 20px;
     background: var(--accent-light);
     margin: 16px 0;
@@ -444,7 +445,7 @@
     align-items: center;
   }
   .flow-node.active {
-    border-color: var(--accent);
+    border-color: #B8CCDD;
     background: var(--accent-light);
   }
   .flow-node-icon {
@@ -488,7 +489,7 @@
     transition: border-color 0.2s;
     position: relative;
   }
-  .pattern-card:hover { border-color: var(--accent); }
+  .pattern-card:hover { border-color: #B8CCDD; }
   .pattern-card-number {
     font-family: 'Playfair Display', serif;
     font-size: 28px;
@@ -586,9 +587,9 @@
     font-size: 10px;
     font-family: 'IBM Plex Mono', monospace;
   }
-  .rm-cell.q1 { background: var(--accent-light); border: 1px solid #93b8ff; }
-  .rm-cell.q2 { background: var(--purple-light); border: 1px solid #c4b5fd; }
-  .rm-cell.q3 { background: var(--green-light); border: 1px solid #86efac; }
+  .rm-cell.q1 { background: var(--accent-light); border: 1px solid #B8CCDD; }
+  .rm-cell.q2 { background: var(--purple-light); border: 1px solid #C8C0D5; }
+  .rm-cell.q3 { background: var(--green-light); border: 1px solid #B0CDB8; }
   .rm-cell.q4 { background: var(--light); border: 1px solid var(--rule); }
 
   /* PYRAMID */
@@ -694,9 +695,9 @@
       <svg viewBox="0 0 700 160" style="width:100%;height:100%;" preserveAspectRatio="none">
         <defs>
           <linearGradient id="curveGrad" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stop-color="#16a34a" stop-opacity="0.15"/>
-            <stop offset="50%" stop-color="#ea580c" stop-opacity="0.15"/>
-            <stop offset="100%" stop-color="#dc2626" stop-opacity="0.15"/>
+            <stop offset="0%" stop-color="#4A7A5C" stop-opacity="0.12"/>
+            <stop offset="50%" stop-color="#B87840" stop-opacity="0.12"/>
+            <stop offset="100%" stop-color="#B85450" stop-opacity="0.12"/>
           </linearGradient>
         </defs>
         <path d="M0,20 C100,20 150,25 250,50 C350,75 450,110 600,135 L700,148 L700,160 L0,160 Z" fill="url(#curveGrad)"/>
@@ -843,52 +844,52 @@
   <div class="diagram-title">Exhibit D — The Agent Architecture Stack (Bottom = Foundation, Top = Intelligence)</div>
   <div style="display:flex;flex-direction:column;gap:0;max-width:680px;margin:0 auto;">
     
-    <div style="background:#111;border:1px solid #333;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;border-radius:6px 6px 0 0;">
+    <div style="background:var(--purple-light);border:1px solid #C8C0D5;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;border-radius:6px 6px 0 0;">
       <div>
-        <div style="font-size:12px;font-weight:600;color:white;">Layer 6: Evolve Context</div>
-        <div style="font-size:11px;color:rgba(255,255,255,0.6);font-family:'IBM Plex Mono',monospace;">Memories · Skills · Diary entries → updated prompts</div>
+        <div style="font-size:12px;font-weight:600;color:var(--ink);">Layer 6: Evolve Context</div>
+        <div style="font-size:11px;color:var(--muted);font-family:'IBM Plex Mono',monospace;">Memories · Skills · Diary entries → updated prompts</div>
       </div>
       <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;background:var(--purple);padding:3px 8px;border-radius:2px;color:white;">LEARNING</div>
     </div>
     
-    <div style="background:#1e293b;border:1px solid #334155;border-top:0;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;">
+    <div style="background:var(--green-light);border:1px solid #B0CDB8;border-top:0;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;">
       <div>
-        <div style="font-size:12px;font-weight:600;color:white;">Layer 5: Isolate Context</div>
-        <div style="font-size:11px;color:rgba(255,255,255,0.6);font-family:'IBM Plex Mono',monospace;">Sub-agents · Ralph Wiggum loops · Map-reduce</div>
+        <div style="font-size:12px;font-weight:600;color:var(--ink);">Layer 5: Isolate Context</div>
+        <div style="font-size:11px;color:var(--muted);font-family:'IBM Plex Mono',monospace;">Sub-agents · Ralph Wiggum loops · Map-reduce</div>
       </div>
       <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;background:var(--green);padding:3px 8px;border-radius:2px;color:white;">SCALE</div>
     </div>
 
-    <div style="background:#374151;border:1px solid #4b5563;border-top:0;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;">
+    <div style="background:var(--accent-light);border:1px solid #B8CCDD;border-top:0;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;">
       <div>
-        <div style="font-size:12px;font-weight:600;color:white;">Layer 4: Cache Context</div>
-        <div style="font-size:11px;color:rgba(255,255,255,0.6);font-family:'IBM Plex Mono',monospace;">Prompt caching · Cache hit rate optimization</div>
+        <div style="font-size:12px;font-weight:600;color:var(--ink);">Layer 4: Cache Context</div>
+        <div style="font-size:11px;color:var(--muted);font-family:'IBM Plex Mono',monospace;">Prompt caching · Cache hit rate optimization</div>
       </div>
       <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;background:var(--accent);padding:3px 8px;border-radius:2px;color:white;">COST</div>
     </div>
 
-    <div style="background:#4b5563;border:1px solid #6b7280;border-top:0;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;">
+    <div style="background:var(--orange-light);border:1px solid #DDC8A8;border-top:0;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;">
       <div>
-        <div style="font-size:12px;font-weight:600;color:white;">Layer 3: Offload + Progressive Disclosure</div>
-        <div style="font-size:11px;color:rgba(255,255,255,0.6);font-family:'IBM Plex Mono',monospace;">Write results to files · Reveal tools on demand · Skills YAML</div>
+        <div style="font-size:12px;font-weight:600;color:var(--ink);">Layer 3: Offload + Progressive Disclosure</div>
+        <div style="font-size:11px;color:var(--muted);font-family:'IBM Plex Mono',monospace;">Write results to files · Reveal tools on demand · Skills YAML</div>
       </div>
       <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;background:var(--orange);padding:3px 8px;border-radius:2px;color:white;">CONTEXT MGMT</div>
     </div>
 
-    <div style="background:#6b7280;border:1px solid #9ca3af;border-top:0;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;">
+    <div style="background:var(--light);border:1px solid var(--rule);border-top:0;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;">
       <div>
-        <div style="font-size:12px;font-weight:600;color:white;">Layer 2: Multi-Layer Action Space</div>
-        <div style="font-size:11px;color:rgba(255,255,255,0.6);font-family:'IBM Plex Mono',monospace;">~12 atomic tools → bash → CLIs → code execution (CodeAct)</div>
+        <div style="font-size:12px;font-weight:600;color:var(--ink);">Layer 2: Multi-Layer Action Space</div>
+        <div style="font-size:11px;color:var(--muted);font-family:'IBM Plex Mono',monospace;">~12 atomic tools → bash → CLIs → code execution (CodeAct)</div>
       </div>
-      <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;background:#9ca3af;padding:3px 8px;border-radius:2px;color:white;">ACTIONS</div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;background:var(--muted);padding:3px 8px;border-radius:2px;color:white;">ACTIONS</div>
     </div>
 
-    <div style="background:#9ca3af;border:1px solid #d1d5db;border-top:0;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;border-radius:0 0 6px 6px;">
+    <div style="background:white;border:1px solid var(--rule);border-top:0;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;border-radius:0 0 6px 6px;">
       <div>
-        <div style="font-size:12px;font-weight:600;color:white;">Layer 1: Give Agents a Computer</div>
-        <div style="font-size:11px;color:rgba(255,255,255,0.8);font-family:'IBM Plex Mono',monospace;">Filesystem + Shell + Persistent State</div>
+        <div style="font-size:12px;font-weight:600;color:var(--ink);">Layer 1: Give Agents a Computer</div>
+        <div style="font-size:11px;color:var(--muted);font-family:'IBM Plex Mono',monospace;">Filesystem + Shell + Persistent State</div>
       </div>
-      <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;background:#d1d5db;padding:3px 8px;border-radius:2px;color:#333;">FOUNDATION</div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;background:var(--rule);padding:3px 8px;border-radius:2px;color:var(--ink);">FOUNDATION</div>
     </div>
   </div>
   <div class="footnote" style="margin-top:16px">Each layer depends on the one below it. You can't offload context without a filesystem. You can't isolate sub-agents without a shell. The foundation is computer access.</div>
