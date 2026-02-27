@@ -295,6 +295,7 @@ a {
 .folder-wrapper.expanded {
   opacity: 1;
   margin: 8px 0 16px;
+  overflow: visible;
 }
 
 .folder-content {
@@ -852,12 +853,34 @@ a {
   overflow: hidden;
   max-height: 0;
   opacity: 0;
-  transition: max-height 0.5s cubic-bezier(0.16, 1, 0.3, 1),
-              opacity 0.35s ease;
+  transition: max-height 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+              opacity 0.3s ease;
 }
 
 .study-plan-collapsible.open {
+  max-height: 60vh;
   opacity: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+.study-plan-collapsible.open::-webkit-scrollbar {
+  width: 5px;
+}
+
+.study-plan-collapsible.open::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.study-plan-collapsible.open::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+
+.study-plan-collapsible.open::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
 }
 
 /* ─── Back to Top ─── */

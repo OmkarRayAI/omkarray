@@ -137,10 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const wr = document.querySelector(`.folder-wrapper[data-for="${currentOpen}"]`);
         if (wr && wr.classList.contains('expanded')) wr.style.maxHeight = wr.scrollHeight + 'px';
       }
-      // Also re-measure open study plan
-      document.querySelectorAll('.study-plan-collapsible.open').forEach(el => {
-        el.style.maxHeight = el.scrollHeight + 'px';
-      });
+      // Study plan uses CSS max-height: 60vh with overflow-y: auto, no JS override needed
     }, 150);
   });
 
@@ -151,20 +148,25 @@ document.addEventListener('DOMContentLoaded', () => {
       const collapsible = btn.nextElementSibling;
       if (!collapsible) return;
       const isOpen = collapsible.classList.contains('open');
+      const parentWr = currentOpen
+        ? document.querySelector(`.folder-wrapper[data-for="${currentOpen}"]`)
+        : null;
+
       if (isOpen) {
         collapsible.style.maxHeight = '0px';
         collapsible.classList.remove('open');
         btn.setAttribute('aria-expanded', 'false');
+        if (parentWr) {
+          setTimeout(() => { parentWr.style.maxHeight = parentWr.scrollHeight + 'px'; }, 520);
+        }
       } else {
-        collapsible.style.maxHeight = collapsible.scrollHeight + 'px';
         collapsible.classList.add('open');
         btn.setAttribute('aria-expanded', 'true');
-        // Re-measure parent folder wrapper
-        if (currentOpen) {
-          const parentWr = document.querySelector(`.folder-wrapper[data-for="${currentOpen}"]`);
-          if (parentWr) {
-            setTimeout(() => { parentWr.style.maxHeight = parentWr.scrollHeight + 'px'; }, 50);
-          }
+        // CSS handles max-height: 60vh + overflow-y: auto, just clear any inline override
+        collapsible.style.maxHeight = '';
+        if (parentWr) {
+          parentWr.style.maxHeight = (parentWr.scrollHeight + 800) + 'px';
+          setTimeout(() => { parentWr.style.maxHeight = parentWr.scrollHeight + 'px'; }, 520);
         }
       }
     });
