@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-62YF7Y81BS"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-62YF7Y81BS');
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seeing Like an Agent — Deep Dive</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #FDFAF5;
+    --paper-dark: #F5F0E8;
+    --paper-darker: #EDE6D8;
+    --ink: #1A1814;
+    --ink-light: #5C564A;
+    --ink-faint: #9E9688;
+    --red: #C4483E;
+    --red-light: #E8D4D2;
+    --blue: #2E5F8A;
+    --blue-light: #D6E3EF;
+    --green: #3E7A4A;
+    --green-light: #D4E8D8;
+    --amber: #B8860B;
+    --amber-light: #F0E4C8;
+    --rule: #D5CCBD;
+    --rule-light: #E8E1D4;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-size: 15px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 60px 40px 100px;
+  }
+
+  /* ── Back link ── */
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-faint);
+    text-decoration: none;
+    margin-bottom: 32px;
+    transition: color 0.2s;
+  }
+  .back-link:hover { color: var(--ink); }
+
+  /* ── Title block ── */
+  .title-block {
+    text-align: center;
+    padding: 40px 0 48px;
+    border-bottom: 2px solid var(--ink);
+    margin-bottom: 48px;
+  }
+
+  .title-block .kicker {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 16px;
+  }
+
+  .title-block h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 42px;
+    font-weight: 700;
+    line-height: 1.15;
+    margin-bottom: 12px;
+    letter-spacing: -0.02em;
+  }
+
+  .title-block .subtitle {
+    font-family: 'Source Serif 4', serif;
+    font-size: 17px;
+    font-style: italic;
+    color: var(--ink-light);
+    max-width: 520px;
+    margin: 0 auto;
+    line-height: 1.5;
+  }
+
+  /* ── Intro ── */
+  .intro {
+    padding: 32px 0 40px;
+    border-bottom: 1px solid var(--rule);
+    margin-bottom: 48px;
+  }
+
+  .intro p {
+    font-size: 16px;
+    line-height: 1.75;
+    color: var(--ink-light);
+    max-width: 620px;
+  }
+
+  .intro .pull {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-style: italic;
+    line-height: 1.5;
+    color: var(--ink);
+    margin: 24px 0 8px;
+    padding-left: 20px;
+    border-left: 3px solid var(--red);
+  }
+
+  .intro cite {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    padding-left: 24px;
+  }
+
+  /* ── Diagram sections ── */
+  .diagram-section {
+    padding: 44px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .diagram-section:last-of-type { border-bottom: none; }
+
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 18px;
+    margin-bottom: 24px;
+  }
+
+  .section-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 48px;
+    font-weight: 700;
+    color: var(--ink-faint);
+    line-height: 1;
+    flex-shrink: 0;
+    opacity: 0.35;
+  }
+
+  .section-titles h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 600;
+    line-height: 1.25;
+    margin-bottom: 4px;
+  }
+
+  .section-titles .concept-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--red);
+  }
+
+  .diagram-body {
+    display: grid;
+    grid-template-columns: 1.15fr 1fr;
+    gap: 36px;
+    align-items: start;
+  }
+
+  .diagram-body.reverse { direction: rtl; }
+  .diagram-body.reverse > * { direction: ltr; }
+
+  .diagram-svg-wrap {
+    background: var(--paper-dark);
+    border: 1px solid var(--rule);
+    padding: 12px;
+  }
+
+  .diagram-svg-wrap svg {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .diagram-annotation {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 0.1em;
+    color: var(--ink-faint);
+    text-align: right;
+    margin-top: 5px;
+    text-transform: uppercase;
+  }
+
+  .diagram-text h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+
+  .diagram-text p {
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--ink-light);
+    margin-bottom: 12px;
+  }
+
+  .diagram-text .marks-voice {
+    font-style: italic;
+    color: var(--ink);
+    border-left: 2px solid var(--amber);
+    padding-left: 14px;
+    margin: 16px 0;
+    font-size: 13.5px;
+  }
+
+  .diagram-text .takeaway {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    background: var(--paper-dark);
+    border: 1px solid var(--rule);
+    padding: 10px 14px;
+    color: var(--ink-light);
+    margin-top: 14px;
+  }
+
+  .diagram-text .takeaway strong {
+    color: var(--red);
+  }
+
+  /* ── Full-width diagrams ── */
+  .full-diagram {
+    margin: 8px 0;
+  }
+
+  .full-diagram .diagram-svg-wrap {
+    margin-bottom: 16px;
+  }
+
+  .full-diagram .caption {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 20px;
+  }
+
+  .full-diagram .caption-item h4 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 6px;
+  }
+
+  .full-diagram .caption-item p {
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--ink-light);
+  }
+
+  /* ── Separator ── */
+  .sep {
+    text-align: center;
+    padding: 24px 0;
+    color: var(--ink-faint);
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    letter-spacing: 0.3em;
+  }
+
+  /* ── Footer ── */
+  .footer {
+    text-align: center;
+    padding: 40px 0 0;
+    border-top: 2px solid var(--ink);
+    margin-top: 48px;
+  }
+
+  .footer p {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+
+  /* ── SVG text classes ── */
+  .svg-label {
+    font-family: 'Source Serif 4', Georgia, serif;
+    fill: #1A1814;
+  }
+  .svg-label-light {
+    font-family: 'Source Serif 4', Georgia, serif;
+    fill: #9E9688;
+  }
+  .svg-mono {
+    font-family: 'JetBrains Mono', monospace;
+    fill: #5C564A;
+  }
+  .svg-mono-red {
+    font-family: 'JetBrains Mono', monospace;
+    fill: #C4483E;
+  }
+  .svg-title {
+    font-family: 'Playfair Display', serif;
+    fill: #1A1814;
+  }
+  .svg-hand {
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-style: italic;
+    fill: #5C564A;
+  }
+
+  @media (max-width: 700px) {
+    .page { padding: 32px 20px 60px; }
+    .title-block h1 { font-size: 30px; }
+    .diagram-body { grid-template-columns: 1fr; }
+    .diagram-body.reverse { direction: ltr; }
+    .full-diagram .caption { grid-template-columns: 1fr; }
+    .section-num { font-size: 36px; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <a href="index.html" class="back-link">&larr; Back to omkarray.com</a>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- TITLE -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="title-block">
+    <div class="kicker">Agent Architecture · Tool Design · February 2026</div>
+    <h1>Seeing Like an Agent</h1>
+    <div class="subtitle">A first-principles walkthrough of tool design, action spaces, and progressive disclosure — from the lessons of building Claude Code.</div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- INTRO -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="intro">
+    <p>One of the hardest parts of building an agent harness is constructing its <strong>action space</strong> — the set of tools and capabilities the model can invoke. Too few tools and the agent is crippled. Too many and it's paralyzed by choice.</p>
+    <div class="pull">"You want to give it tools that are shaped to its own abilities. But how do you know what those abilities are? You pay attention, read its outputs, experiment."</div>
+    <cite>— Claude Code Team, Anthropic</cite>
+  </div>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- DIAGRAM 1 — The Tool Power Spectrum -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="diagram-section">
+    <div class="section-header">
+      <div class="section-num">01</div>
+      <div class="section-titles">
+        <div class="concept-label">Foundation</div>
+        <h2>The Tool Power Spectrum</h2>
+      </div>
+    </div>
+
+    <div class="full-diagram">
+      <div class="diagram-svg-wrap">
+        <svg viewBox="0 0 700 260" xmlns="http://www.w3.org/2000/svg">
+          <!-- Axis -->
+          <line x1="60" y1="130" x2="640" y2="130" stroke="#D5CCBD" stroke-width="1.5"/>
+          <polygon points="640,126 652,130 640,134" fill="#D5CCBD"/>
+
+          <text x="60" y="155" class="svg-mono" font-size="8" letter-spacing="0.15em">LOW POWER</text>
+          <text x="580" y="155" class="svg-mono" font-size="8" letter-spacing="0.15em">HIGH POWER</text>
+
+          <!-- Paper -->
+          <rect x="70" y="60" width="120" height="56" rx="4" fill="#F5F0E8" stroke="#D5CCBD" stroke-width="1"/>
+          <text x="130" y="84" text-anchor="middle" class="svg-label" font-size="14" font-weight="600">Paper</text>
+          <text x="130" y="102" text-anchor="middle" class="svg-label-light" font-size="10">Manual only</text>
+          <line x1="130" y1="116" x2="130" y2="130" stroke="#D5CCBD" stroke-width="1" stroke-dasharray="3,3"/>
+
+          <!-- Calculator -->
+          <rect x="270" y="60" width="160" height="56" rx="4" fill="#F5F0E8" stroke="#D5CCBD" stroke-width="1"/>
+          <text x="350" y="84" text-anchor="middle" class="svg-label" font-size="14" font-weight="600">Calculator</text>
+          <text x="350" y="102" text-anchor="middle" class="svg-label-light" font-size="10">Powerful but specific</text>
+          <line x1="350" y1="116" x2="350" y2="130" stroke="#D5CCBD" stroke-width="1" stroke-dasharray="3,3"/>
+
+          <!-- Computer -->
+          <rect x="500" y="48" width="140" height="68" rx="4" fill="#FDFAF5" stroke="#C4483E" stroke-width="1.5"/>
+          <text x="570" y="76" text-anchor="middle" class="svg-label" font-size="14" font-weight="600">Computer</text>
+          <text x="570" y="94" text-anchor="middle" class="svg-label-light" font-size="10">Code execution</text>
+          <text x="570" y="108" text-anchor="middle" class="svg-mono-red" font-size="8">HIGHEST CEILING</text>
+          <line x1="570" y1="116" x2="570" y2="130" stroke="#C4483E" stroke-width="1" stroke-dasharray="3,3"/>
+
+          <!-- Bottom annotations -->
+          <text x="130" y="178" text-anchor="middle" class="svg-hand" font-size="11">plain text output</text>
+          <text x="130" y="194" text-anchor="middle" class="svg-hand" font-size="11">no tools at all</text>
+
+          <text x="350" y="178" text-anchor="middle" class="svg-hand" font-size="11">structured tools</text>
+          <text x="350" y="194" text-anchor="middle" class="svg-hand" font-size="11">(JSON in, JSON out)</text>
+
+          <text x="570" y="178" text-anchor="middle" class="svg-hand" font-size="11">bash / code execution</text>
+          <text x="570" y="194" text-anchor="middle" class="svg-hand" font-size="11">unlimited composability</text>
+
+          <!-- Skill requirement arrow -->
+          <line x1="100" y1="230" x2="600" y2="230" stroke="#B8860B" stroke-width="1" stroke-dasharray="4,3"/>
+          <polygon points="600,227 610,230 600,233" fill="#B8860B"/>
+          <text x="350" y="250" text-anchor="middle" class="svg-mono" font-size="8" fill="#B8860B" letter-spacing="0.1em">SKILL REQUIREMENT INCREASES →</text>
+        </svg>
+      </div>
+      <div class="diagram-annotation">fig. 1 — power vs. skill tradeoff in tool design</div>
+
+      <div class="caption" style="margin-top: 20px;">
+        <div class="caption-item">
+          <h4>Paper = No Tools</h4>
+          <p>The model just outputs text. It can reason but can't act on the world. Like solving math with just pen and paper.</p>
+        </div>
+        <div class="caption-item">
+          <h4>Calculator = Defined Tools</h4>
+          <p>Structured tool calls (search, file_read, API). Powerful but each call round-trips through context — the "composition tax."</p>
+        </div>
+        <div class="caption-item">
+          <h4>Computer = Code Execution</h4>
+          <p>Bash, Python, or PTC. The agent writes code that orchestrates tools directly. Highest ceiling, but the model must know how to code.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- DIAGRAM 2 — The Composition Tax -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="diagram-section">
+    <div class="section-header">
+      <div class="section-num">02</div>
+      <div class="section-titles">
+        <div class="concept-label">The Core Problem</div>
+        <h2>The Composition Tax</h2>
+      </div>
+    </div>
+
+    <div class="diagram-body">
+      <div class="diagram-svg-wrap">
+        <svg viewBox="0 0 380 340" xmlns="http://www.w3.org/2000/svg">
+          <text x="190" y="24" text-anchor="middle" class="svg-mono" font-size="9" letter-spacing="0.15em">TRADITIONAL TOOL CALLING</text>
+
+          <!-- Claude box -->
+          <rect x="140" y="40" width="100" height="36" rx="4" fill="#FDFAF5" stroke="#1A1814" stroke-width="1.5"/>
+          <text x="190" y="63" text-anchor="middle" class="svg-label" font-size="13" font-weight="600">Claude</text>
+
+          <!-- Tool 1 -->
+          <line x1="190" y1="76" x2="190" y2="100" stroke="#C4483E" stroke-width="1.2" marker-end="url(#arrowRed)"/>
+          <rect x="130" y="100" width="120" height="30" rx="3" fill="#E8D4D2" stroke="#C4483E" stroke-width="1"/>
+          <text x="190" y="120" text-anchor="middle" class="svg-label" font-size="11">Tool Call 1</text>
+
+          <!-- Back to Claude -->
+          <path d="M250,115 C290,115 290,58 250,58" fill="none" stroke="#9E9688" stroke-width="1" stroke-dasharray="3,3" marker-end="url(#arrowGray)"/>
+          <text x="300" y="88" class="svg-hand" font-size="9">full result</text>
+          <text x="300" y="100" class="svg-hand" font-size="9">→ context</text>
+
+          <!-- Reasoning step -->
+          <rect x="140" y="145" width="100" height="28" rx="4" fill="#F5F0E8" stroke="#D5CCBD" stroke-width="1"/>
+          <text x="190" y="164" text-anchor="middle" class="svg-mono" font-size="8" letter-spacing="0.05em">REASONING</text>
+          <line x1="190" y1="130" x2="190" y2="145" stroke="#9E9688" stroke-width="1" stroke-dasharray="2,2"/>
+
+          <!-- Tool 2 -->
+          <line x1="190" y1="173" x2="190" y2="195" stroke="#C4483E" stroke-width="1.2" marker-end="url(#arrowRed)"/>
+          <rect x="130" y="195" width="120" height="30" rx="3" fill="#E8D4D2" stroke="#C4483E" stroke-width="1"/>
+          <text x="190" y="215" text-anchor="middle" class="svg-label" font-size="11">Tool Call 2</text>
+
+          <!-- Back to Claude again -->
+          <path d="M250,210 C290,210 290,155 250,155" fill="none" stroke="#9E9688" stroke-width="1" stroke-dasharray="3,3" marker-end="url(#arrowGray)"/>
+          <text x="300" y="183" class="svg-hand" font-size="9">full result</text>
+          <text x="300" y="195" class="svg-hand" font-size="9">→ context</text>
+
+          <!-- Reasoning step 2 -->
+          <rect x="140" y="240" width="100" height="28" rx="4" fill="#F5F0E8" stroke="#D5CCBD" stroke-width="1"/>
+          <text x="190" y="259" text-anchor="middle" class="svg-mono" font-size="8" letter-spacing="0.05em">REASONING</text>
+          <line x1="190" y1="225" x2="190" y2="240" stroke="#9E9688" stroke-width="1" stroke-dasharray="2,2"/>
+
+          <!-- Tool 3 -->
+          <line x1="190" y1="268" x2="190" y2="290" stroke="#C4483E" stroke-width="1.2" marker-end="url(#arrowRed)"/>
+          <rect x="130" y="290" width="120" height="30" rx="3" fill="#E8D4D2" stroke="#C4483E" stroke-width="1"/>
+          <text x="190" y="310" text-anchor="middle" class="svg-label" font-size="11">Tool Call 3</text>
+
+          <!-- Cost annotations left side -->
+          <text x="55" y="118" text-anchor="middle" class="svg-mono-red" font-size="8">+ LATENCY</text>
+          <text x="55" y="213" text-anchor="middle" class="svg-mono-red" font-size="8">+ TOKENS</text>
+          <text x="55" y="308" text-anchor="middle" class="svg-mono-red" font-size="8">+ REASONING</text>
+
+          <!-- Brace on left -->
+          <line x1="100" y1="105" x2="100" y2="315" stroke="#C4483E" stroke-width="1"/>
+          <line x1="95" y1="105" x2="100" y2="105" stroke="#C4483E" stroke-width="1"/>
+          <line x1="95" y1="315" x2="100" y2="315" stroke="#C4483E" stroke-width="1"/>
+
+          <defs>
+            <marker id="arrowRed" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="#C4483E"/>
+            </marker>
+            <marker id="arrowGray" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="#9E9688"/>
+            </marker>
+          </defs>
+        </svg>
+      </div>
+
+      <div class="diagram-text">
+        <h3>Every tool call pays a tax</h3>
+        <p>In traditional tool calling, each action round-trips through Claude's context window. The result gets serialized (even thousands of rows when you only need five), triggers a new reasoning step, and adds latency.</p>
+        <p>With 3 sequential tool calls, you're paying 3× the latency, 3× the context bloat, and 3 full reasoning steps.</p>
+
+        <div class="marks-voice">"The composition tax grows with the number of actions. This is the fundamental tension in tool design."</div>
+
+        <div class="takeaway"><strong>TAKEAWAY →</strong> This is why "just add more tools" doesn't scale. Each tool adds cognitive and computational overhead.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- DIAGRAM 3 — PTC: The Solution -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="diagram-section">
+    <div class="section-header">
+      <div class="section-num">03</div>
+      <div class="section-titles">
+        <div class="concept-label">Programmatic Tool Calling</div>
+        <h2>Compose in Code, Not in Context</h2>
+      </div>
+    </div>
+
+    <div class="diagram-body reverse">
+      <div class="diagram-svg-wrap">
+        <svg viewBox="0 0 380 320" xmlns="http://www.w3.org/2000/svg">
+          <text x="190" y="24" text-anchor="middle" class="svg-mono" font-size="9" letter-spacing="0.15em">PROGRAMMATIC TOOL CALLING (PTC)</text>
+
+          <!-- Claude box -->
+          <rect x="130" y="40" width="120" height="36" rx="4" fill="#FDFAF5" stroke="#1A1814" stroke-width="1.5"/>
+          <text x="190" y="63" text-anchor="middle" class="svg-label" font-size="13" font-weight="600">Claude</text>
+
+          <!-- Writes code arrow -->
+          <line x1="190" y1="76" x2="190" y2="100" stroke="#3E7A4A" stroke-width="1.2" marker-end="url(#arrowGreen)"/>
+          <text x="245" y="92" class="svg-hand" font-size="9" fill="#3E7A4A">writes code</text>
+
+          <!-- Container box -->
+          <rect x="80" y="100" width="220" height="175" rx="6" fill="#D4E8D8" stroke="#3E7A4A" stroke-width="1.5" fill-opacity="0.4"/>
+          <text x="190" y="118" text-anchor="middle" class="svg-mono" font-size="8" letter-spacing="0.15em" fill="#3E7A4A">CODE EXECUTION CONTAINER</text>
+
+          <!-- Tool calls inside container -->
+          <rect x="110" y="130" width="160" height="26" rx="3" fill="#FDFAF5" stroke="#3E7A4A" stroke-width="0.8"/>
+          <text x="190" y="148" text-anchor="middle" class="svg-label" font-size="10">await search(q1)</text>
+
+          <line x1="190" y1="156" x2="190" y2="168" stroke="#3E7A4A" stroke-width="0.8"/>
+          <text x="280" y="165" class="svg-hand" font-size="8" fill="#3E7A4A">result → code</text>
+
+          <rect x="110" y="170" width="160" height="26" rx="3" fill="#FDFAF5" stroke="#3E7A4A" stroke-width="0.8"/>
+          <text x="190" y="188" text-anchor="middle" class="svg-label" font-size="10">filter(results)</text>
+
+          <line x1="190" y1="196" x2="190" y2="208" stroke="#3E7A4A" stroke-width="0.8"/>
+
+          <rect x="110" y="210" width="160" height="26" rx="3" fill="#FDFAF5" stroke="#3E7A4A" stroke-width="0.8"/>
+          <text x="190" y="228" text-anchor="middle" class="svg-label" font-size="10">await search(q2)</text>
+
+          <line x1="190" y1="236" x2="190" y2="248" stroke="#3E7A4A" stroke-width="0.8"/>
+
+          <rect x="110" y="250" width="160" height="26" rx="3" fill="#D4E8D8" stroke="#3E7A4A" stroke-width="1"/>
+          <text x="190" y="268" text-anchor="middle" class="svg-label" font-size="10" font-weight="600">return summary</text>
+
+          <!-- Only final output goes back -->
+          <line x1="190" y1="276" x2="190" y2="305" stroke="#3E7A4A" stroke-width="1.5" marker-end="url(#arrowGreen)"/>
+          <text x="258" y="296" class="svg-mono" font-size="8" fill="#3E7A4A" letter-spacing="0.05em">ONLY FINAL</text>
+          <text x="258" y="308" class="svg-mono" font-size="8" fill="#3E7A4A" letter-spacing="0.05em">OUTPUT</text>
+
+          <!-- Left annotation -->
+          <text x="52" y="190" text-anchor="middle" class="svg-mono" font-size="8" fill="#3E7A4A">NO</text>
+          <text x="52" y="200" text-anchor="middle" class="svg-mono" font-size="8" fill="#3E7A4A">ROUND</text>
+          <text x="52" y="210" text-anchor="middle" class="svg-mono" font-size="8" fill="#3E7A4A">TRIPS</text>
+
+          <defs>
+            <marker id="arrowGreen" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="#3E7A4A"/>
+            </marker>
+          </defs>
+        </svg>
+      </div>
+
+      <div class="diagram-text">
+        <h3>Code as the orchestration layer</h3>
+        <p>With PTC, Claude writes code that calls tools as functions inside a container. Intermediate results stay in the code — they never bloat the context window.</p>
+        <p>The container pauses when a tool is invoked, the call crosses the sandbox boundary, gets fulfilled externally, and the result returns to the running code.</p>
+
+        <div class="marks-voice">"Rather than pulling 50 raw search results into context, the code can parse, filter, and cross-reference results programmatically. This keeps what's relevant and discards the rest."</div>
+
+        <div class="takeaway"><strong>RESULT →</strong> +11% accuracy, −24% input tokens. Opus 4.6 with PTC is #1 on LMArena Search Arena.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- DIAGRAM 4 — The Sweet Spot Spectrum -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="diagram-section">
+    <div class="section-header">
+      <div class="section-num">04</div>
+      <div class="section-titles">
+        <div class="concept-label">Elicitation Design</div>
+        <h2>Finding the Sweet Spot</h2>
+      </div>
+    </div>
+
+    <div class="full-diagram">
+      <div class="diagram-svg-wrap">
+        <svg viewBox="0 0 700 220" xmlns="http://www.w3.org/2000/svg">
+          <!-- Axis -->
+          <text x="50" y="28" class="svg-mono" font-size="8" letter-spacing="0.15em">NO STRUCTURE</text>
+          <text x="590" y="28" class="svg-mono" font-size="8" letter-spacing="0.15em">TOO RIGID</text>
+          <line x1="50" y1="40" x2="650" y2="40" stroke="#1A1814" stroke-width="1.5"/>
+          <polygon points="50,37 40,40 50,43" fill="#1A1814"/>
+          <polygon points="650,37 660,40 650,43" fill="#1A1814"/>
+
+          <!-- Tick marks -->
+          <circle cx="170" cy="40" r="4" fill="#D5CCBD" stroke="#9E9688" stroke-width="1"/>
+          <circle cx="350" cy="40" r="6" fill="#3E7A4A" stroke="#3E7A4A" stroke-width="1"/>
+          <circle cx="540" cy="40" r="4" fill="#D5CCBD" stroke="#9E9688" stroke-width="1"/>
+
+          <!-- Option 1: Modified Markdown -->
+          <line x1="170" y1="44" x2="170" y2="68" stroke="#D5CCBD" stroke-width="1"/>
+          <rect x="90" y="68" width="160" height="52" rx="4" fill="#F5F0E8" stroke="#D5CCBD" stroke-width="1"/>
+          <text x="170" y="90" text-anchor="middle" class="svg-label" font-size="12" font-weight="600">Modified Markdown</text>
+          <text x="170" y="108" text-anchor="middle" class="svg-label" font-size="11">Output</text>
+          <text x="170" y="140" text-anchor="middle" class="svg-hand" font-size="10">model free but messy,</text>
+          <text x="170" y="155" text-anchor="middle" class="svg-hand" font-size="10">hard to format</text>
+
+          <text x="170" y="180" text-anchor="middle" class="svg-mono-red" font-size="8">&#x2717; ATTEMPT 2</text>
+
+          <!-- Option 2: AskUserQuestion (sweet spot) -->
+          <line x1="350" y1="46" x2="350" y2="68" stroke="#3E7A4A" stroke-width="1.5"/>
+          <rect x="265" y="68" width="170" height="52" rx="4" fill="#D4E8D8" stroke="#3E7A4A" stroke-width="1.5" fill-opacity="0.5"/>
+          <text x="350" y="88" text-anchor="middle" class="svg-label" font-size="13" font-weight="700">AskUserQuestion</text>
+          <text x="350" y="106" text-anchor="middle" class="svg-label" font-size="12">Tool</text>
+          <text x="350" y="140" text-anchor="middle" class="svg-hand" font-size="10">structured + composable,</text>
+          <text x="350" y="155" text-anchor="middle" class="svg-hand" font-size="10">clear UI surface</text>
+
+          <text x="350" y="180" text-anchor="middle" class="svg-mono" font-size="8" fill="#3E7A4A">&#x2713; SWEET SPOT</text>
+
+          <!-- Option 3: ExitPlanTool -->
+          <line x1="540" y1="44" x2="540" y2="68" stroke="#D5CCBD" stroke-width="1"/>
+          <rect x="460" y="68" width="160" height="52" rx="4" fill="#F5F0E8" stroke="#D5CCBD" stroke-width="1"/>
+          <text x="540" y="88" text-anchor="middle" class="svg-label" font-size="12" font-weight="600">ExitPlanTool</text>
+          <text x="540" y="106" text-anchor="middle" class="svg-label" font-size="11">Parameter</text>
+          <text x="540" y="140" text-anchor="middle" class="svg-hand" font-size="10">plan already formed,</text>
+          <text x="540" y="155" text-anchor="middle" class="svg-hand" font-size="10">questions come too late</text>
+
+          <text x="540" y="180" text-anchor="middle" class="svg-mono-red" font-size="8">&#x2717; ATTEMPT 1</text>
+
+          <!-- Bottom insight -->
+          <rect x="180" y="196" width="340" height="22" rx="3" fill="#F5F0E8" stroke="#D5CCBD" stroke-width="0.8"/>
+          <text x="350" y="212" text-anchor="middle" class="svg-mono" font-size="8.5" letter-spacing="0.05em">KEY INSIGHT: EVEN THE BEST TOOL FAILS IF THE MODEL DOESN'T LIKE CALLING IT</text>
+        </svg>
+      </div>
+      <div class="diagram-annotation">fig. 4 — three attempts at elicitation in claude code</div>
+    </div>
+
+    <div class="diagram-text" style="max-width: 620px; margin-top: 16px;">
+      <p>The Claude Code team tried three approaches to get Claude to ask better clarifying questions. Modified markdown was too loose (Claude broke format). ExitPlanTool parameter was too rigid (questions came after the plan was already made). The AskUserQuestion tool hit the sweet spot — structured enough for reliable UI, flexible enough that Claude actually liked calling it.</p>
+    </div>
+  </div>
+
+  <div class="sep">&middot; &middot; &middot;</div>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- DIAGRAM 5 — Tool Evolution Over Time -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="diagram-section">
+    <div class="section-header">
+      <div class="section-num">05</div>
+      <div class="section-titles">
+        <div class="concept-label">Capability Drift</div>
+        <h2>Tools That Helped Become Constraints</h2>
+      </div>
+    </div>
+
+    <div class="diagram-body">
+      <div class="diagram-svg-wrap">
+        <svg viewBox="0 0 380 300" xmlns="http://www.w3.org/2000/svg">
+          <!-- Time axis -->
+          <line x1="40" y1="260" x2="340" y2="260" stroke="#D5CCBD" stroke-width="1"/>
+          <text x="40" y="280" class="svg-mono" font-size="8" letter-spacing="0.1em">WEAKER MODEL</text>
+          <text x="260" y="280" class="svg-mono" font-size="8" letter-spacing="0.1em">STRONGER MODEL</text>
+          <polygon points="340,257 350,260 340,263" fill="#D5CCBD"/>
+
+          <!-- Utility axis -->
+          <line x1="40" y1="260" x2="40" y2="30" stroke="#D5CCBD" stroke-width="1"/>
+          <text x="20" y="150" class="svg-mono" font-size="8" transform="rotate(-90, 20, 150)" letter-spacing="0.1em">UTILITY</text>
+
+          <!-- TodoWrite curve — rises then falls -->
+          <path d="M60,220 C100,120 160,80 200,100 C240,120 280,180 320,220" fill="none" stroke="#C4483E" stroke-width="2"/>
+          <text x="170" y="72" class="svg-label" font-size="11" fill="#C4483E" font-weight="600">TodoWrite</text>
+          <text x="170" y="86" class="svg-hand" font-size="9" fill="#C4483E">+ 5-turn reminders</text>
+
+          <!-- Peak annotation -->
+          <line x1="200" y1="100" x2="200" y2="55" stroke="#C4483E" stroke-width="0.8" stroke-dasharray="2,2"/>
+          <text x="200" y="50" text-anchor="middle" class="svg-mono-red" font-size="7">PEAK UTILITY</text>
+
+          <!-- Task Tool curve — starts low, rises -->
+          <path d="M160,240 C200,200 260,100 340,50" fill="none" stroke="#3E7A4A" stroke-width="2"/>
+          <text x="300" y="42" class="svg-label" font-size="11" fill="#3E7A4A" font-weight="600">Task Tool</text>
+          <text x="300" y="56" class="svg-hand" font-size="9" fill="#3E7A4A">inter-agent coordination</text>
+
+          <!-- Crossover point -->
+          <circle cx="235" cy="150" r="5" fill="#FDFAF5" stroke="#B8860B" stroke-width="1.5"/>
+          <text x="255" y="145" class="svg-mono" font-size="7" fill="#B8860B">CROSSOVER:</text>
+          <text x="255" y="155" class="svg-mono" font-size="7" fill="#B8860B">REPLACE TOOL</text>
+
+          <!-- Constraint zone -->
+          <rect x="240" y="165" width="90" height="75" rx="3" fill="#E8D4D2" fill-opacity="0.3" stroke="#C4483E" stroke-width="0.8" stroke-dasharray="3,3"/>
+          <text x="285" y="207" text-anchor="middle" class="svg-mono-red" font-size="7">CONSTRAINT</text>
+          <text x="285" y="217" text-anchor="middle" class="svg-mono-red" font-size="7">ZONE</text>
+        </svg>
+      </div>
+
+      <div class="diagram-text">
+        <h3>The TodoWrite → Task evolution</h3>
+        <p>Early Claude needed a Todo list + reminders every 5 turns to stay on track. But as models improved, the reminders became a cage — Claude felt it had to stick to the list instead of adapting.</p>
+        <p>Opus 4.5 got better at subagents, but TodoWrite couldn't handle inter-agent coordination. The Task Tool replaced it with dependencies, shared updates, and deletable tasks.</p>
+
+        <div class="marks-voice">"As model capabilities increase, the tools that your models once needed might now be constraining them. It's important to constantly revisit previous assumptions."</div>
+
+        <div class="takeaway"><strong>TAKEAWAY →</strong> Schedule regular "tool audits." What helped your weak model may be hurting your strong one.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- DIAGRAM 6 — Context Building Evolution -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="diagram-section">
+    <div class="section-header">
+      <div class="section-num">06</div>
+      <div class="section-titles">
+        <div class="concept-label">Search Design</div>
+        <h2>From RAG to Self-Built Context</h2>
+      </div>
+    </div>
+
+    <div class="full-diagram">
+      <div class="diagram-svg-wrap">
+        <svg viewBox="0 0 700 240" xmlns="http://www.w3.org/2000/svg">
+          <!-- Timeline arrow -->
+          <line x1="40" y1="48" x2="660" y2="48" stroke="#1A1814" stroke-width="1.5"/>
+          <polygon points="660,45 670,48 660,51" fill="#1A1814"/>
+          <text x="40" y="36" class="svg-mono" font-size="8" letter-spacing="0.15em">EVOLUTION OVER 1 YEAR</text>
+
+          <!-- Stage 1: RAG -->
+          <circle cx="100" cy="48" r="5" fill="#C4483E"/>
+          <line x1="100" y1="53" x2="100" y2="75" stroke="#C4483E" stroke-width="1"/>
+          <rect x="35" y="75" width="130" height="60" rx="4" fill="#E8D4D2" stroke="#C4483E" stroke-width="1" fill-opacity="0.5"/>
+          <text x="100" y="95" text-anchor="middle" class="svg-label" font-size="11" font-weight="600">RAG Database</text>
+          <text x="100" y="112" text-anchor="middle" class="svg-hand" font-size="9">context given to Claude</text>
+          <text x="100" y="126" text-anchor="middle" class="svg-hand" font-size="9">fragile, needs indexing</text>
+          <text x="100" y="148" text-anchor="middle" class="svg-mono-red" font-size="7">PASSIVE</text>
+
+          <!-- Stage 2: Grep -->
+          <circle cx="270" cy="48" r="5" fill="#B8860B"/>
+          <line x1="270" y1="53" x2="270" y2="75" stroke="#B8860B" stroke-width="1"/>
+          <rect x="205" y="75" width="130" height="60" rx="4" fill="#F0E4C8" stroke="#B8860B" stroke-width="1" fill-opacity="0.5"/>
+          <text x="270" y="95" text-anchor="middle" class="svg-label" font-size="11" font-weight="600">Grep Tool</text>
+          <text x="270" y="112" text-anchor="middle" class="svg-hand" font-size="9">Claude searches itself</text>
+          <text x="270" y="126" text-anchor="middle" class="svg-hand" font-size="9">builds own context</text>
+          <text x="270" y="148" text-anchor="middle" class="svg-mono" font-size="7" fill="#B8860B">ACTIVE SEARCH</text>
+
+          <!-- Stage 3: Skills -->
+          <circle cx="440" cy="48" r="5" fill="#2E5F8A"/>
+          <line x1="440" y1="53" x2="440" y2="75" stroke="#2E5F8A" stroke-width="1"/>
+          <rect x="375" y="75" width="130" height="60" rx="4" fill="#D6E3EF" stroke="#2E5F8A" stroke-width="1" fill-opacity="0.5"/>
+          <text x="440" y="95" text-anchor="middle" class="svg-label" font-size="11" font-weight="600">Agent Skills</text>
+          <text x="440" y="112" text-anchor="middle" class="svg-hand" font-size="9">recursive file discovery</text>
+          <text x="440" y="126" text-anchor="middle" class="svg-hand" font-size="9">files reference files</text>
+          <text x="440" y="148" text-anchor="middle" class="svg-mono" font-size="7" fill="#2E5F8A">PROGRESSIVE DISCLOSURE</text>
+
+          <!-- Stage 4: Nested Search -->
+          <circle cx="610" cy="48" r="6" fill="#3E7A4A"/>
+          <line x1="610" y1="54" x2="610" y2="75" stroke="#3E7A4A" stroke-width="1.5"/>
+          <rect x="540" y="75" width="140" height="60" rx="4" fill="#D4E8D8" stroke="#3E7A4A" stroke-width="1.5" fill-opacity="0.5"/>
+          <text x="610" y="95" text-anchor="middle" class="svg-label" font-size="11" font-weight="600">Nested Multi-Layer</text>
+          <text x="610" y="112" text-anchor="middle" class="svg-hand" font-size="9">API docs, DB queries,</text>
+          <text x="610" y="126" text-anchor="middle" class="svg-hand" font-size="9">skill → skill → file</text>
+          <text x="610" y="148" text-anchor="middle" class="svg-mono" font-size="7" fill="#3E7A4A">FULL AUTONOMY</text>
+
+          <!-- Bottom insight bar -->
+          <rect x="40" y="170" width="620" height="50" rx="4" fill="#F5F0E8" stroke="#D5CCBD" stroke-width="1"/>
+          <text x="350" y="192" text-anchor="middle" class="svg-title" font-size="13" font-weight="600">Key Shift: Don't give the agent context. Give it tools to find context.</text>
+          <text x="350" y="210" text-anchor="middle" class="svg-hand" font-size="10">As Claude gets smarter, it becomes increasingly good at building its own context.</text>
+        </svg>
+      </div>
+      <div class="diagram-annotation">fig. 6 — context acquisition evolution in claude code</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- DIAGRAM 7 — Progressive Disclosure Pattern -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="diagram-section">
+    <div class="section-header">
+      <div class="section-num">07</div>
+      <div class="section-titles">
+        <div class="concept-label">Key Pattern</div>
+        <h2>Progressive Disclosure</h2>
+      </div>
+    </div>
+
+    <div class="diagram-body reverse">
+      <div class="diagram-svg-wrap">
+        <svg viewBox="0 0 380 320" xmlns="http://www.w3.org/2000/svg">
+          <text x="190" y="20" text-anchor="middle" class="svg-mono" font-size="8" letter-spacing="0.15em">ADD CAPABILITY WITHOUT ADDING A TOOL</text>
+
+          <!-- Layer 0: System prompt -->
+          <rect x="120" y="38" width="140" height="34" rx="4" fill="#FDFAF5" stroke="#1A1814" stroke-width="1.5"/>
+          <text x="190" y="60" text-anchor="middle" class="svg-label" font-size="11" font-weight="600">System Prompt</text>
+
+          <!-- Arrow down -->
+          <line x1="190" y1="72" x2="190" y2="92" stroke="#2E5F8A" stroke-width="1" marker-end="url(#arrowBlue)"/>
+          <text x="248" y="86" class="svg-hand" font-size="9" fill="#2E5F8A">contains link →</text>
+
+          <!-- Layer 1: Skill file -->
+          <rect x="100" y="92" width="180" height="34" rx="4" fill="#D6E3EF" stroke="#2E5F8A" stroke-width="1"/>
+          <text x="190" y="114" text-anchor="middle" class="svg-label" font-size="11">SKILL.md</text>
+
+          <!-- Arrow down -->
+          <line x1="150" y1="126" x2="120" y2="148" stroke="#2E5F8A" stroke-width="1" marker-end="url(#arrowBlue)"/>
+          <line x1="230" y1="126" x2="260" y2="148" stroke="#2E5F8A" stroke-width="1" marker-end="url(#arrowBlue)"/>
+          <text x="190" y="143" text-anchor="middle" class="svg-hand" font-size="8" fill="#2E5F8A">references →</text>
+
+          <!-- Layer 2: Sub-files -->
+          <rect x="50" y="148" width="120" height="30" rx="3" fill="#D6E3EF" stroke="#2E5F8A" stroke-width="0.8" fill-opacity="0.6"/>
+          <text x="110" y="168" text-anchor="middle" class="svg-label" font-size="10">api_docs.md</text>
+
+          <rect x="210" y="148" width="120" height="30" rx="3" fill="#D6E3EF" stroke="#2E5F8A" stroke-width="0.8" fill-opacity="0.6"/>
+          <text x="270" y="168" text-anchor="middle" class="svg-label" font-size="10">db_schema.md</text>
+
+          <!-- More arrows -->
+          <line x1="90" y1="178" x2="70" y2="200" stroke="#2E5F8A" stroke-width="0.8" marker-end="url(#arrowBlue)"/>
+          <line x1="130" y1="178" x2="150" y2="200" stroke="#2E5F8A" stroke-width="0.8" marker-end="url(#arrowBlue)"/>
+          <line x1="250" y1="178" x2="230" y2="200" stroke="#2E5F8A" stroke-width="0.8" marker-end="url(#arrowBlue)"/>
+          <line x1="290" y1="178" x2="310" y2="200" stroke="#2E5F8A" stroke-width="0.8" marker-end="url(#arrowBlue)"/>
+
+          <!-- Layer 3: Deep files -->
+          <rect x="38" y="200" width="65" height="24" rx="3" fill="#D6E3EF" stroke="#2E5F8A" stroke-width="0.5" fill-opacity="0.35"/>
+          <text x="70" y="216" text-anchor="middle" class="svg-label-light" font-size="8">endpoints</text>
+
+          <rect x="118" y="200" width="65" height="24" rx="3" fill="#D6E3EF" stroke="#2E5F8A" stroke-width="0.5" fill-opacity="0.35"/>
+          <text x="150" y="216" text-anchor="middle" class="svg-label-light" font-size="8">auth.md</text>
+
+          <rect x="198" y="200" width="65" height="24" rx="3" fill="#D6E3EF" stroke="#2E5F8A" stroke-width="0.5" fill-opacity="0.35"/>
+          <text x="230" y="216" text-anchor="middle" class="svg-label-light" font-size="8">tables</text>
+
+          <rect x="278" y="200" width="65" height="24" rx="3" fill="#D6E3EF" stroke="#2E5F8A" stroke-width="0.5" fill-opacity="0.35"/>
+          <text x="310" y="216" text-anchor="middle" class="svg-label-light" font-size="8">queries</text>
+
+          <!-- Context window annotation -->
+          <rect x="60" y="250" width="260" height="50" rx="4" fill="#F5F0E8" stroke="#D5CCBD" stroke-width="1"/>
+          <text x="190" y="270" text-anchor="middle" class="svg-label" font-size="10" font-weight="600">Context Window</text>
+          <text x="190" y="287" text-anchor="middle" class="svg-hand" font-size="9">only loads what's needed, when needed</text>
+
+          <defs>
+            <marker id="arrowBlue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="#2E5F8A"/>
+            </marker>
+          </defs>
+        </svg>
+      </div>
+
+      <div class="diagram-text">
+        <h3>The tree, not the library</h3>
+        <p>Instead of stuffing all knowledge into the system prompt or a RAG index, progressive disclosure lets the agent explore a tree of files. Each file references others. The agent only loads what's relevant.</p>
+        <p>This is how Claude Code added self-documentation without adding a tool. A "Guide" subagent follows links, searches docs, and returns just the answer.</p>
+
+        <div class="marks-voice">"Progressive disclosure is now a common technique we use to add new functionality without adding a tool."</div>
+
+        <div class="takeaway"><strong>RULE →</strong> Claude Code has ~20 tools. The bar to add a new one is high. Before adding tool #21, ask: can progressive disclosure handle this?</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- DIAGRAM 8 — The Decision Framework -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="diagram-section">
+    <div class="section-header">
+      <div class="section-num">08</div>
+      <div class="section-titles">
+        <div class="concept-label">Decision Framework</div>
+        <h2>When to Add a Tool vs. Not</h2>
+      </div>
+    </div>
+
+    <div class="full-diagram">
+      <div class="diagram-svg-wrap">
+        <svg viewBox="0 0 700 340" xmlns="http://www.w3.org/2000/svg">
+          <!-- Decision diamond -->
+          <polygon points="350,30 500,80 350,130 200,80" fill="#FDFAF5" stroke="#1A1814" stroke-width="1.5"/>
+          <text x="350" y="75" text-anchor="middle" class="svg-label" font-size="12" font-weight="600">Does the agent need</text>
+          <text x="350" y="92" text-anchor="middle" class="svg-label" font-size="12" font-weight="600">a new capability?</text>
+
+          <!-- NO branch -->
+          <line x1="200" y1="80" x2="100" y2="80" stroke="#9E9688" stroke-width="1.2"/>
+          <text x="155" y="72" class="svg-mono" font-size="8">NO</text>
+          <rect x="20" y="60" width="80" height="40" rx="4" fill="#F5F0E8" stroke="#D5CCBD" stroke-width="1"/>
+          <text x="60" y="84" text-anchor="middle" class="svg-label" font-size="10">Don't touch</text>
+
+          <!-- YES branch down -->
+          <line x1="350" y1="130" x2="350" y2="165" stroke="#1A1814" stroke-width="1.2" marker-end="url(#arrowBlack)"/>
+          <text x="365" y="152" class="svg-mono" font-size="8">YES</text>
+
+          <!-- Second diamond -->
+          <polygon points="350,165 480,210 350,255 220,210" fill="#D6E3EF" stroke="#2E5F8A" stroke-width="1.2" fill-opacity="0.4"/>
+          <text x="350" y="205" text-anchor="middle" class="svg-label" font-size="11">Does it need to be</text>
+          <text x="350" y="220" text-anchor="middle" class="svg-label" font-size="11">caught by the harness?</text>
+
+          <!-- NO — left: Progressive Disclosure -->
+          <line x1="220" y1="210" x2="90" y2="210" stroke="#2E5F8A" stroke-width="1.2"/>
+          <text x="160" y="202" class="svg-mono" font-size="8" fill="#2E5F8A">NO</text>
+          <rect x="10" y="186" width="80" height="48" rx="4" fill="#D6E3EF" stroke="#2E5F8A" stroke-width="1"/>
+          <text x="50" y="207" text-anchor="middle" class="svg-label" font-size="9" font-weight="600">Progressive</text>
+          <text x="50" y="222" text-anchor="middle" class="svg-label" font-size="9" font-weight="600">Disclosure</text>
+          <text x="50" y="250" text-anchor="middle" class="svg-hand" font-size="8">skills, subagents,</text>
+          <text x="50" y="262" text-anchor="middle" class="svg-hand" font-size="8">linked docs</text>
+
+          <!-- YES — down -->
+          <line x1="350" y1="255" x2="350" y2="275" stroke="#1A1814" stroke-width="1" marker-end="url(#arrowBlack)"/>
+          <text x="365" y="268" class="svg-mono" font-size="8">YES</text>
+
+          <!-- Third decision -->
+          <rect x="270" y="275" width="160" height="44" rx="4" fill="#F5F0E8" stroke="#D5CCBD" stroke-width="1"/>
+          <text x="350" y="296" text-anchor="middle" class="svg-label" font-size="10">Does it need guardrails</text>
+          <text x="350" y="310" text-anchor="middle" class="svg-label" font-size="10">or special UI rendering?</text>
+
+          <!-- YES — right: Dedicated Tool -->
+          <line x1="430" y1="297" x2="530" y2="297" stroke="#C4483E" stroke-width="1.2"/>
+          <text x="480" y="290" class="svg-mono" font-size="8" fill="#C4483E">YES</text>
+          <rect x="530" y="275" width="130" height="44" rx="4" fill="#E8D4D2" stroke="#C4483E" stroke-width="1.5" fill-opacity="0.5"/>
+          <text x="595" y="296" text-anchor="middle" class="svg-label" font-size="10" font-weight="600">Dedicated Tool</text>
+          <text x="595" y="310" text-anchor="middle" class="svg-hand" font-size="9">file_edit, AskUser</text>
+
+          <!-- NO — left: Bash/Code -->
+          <line x1="270" y1="297" x2="170" y2="297" stroke="#3E7A4A" stroke-width="1.2"/>
+          <text x="225" y="290" class="svg-mono" font-size="8" fill="#3E7A4A">NO</text>
+          <rect x="60" y="275" width="110" height="44" rx="4" fill="#D4E8D8" stroke="#3E7A4A" stroke-width="1" fill-opacity="0.5"/>
+          <text x="115" y="296" text-anchor="middle" class="svg-label" font-size="10" font-weight="600">Bash / PTC</text>
+          <text x="115" y="310" text-anchor="middle" class="svg-hand" font-size="9">code handles it</text>
+
+          <defs>
+            <marker id="arrowBlack" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="#1A1814"/>
+            </marker>
+          </defs>
+        </svg>
+      </div>
+      <div class="diagram-annotation">fig. 8 — decision tree for adding tools to your agent</div>
+    </div>
+  </div>
+
+  <div class="sep">&middot; &middot; &middot;</div>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- DIAGRAM 9 — The 20-Tool Ceiling -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="diagram-section">
+    <div class="section-header">
+      <div class="section-num">09</div>
+      <div class="section-titles">
+        <div class="concept-label">Cognitive Load</div>
+        <h2>The 20-Tool Ceiling</h2>
+      </div>
+    </div>
+
+    <div class="diagram-body">
+      <div class="diagram-svg-wrap">
+        <svg viewBox="0 0 380 260" xmlns="http://www.w3.org/2000/svg">
+          <!-- Axes -->
+          <line x1="50" y1="220" x2="340" y2="220" stroke="#D5CCBD" stroke-width="1"/>
+          <line x1="50" y1="220" x2="50" y2="30" stroke="#D5CCBD" stroke-width="1"/>
+          <text x="195" y="248" text-anchor="middle" class="svg-mono" font-size="8" letter-spacing="0.1em">NUMBER OF TOOLS</text>
+          <text x="25" y="125" class="svg-mono" font-size="8" transform="rotate(-90, 25, 125)" letter-spacing="0.1em">AGENT PERFORMANCE</text>
+
+          <!-- Curve — rises then plateaus/drops -->
+          <path d="M60,200 C100,180 140,100 180,70 C220,55 240,58 270,80 C300,102 320,140 340,180" fill="none" stroke="#1A1814" stroke-width="2"/>
+
+          <!-- Sweet spot zone -->
+          <rect x="155" y="45" width="80" height="45" rx="4" fill="#D4E8D8" fill-opacity="0.3" stroke="#3E7A4A" stroke-width="1" stroke-dasharray="3,3"/>
+          <text x="195" y="40" text-anchor="middle" class="svg-mono" font-size="7" fill="#3E7A4A">SWEET SPOT</text>
+
+          <!-- ~20 annotation -->
+          <line x1="190" y1="90" x2="190" y2="220" stroke="#3E7A4A" stroke-width="0.8" stroke-dasharray="3,3"/>
+          <text x="190" y="235" text-anchor="middle" class="svg-mono" font-size="9" fill="#3E7A4A">~20</text>
+
+          <!-- Diminishing returns zone -->
+          <rect x="250" y="60" width="90" height="140" rx="4" fill="#E8D4D2" fill-opacity="0.2" stroke="#C4483E" stroke-width="0.8" stroke-dasharray="3,3"/>
+          <text x="295" y="56" text-anchor="middle" class="svg-mono-red" font-size="7">CHOICE PARALYSIS</text>
+
+          <!-- Annotation: too few -->
+          <text x="90" y="180" class="svg-hand" font-size="9">too few</text>
+          <text x="90" y="193" class="svg-hand" font-size="9">= limited</text>
+
+          <!-- Annotation: too many -->
+          <text x="296" y="160" class="svg-hand" font-size="9" fill="#C4483E">too many</text>
+          <text x="296" y="173" class="svg-hand" font-size="9" fill="#C4483E">= confused</text>
+        </svg>
+      </div>
+
+      <div class="diagram-text">
+        <h3>More tools ≠ more capability</h3>
+        <p>Claude Code operates with ~20 tools. Each additional tool gives the model one more option to reason about — increasing decision complexity and the chance of misuse.</p>
+        <p>Before adding tool #21, the team asks: can this be handled by progressive disclosure (skills, docs, subagents) instead?</p>
+
+        <div class="marks-voice">"The bar to add a new tool is high, because this gives the model one more option to think about."</div>
+
+        <div class="takeaway"><strong>ANALOGY →</strong> Think of portfolio diversification: the 21st holding rarely improves a well-constructed portfolio. Same with tools — quality of curation beats raw quantity.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- DIAGRAM 10 — The Complete Mental Model -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="diagram-section">
+    <div class="section-header">
+      <div class="section-num">10</div>
+      <div class="section-titles">
+        <div class="concept-label">Complete Mental Model</div>
+        <h2>The Agent Action Space</h2>
+      </div>
+    </div>
+
+    <div class="full-diagram">
+      <div class="diagram-svg-wrap">
+        <svg viewBox="0 0 700 360" xmlns="http://www.w3.org/2000/svg">
+          <!-- Central circle: Claude -->
+          <circle cx="350" cy="170" r="50" fill="#FDFAF5" stroke="#1A1814" stroke-width="2"/>
+          <text x="350" y="165" text-anchor="middle" class="svg-title" font-size="16" font-weight="700">Claude</text>
+          <text x="350" y="183" text-anchor="middle" class="svg-hand" font-size="9">reasoning core</text>
+
+          <!-- Ring 1: Core Tools -->
+          <!-- bash -->
+          <rect x="130" y="80" width="90" height="36" rx="4" fill="#D4E8D8" stroke="#3E7A4A" stroke-width="1.2"/>
+          <text x="175" y="103" text-anchor="middle" class="svg-label" font-size="10" font-weight="600">Bash</text>
+          <line x1="220" y1="98" x2="300" y2="140" stroke="#3E7A4A" stroke-width="1"/>
+
+          <!-- file_edit -->
+          <rect x="485" y="80" width="90" height="36" rx="4" fill="#E8D4D2" stroke="#C4483E" stroke-width="1.2"/>
+          <text x="530" y="103" text-anchor="middle" class="svg-label" font-size="10" font-weight="600">File Edit</text>
+          <text x="530" y="68" text-anchor="middle" class="svg-mono" font-size="7" fill="#C4483E">GUARDRAILED</text>
+          <line x1="485" y1="98" x2="400" y2="140" stroke="#C4483E" stroke-width="1"/>
+
+          <!-- grep -->
+          <rect x="130" y="220" width="90" height="36" rx="4" fill="#D6E3EF" stroke="#2E5F8A" stroke-width="1.2"/>
+          <text x="175" y="243" text-anchor="middle" class="svg-label" font-size="10" font-weight="600">Grep</text>
+          <text x="175" y="268" text-anchor="middle" class="svg-hand" font-size="8">context building</text>
+          <line x1="220" y1="238" x2="300" y2="200" stroke="#2E5F8A" stroke-width="1"/>
+
+          <!-- AskUser -->
+          <rect x="485" y="220" width="90" height="36" rx="4" fill="#F0E4C8" stroke="#B8860B" stroke-width="1.2"/>
+          <text x="530" y="243" text-anchor="middle" class="svg-label" font-size="10" font-weight="600">AskUser</text>
+          <text x="530" y="268" text-anchor="middle" class="svg-hand" font-size="8">elicitation</text>
+          <line x1="485" y1="238" x2="400" y2="200" stroke="#B8860B" stroke-width="1"/>
+
+          <!-- Task -->
+          <rect x="308" y="260" width="84" height="36" rx="4" fill="#D4E8D8" stroke="#3E7A4A" stroke-width="1"/>
+          <text x="350" y="283" text-anchor="middle" class="svg-label" font-size="10" font-weight="600">Task</text>
+          <text x="350" y="308" text-anchor="middle" class="svg-hand" font-size="8">coordination</text>
+          <line x1="350" y1="260" x2="350" y2="220" stroke="#3E7A4A" stroke-width="1"/>
+
+          <!-- Ring 2: Progressive Disclosure -->
+          <!-- Skills -->
+          <rect x="20" y="145" width="80" height="50" rx="4" fill="#D6E3EF" stroke="#2E5F8A" stroke-width="0.8" fill-opacity="0.4"/>
+          <text x="60" y="166" text-anchor="middle" class="svg-label" font-size="9" font-weight="600">Skills</text>
+          <text x="60" y="181" text-anchor="middle" class="svg-hand" font-size="8">linked docs</text>
+          <line x1="100" y1="170" x2="130" y2="170" stroke="#2E5F8A" stroke-width="0.8" stroke-dasharray="3,3"/>
+
+          <!-- Subagents -->
+          <rect x="600" y="145" width="85" height="50" rx="4" fill="#D6E3EF" stroke="#2E5F8A" stroke-width="0.8" fill-opacity="0.4"/>
+          <text x="642" y="166" text-anchor="middle" class="svg-label" font-size="9" font-weight="600">Subagents</text>
+          <text x="642" y="181" text-anchor="middle" class="svg-hand" font-size="8">guide agent</text>
+          <line x1="600" y1="170" x2="575" y2="170" stroke="#2E5F8A" stroke-width="0.8" stroke-dasharray="3,3"/>
+
+          <!-- PTC -->
+          <rect x="308" y="22" width="84" height="40" rx="4" fill="#D4E8D8" stroke="#3E7A4A" stroke-width="1.2"/>
+          <text x="350" y="40" text-anchor="middle" class="svg-label" font-size="9" font-weight="600">PTC</text>
+          <text x="350" y="52" text-anchor="middle" class="svg-hand" font-size="8">code execution</text>
+          <line x1="350" y1="62" x2="350" y2="120" stroke="#3E7A4A" stroke-width="1" stroke-dasharray="3,3"/>
+
+          <!-- Legend -->
+          <rect x="30" y="316" width="640" height="38" rx="4" fill="#F5F0E8" stroke="#D5CCBD" stroke-width="0.8"/>
+          <rect x="50" y="330" width="12" height="12" rx="2" fill="#D4E8D8" stroke="#3E7A4A" stroke-width="0.8"/>
+          <text x="68" y="340" class="svg-mono" font-size="7" letter-spacing="0.05em">COMPOSABILITY</text>
+          <rect x="180" y="330" width="12" height="12" rx="2" fill="#E8D4D2" stroke="#C4483E" stroke-width="0.8"/>
+          <text x="198" y="340" class="svg-mono" font-size="7" letter-spacing="0.05em">GUARDRAILS</text>
+          <rect x="300" y="330" width="12" height="12" rx="2" fill="#D6E3EF" stroke="#2E5F8A" stroke-width="0.8"/>
+          <text x="318" y="340" class="svg-mono" font-size="7" letter-spacing="0.05em">CONTEXT BUILDING</text>
+          <rect x="460" y="330" width="12" height="12" rx="2" fill="#F0E4C8" stroke="#B8860B" stroke-width="0.8"/>
+          <text x="478" y="340" class="svg-mono" font-size="7" letter-spacing="0.05em">USER INTERACTION</text>
+        </svg>
+      </div>
+      <div class="diagram-annotation">fig. 10 — claude code's complete action space architecture</div>
+    </div>
+
+    <div class="diagram-text" style="max-width: 620px; margin-top: 16px;">
+      <p>Every tool in Claude Code's ~20-tool set serves one of four roles: composability (bash, PTC for code execution), guardrails (file_edit with staleness checks), context building (grep, skills, subagents), or user interaction (AskUser for elicitation). Progressive disclosure — skills, subagents, linked docs — extends the action space without adding tools.</p>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- FOOTER -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="footer">
+    <p>Seeing Like an Agent &middot; Agent Architecture Series &middot; Based on Claude Code team learnings &middot; Feb 2026</p>
+  </div>
+
+</div>
+</body>
+</html>

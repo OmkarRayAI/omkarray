@@ -1,0 +1,1366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-62YF7Y81BS"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-62YF7Y81BS');
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent Design Patterns — Deep Dive</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #111111;
+    --paper: #ffffff;
+    --accent: #1a6bff;
+    --accent-light: #e8f0ff;
+    --gold: #c77d15;
+    --muted: #71717a;
+    --light: #f4f4f5;
+    --rule: #e4e4e7;
+    --green: #16a34a;
+    --green-light: #f0fdf4;
+    --red: #dc2626;
+    --red-light: #fef2f2;
+    --purple: #7c3aed;
+    --purple-light: #f5f3ff;
+    --orange: #ea580c;
+    --orange-light: #fff7ed;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'IBM Plex Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 48px 32px;
+    line-height: 1.6;
+  }
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    text-decoration: none;
+    margin-bottom: 32px;
+    transition: color 0.2s;
+  }
+  .back-link:hover { color: var(--ink); }
+
+  /* MASTHEAD */
+  .masthead {
+    border-top: 4px solid var(--ink);
+    border-bottom: 1px solid var(--ink);
+    padding: 24px 0 20px;
+    margin-bottom: 48px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+  .masthead-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .masthead h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 38px;
+    font-weight: 900;
+    line-height: 1.1;
+    margin: 8px 0 4px;
+  }
+  .masthead-sub {
+    font-size: 13px;
+    color: var(--muted);
+    font-weight: 300;
+    letter-spacing: 0.04em;
+  }
+  .verdict-badge {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    background: var(--ink);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 2px;
+  }
+
+  /* SECTION HEADERS */
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 56px 0 24px;
+  }
+  .section-number {
+    font-family: 'Playfair Display', serif;
+    font-size: 48px;
+    font-weight: 900;
+    color: var(--rule);
+    line-height: 1;
+  }
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 700;
+    border-bottom: 2px solid var(--ink);
+    padding-bottom: 4px;
+  }
+  .section-desc {
+    font-size: 12px;
+    color: var(--muted);
+    font-family: 'IBM Plex Mono', monospace;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  p.body {
+    font-size: 14px;
+    color: var(--ink);
+    margin-bottom: 16px;
+    max-width: 680px;
+  }
+
+  /* DIAGRAM CONTAINERS */
+  .diagram {
+    background: var(--light);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 32px;
+    margin: 24px 0;
+    position: relative;
+  }
+  .diagram-title {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .diagram-title::before {
+    content: '';
+    display: block;
+    width: 20px;
+    height: 1px;
+    background: var(--accent);
+  }
+
+  /* PIPELINE LAYERS */
+  .pipeline-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .pipeline-layer {
+    display: flex;
+    align-items: stretch;
+    border: 1px solid var(--rule);
+    margin-bottom: -1px;
+    background: white;
+  }
+  .pipeline-label {
+    width: 160px;
+    min-width: 160px;
+    background: var(--ink);
+    color: white;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+  }
+  .pipeline-content {
+    flex: 1;
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    font-size: 12px;
+  }
+  .pipeline-layer.highlight .pipeline-label { background: var(--accent); }
+  .pipeline-layer.highlight .pipeline-content { background: var(--accent-light); }
+  .pipeline-chip {
+    background: white;
+    border: 1px solid var(--rule);
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-family: 'IBM Plex Mono', monospace;
+    color: var(--ink);
+  }
+  .pipeline-chip.own {
+    background: var(--accent-light);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .pipeline-chip.green {
+    background: var(--green-light);
+    border-color: var(--green);
+    color: var(--green);
+  }
+  .pipeline-chip.purple {
+    background: var(--purple-light);
+    border-color: var(--purple);
+    color: var(--purple);
+  }
+  .pipeline-chip.orange {
+    background: var(--orange-light);
+    border-color: var(--orange);
+    color: var(--orange);
+  }
+  .pipeline-latency {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--accent);
+    margin-left: auto;
+    white-space: nowrap;
+  }
+  .pipeline-arrow {
+    text-align: center;
+    padding: 4px 0;
+    color: var(--muted);
+    font-size: 16px;
+    background: transparent;
+  }
+
+  /* GAP TABLE */
+  .gap-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+  .gap-table th {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: white;
+    background: var(--ink);
+    padding: 10px 12px;
+    text-align: left;
+    font-weight: 500;
+  }
+  .gap-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--rule);
+    vertical-align: top;
+    line-height: 1.4;
+    background: white;
+  }
+  .gap-table tr:nth-child(even) td { background: var(--light); }
+
+  .check { color: var(--green); font-weight: 700; font-size: 14px; }
+  .cross { color: #ccc; font-size: 14px; }
+  .partial { color: var(--gold); font-weight: 700; font-size: 14px; }
+
+  /* SEVERITY PILLS */
+  .severity-pill {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 500;
+  }
+  .sev-mature { background: var(--green-light); color: var(--green); }
+  .sev-emerging { background: var(--orange-light); color: var(--orange); }
+  .sev-nascent { background: var(--purple-light); color: var(--purple); }
+  .sev-frontier { background: var(--accent-light); color: var(--accent); }
+
+  /* WRAPPER GRID */
+  .wrapper-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+  }
+  .wrapper-cell {
+    background: white;
+    padding: 20px;
+  }
+  .wrapper-cell.header {
+    background: var(--ink);
+    color: white;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 10px 20px;
+  }
+  .wrapper-cell h4 {
+    font-family: 'Playfair Display', serif;
+    font-size: 15px;
+    margin-bottom: 6px;
+  }
+  .wrapper-cell p {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  /* VERDICT BOX */
+  .verdict-box {
+    border: 2px solid var(--ink);
+    padding: 32px;
+    margin: 48px 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 24px;
+    background: white;
+  }
+  .verdict-box-title {
+    grid-column: 1 / -1;
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    font-weight: 700;
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 12px;
+    margin-bottom: 8px;
+  }
+  .verdict-item h5 {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .verdict-score {
+    font-family: 'Playfair Display', serif;
+    font-size: 36px;
+    font-weight: 900;
+    line-height: 1;
+  }
+  .verdict-score.blue { color: var(--accent); }
+  .verdict-score.green { color: var(--green); }
+  .verdict-score.gold { color: var(--gold); }
+  .verdict-item p {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  .callout {
+    border-left: 3px solid var(--accent);
+    padding: 12px 20px;
+    background: var(--accent-light);
+    margin: 16px 0;
+    font-size: 13px;
+    font-style: italic;
+    color: var(--ink);
+  }
+
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 16px 0;
+  }
+
+  .three-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+    margin: 16px 0;
+  }
+
+  .insight-card {
+    border: 1px solid var(--rule);
+    padding: 16px;
+    background: white;
+    border-radius: 4px;
+  }
+  .insight-card h4 {
+    font-family: 'Playfair Display', serif;
+    font-size: 14px;
+    margin-bottom: 6px;
+  }
+  .insight-card p {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  hr.rule { border: none; border-top: 1px solid var(--rule); margin: 32px 0; }
+
+  .footnote {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    border-top: 1px solid var(--rule);
+    padding-top: 12px;
+    margin-top: 12px;
+    letter-spacing: 0.03em;
+  }
+
+  .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+  .dot-blue { background: var(--accent); }
+  .dot-green { background: var(--green); }
+  .dot-orange { background: var(--orange); }
+  .dot-purple { background: var(--purple); }
+
+  /* FLOW DIAGRAM */
+  .flow-container {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    overflow-x: auto;
+    padding-bottom: 8px;
+  }
+  .flow-node {
+    flex: 1;
+    min-width: 120px;
+    background: white;
+    border: 1px solid var(--rule);
+    padding: 16px 12px;
+    text-align: center;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  .flow-node.active {
+    border-color: var(--accent);
+    background: var(--accent-light);
+  }
+  .flow-node-icon {
+    font-size: 20px;
+    margin-bottom: 8px;
+  }
+  .flow-node-title {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .flow-node-desc {
+    font-size: 10px;
+    color: var(--muted);
+    line-height: 1.4;
+  }
+  .flow-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    min-width: 32px;
+    color: var(--muted);
+    font-size: 18px;
+  }
+
+  /* PATTERN CARDS */
+  .pattern-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 12px;
+  }
+  .pattern-card {
+    background: white;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 20px;
+    transition: border-color 0.2s;
+    position: relative;
+  }
+  .pattern-card:hover { border-color: var(--accent); }
+  .pattern-card-number {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 900;
+    color: var(--rule);
+    position: absolute;
+    top: 12px;
+    right: 16px;
+    line-height: 1;
+  }
+  .pattern-card-icon {
+    font-size: 22px;
+    margin-bottom: 8px;
+  }
+  .pattern-card h4 {
+    font-family: 'Playfair Display', serif;
+    font-size: 15px;
+    margin-bottom: 6px;
+    padding-right: 30px;
+  }
+  .pattern-card p {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.5;
+    margin-bottom: 8px;
+  }
+  .pattern-card-tag {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 2px 8px;
+    border-radius: 20px;
+  }
+
+  /* CONTEXT BAR CHART */
+  .ctx-bar-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 6px;
+  }
+  .ctx-bar-label {
+    width: 100px;
+    min-width: 100px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--ink);
+    text-align: right;
+    padding-right: 12px;
+  }
+  .ctx-bar-track {
+    flex: 1;
+    height: 24px;
+    background: var(--light);
+    border-radius: 3px;
+    position: relative;
+    overflow: hidden;
+  }
+  .ctx-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    padding: 0 8px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    color: white;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .ctx-bar-value {
+    width: 48px;
+    min-width: 48px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    text-align: right;
+    padding-left: 8px;
+  }
+
+  /* RISK MATRIX */
+  .rm-cell {
+    border-radius: 4px;
+    padding: 12px;
+    font-size: 11px;
+    line-height: 1.4;
+  }
+  .rm-cell .risk-item {
+    display: inline-block;
+    background: rgba(0,0,0,0.05);
+    border-radius: 3px;
+    padding: 2px 6px;
+    margin: 2px 2px 2px 0;
+    font-size: 10px;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .rm-cell.q1 { background: var(--accent-light); border: 1px solid #93b8ff; }
+  .rm-cell.q2 { background: var(--purple-light); border: 1px solid #c4b5fd; }
+  .rm-cell.q3 { background: var(--green-light); border: 1px solid #86efac; }
+  .rm-cell.q4 { background: var(--light); border: 1px solid var(--rule); }
+
+  /* PYRAMID */
+  .pyramid-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    padding: 8px 0;
+  }
+  .pyramid-layer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 12px 20px;
+    margin-bottom: -1px;
+    border: 1px solid rgba(255,255,255,0.3);
+    position: relative;
+  }
+  .pyramid-layer-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: white;
+  }
+  .pyramid-layer-sub {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    color: rgba(255,255,255,0.8);
+    margin-top: 2px;
+  }
+  .pyramid-label {
+    position: absolute;
+    right: -120px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 2px;
+    white-space: nowrap;
+  }
+
+  @media (max-width: 640px) {
+    body { padding: 24px 16px; }
+    .masthead { flex-direction: column; align-items: flex-start; gap: 16px; }
+    .masthead h1 { font-size: 28px; }
+    .pipeline-label { width: 110px; min-width: 110px; font-size: 9px; padding: 10px 8px; }
+    .pipeline-content { padding: 10px 12px; }
+    .wrapper-grid { grid-template-columns: 1fr; }
+    .verdict-box { grid-template-columns: 1fr; }
+    .two-col { grid-template-columns: 1fr; }
+    .three-col { grid-template-columns: 1fr; }
+    .pattern-grid { grid-template-columns: 1fr; }
+    .flow-container { flex-direction: column; }
+    .flow-arrow { transform: rotate(90deg); width: auto; height: 24px; min-width: auto; }
+    .pyramid-label { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<a href="index.html" class="back-link">&larr; Back to omkarray.com</a>
+
+<!-- MASTHEAD -->
+<div class="masthead">
+  <div>
+    <div class="masthead-label">Systems Analysis · AI Agents · February 2026</div>
+    <h1>Agent Design<br>Patterns</h1>
+    <div class="masthead-sub">Context Engineering · Architecture · Emerging Standards · The Filesystem as Memory</div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end">
+    <div class="verdict-badge">Context is the Bottleneck</div>
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted)">Based on Lance Martin (LangChain) · Jan 2026</div>
+  </div>
+</div>
+
+
+<!-- SECTION 1: The Core Problem -->
+<div class="section-header">
+  <div class="section-number">01</div>
+  <div>
+    <div class="section-title">The Core Problem</div>
+    <div class="section-desc">Why context management is the central challenge of agent design</div>
+  </div>
+</div>
+
+<p class="body">2025 ended with Meta buying Manus for $2B+ and Claude Code reaching a $1B run rate. Agent task length doubles every 7 months. But there's a fundamental constraint: <strong>models degrade as context grows</strong>. Chroma calls it "context rot" — every token depletes an LLM's finite attention budget.</p>
+
+<div class="callout">"Context engineering is the delicate art and science of filling the context window with just the right information for the next step." — Andrej Karpathy</div>
+
+<p class="body">Every design pattern in modern agents is ultimately a strategy for managing this scarce resource. The context window is small and expensive; the filesystem is large and cheap. The best agents constantly shuttle information between the two.</p>
+
+<div class="diagram">
+  <div class="diagram-title">Exhibit A — The Context Degradation Problem</div>
+  <div style="max-width:700px;">
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:4px;">
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);">Model Performance</span>
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);">Token Count &rarr;</span>
+    </div>
+    <div style="position:relative;height:160px;border-left:2px solid var(--ink);border-bottom:2px solid var(--ink);background:white;border-radius:0 0 4px 0;">
+      <!-- Degradation curve -->
+      <svg viewBox="0 0 700 160" style="width:100%;height:100%;" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="curveGrad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#16a34a" stop-opacity="0.15"/>
+            <stop offset="50%" stop-color="#ea580c" stop-opacity="0.15"/>
+            <stop offset="100%" stop-color="#dc2626" stop-opacity="0.15"/>
+          </linearGradient>
+        </defs>
+        <path d="M0,20 C100,20 150,25 250,50 C350,75 450,110 600,135 L700,148 L700,160 L0,160 Z" fill="url(#curveGrad)"/>
+        <path d="M0,20 C100,20 150,25 250,50 C350,75 450,110 600,135 L700,148" fill="none" stroke="var(--accent)" stroke-width="2.5"/>
+        <!-- Annotations -->
+        <circle cx="100" cy="22" r="4" fill="var(--green)"/>
+        <circle cx="350" cy="75" r="4" fill="var(--orange)"/>
+        <circle cx="600" cy="135" r="4" fill="var(--red)"/>
+      </svg>
+      <!-- Labels overlaid -->
+      <div style="position:absolute;top:8px;left:90px;font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--green);">Good: Focused context</div>
+      <div style="position:absolute;top:55px;left:280px;font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--orange);">Degrading: Bloated tools + history</div>
+      <div style="position:absolute;top:105px;right:30px;font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--red);">Context rot: Lost in noise</div>
+    </div>
+    <div style="display:flex;justify-content:space-between;margin-top:8px;">
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--muted);">0 tokens</span>
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--muted);">50K</span>
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--muted);">100K</span>
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--muted);">200K+</span>
+    </div>
+  </div>
+  <div class="footnote">Source: Chroma "Context Rot" research + Anthropic context engineering guidelines. Performance = task accuracy on multi-step agentic benchmarks.</div>
+</div>
+
+<div class="diagram">
+  <div class="diagram-title">Exhibit B — Where Context Budget Gets Consumed</div>
+  <div style="max-width:600px;">
+    <div class="ctx-bar-row">
+      <div class="ctx-bar-label">Tool Defs</div>
+      <div class="ctx-bar-track"><div class="ctx-bar-fill" style="width:40%;background:var(--red);">GitHub MCP: ~26K tokens</div></div>
+      <div class="ctx-bar-value">~26K</div>
+    </div>
+    <div class="ctx-bar-row">
+      <div class="ctx-bar-label">System Prompt</div>
+      <div class="ctx-bar-track"><div class="ctx-bar-fill" style="width:15%;background:var(--accent);">Instructions + guardrails</div></div>
+      <div class="ctx-bar-value">~8K</div>
+    </div>
+    <div class="ctx-bar-row">
+      <div class="ctx-bar-label">Chat History</div>
+      <div class="ctx-bar-track"><div class="ctx-bar-fill" style="width:55%;background:var(--orange);">Grows linearly per turn</div></div>
+      <div class="ctx-bar-value">~35K+</div>
+    </div>
+    <div class="ctx-bar-row">
+      <div class="ctx-bar-label">Tool Results</div>
+      <div class="ctx-bar-track"><div class="ctx-bar-fill" style="width:65%;background:var(--purple);">File reads, search results, API responses</div></div>
+      <div class="ctx-bar-value">~45K+</div>
+    </div>
+    <div class="ctx-bar-row">
+      <div class="ctx-bar-label" style="color:var(--green);font-weight:600;">Actual Task</div>
+      <div class="ctx-bar-track"><div class="ctx-bar-fill" style="width:12%;background:var(--green);">What matters</div></div>
+      <div class="ctx-bar-value" style="color:var(--green);font-weight:600;">~8K</div>
+    </div>
+  </div>
+  <div class="footnote">The irony: the actual task-relevant information is often <15% of the context window. Every pattern below exists to improve this ratio.</div>
+</div>
+
+
+<!-- SECTION 2: The Seven Patterns -->
+<div class="section-header">
+  <div class="section-number">02</div>
+  <div>
+    <div class="section-title">The Seven Patterns</div>
+    <div class="section-desc">A taxonomy of context management strategies across modern agents</div>
+  </div>
+</div>
+
+<p class="body">Lance Martin identified seven recurring design patterns across Claude Code, Manus, Cursor, Amp Code, and others. Each targets a different aspect of the context management problem. Together, they form a coherent playbook.</p>
+
+<div class="diagram">
+  <div class="diagram-title">Exhibit C — The Seven Patterns at a Glance</div>
+  <div class="pattern-grid">
+
+    <div class="pattern-card">
+      <div class="pattern-card-number">1</div>
+      <div class="pattern-card-icon">&#128187;</div>
+      <h4>Give Agents a Computer</h4>
+      <p>Filesystem + shell = persistent context + unlimited action space. The agent "lives on your OS."</p>
+      <span class="pattern-card-tag" style="background:var(--accent-light);color:var(--accent);">Foundation</span>
+    </div>
+
+    <div class="pattern-card">
+      <div class="pattern-card-number">2</div>
+      <div class="pattern-card-icon">&#127922;</div>
+      <h4>Multi-Layer Action Space</h4>
+      <p>Few atomic tools (~12–20), push everything else to code execution via shell/bash.</p>
+      <span class="pattern-card-tag" style="background:var(--green-light);color:var(--green);">Token Savings</span>
+    </div>
+
+    <div class="pattern-card">
+      <div class="pattern-card-number">3</div>
+      <div class="pattern-card-icon">&#128065;</div>
+      <h4>Progressive Disclosure</h4>
+      <p>Show only essential info upfront. Reveal tool definitions, docs, and skills on demand.</p>
+      <span class="pattern-card-tag" style="background:var(--purple-light);color:var(--purple);">Context Efficiency</span>
+    </div>
+
+    <div class="pattern-card">
+      <div class="pattern-card-number">4</div>
+      <div class="pattern-card-icon">&#128230;</div>
+      <h4>Offload Context</h4>
+      <p>Write tool results and plans to files. Read back only when needed. Avoids lossy summarization.</p>
+      <span class="pattern-card-tag" style="background:var(--orange-light);color:var(--orange);">Memory Extension</span>
+    </div>
+
+    <div class="pattern-card">
+      <div class="pattern-card-number">5</div>
+      <div class="pattern-card-icon">&#9889;</div>
+      <h4>Cache Context</h4>
+      <p>Prompt caching is the "most important metric." Higher-cost model + caching beats cheaper model without.</p>
+      <span class="pattern-card-tag" style="background:var(--accent-light);color:var(--accent);">Cost Control</span>
+    </div>
+
+    <div class="pattern-card">
+      <div class="pattern-card-number">6</div>
+      <div class="pattern-card-icon">&#128373;</div>
+      <h4>Isolate Context</h4>
+      <p>Sub-agents with own context windows for parallel tasks. The "Ralph Wiggum" loop for long-running work.</p>
+      <span class="pattern-card-tag" style="background:var(--green-light);color:var(--green);">Scalability</span>
+    </div>
+
+    <div class="pattern-card">
+      <div class="pattern-card-number">7</div>
+      <div class="pattern-card-icon">&#129504;</div>
+      <h4>Evolve Context</h4>
+      <p>Learn from past sessions. Distill experiences into memories, update prompts, save reusable skills.</p>
+      <span class="pattern-card-tag" style="background:var(--purple-light);color:var(--purple);">Continual Learning</span>
+    </div>
+  </div>
+</div>
+
+
+<!-- SECTION 3: Pattern Architecture -->
+<div class="section-header">
+  <div class="section-number">03</div>
+  <div>
+    <div class="section-title">Pattern Architecture</div>
+    <div class="section-desc">How the seven patterns compose into a coherent agent system</div>
+  </div>
+</div>
+
+<p class="body">These patterns aren't independent — they form layers of a system. The foundation is computer access. On top of that, you build action management, context management, and finally learning. Each layer addresses a different failure mode.</p>
+
+<div class="diagram">
+  <div class="diagram-title">Exhibit D — The Agent Architecture Stack (Bottom = Foundation, Top = Intelligence)</div>
+  <div style="display:flex;flex-direction:column;gap:0;max-width:680px;margin:0 auto;">
+    
+    <div style="background:#111;border:1px solid #333;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;border-radius:6px 6px 0 0;">
+      <div>
+        <div style="font-size:12px;font-weight:600;color:white;">Layer 6: Evolve Context</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.6);font-family:'IBM Plex Mono',monospace;">Memories · Skills · Diary entries → updated prompts</div>
+      </div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;background:var(--purple);padding:3px 8px;border-radius:2px;color:white;">LEARNING</div>
+    </div>
+    
+    <div style="background:#1e293b;border:1px solid #334155;border-top:0;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <div style="font-size:12px;font-weight:600;color:white;">Layer 5: Isolate Context</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.6);font-family:'IBM Plex Mono',monospace;">Sub-agents · Ralph Wiggum loops · Map-reduce</div>
+      </div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;background:var(--green);padding:3px 8px;border-radius:2px;color:white;">SCALE</div>
+    </div>
+
+    <div style="background:#374151;border:1px solid #4b5563;border-top:0;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <div style="font-size:12px;font-weight:600;color:white;">Layer 4: Cache Context</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.6);font-family:'IBM Plex Mono',monospace;">Prompt caching · Cache hit rate optimization</div>
+      </div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;background:var(--accent);padding:3px 8px;border-radius:2px;color:white;">COST</div>
+    </div>
+
+    <div style="background:#4b5563;border:1px solid #6b7280;border-top:0;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <div style="font-size:12px;font-weight:600;color:white;">Layer 3: Offload + Progressive Disclosure</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.6);font-family:'IBM Plex Mono',monospace;">Write results to files · Reveal tools on demand · Skills YAML</div>
+      </div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;background:var(--orange);padding:3px 8px;border-radius:2px;color:white;">CONTEXT MGMT</div>
+    </div>
+
+    <div style="background:#6b7280;border:1px solid #9ca3af;border-top:0;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <div style="font-size:12px;font-weight:600;color:white;">Layer 2: Multi-Layer Action Space</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.6);font-family:'IBM Plex Mono',monospace;">~12 atomic tools → bash → CLIs → code execution (CodeAct)</div>
+      </div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;background:#9ca3af;padding:3px 8px;border-radius:2px;color:white;">ACTIONS</div>
+    </div>
+
+    <div style="background:#9ca3af;border:1px solid #d1d5db;border-top:0;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;border-radius:0 0 6px 6px;">
+      <div>
+        <div style="font-size:12px;font-weight:600;color:white;">Layer 1: Give Agents a Computer</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.8);font-family:'IBM Plex Mono',monospace;">Filesystem + Shell + Persistent State</div>
+      </div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;background:#d1d5db;padding:3px 8px;border-radius:2px;color:#333;">FOUNDATION</div>
+    </div>
+  </div>
+  <div class="footnote" style="margin-top:16px">Each layer depends on the one below it. You can't offload context without a filesystem. You can't isolate sub-agents without a shell. The foundation is computer access.</div>
+</div>
+
+
+<!-- SECTION 4: Who Uses What -->
+<div class="section-header">
+  <div class="section-number">04</div>
+  <div>
+    <div class="section-title">Who Uses What</div>
+    <div class="section-desc">Pattern adoption across leading agents as of early 2026</div>
+  </div>
+</div>
+
+<p class="body">Different agents have adopted different subsets of these patterns. Claude Code and Manus are the most complete implementations. Cursor Agent pioneered progressive disclosure for MCP. No agent fully implements all seven yet.</p>
+
+<div class="diagram">
+  <div class="diagram-title">Exhibit E — Pattern Adoption Matrix</div>
+  <table class="gap-table">
+    <thead>
+      <tr>
+        <th style="width:180px;">Pattern</th>
+        <th>Claude Code</th>
+        <th>Manus</th>
+        <th>Cursor Agent</th>
+        <th>Amp Code</th>
+        <th>Devin</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Computer Access</strong></td>
+        <td><span class="check">&#10003;</span> Local OS</td>
+        <td><span class="check">&#10003;</span> Virtual</td>
+        <td><span class="check">&#10003;</span> IDE + Shell</td>
+        <td><span class="check">&#10003;</span> Local OS</td>
+        <td><span class="check">&#10003;</span> Cloud VM</td>
+      </tr>
+      <tr>
+        <td><strong>Multi-Layer Actions</strong></td>
+        <td><span class="check">&#10003;</span> ~12 tools</td>
+        <td><span class="check">&#10003;</span> <20 tools</td>
+        <td><span class="partial">&#9679;</span> ~30+ tools</td>
+        <td><span class="check">&#10003;</span> Curated few</td>
+        <td><span class="partial">&#9679;</span> Medium set</td>
+      </tr>
+      <tr>
+        <td><strong>Progressive Disclosure</strong></td>
+        <td><span class="partial">&#9679;</span> Skills</td>
+        <td><span class="check">&#10003;</span> CLI --help</td>
+        <td><span class="check">&#10003;</span> MCP folder sync</td>
+        <td><span class="cross">&#9675;</span></td>
+        <td><span class="cross">&#9675;</span></td>
+      </tr>
+      <tr>
+        <td><strong>Offload Context</strong></td>
+        <td><span class="partial">&#9679;</span> Via filesystem</td>
+        <td><span class="check">&#10003;</span> Files + summary</td>
+        <td><span class="check">&#10003;</span> Trajectory files</td>
+        <td><span class="cross">&#9675;</span></td>
+        <td><span class="partial">&#9679;</span> Workspace files</td>
+      </tr>
+      <tr>
+        <td><strong>Cache Context</strong></td>
+        <td><span class="check">&#10003;</span> Essential</td>
+        <td><span class="check">&#10003;</span> Top metric</td>
+        <td><span class="check">&#10003;</span></td>
+        <td><span class="check">&#10003;</span></td>
+        <td><span class="check">&#10003;</span></td>
+      </tr>
+      <tr>
+        <td><strong>Isolate Context</strong></td>
+        <td><span class="check">&#10003;</span> Sub-agents</td>
+        <td><span class="partial">&#9679;</span></td>
+        <td><span class="check">&#10003;</span> Task agents</td>
+        <td><span class="partial">&#9679;</span></td>
+        <td><span class="check">&#10003;</span> Multi-agent</td>
+      </tr>
+      <tr>
+        <td><strong>Evolve Context</strong></td>
+        <td><span class="partial">&#9679;</span> CLAUDE.md</td>
+        <td><span class="cross">&#9675;</span></td>
+        <td><span class="partial">&#9679;</span> Rules + Skills</td>
+        <td><span class="cross">&#9675;</span></td>
+        <td><span class="partial">&#9679;</span> Memory</td>
+      </tr>
+    </tbody>
+  </table>
+  <div style="display:flex;gap:16px;margin-top:12px;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);">
+    <span><span class="check">&#10003;</span> Full implementation</span>
+    <span><span class="partial">&#9679;</span> Partial / emerging</span>
+    <span><span class="cross">&#9675;</span> Not yet</span>
+  </div>
+</div>
+
+
+<!-- SECTION 5: The Context Lifecycle -->
+<div class="section-header">
+  <div class="section-number">05</div>
+  <div>
+    <div class="section-title">The Context Lifecycle</div>
+    <div class="section-desc">How context flows through a well-designed agent system</div>
+  </div>
+</div>
+
+<p class="body">In a well-designed agent, context doesn't just accumulate linearly. It flows through a lifecycle: loaded on demand, used for the current step, offloaded to the filesystem, cached for reuse, and eventually distilled into persistent learnings.</p>
+
+<div class="diagram">
+  <div class="diagram-title">Exhibit F — Context Flow in a Modern Agent</div>
+  <div class="flow-container">
+    <div class="flow-node">
+      <div class="flow-node-icon">&#128196;</div>
+      <div class="flow-node-title">Task Arrives</div>
+      <div class="flow-node-desc">User request enters the system prompt</div>
+    </div>
+    <div class="flow-arrow">&rarr;</div>
+    <div class="flow-node active">
+      <div class="flow-node-icon">&#128269;</div>
+      <div class="flow-node-title">Disclose</div>
+      <div class="flow-node-desc">Load only relevant tools, skills, files on demand</div>
+    </div>
+    <div class="flow-arrow">&rarr;</div>
+    <div class="flow-node active">
+      <div class="flow-node-icon">&#9881;</div>
+      <div class="flow-node-title">Execute</div>
+      <div class="flow-node-desc">Use ~12 atomic tools; push actions to shell/code</div>
+    </div>
+    <div class="flow-arrow">&rarr;</div>
+    <div class="flow-node">
+      <div class="flow-node-icon">&#128230;</div>
+      <div class="flow-node-title">Offload</div>
+      <div class="flow-node-desc">Write results to files; keep context window lean</div>
+    </div>
+    <div class="flow-arrow">&rarr;</div>
+    <div class="flow-node">
+      <div class="flow-node-icon">&#129504;</div>
+      <div class="flow-node-title">Learn</div>
+      <div class="flow-node-desc">Distill into memories, update CLAUDE.md / skills</div>
+    </div>
+  </div>
+  <div style="margin-top:16px;display:flex;gap:12px;flex-wrap:wrap;">
+    <div style="flex:1;min-width:200px;background:white;border:1px solid var(--rule);border-radius:4px;padding:12px;">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:0.08em;color:var(--accent);margin-bottom:6px;">For Sub-Tasks</div>
+      <div style="font-size:12px;color:var(--muted);">Spawn sub-agents with <strong>isolated context</strong>. Each gets a focused slice. Communicate via git history or plan files. The "Ralph Wiggum" loop.</div>
+    </div>
+    <div style="flex:1;min-width:200px;background:white;border:1px solid var(--rule);border-radius:4px;padding:12px;">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:0.08em;color:var(--green);margin-bottom:6px;">For Cost Control</div>
+      <div style="font-size:12px;color:var(--muted);"><strong>Prompt caching</strong> allows resuming from a prefix. Manus says cache hit rate is their #1 metric. Append-only history preserves cache. Don't mutate.</div>
+    </div>
+    <div style="flex:1;min-width:200px;background:white;border:1px solid var(--rule);border-radius:4px;padding:12px;">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:0.08em;color:var(--purple);margin-bottom:6px;">For Long-Running Tasks</div>
+      <div style="font-size:12px;color:var(--muted);">Write a <strong>plan to a file</strong>. Re-read periodically to reinforce objectives. Use stop hooks to verify work. Track progress via git.</div>
+    </div>
+  </div>
+  <div class="footnote">The key insight: context is not static. It's a managed resource with a lifecycle — loaded, used, offloaded, cached, and evolved.</div>
+</div>
+
+
+<!-- SECTION 6: Deep Dive on Key Patterns -->
+<div class="section-header">
+  <div class="section-number">06</div>
+  <div>
+    <div class="section-title">Key Pattern Details</div>
+    <div class="section-desc">How the most impactful patterns work in practice</div>
+  </div>
+</div>
+
+<div class="diagram">
+  <div class="diagram-title">Exhibit G — Multi-Layer Action Space: The Tool Hierarchy</div>
+  <div class="pipeline-stack">
+    <div class="pipeline-layer">
+      <div class="pipeline-label">Layer 3: Code</div>
+      <div class="pipeline-content">
+        <span class="pipeline-chip green">Write & execute scripts</span>
+        <span class="pipeline-chip green">Chain complex actions</span>
+        <span class="pipeline-chip green">Process intermediate results locally</span>
+        <span class="pipeline-latency" style="color:var(--green);">&#8734; actions · 0 tokens</span>
+      </div>
+    </div>
+    <div class="pipeline-arrow">&#8593; pushed down from</div>
+    <div class="pipeline-layer">
+      <div class="pipeline-label">Layer 2: Shell</div>
+      <div class="pipeline-content">
+        <span class="pipeline-chip orange">Built-in utilities</span>
+        <span class="pipeline-chip orange">Installed CLIs</span>
+        <span class="pipeline-chip orange">Package managers</span>
+        <span class="pipeline-chip orange">Git operations</span>
+        <span class="pipeline-latency" style="color:var(--orange);">100s of commands · 0 tool tokens</span>
+      </div>
+    </div>
+    <div class="pipeline-arrow">&#8593; pushed down from</div>
+    <div class="pipeline-layer highlight">
+      <div class="pipeline-label">Layer 1: Tools</div>
+      <div class="pipeline-content">
+        <span class="pipeline-chip own">Read file</span>
+        <span class="pipeline-chip own">Write file</span>
+        <span class="pipeline-chip own">Bash / Shell</span>
+        <span class="pipeline-chip own">Search</span>
+        <span class="pipeline-chip own">Browser</span>
+        <span class="pipeline-latency">~12 tools · ~2K tokens in defs</span>
+      </div>
+    </div>
+  </div>
+  <div class="footnote">Claude Code uses ~12 tools. Manus uses <20. The key: a single bash tool can access hundreds of CLI commands without loading their definitions into context. CodeAct showed agents can chain complex actions through code execution, saving token budget.</div>
+</div>
+
+<div class="diagram">
+  <div class="diagram-title">Exhibit H — Progressive Disclosure: Three Strategies Compared</div>
+  <div class="wrapper-grid">
+    <div class="wrapper-cell header">Strategy</div>
+    <div class="wrapper-cell header">How It Works</div>
+
+    <div class="wrapper-cell">
+      <h4><span class="dot dot-blue"></span>Tool Indexing</h4>
+      <p>Index tool definitions separately. Give agent a search tool to find and load specific tools on demand.</p>
+    </div>
+    <div class="wrapper-cell">
+      <p><strong>Used by:</strong> LangGraph BigTool, Anthropic's advanced tool use pattern.<br><br><strong>Saves:</strong> 10–30K tokens when MCP servers have 30+ tools. Agent loads only 1–3 tool defs per step instead of all 35.</p>
+    </div>
+
+    <div class="wrapper-cell">
+      <h4><span class="dot dot-green"></span>CLI Help Flags</h4>
+      <p>List available utilities in instructions. Agent calls <code>--help</code> on any CLI it needs to learn about.</p>
+    </div>
+    <div class="wrapper-cell">
+      <p><strong>Used by:</strong> Manus. Agent instructions mention available CLIs but don't load their full docs.<br><br><strong>Saves:</strong> Unbounded — hundreds of CLI tools available at zero upfront token cost.</p>
+    </div>
+
+    <div class="wrapper-cell">
+      <h4><span class="dot dot-purple"></span>Skills / YAML Frontmatter</h4>
+      <p>Each skill has a short summary in YAML. Agent reads full SKILL.md only when the task matches.</p>
+    </div>
+    <div class="wrapper-cell">
+      <p><strong>Used by:</strong> Anthropic's Skills standard, Cursor Agent's MCP folder sync.<br><br><strong>Saves:</strong> Only loads ~50 bytes per skill upfront vs. full knowledge base. Agent self-selects what to read.</p>
+    </div>
+  </div>
+</div>
+
+<div class="diagram">
+  <div class="diagram-title">Exhibit I — The Ralph Wiggum Loop: Context Isolation for Long-Running Agents</div>
+  <div style="display:flex;flex-direction:column;gap:12px;max-width:620px;margin:0 auto;">
+    
+    <div style="background:white;border:2px solid var(--ink);border-radius:6px;padding:16px 20px;text-align:center;">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:4px;">Step 1</div>
+      <div style="font-size:13px;font-weight:600;">Initializer Agent</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:4px;">Creates plan file + tracking file + environment setup</div>
+    </div>
+
+    <div style="text-align:center;color:var(--muted);font-size:20px;">&#8595;</div>
+
+    <div style="background:var(--accent-light);border:2px solid var(--accent);border-radius:6px;padding:16px 20px;position:relative;">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--accent);margin-bottom:8px;">Step 2 · Repeating Loop</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <div style="flex:1;min-width:120px;background:white;border:1px solid var(--rule);border-radius:4px;padding:10px;text-align:center;">
+          <div style="font-size:11px;font-weight:600;">Sub-Agent A</div>
+          <div style="font-size:10px;color:var(--muted);">Fresh context window</div>
+          <div style="font-size:10px;color:var(--muted);">Reads plan file</div>
+          <div style="font-size:10px;color:var(--muted);">Completes task 1</div>
+        </div>
+        <div style="flex:1;min-width:120px;background:white;border:1px solid var(--rule);border-radius:4px;padding:10px;text-align:center;">
+          <div style="font-size:11px;font-weight:600;">Sub-Agent B</div>
+          <div style="font-size:10px;color:var(--muted);">Fresh context window</div>
+          <div style="font-size:10px;color:var(--muted);">Reads plan file</div>
+          <div style="font-size:10px;color:var(--muted);">Completes task 2</div>
+        </div>
+        <div style="flex:1;min-width:120px;background:white;border:1px solid var(--rule);border-radius:4px;padding:10px;text-align:center;">
+          <div style="font-size:11px;font-weight:600;">Sub-Agent N</div>
+          <div style="font-size:10px;color:var(--muted);">Fresh context window</div>
+          <div style="font-size:10px;color:var(--muted);">Reads plan file</div>
+          <div style="font-size:10px;color:var(--muted);">Completes task N</div>
+        </div>
+      </div>
+      <div style="position:absolute;right:-40px;top:50%;transform:translateY(-50%);font-size:24px;color:var(--accent);">&#8635;</div>
+    </div>
+
+    <div style="text-align:center;color:var(--muted);font-size:20px;">&#8595;</div>
+
+    <div style="background:white;border:2px solid var(--green);border-radius:6px;padding:16px 20px;text-align:center;">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--green);margin-bottom:4px;">Step 3</div>
+      <div style="font-size:13px;font-weight:600;">Stop Hook Verification</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:4px;">Check plan file completion status. If incomplete, loop. Progress tracked via git history.</div>
+    </div>
+  </div>
+  <div class="footnote">Named by Geoffrey Huntley. Used by Claude Code with stop hooks. Each sub-agent gets a fresh context window — the filesystem is the shared memory. Anthropic calls this the "effective harness for long-running agents."</div>
+</div>
+
+
+<!-- SECTION 7: Pattern Maturity -->
+<div class="section-header">
+  <div class="section-number">07</div>
+  <div>
+    <div class="section-title">Pattern Maturity</div>
+    <div class="section-desc">Where each pattern stands today — from battle-tested to experimental</div>
+  </div>
+</div>
+
+<div class="diagram">
+  <div class="diagram-title">Exhibit J — Pattern Maturity Assessment</div>
+  <table class="gap-table">
+    <thead>
+      <tr>
+        <th>Pattern</th>
+        <th>Maturity</th>
+        <th>Current State</th>
+        <th>Open Question</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Computer Access</strong></td>
+        <td><span class="severity-pill sev-mature">MATURE</span></td>
+        <td>Universal across top agents. Local or virtual machine. Table stakes for 2026.</td>
+        <td>Security boundaries — how much OS access is safe?</td>
+      </tr>
+      <tr>
+        <td><strong>Multi-Layer Actions</strong></td>
+        <td><span class="severity-pill sev-mature">MATURE</span></td>
+        <td>CodeAct validated. Claude Code, Manus, Amp all use ~12–20 tools + shell.</td>
+        <td>Optimal tool count? Still hand-tuned per agent.</td>
+      </tr>
+      <tr>
+        <td><strong>Progressive Disclosure</strong></td>
+        <td><span class="severity-pill sev-emerging">EMERGING</span></td>
+        <td>Cursor leads with MCP folder sync. Anthropic Skills standard gaining traction.</td>
+        <td>Standards for tool discovery? Who decides what's relevant?</td>
+      </tr>
+      <tr>
+        <td><strong>Offload Context</strong></td>
+        <td><span class="severity-pill sev-emerging">EMERGING</span></td>
+        <td>Manus writes to files. Cursor offloads trajectories. Better than summarization.</td>
+        <td>When to offload vs. summarize vs. drop? No consensus.</td>
+      </tr>
+      <tr>
+        <td><strong>Cache Context</strong></td>
+        <td><span class="severity-pill sev-mature">MATURE</span></td>
+        <td>Prompt caching is universal. Manus optimizes cache hit rate as primary metric.</td>
+        <td>How to mutate context without breaking cache prefixes?</td>
+      </tr>
+      <tr>
+        <td><strong>Isolate Context</strong></td>
+        <td><span class="severity-pill sev-emerging">EMERGING</span></td>
+        <td>Ralph Wiggum loop works. Sub-agents for parallel review. Gas Town for swarms.</td>
+        <td>Coordination protocols for multi-agent conflict resolution?</td>
+      </tr>
+      <tr>
+        <td><strong>Evolve Context</strong></td>
+        <td><span class="severity-pill sev-nascent">NASCENT</span></td>
+        <td>CLAUDE.md updates, diary entries, skill distillation. Mostly manual today.</td>
+        <td>Can agents automatically learn what to remember?</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+
+<!-- SECTION 8: Open Challenges -->
+<div class="section-header">
+  <div class="section-number">08</div>
+  <div>
+    <div class="section-title">Open Challenges</div>
+    <div class="section-desc">Three frontiers that will define the next generation of agents</div>
+  </div>
+</div>
+
+<p class="body">The seven patterns are the current state of the art. But three fundamental challenges remain unsolved. Each could reshape agent architecture over the next 12–18 months.</p>
+
+<div class="diagram">
+  <div class="diagram-title">Exhibit K — The Three Open Frontiers</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:4px;height:320px;">
+    
+    <div class="rm-cell q1" style="grid-row:1/3;">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;text-transform:uppercase;color:var(--accent);margin-bottom:12px;letter-spacing:0.08em;">Frontier 1 · Learned Context Management</div>
+      <div style="font-size:12px;line-height:1.6;color:var(--ink);margin-bottom:12px;">
+        <strong>The Bitter Lesson prediction:</strong> compute scaling overtakes hand-crafted scaffolding. Models may learn to manage their own context — when to summarize, what to offload, which sub-agents to spawn.
+      </div>
+      <span class="risk-item">Recursive Language Models (RLM)</span>
+      <span class="risk-item">Prime Intellect research</span>
+      <span class="risk-item">Sleep-time compute</span>
+      <span class="risk-item">Self-reflecting memories</span>
+      <div style="font-size:11px;color:var(--muted);margin-top:12px;font-style:italic;">"Much of the prompting or scaffolding packed into agent harnesses might get absorbed by models."</div>
+    </div>
+    
+    <div class="rm-cell q2">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;text-transform:uppercase;color:var(--purple);margin-bottom:8px;letter-spacing:0.08em;">Frontier 2 · Multi-Agent Coordination</div>
+      <div style="font-size:11px;line-height:1.5;color:var(--ink);margin-bottom:8px;">
+        Parallel agents make conflicting decisions. No shared visibility. Can't engage in the proactive discourse humans use.
+      </div>
+      <span class="risk-item">Gas Town (Yegge)</span>
+      <span class="risk-item">Mayor agent pattern</span>
+      <span class="risk-item">Git merge queues</span>
+    </div>
+    
+    <div class="rm-cell q3">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;text-transform:uppercase;color:var(--green);margin-bottom:8px;letter-spacing:0.08em;">Frontier 3 · Long-Running Agent Infra</div>
+      <div style="font-size:11px;line-height:1.5;color:var(--ink);margin-bottom:8px;">
+        No standards for agent observability, debugging interfaces, or human-in-the-loop monitoring. Current patterns are rough.
+      </div>
+      <span class="risk-item">Stop hooks</span>
+      <span class="risk-item">Git-based tracking</span>
+      <span class="risk-item">Agent observability</span>
+    </div>
+  </div>
+</div>
+
+<div class="callout">"Imagine if agents automatically reflect over their past sessions and use this to update their own memories or skills. Also, agents might directly reflect over their own memories accumulated over time to better consolidate them and prepare for future tasks, just as we do." — Lance Martin</div>
+
+
+<!-- VERDICT -->
+<div class="verdict-box">
+  <div class="verdict-box-title">The Meta-Pattern</div>
+  <div class="verdict-item">
+    <h5>Core Principle</h5>
+    <div class="verdict-score blue" style="font-size:28px;">Filesystem<br>= Memory</div>
+    <p>The context window is small and expensive. The filesystem is large and cheap. The best agents shuttle information between the two.</p>
+  </div>
+  <div class="verdict-item">
+    <h5>Pattern Count</h5>
+    <div class="verdict-score green">7</div>
+    <p>Distinct strategies for managing context — from computer access to continual learning. Together they form the playbook.</p>
+  </div>
+  <div class="verdict-item">
+    <h5>Horizon</h5>
+    <div class="verdict-score gold">12–18mo</div>
+    <p>Before models may learn to manage their own context. The Bitter Lesson suggests hand-crafted scaffolding gets absorbed.</p>
+  </div>
+</div>
+
+<div class="two-col">
+  <div class="insight-card">
+    <h4>What's Working Now</h4>
+    <p>Give agents a computer. Use ~12 tools + shell for unlimited actions. Offload context to files. Cache aggressively. Isolate sub-agents for parallel work. These are battle-tested and universal across top agents in early 2026.</p>
+  </div>
+  <div class="insight-card">
+    <h4>What's Still Unsolved</h4>
+    <p>Automatic context evolution (memories that update themselves). Multi-agent conflict resolution (parallel agents stepping on each other). Agent observability standards (we can't debug what we can't see). The next wave of agent infrastructure will target these.</p>
+  </div>
+</div>
+
+<hr class="rule">
+
+<div class="two-col" style="margin-top:24px;">
+  <div class="insight-card" style="border:none;background:var(--light);">
+    <h4>Key People & References</h4>
+    <p style="line-height:1.8;">
+      <strong>Lance Martin</strong> — LangChain, original blog post<br>
+      <strong>Andrej Karpathy</strong> — "Context engineering" framing<br>
+      <strong>Barry Zhang & Erik Schluntz</strong> — Anthropic agent definition<br>
+      <strong>Peak Ji</strong> — Manus action space hierarchy<br>
+      <strong>Boris Cherny</strong> — Claude Code internals<br>
+      <strong>Geoffrey Huntley</strong> — "Ralph Wiggum" loop<br>
+      <strong>Steve Yegge</strong> — Gas Town multi-agent coordination
+    </p>
+  </div>
+  <div class="insight-card" style="border:none;background:var(--light);">
+    <h4>Key Papers & Posts</h4>
+    <p style="line-height:1.8;">
+      <strong>CodeAct</strong> — Agents chaining actions via code execution<br>
+      <strong>Context Rot</strong> — Chroma research on degradation<br>
+      <strong>RLM</strong> — Recursive Language Models (Prime Intellect)<br>
+      <strong>Sleep-Time Compute</strong> — Offline agent reflection<br>
+      <strong>GEPA</strong> — Evolving task-specific prompts<br>
+      <strong>Anthropic Skills Standard</strong> — Progressive disclosure<br>
+      <strong>Manus Context Engineering</strong> — Cache hit rate optimization
+    </p>
+  </div>
+</div>
+
+<div class="footnote">
+  Deep dive based on Lance Martin's "Agent Design Patterns" blog post (January 2026), with synthesis from Anthropic, Manus, Cursor, and Chroma engineering blogs.
+  Feb 2026.
+</div>
+
+</body>
+</html>
