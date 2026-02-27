@@ -145,7 +145,7 @@ a {
 }
 
 .floppy:hover {
-  transform: translateY(-6px);
+  transform: translateY(-8px);
 }
 
 .floppy.open {
@@ -158,34 +158,100 @@ a {
   aspect-ratio: 1 / 1.03;
   position: relative;
   transform-style: preserve-3d;
-  transform: rotateX(6deg) rotateY(-3deg) rotateZ(0deg);
+  transform: rotateX(8deg) rotateY(-4deg);
   transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
               filter 0.35s ease;
   filter: drop-shadow(2px 6px 10px rgba(0,0,0,0.10))
           drop-shadow(0 2px 4px rgba(0,0,0,0.06));
 }
 
+.floppy-disk::before,
+.floppy-disk::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 8px;
+  background: var(--floppy-body);
+  border: 1px solid var(--floppy-body-dark);
+  transform-style: preserve-3d;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+              opacity 0.35s ease,
+              box-shadow 0.35s ease;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.floppy-disk::before {
+  background: #DDD9CC;
+  border-color: #CCC8BB;
+  transform: translateZ(-4px) translate(3px, 3px);
+  opacity: 0.5;
+  box-shadow: 1px 2px 6px rgba(0,0,0,0.06);
+}
+
+.floppy-disk::after {
+  background: #E2DFCF;
+  border-color: #D3D0C3;
+  transform: translateZ(-2px) translate(1.5px, 1.5px);
+  opacity: 0.65;
+  box-shadow: 1px 1px 4px rgba(0,0,0,0.05);
+}
+
 .floppy:hover .floppy-disk {
-  transform: rotateX(2deg) rotateY(0deg) rotateZ(0deg) scale(1.04);
-  filter: drop-shadow(3px 10px 24px rgba(0,0,0,0.14))
+  transform: rotateX(6deg) rotateY(-2deg) scale(1.03);
+  filter: drop-shadow(3px 12px 24px rgba(0,0,0,0.14))
           drop-shadow(0 4px 8px rgba(0,0,0,0.08));
 }
 
+.floppy:hover .floppy-disk::before {
+  transform: translateZ(-6px) translate(8px, 10px) rotateZ(2.5deg);
+  opacity: 0.85;
+  box-shadow: 2px 4px 12px rgba(0,0,0,0.09);
+}
+
+.floppy:hover .floppy-disk::after {
+  transform: translateZ(-3px) translate(4px, 5px) rotateZ(1deg);
+  opacity: 0.9;
+  box-shadow: 1px 3px 8px rgba(0,0,0,0.07);
+}
+
 .floppy:active .floppy-disk {
-  transform: rotateX(8deg) rotateY(-2deg) scale(0.97);
+  transform: rotateX(10deg) rotateY(-3deg) scale(0.97);
+  transition-duration: 0.1s;
+}
+
+.floppy:active .floppy-disk::before {
+  transform: translateZ(-4px) translate(4px, 4px) rotateZ(1deg);
+  transition-duration: 0.1s;
+}
+
+.floppy:active .floppy-disk::after {
+  transform: translateZ(-2px) translate(2px, 2px) rotateZ(0.5deg);
   transition-duration: 0.1s;
 }
 
 .floppy.open .floppy-disk {
-  transform: rotateX(3deg) rotateY(-1deg) scale(1.02);
+  transform: rotateX(6deg) rotateY(-3deg) scale(1.01);
   filter: drop-shadow(2px 8px 18px rgba(0,0,0,0.12))
           drop-shadow(0 3px 6px rgba(0,0,0,0.07));
+}
+
+.floppy.open .floppy-disk::before {
+  transform: translateZ(-6px) translate(7px, 9px) rotateZ(2deg);
+  opacity: 0.8;
+}
+
+.floppy.open .floppy-disk::after {
+  transform: translateZ(-3px) translate(3.5px, 4.5px) rotateZ(0.8deg);
+  opacity: 0.85;
 }
 
 .floppy-disk svg {
   width: 100%;
   height: 100%;
   backface-visibility: hidden;
+  position: relative;
+  z-index: 1;
 }
 
 .floppy-name {
