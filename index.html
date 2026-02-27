@@ -15,184 +15,138 @@
   <link rel="stylesheet" href="style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Newsreader:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
 </head>
 <body>
 
-  <div id="scroll-progress"></div>
-
-  <nav>
-    <a href="#" class="nav-logo">OR</a>
-    <div class="nav-links">
-      <a href="#about">About</a>
-      <a href="#deepdives">Deepdives</a>
-      <a href="#blogs">Blogs</a>
-      <a href="#fintech">Fintech</a>
-      <a href="#thesis">Thesis</a>
-      <a href="#aiml">AI/ML</a>
-      <a href="#maths">Maths</a>
+  <!-- ─── Hero ─── -->
+  <section class="hero">
+    <h1>Omkar Ray</h1>
+    <p class="hero-tagline">Crafting AI-native products. Curious, optimistic builder.</p>
+    <div class="hero-links">
+      <a href="https://x.com/OmkarRay9" target="_blank" rel="noopener">X</a>
+      <a href="https://www.linkedin.com/in/omkarray/" target="_blank" rel="noopener">LinkedIn</a>
+      <a href="https://omkarray.substack.com/" target="_blank" rel="noopener">Substack</a>
+      <a href="mailto:omkardray.mml@gmail.com">Email</a>
     </div>
-  </nav>
+  </section>
 
-  <main>
+  <!-- ─── Floppy Section ─── -->
+  <div class="floppy-section">
+    <p class="floppy-section-label">What I write about</p>
 
-    <section class="hero" id="about">
-      <div class="hero-intro">
-        <p class="hero-greeting">Hi, I'm</p>
-        <h1>Omkar Ray</h1>
-        <p class="hero-tagline">crafting the future of AI-native products</p>
-        <p class="hero-bio">
-          curious, optimistic builder creating experiences that feel simple, joyful, and a little bit magical.
-        </p>
-        <div class="hero-links">
-          <a href="https://x.com/OmkarRay9" target="_blank" rel="noopener">X</a>
-          <a href="https://www.linkedin.com/in/omkarray/" target="_blank" rel="noopener">LinkedIn</a>
-          <a href="https://omkarray.substack.com/" target="_blank" rel="noopener">Substack</a>
-          <a href="mailto:omkardray.mml@gmail.com">Email</a>
+    <!-- Row 1: Deepdives · Thesis · Blogs -->
+    <div class="floppy-row">
+      <div class="floppy fade-in" data-folder="deepdives" tabindex="0" role="button" aria-expanded="false">
+        <div class="floppy-disk">
+          <svg viewBox="0 0 170 176" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="1" y="1" width="168" height="174" rx="8" fill="#E8E5D8" stroke="#D6D3C6" stroke-width="1"/>
+            <rect x="36" y="1" width="98" height="42" rx="3" fill="#C8C5B8"/>
+            <rect x="68" y="7" width="34" height="30" rx="2" fill="#B0ADA0"/>
+            <rect x="20" y="68" width="130" height="96" rx="4" fill="#F5F3E8" stroke="#D6D3C6" stroke-width="0.5"/>
+            <line x1="30" y1="86" x2="140" y2="86" stroke="#E0DDD2" stroke-width="0.5"/>
+            <line x1="30" y1="100" x2="140" y2="100" stroke="#E0DDD2" stroke-width="0.5"/>
+            <line x1="30" y1="114" x2="140" y2="114" stroke="#E0DDD2" stroke-width="0.5"/>
+            <line x1="30" y1="128" x2="140" y2="128" stroke="#E0DDD2" stroke-width="0.5"/>
+            <circle cx="42" cy="78" r="5" fill="#c0392b"/>
+            <rect x="4" y="4" width="14" height="14" rx="3" fill="#D6D3C6"/>
+          </svg>
+        </div>
+        <span class="floppy-name">Deepdives</span>
+        <span class="floppy-count">5 explorations</span>
+      </div>
+
+      <div class="floppy fade-in" data-folder="thesis" tabindex="0" role="button" aria-expanded="false">
+        <div class="floppy-disk">
+          <svg viewBox="0 0 170 176" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="1" y="1" width="168" height="174" rx="8" fill="#E8E5D8" stroke="#D6D3C6" stroke-width="1"/>
+            <rect x="36" y="1" width="98" height="42" rx="3" fill="#C8C5B8"/>
+            <rect x="68" y="7" width="34" height="30" rx="2" fill="#B0ADA0"/>
+            <rect x="20" y="68" width="130" height="96" rx="4" fill="#F5F3E8" stroke="#D6D3C6" stroke-width="0.5"/>
+            <line x1="30" y1="86" x2="140" y2="86" stroke="#E0DDD2" stroke-width="0.5"/>
+            <line x1="30" y1="100" x2="140" y2="100" stroke="#E0DDD2" stroke-width="0.5"/>
+            <line x1="30" y1="114" x2="140" y2="114" stroke="#E0DDD2" stroke-width="0.5"/>
+            <line x1="30" y1="128" x2="140" y2="128" stroke="#E0DDD2" stroke-width="0.5"/>
+            <circle cx="42" cy="78" r="5" fill="#1a4a7a"/>
+            <rect x="4" y="4" width="14" height="14" rx="3" fill="#D6D3C6"/>
+          </svg>
+        </div>
+        <span class="floppy-name">Thesis</span>
+        <span class="floppy-count">3 theses</span>
+      </div>
+
+      <div class="floppy fade-in" data-folder="blogs" tabindex="0" role="button" aria-expanded="false">
+        <div class="floppy-disk">
+          <svg viewBox="0 0 170 176" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="1" y="1" width="168" height="174" rx="8" fill="#E8E5D8" stroke="#D6D3C6" stroke-width="1"/>
+            <rect x="36" y="1" width="98" height="42" rx="3" fill="#C8C5B8"/>
+            <rect x="68" y="7" width="34" height="30" rx="2" fill="#B0ADA0"/>
+            <rect x="20" y="68" width="130" height="96" rx="4" fill="#F5F3E8" stroke="#D6D3C6" stroke-width="0.5"/>
+            <line x1="30" y1="86" x2="140" y2="86" stroke="#E0DDD2" stroke-width="0.5"/>
+            <line x1="30" y1="100" x2="140" y2="100" stroke="#E0DDD2" stroke-width="0.5"/>
+            <line x1="30" y1="114" x2="140" y2="114" stroke="#E0DDD2" stroke-width="0.5"/>
+            <line x1="30" y1="128" x2="140" y2="128" stroke="#E0DDD2" stroke-width="0.5"/>
+            <circle cx="42" cy="78" r="5" fill="#0A0A0B"/>
+            <rect x="4" y="4" width="14" height="14" rx="3" fill="#D6D3C6"/>
+          </svg>
+        </div>
+        <span class="floppy-name">Blogs</span>
+        <span class="floppy-count">5 posts</span>
+      </div>
+    </div>
+
+    <!-- Folder content: Deepdives -->
+    <div class="folder-wrapper" data-for="deepdives">
+      <div class="folder-content">
+        <div class="folder-header">
+          <span class="folder-title">Deepdives</span>
+          <button class="folder-close" aria-label="Close folder">&times;</button>
+        </div>
+        <p class="folder-subtitle">Long-form explorations into topics I find fascinating.</p>
+        <div class="card-grid">
+          <a href="bolna-deepdive.html" class="card">
+            <span class="card-tag">Voice AI</span>
+            <h3>Bolna AI</h3>
+            <p>Product capabilities, competitive moat, wrapper analysis, and build complexity for India's leading Voice AI platform.</p>
+            <span class="card-date">Feb 2026</span>
+          </a>
+          <a href="smallest-deepdive.html" class="card">
+            <span class="card-tag">Voice AI</span>
+            <h3>Smallest.ai</h3>
+            <p>A full-stack model-company analysis: proprietary ASR, LLM, TTS, moat layers, and replication complexity.</p>
+            <span class="card-date">Feb 2026</span>
+          </a>
+          <a href="ringg-deepdive.html" class="card">
+            <span class="card-tag">Voice AI</span>
+            <h3>Ringg.ai</h3>
+            <p>Distribution-first no-code voice platform analysis: wrapper risk, GTM moat, and path to proprietary models.</p>
+            <span class="card-date">Feb 2026</span>
+          </a>
+          <a href="datacenter.html" class="card">
+            <span class="card-tag">Infrastructure</span>
+            <h3>Building a Datacenter</h3>
+            <p>Six infrastructure layers forced into simultaneous transition by Nvidia's GPU power density roadmap: the 2027 convergence crisis.</p>
+            <span class="card-date">Feb 2026</span>
+          </a>
+          <a href="india-ecomm-genai.html" class="card">
+            <span class="card-tag">India E-Commerce</span>
+            <h3>Indian E-Comm × GenAI</h3>
+            <p>How Eternal, Swiggy, Meesho, Flipkart, and Amazon India are deploying GenAI across MCP integration, voice bots, neural search, and supply chain orchestration.</p>
+            <span class="card-date">Feb 2026</span>
+          </a>
         </div>
       </div>
-    </section>
+    </div>
 
-    <section class="section" id="deepdives">
-      <h2>Deepdives</h2>
-      <p class="section-subtitle">Long-form explorations into topics I find fascinating.</p>
-      <div class="card-grid">
-        <a href="bolna-deepdive.html" class="card">
-          <span class="card-tag">Voice AI</span>
-          <h3>Bolna AI</h3>
-          <p>Product capabilities, competitive moat, wrapper analysis, and build complexity for India's leading Voice AI platform.</p>
-          <span class="card-date">Feb 2026</span>
-        </a>
-        <a href="smallest-deepdive.html" class="card">
-          <span class="card-tag">Voice AI</span>
-          <h3>Smallest.ai</h3>
-          <p>A full-stack model-company analysis: proprietary ASR, LLM, TTS, moat layers, and replication complexity.</p>
-          <span class="card-date">Feb 2026</span>
-        </a>
-        <a href="ringg-deepdive.html" class="card">
-          <span class="card-tag">Voice AI</span>
-          <h3>Ringg.ai</h3>
-          <p>Distribution-first no-code voice platform analysis: wrapper risk, GTM moat, and path to proprietary models.</p>
-          <span class="card-date">Feb 2026</span>
-        </a>
-        <a href="datacenter.html" class="card">
-          <span class="card-tag">Infrastructure</span>
-          <h3>Building a Datacenter</h3>
-          <p>Six infrastructure layers forced into simultaneous transition by Nvidia's GPU power density roadmap — the 2027 convergence crisis.</p>
-          <span class="card-date">Feb 2026</span>
-        </a>
-        <a href="india-ecomm-genai.html" class="card">
-          <span class="card-tag">India E-Commerce</span>
-          <h3>Indian E-Comm × GenAI</h3>
-          <p>How Eternal, Swiggy, Meesho, Flipkart, and Amazon India are deploying GenAI — MCP integration, voice bots, neural search, and supply chain orchestration.</p>
-          <span class="card-date">Feb 2026</span>
-        </a>
-      </div>
-    </section>
-
-    <section class="section" id="blogs">
-      <h2>Blogs</h2>
-      <p class="section-subtitle">Shorter thoughts, observations, and notes from the field.</p>
-      <div class="blog-list">
-        <a href="https://omkarray.substack.com/p/taste-is-the-new-bottleneck" class="blog-item" target="_blank" rel="noopener">
-          <div class="blog-meta">
-            <span class="blog-date">Feb 16, 2026</span>
-          </div>
-          <h3>Taste Is the New Bottleneck</h3>
-          <span class="blog-arrow">&rarr;</span>
-        </a>
-        <a href="https://omkarray.substack.com/p/the-world-model-gold-rush-why-most" class="blog-item" target="_blank" rel="noopener">
-          <div class="blog-meta">
-            <span class="blog-date">Feb 9, 2026</span>
-          </div>
-          <h3>The World Model Gold Rush: Why Most Will Fail (And Who Will Win)</h3>
-          <span class="blog-arrow">&rarr;</span>
-        </a>
-        <a href="https://omkarray.substack.com/p/why-just-use-chatgpt-is-a-strategic" class="blog-item" target="_blank" rel="noopener">
-          <div class="blog-meta">
-            <span class="blog-date">Dec 12, 2025</span>
-          </div>
-          <h3>Why "Just Use ChatGPT" Is a Strategic Failure</h3>
-          <span class="blog-arrow">&rarr;</span>
-        </a>
-        <a href="https://omkarray.substack.com/p/indias-glp-1-moment" class="blog-item" target="_blank" rel="noopener">
-          <div class="blog-meta">
-            <span class="blog-date">Dec 3, 2025</span>
-          </div>
-          <h3>India's GLP-1 Moment</h3>
-          <span class="blog-arrow">&rarr;</span>
-        </a>
-        <a href="https://omkarray.substack.com/p/will-meesho-take-the-10-minute-delivery" class="blog-item" target="_blank" rel="noopener">
-          <div class="blog-meta">
-            <span class="blog-date">Nov 28, 2025</span>
-          </div>
-          <h3>Will Meesho Take the 10-Minute Delivery Route?</h3>
-          <span class="blog-arrow">&rarr;</span>
-        </a>
-      </div>
-    </section>
-
-    <section class="section" id="fintech">
-      <h2>Fintech</h2>
-      <p class="section-subtitle">Themes I track closely at the intersection of finance, regulation, and AI-native products.</p>
-      <div class="knowledge-grid single-column">
-        <div class="knowledge-card">
-          <div class="knowledge-header">
-            <span class="knowledge-theme">Fintech</span>
-          </div>
-          <h3>Areas of focus</h3>
-          <div class="knowledge-tags">
-            <span>Payments Infrastructure</span>
-            <span>Lending & Underwriting</span>
-            <span>Risk & Fraud Systems</span>
-            <span>RegTech & Compliance</span>
-            <span>Embedded Finance</span>
-            <span>Agentic Commerce</span>
-          </div>
-          <p class="reading-list-label">Reading</p>
-          <div class="reading-list">
-            <a href="https://d91labs.substack.com/p/understanding-the-mechanics-of-digital" class="reading-item" target="_blank" rel="noopener">
-              <span class="reading-title">Understanding the Mechanics of Digital Lending in India</span>
-              <span class="reading-ext">↗</span>
-            </a>
-            <a href="https://d91labs.substack.com/p/decoding-emerging-digital-lending" class="reading-item" target="_blank" rel="noopener">
-              <span class="reading-title">Decoding Emerging Digital Lending Models in India</span>
-              <span class="reading-ext">↗</span>
-            </a>
-            <a href="https://d91labs.substack.com/p/decoding-the-fintech-revolution-in" class="reading-item" target="_blank" rel="noopener">
-              <span class="reading-title">Decoding the Fintech Revolution in Underwriting</span>
-              <span class="reading-ext">↗</span>
-            </a>
-            <a href="https://d91labs.substack.com/p/how-fintech-is-solving-for-debt-collections" class="reading-item" target="_blank" rel="noopener">
-              <span class="reading-title">How Fintech is Solving for Debt Collections</span>
-              <span class="reading-ext">↗</span>
-            </a>
-            <a href="https://www.thepaintedstork.com/p/68-upis-monopoly-problem-infra-ownership" class="reading-item" target="_blank" rel="noopener">
-              <span class="reading-title">The UPI Bottleneck: Full Stack Ambitions, Zero MDR Reality</span>
-              <span class="reading-ext">↗</span>
-            </a>
-            <a href="https://www.thepaintedstork.com/p/81-credit-lines-on-upi-clou-will" class="reading-item" target="_blank" rel="noopener">
-              <span class="reading-title">Credit Lines on UPI (CLOU): Will It Eat Small Ticket Lending?</span>
-              <span class="reading-ext">↗</span>
-            </a>
-          </div>
+    <!-- Folder content: Thesis -->
+    <div class="folder-wrapper" data-for="thesis">
+      <div class="folder-content">
+        <div class="folder-header">
+          <span class="folder-title">Thesis</span>
+          <button class="folder-close" aria-label="Close folder">&times;</button>
         </div>
-      </div>
-    </section>
-
-    <section class="section thesis-section" id="thesis">
-      <div class="thesis-section-header">
-        <div>
-          <h2>Thesis</h2>
-          <p class="section-subtitle">Structured thinking on themes I'm obsessed with.</p>
-        </div>
-        <div class="thesis-nav">
-          <button class="thesis-nav-btn" data-dir="-1" aria-label="Previous">&larr;</button>
-          <button class="thesis-nav-btn" data-dir="1" aria-label="Next">&rarr;</button>
-        </div>
-      </div>
-      <div class="thesis-track-wrapper">
-        <div class="thesis-track">
+        <p class="folder-subtitle">Structured thinking on themes I'm obsessed with.</p>
+        <div class="thesis-grid">
           <a href="mixpanel-voice-ai.html" class="thesis-card">
             <span class="thesis-number">01</span>
             <div class="thesis-header">
@@ -200,7 +154,7 @@
               <span class="thesis-arrow">&rarr;</span>
             </div>
             <h3>Mixpanel for Voice AI</h3>
-            <p>Every voice AI platform today ships call logs and basic metrics. None ships the product analytics layer that actually matters — conversation funnels, turn-level drop-off, barge-in rates, intent resolution heatmaps. The company that builds Mixpanel-grade behavioural analytics on top of voice will own the retention and optimisation layer for every voice AI deployment in the world.</p>
+            <p>Every voice AI platform today ships call logs and basic metrics. None ships the product analytics layer that actually matters: conversation funnels, turn-level drop-off, barge-in rates, intent resolution heatmaps.</p>
             <div class="thesis-tags">
               <span>Voice Analytics</span>
               <span>Conversation Intelligence</span>
@@ -214,7 +168,7 @@
               <span class="thesis-arrow">&rarr;</span>
             </div>
             <h3>RL Environments Are the New Data Moat</h3>
-            <p>The AI industry ran on static data for a decade. That era is ending. As RL scaling consumes environment interactions — not tokens — the companies building the gyms where agents train may capture more durable value than those building the agents themselves.</p>
+            <p>The AI industry ran on static data for a decade. That era is ending. As RL scaling consumes environment interactions, not tokens, the companies building the gyms where agents train may capture more durable value.</p>
             <div class="thesis-tags">
               <span>Reinforcement Learning</span>
               <span>AI Infrastructure</span>
@@ -227,8 +181,8 @@
               <span class="thesis-theme">Physical AI</span>
               <span class="thesis-arrow">&rarr;</span>
             </div>
-            <h3>Physical AI &amp; Robotics &mdash; The India Thesis</h3>
-            <p>India&rsquo;s $1.98B robotics market sits at the intersection of a manufacturing capex super-cycle, the world&rsquo;s fifth-largest rare earth reserves being activated, and 20% of global chip design talent. India won&rsquo;t build the next humanoid OEM &mdash; but it&rsquo;s assembling the capability to own critical layers of the global physical intelligence supply chain.</p>
+            <h3>Physical AI &amp; Robotics: The India Thesis</h3>
+            <p>India&rsquo;s $1.98B robotics market sits at the intersection of a manufacturing capex super-cycle, the world&rsquo;s fifth-largest rare earth reserves, and 20% of global chip design talent.</p>
             <div class="thesis-tags">
               <span>Robotics</span>
               <span>India Supply Chain</span>
@@ -236,275 +190,333 @@
             </div>
           </a>
         </div>
-        <div class="thesis-progress">
-          <div class="thesis-progress-bar"></div>
+      </div>
+    </div>
+
+    <!-- Folder content: Blogs -->
+    <div class="folder-wrapper" data-for="blogs">
+      <div class="folder-content">
+        <div class="folder-header">
+          <span class="folder-title">Blogs</span>
+          <button class="folder-close" aria-label="Close folder">&times;</button>
+        </div>
+        <p class="folder-subtitle">Shorter thoughts, observations, and notes from the field.</p>
+        <div class="blog-list">
+          <a href="https://omkarray.substack.com/p/taste-is-the-new-bottleneck" class="blog-item" target="_blank" rel="noopener">
+            <span class="blog-date">Feb 16, 2026</span>
+            <h3>Taste Is the New Bottleneck</h3>
+            <span class="blog-arrow">&rarr;</span>
+          </a>
+          <a href="https://omkarray.substack.com/p/the-world-model-gold-rush-why-most" class="blog-item" target="_blank" rel="noopener">
+            <span class="blog-date">Feb 9, 2026</span>
+            <h3>The World Model Gold Rush: Why Most Will Fail (And Who Will Win)</h3>
+            <span class="blog-arrow">&rarr;</span>
+          </a>
+          <a href="https://omkarray.substack.com/p/why-just-use-chatgpt-is-a-strategic" class="blog-item" target="_blank" rel="noopener">
+            <span class="blog-date">Dec 12, 2025</span>
+            <h3>Why "Just Use ChatGPT" Is a Strategic Failure</h3>
+            <span class="blog-arrow">&rarr;</span>
+          </a>
+          <a href="https://omkarray.substack.com/p/indias-glp-1-moment" class="blog-item" target="_blank" rel="noopener">
+            <span class="blog-date">Dec 3, 2025</span>
+            <h3>India's GLP-1 Moment</h3>
+            <span class="blog-arrow">&rarr;</span>
+          </a>
+          <a href="https://omkarray.substack.com/p/will-meesho-take-the-10-minute-delivery" class="blog-item" target="_blank" rel="noopener">
+            <span class="blog-date">Nov 28, 2025</span>
+            <h3>Will Meesho Take the 10-Minute Delivery Route?</h3>
+            <span class="blog-arrow">&rarr;</span>
+          </a>
         </div>
       </div>
-    </section>
+    </div>
 
-    <section class="section" id="aiml">
-      <h2>AI/ML</h2>
-      <p class="section-subtitle">Core machine learning areas I actively study, build with, and write about.</p>
-      <ul class="topic-list">
-        <li>
-          <a href="transformers.html">
-            <span class="topic-title">Transformers</span>
-            <span class="topic-subtitle">Attention Is All You Need — and Why</span>
-          </a>
-        </li>
-        <li>
-          <span>
-            <span class="topic-title">Reinforcement Learning</span>
-            <span class="topic-subtitle">Learning from Reward, Not Labels</span>
-          </span>
-        </li>
-        <li>
-          <span>
-            <span class="topic-title">AI Agents</span>
-            <span class="topic-subtitle">Agents That Plan, Act, and Recover</span>
-          </span>
-        </li>
-        <li>
-          <a href="llm-evals.html">
-            <span class="topic-title">LLM Evaluation</span>
-            <span class="topic-subtitle">When Benchmarks Lie — The Maths of LLM Evals</span>
-          </a>
-        </li>
-        <li>
-          <a href="rag.html">
-            <span class="topic-title">RAG</span>
-            <span class="topic-subtitle">Retrieval-Augmented Generation Done Right</span>
-          </a>
-        </li>
-        <li>
-          <span>
-            <span class="topic-title">Multimodal AI</span>
-            <span class="topic-subtitle">One Model, Every Modality</span>
-          </span>
-        </li>
-        <li>
-          <a href="gradient-descent.html">
-            <span class="topic-title">Gradient Descent</span>
-            <span class="topic-subtitle">The Geometry of Gradient Descent</span>
-          </a>
-        </li>
-        <li>
-          <a href="pytorch.html">
-            <span class="topic-title">PyTorch</span>
-            <span class="topic-subtitle">Tensors to Multi-GPU — Visual Map</span>
-          </a>
-        </li>
-      </ul>
-
-      <div style="margin-top:40px;">
-        <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:14px;">
-          <span style="font-family:'Newsreader',Georgia,serif;font-size:16px;font-weight:500;color:var(--text);">80 Days LLM &amp; RAG Study Plan</span>
-          <span style="font-size:11px;color:var(--text-muted);letter-spacing:0.04em;">Phase 1 &middot; Foundations</span>
+    <!-- Row 2: Fintech · AI/ML · Maths -->
+    <div class="floppy-row">
+      <div class="floppy fade-in" data-folder="fintech" tabindex="0" role="button" aria-expanded="false">
+        <div class="floppy-disk">
+          <svg viewBox="0 0 170 176" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="1" y="1" width="168" height="174" rx="8" fill="#E8E5D8" stroke="#D6D3C6" stroke-width="1"/>
+            <rect x="36" y="1" width="98" height="42" rx="3" fill="#C8C5B8"/>
+            <rect x="68" y="7" width="34" height="30" rx="2" fill="#B0ADA0"/>
+            <rect x="20" y="68" width="130" height="96" rx="4" fill="#F5F3E8" stroke="#D6D3C6" stroke-width="0.5"/>
+            <line x1="30" y1="86" x2="140" y2="86" stroke="#E0DDD2" stroke-width="0.5"/>
+            <line x1="30" y1="100" x2="140" y2="100" stroke="#E0DDD2" stroke-width="0.5"/>
+            <line x1="30" y1="114" x2="140" y2="114" stroke="#E0DDD2" stroke-width="0.5"/>
+            <line x1="30" y1="128" x2="140" y2="128" stroke="#E0DDD2" stroke-width="0.5"/>
+            <circle cx="42" cy="78" r="5" fill="#1e6b3c"/>
+            <rect x="4" y="4" width="14" height="14" rx="3" fill="#D6D3C6"/>
+          </svg>
         </div>
+        <span class="floppy-name">Fintech</span>
+        <span class="floppy-count">Themes &amp; reading</span>
+      </div>
+
+      <div class="floppy fade-in" data-folder="aiml" tabindex="0" role="button" aria-expanded="false">
+        <div class="floppy-disk">
+          <svg viewBox="0 0 170 176" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="1" y="1" width="168" height="174" rx="8" fill="#E8E5D8" stroke="#D6D3C6" stroke-width="1"/>
+            <rect x="36" y="1" width="98" height="42" rx="3" fill="#C8C5B8"/>
+            <rect x="68" y="7" width="34" height="30" rx="2" fill="#B0ADA0"/>
+            <rect x="20" y="68" width="130" height="96" rx="4" fill="#F5F3E8" stroke="#D6D3C6" stroke-width="0.5"/>
+            <line x1="30" y1="86" x2="140" y2="86" stroke="#E0DDD2" stroke-width="0.5"/>
+            <line x1="30" y1="100" x2="140" y2="100" stroke="#E0DDD2" stroke-width="0.5"/>
+            <line x1="30" y1="114" x2="140" y2="114" stroke="#E0DDD2" stroke-width="0.5"/>
+            <line x1="30" y1="128" x2="140" y2="128" stroke="#E0DDD2" stroke-width="0.5"/>
+            <circle cx="42" cy="78" r="5" fill="#5a2080"/>
+            <rect x="4" y="4" width="14" height="14" rx="3" fill="#D6D3C6"/>
+          </svg>
+        </div>
+        <span class="floppy-name">AI/ML</span>
+        <span class="floppy-count">Topics &amp; 80-day plan</span>
+      </div>
+
+      <div class="floppy fade-in" data-folder="maths" tabindex="0" role="button" aria-expanded="false">
+        <div class="floppy-disk">
+          <svg viewBox="0 0 170 176" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="1" y="1" width="168" height="174" rx="8" fill="#E8E5D8" stroke="#D6D3C6" stroke-width="1"/>
+            <rect x="36" y="1" width="98" height="42" rx="3" fill="#C8C5B8"/>
+            <rect x="68" y="7" width="34" height="30" rx="2" fill="#B0ADA0"/>
+            <rect x="20" y="68" width="130" height="96" rx="4" fill="#F5F3E8" stroke="#D6D3C6" stroke-width="0.5"/>
+            <line x1="30" y1="86" x2="140" y2="86" stroke="#E0DDD2" stroke-width="0.5"/>
+            <line x1="30" y1="100" x2="140" y2="100" stroke="#E0DDD2" stroke-width="0.5"/>
+            <line x1="30" y1="114" x2="140" y2="114" stroke="#E0DDD2" stroke-width="0.5"/>
+            <line x1="30" y1="128" x2="140" y2="128" stroke="#E0DDD2" stroke-width="0.5"/>
+            <circle cx="42" cy="78" r="5" fill="#8a5a00"/>
+            <rect x="4" y="4" width="14" height="14" rx="3" fill="#D6D3C6"/>
+          </svg>
+        </div>
+        <span class="floppy-name">Maths</span>
+        <span class="floppy-count">7 topics</span>
+      </div>
+    </div>
+
+    <!-- Folder content: Fintech -->
+    <div class="folder-wrapper" data-for="fintech">
+      <div class="folder-content">
+        <div class="folder-header">
+          <span class="folder-title">Fintech</span>
+          <button class="folder-close" aria-label="Close folder">&times;</button>
+        </div>
+        <p class="folder-subtitle">Themes I track closely at the intersection of finance, regulation, and AI-native products.</p>
+        <div class="knowledge-grid">
+          <div class="knowledge-card">
+            <div class="knowledge-header">
+              <span class="knowledge-theme">Areas of Focus</span>
+            </div>
+            <div class="knowledge-tags">
+              <span>Payments Infrastructure</span>
+              <span>Lending &amp; Underwriting</span>
+              <span>Risk &amp; Fraud Systems</span>
+              <span>RegTech &amp; Compliance</span>
+              <span>Embedded Finance</span>
+              <span>Agentic Commerce</span>
+            </div>
+            <p class="reading-list-label">Reading</p>
+            <div class="reading-list">
+              <a href="https://d91labs.substack.com/p/understanding-the-mechanics-of-digital" class="reading-item" target="_blank" rel="noopener">
+                <span class="reading-title">Understanding the Mechanics of Digital Lending in India</span>
+                <span class="reading-ext">&nearr;</span>
+              </a>
+              <a href="https://d91labs.substack.com/p/decoding-emerging-digital-lending" class="reading-item" target="_blank" rel="noopener">
+                <span class="reading-title">Decoding Emerging Digital Lending Models in India</span>
+                <span class="reading-ext">&nearr;</span>
+              </a>
+              <a href="https://d91labs.substack.com/p/decoding-the-fintech-revolution-in" class="reading-item" target="_blank" rel="noopener">
+                <span class="reading-title">Decoding the Fintech Revolution in Underwriting</span>
+                <span class="reading-ext">&nearr;</span>
+              </a>
+              <a href="https://d91labs.substack.com/p/how-fintech-is-solving-for-debt-collections" class="reading-item" target="_blank" rel="noopener">
+                <span class="reading-title">How Fintech is Solving for Debt Collections</span>
+                <span class="reading-ext">&nearr;</span>
+              </a>
+              <a href="https://www.thepaintedstork.com/p/68-upis-monopoly-problem-infra-ownership" class="reading-item" target="_blank" rel="noopener">
+                <span class="reading-title">The UPI Bottleneck: Full Stack Ambitions, Zero MDR Reality</span>
+                <span class="reading-ext">&nearr;</span>
+              </a>
+              <a href="https://www.thepaintedstork.com/p/81-credit-lines-on-upi-clou-will" class="reading-item" target="_blank" rel="noopener">
+                <span class="reading-title">Credit Lines on UPI (CLOU): Will It Eat Small Ticket Lending?</span>
+                <span class="reading-ext">&nearr;</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Folder content: AI/ML -->
+    <div class="folder-wrapper" data-for="aiml">
+      <div class="folder-content">
+        <div class="folder-header">
+          <span class="folder-title">AI/ML</span>
+          <button class="folder-close" aria-label="Close folder">&times;</button>
+        </div>
+        <p class="folder-subtitle">Core machine learning areas I actively study, build with, and write about.</p>
         <ul class="topic-list">
           <li>
-            <a href="llm-day1.html">
-              <span class="topic-title">Day 1</span>
-              <span class="topic-subtitle">The Value Class &amp; Computation Graphs</span>
+            <a href="transformers.html">
+              <span class="topic-title">Transformers</span>
+              <span class="topic-subtitle">Attention Is All You Need, and Why</span>
             </a>
           </li>
           <li>
-            <a href="llm-day2.html">
-              <span class="topic-title">Day 2</span>
-              <span class="topic-subtitle">The Backward Pass &amp; Chain Rule</span>
+            <span>
+              <span class="topic-title">Reinforcement Learning</span>
+              <span class="topic-subtitle">Learning from Reward, Not Labels</span>
+            </span>
+          </li>
+          <li>
+            <span>
+              <span class="topic-title">AI Agents</span>
+              <span class="topic-subtitle">Agents That Plan, Act, and Recover</span>
+            </span>
+          </li>
+          <li>
+            <a href="llm-evals.html">
+              <span class="topic-title">LLM Evaluation</span>
+              <span class="topic-subtitle">When Benchmarks Lie: The Maths of LLM Evals</span>
             </a>
           </li>
           <li>
-            <a href="llm-day3.html">
-              <span class="topic-title">Day 3</span>
-              <span class="topic-subtitle">Topological Sort &amp; Full Autograd Engine</span>
+            <a href="rag.html">
+              <span class="topic-title">RAG</span>
+              <span class="topic-subtitle">Retrieval-Augmented Generation Done Right</span>
             </a>
           </li>
           <li>
-            <a href="llm-day4.html">
-              <span class="topic-title">Day 4</span>
-              <span class="topic-subtitle">Building a Neuron &amp; MLP from Scratch</span>
+            <span>
+              <span class="topic-title">Multimodal AI</span>
+              <span class="topic-subtitle">One Model, Every Modality</span>
+            </span>
+          </li>
+          <li>
+            <a href="gradient-descent.html">
+              <span class="topic-title">Gradient Descent</span>
+              <span class="topic-subtitle">The Geometry of Gradient Descent</span>
             </a>
           </li>
           <li>
-            <a href="llm-day5.html">
-              <span class="topic-title">Day 5</span>
-              <span class="topic-subtitle">Training the MLP &mdash; Gradient Descent in Action</span>
-            </a>
-          </li>
-          <li>
-            <a href="llm-day6.html">
-              <span class="topic-title">Day 6</span>
-              <span class="topic-subtitle">Intro to Language Modeling &mdash; The Bigram Model</span>
-            </a>
-          </li>
-          <li>
-            <a href="llm-day7.html">
-              <span class="topic-title">Day 7</span>
-              <span class="topic-subtitle">Tensors, Broadcasting &amp; torch.Tensor Deep Dive</span>
-            </a>
-          </li>
-          <li>
-            <a href="llm-day8.html">
-              <span class="topic-title">Day 8</span>
-              <span class="topic-subtitle">Training Loops, Loss Functions &amp; Evaluation Splits</span>
-            </a>
-          </li>
-          <li>
-            <a href="llm-day9.html">
-              <span class="topic-title">Day 9</span>
-              <span class="topic-subtitle">MLP Language Model (Bengio et al. 2003)</span>
-            </a>
-          </li>
-          <li>
-            <a href="llm-day10.html">
-              <span class="topic-title">Day 10</span>
-              <span class="topic-subtitle">Embeddings, Learning Rate Schedules &amp; Hyperparameters</span>
+            <a href="pytorch.html">
+              <span class="topic-title">PyTorch</span>
+              <span class="topic-subtitle">Tensors to Multi-GPU: Visual Map</span>
             </a>
           </li>
         </ul>
 
-        <div style="display:flex;align-items:baseline;gap:12px;margin-top:28px;margin-bottom:14px;">
-          <span style="font-family:'Newsreader',Georgia,serif;font-size:15px;font-weight:500;color:var(--text);">Phase 2 &middot; Deep Networks</span>
-          <span style="font-size:11px;color:var(--text-muted);letter-spacing:0.04em;">makemore &amp; GPT</span>
+        <div class="phase-label">
+          <span class="phase-name">80 Days LLM &amp; RAG Study Plan</span>
+          <span class="phase-tag">Phase 1 &middot; Foundations</span>
         </div>
         <ul class="topic-list">
-          <li>
-            <a href="llm-day11.html">
-              <span class="topic-title">Day 11</span>
-              <span class="topic-subtitle">Activations &amp; Gradients &mdash; The Fragility of Deep Nets</span>
-            </a>
-          </li>
-          <li>
-            <a href="llm-day12.html">
-              <span class="topic-title">Day 12</span>
-              <span class="topic-subtitle">Batch Normalization &mdash; Taming Internal Covariate Shift</span>
-            </a>
-          </li>
-          <li>
-            <a href="llm-day13.html">
-              <span class="topic-title">Day 13</span>
-              <span class="topic-subtitle">Becoming a Backprop Ninja &mdash; Manual Tensor Backprop</span>
-            </a>
-          </li>
-          <li>
-            <a href="llm-day14.html">
-              <span class="topic-title">Day 14</span>
-              <span class="topic-subtitle">Cross-Entropy, Softmax &amp; Classification Gradients</span>
-            </a>
-          </li>
-          <li>
-            <a href="llm-day15.html">
-              <span class="topic-title">Day 15</span>
-              <span class="topic-subtitle">WaveNet Architecture &mdash; Dilated Causal Convolutions</span>
-            </a>
-          </li>
-          <li>
-            <a href="llm-day16.html">
-              <span class="topic-title">Day 16</span>
-              <span class="topic-subtitle">Self-Attention from Scratch</span>
-            </a>
-          </li>
-          <li>
-            <a href="llm-day17.html">
-              <span class="topic-title">Day 17</span>
-              <span class="topic-subtitle">Multi-Head Attention &amp; Positional Encoding</span>
-            </a>
-          </li>
-          <li>
-            <a href="llm-day18.html">
-              <span class="topic-title">Day 18</span>
-              <span class="topic-subtitle">The Transformer Block &mdash; LayerNorm, Residuals, FFN</span>
-            </a>
-          </li>
-          <li>
-            <a href="llm-day19.html">
-              <span class="topic-title">Day 19</span>
-              <span class="topic-subtitle">Building GPT from Scratch &mdash; Full Architecture</span>
-            </a>
-          </li>
-          <li>
-            <a href="llm-day20.html">
-              <span class="topic-title">Day 20</span>
-              <span class="topic-subtitle">Training GPT on Shakespeare &mdash; Generation &amp; Sampling</span>
-            </a>
-          </li>
+          <li><a href="llm-day1.html"><span class="topic-title">Day 1</span><span class="topic-subtitle">The Value Class &amp; Computation Graphs</span></a></li>
+          <li><a href="llm-day2.html"><span class="topic-title">Day 2</span><span class="topic-subtitle">The Backward Pass &amp; Chain Rule</span></a></li>
+          <li><a href="llm-day3.html"><span class="topic-title">Day 3</span><span class="topic-subtitle">Topological Sort &amp; Full Autograd Engine</span></a></li>
+          <li><a href="llm-day4.html"><span class="topic-title">Day 4</span><span class="topic-subtitle">Building a Neuron &amp; MLP from Scratch</span></a></li>
+          <li><a href="llm-day5.html"><span class="topic-title">Day 5</span><span class="topic-subtitle">Training the MLP : Gradient Descent in Action</span></a></li>
+          <li><a href="llm-day6.html"><span class="topic-title">Day 6</span><span class="topic-subtitle">Intro to Language Modeling : The Bigram Model</span></a></li>
+          <li><a href="llm-day7.html"><span class="topic-title">Day 7</span><span class="topic-subtitle">Tensors, Broadcasting &amp; torch.Tensor Deep Dive</span></a></li>
+          <li><a href="llm-day8.html"><span class="topic-title">Day 8</span><span class="topic-subtitle">Training Loops, Loss Functions &amp; Evaluation Splits</span></a></li>
+          <li><a href="llm-day9.html"><span class="topic-title">Day 9</span><span class="topic-subtitle">MLP Language Model (Bengio et al. 2003)</span></a></li>
+          <li><a href="llm-day10.html"><span class="topic-title">Day 10</span><span class="topic-subtitle">Embeddings, Learning Rate Schedules &amp; Hyperparameters</span></a></li>
         </ul>
 
-        <div style="display:flex;align-items:baseline;gap:12px;margin-top:28px;margin-bottom:14px;">
-          <span style="font-family:'Newsreader',Georgia,serif;font-size:15px;font-weight:500;color:var(--text);">Phase 3 &middot; LLM Architecture</span>
-          <span style="font-size:11px;color:var(--text-muted);letter-spacing:0.04em;">Raschka LLMs From Scratch</span>
+        <div class="phase-label">
+          <span class="phase-name">Phase 2 &middot; Deep Networks</span>
+          <span class="phase-tag">makemore &amp; GPT</span>
         </div>
         <ul class="topic-list">
-          <li><a href="llm-day21.html"><span class="topic-title">Day 21</span><span class="topic-subtitle">Tokenization &mdash; Byte Pair Encoding from Scratch</span></a></li>
+          <li><a href="llm-day11.html"><span class="topic-title">Day 11</span><span class="topic-subtitle">Activations &amp; Gradients : The Fragility of Deep Nets</span></a></li>
+          <li><a href="llm-day12.html"><span class="topic-title">Day 12</span><span class="topic-subtitle">Batch Normalization : Taming Internal Covariate Shift</span></a></li>
+          <li><a href="llm-day13.html"><span class="topic-title">Day 13</span><span class="topic-subtitle">Becoming a Backprop Ninja : Manual Tensor Backprop</span></a></li>
+          <li><a href="llm-day14.html"><span class="topic-title">Day 14</span><span class="topic-subtitle">Cross-Entropy, Softmax &amp; Classification Gradients</span></a></li>
+          <li><a href="llm-day15.html"><span class="topic-title">Day 15</span><span class="topic-subtitle">WaveNet Architecture : Dilated Causal Convolutions</span></a></li>
+          <li><a href="llm-day16.html"><span class="topic-title">Day 16</span><span class="topic-subtitle">Self-Attention from Scratch</span></a></li>
+          <li><a href="llm-day17.html"><span class="topic-title">Day 17</span><span class="topic-subtitle">Multi-Head Attention &amp; Positional Encoding</span></a></li>
+          <li><a href="llm-day18.html"><span class="topic-title">Day 18</span><span class="topic-subtitle">The Transformer Block : LayerNorm, Residuals, FFN</span></a></li>
+          <li><a href="llm-day19.html"><span class="topic-title">Day 19</span><span class="topic-subtitle">Building GPT from Scratch : Full Architecture</span></a></li>
+          <li><a href="llm-day20.html"><span class="topic-title">Day 20</span><span class="topic-subtitle">Training GPT on Shakespeare : Generation &amp; Sampling</span></a></li>
+        </ul>
+
+        <div class="phase-label">
+          <span class="phase-name">Phase 3 &middot; LLM Architecture</span>
+          <span class="phase-tag">Raschka LLMs From Scratch</span>
+        </div>
+        <ul class="topic-list">
+          <li><a href="llm-day21.html"><span class="topic-title">Day 21</span><span class="topic-subtitle">Tokenization : Byte Pair Encoding from Scratch</span></a></li>
           <li><a href="llm-day22.html"><span class="topic-title">Day 22</span><span class="topic-subtitle">Data Preparation &amp; DataLoaders for LLMs</span></a></li>
           <li><a href="llm-day23.html"><span class="topic-title">Day 23</span><span class="topic-subtitle">Token Embeddings &amp; Positional Embeddings</span></a></li>
-          <li><a href="llm-day24.html"><span class="topic-title">Day 24</span><span class="topic-subtitle">Causal Self-Attention &mdash; Masked &amp; Scaled</span></a></li>
-          <li><a href="llm-day25.html"><span class="topic-title">Day 25</span><span class="topic-subtitle">The Full GPT-2 Architecture &mdash; Layer by Layer</span></a></li>
-          <li><a href="llm-day26.html"><span class="topic-title">Day 26</span><span class="topic-subtitle">Pre-training Setup &mdash; Weight Init &amp; LR Warmup</span></a></li>
+          <li><a href="llm-day24.html"><span class="topic-title">Day 24</span><span class="topic-subtitle">Causal Self-Attention : Masked &amp; Scaled</span></a></li>
+          <li><a href="llm-day25.html"><span class="topic-title">Day 25</span><span class="topic-subtitle">The Full GPT-2 Architecture : Layer by Layer</span></a></li>
+          <li><a href="llm-day26.html"><span class="topic-title">Day 26</span><span class="topic-subtitle">Pre-training Setup : Weight Init &amp; LR Warmup</span></a></li>
           <li><a href="llm-day27.html"><span class="topic-title">Day 27</span><span class="topic-subtitle">Pre-training a Small GPT on Text Data</span></a></li>
-          <li><a href="llm-day28.html"><span class="topic-title">Day 28</span><span class="topic-subtitle">Generating Text &mdash; Temperature, Top-k, Nucleus Sampling</span></a></li>
+          <li><a href="llm-day28.html"><span class="topic-title">Day 28</span><span class="topic-subtitle">Generating Text : Temperature, Top-k, Nucleus Sampling</span></a></li>
           <li><a href="llm-day29.html"><span class="topic-title">Day 29</span><span class="topic-subtitle">Text Classification with LLMs</span></a></li>
-          <li><a href="llm-day30.html"><span class="topic-title">Day 30</span><span class="topic-subtitle">Instruction Finetuning &mdash; Dataset Format &amp; Preparation</span></a></li>
+          <li><a href="llm-day30.html"><span class="topic-title">Day 30</span><span class="topic-subtitle">Instruction Finetuning : Dataset Format &amp; Preparation</span></a></li>
           <li><a href="llm-day31.html"><span class="topic-title">Day 31</span><span class="topic-subtitle">Supervised Finetuning (SFT) in Practice</span></a></li>
-          <li><a href="llm-day32.html"><span class="topic-title">Day 32</span><span class="topic-subtitle">LoRA &mdash; Parameter-Efficient Finetuning</span></a></li>
-          <li><a href="llm-day33.html"><span class="topic-title">Day 33</span><span class="topic-subtitle">RLHF &mdash; Reward Models &amp; PPO Basics</span></a></li>
-          <li><a href="llm-day34.html"><span class="topic-title">Day 34</span><span class="topic-subtitle">DPO &mdash; Direct Preference Optimization</span></a></li>
-          <li><a href="llm-day35.html"><span class="topic-title">Day 35</span><span class="topic-subtitle">LLM Evaluation &mdash; Perplexity, Benchmarks &amp; Human Eval</span></a></li>
+          <li><a href="llm-day32.html"><span class="topic-title">Day 32</span><span class="topic-subtitle">LoRA : Parameter-Efficient Finetuning</span></a></li>
+          <li><a href="llm-day33.html"><span class="topic-title">Day 33</span><span class="topic-subtitle">RLHF : Reward Models &amp; PPO Basics</span></a></li>
+          <li><a href="llm-day34.html"><span class="topic-title">Day 34</span><span class="topic-subtitle">DPO : Direct Preference Optimization</span></a></li>
+          <li><a href="llm-day35.html"><span class="topic-title">Day 35</span><span class="topic-subtitle">LLM Evaluation : Perplexity, Benchmarks &amp; Human Eval</span></a></li>
         </ul>
       </div>
-    </section>
+    </div>
 
-    <section class="section" id="maths">
-      <h2>Maths</h2>
-      <p class="section-subtitle">Mathematical foundations that shape how I reason about models and systems.</p>
-      <ul class="topic-list">
-        <li>
-          <a href="bayesian-optimization.html">
-            <span class="topic-title">Bayesian Optimization</span>
-            <span class="topic-subtitle">Probabilistic search & surrogate models</span>
-          </a>
-        </li>
-        <li>
-          <a href="https://www.youtube.com/playlist?list=PLhoHEZlJjdQKI1cs5yPRUYdgcsE0HctoQ" target="_blank" rel="noopener">
-            <span class="topic-title">Gaussian Processes</span>
-            <span class="topic-subtitle">Distributions over functions</span>
-          </a>
-        </li>
-        <li>
-          <a href="https://www.youtube.com/playlist?list=PLJHszsWbB6hrkmmq57lX8BV-o-YIOFsiG" target="_blank" rel="noopener">
-            <span class="topic-title">Tensors</span>
-            <span class="topic-subtitle">Multilinear algebra & geometry</span>
-          </a>
-        </li>
-        <li>
-          <a href="https://www.youtube.com/playlist?list=PLBh2i93oe2qsGKDOsuVVw-OCAfprrnGfr" target="_blank" rel="noopener">
-            <span class="topic-title">Hilbert Spaces</span>
-            <span class="topic-subtitle">Infinite-dimensional inner product spaces</span>
-          </a>
-        </li>
-        <li>
-          <a href="https://www.youtube.com/playlist?list=PLBh2i93oe2qvRGAtgkTszX7szZDVd6jh1" target="_blank" rel="noopener">
-            <span class="topic-title">Manifolds</span>
-            <span class="topic-subtitle">Geometry beyond flat space</span>
-          </a>
-        </li>
-        <li>
-          <a href="https://www.youtube.com/playlist?list=PLBh2i93oe2qswFOC98oSFc37-0f4S3D4z" target="_blank" rel="noopener">
-            <span class="topic-title">Probability Theory</span>
-            <span class="topic-subtitle">Measure-theoretic foundations</span>
-          </a>
-        </li>
-        <li>
-          <a href="https://www.youtube.com/playlist?list=PLBh2i93oe2quLc5zaxD0WHzQTGrXMwAI6" target="_blank" rel="noopener">
-            <span class="topic-title">Linear Algebra</span>
-            <span class="topic-subtitle">Vectors, matrices & transformations</span>
-          </a>
-        </li>
-      </ul>
-    </section>
+    <!-- Folder content: Maths -->
+    <div class="folder-wrapper" data-for="maths">
+      <div class="folder-content">
+        <div class="folder-header">
+          <span class="folder-title">Maths</span>
+          <button class="folder-close" aria-label="Close folder">&times;</button>
+        </div>
+        <p class="folder-subtitle">Mathematical foundations that shape how I reason about models and systems.</p>
+        <ul class="topic-list">
+          <li>
+            <a href="bayesian-optimization.html">
+              <span class="topic-title">Bayesian Optimization</span>
+              <span class="topic-subtitle">Probabilistic search &amp; surrogate models</span>
+            </a>
+          </li>
+          <li>
+            <a href="https://www.youtube.com/playlist?list=PLhoHEZlJjdQKI1cs5yPRUYdgcsE0HctoQ" target="_blank" rel="noopener">
+              <span class="topic-title">Gaussian Processes</span>
+              <span class="topic-subtitle">Distributions over functions</span>
+            </a>
+          </li>
+          <li>
+            <a href="https://www.youtube.com/playlist?list=PLJHszsWbB6hrkmmq57lX8BV-o-YIOFsiG" target="_blank" rel="noopener">
+              <span class="topic-title">Tensors</span>
+              <span class="topic-subtitle">Multilinear algebra &amp; geometry</span>
+            </a>
+          </li>
+          <li>
+            <a href="https://www.youtube.com/playlist?list=PLBh2i93oe2qsGKDOsuVVw-OCAfprrnGfr" target="_blank" rel="noopener">
+              <span class="topic-title">Hilbert Spaces</span>
+              <span class="topic-subtitle">Infinite-dimensional inner product spaces</span>
+            </a>
+          </li>
+          <li>
+            <a href="https://www.youtube.com/playlist?list=PLBh2i93oe2qvRGAtgkTszX7szZDVd6jh1" target="_blank" rel="noopener">
+              <span class="topic-title">Manifolds</span>
+              <span class="topic-subtitle">Geometry beyond flat space</span>
+            </a>
+          </li>
+          <li>
+            <a href="https://www.youtube.com/playlist?list=PLBh2i93oe2qswFOC98oSFc37-0f4S3D4z" target="_blank" rel="noopener">
+              <span class="topic-title">Probability Theory</span>
+              <span class="topic-subtitle">Measure-theoretic foundations</span>
+            </a>
+          </li>
+          <li>
+            <a href="https://www.youtube.com/playlist?list=PLBh2i93oe2quLc5zaxD0WHzQTGrXMwAI6" target="_blank" rel="noopener">
+              <span class="topic-title">Linear Algebra</span>
+              <span class="topic-subtitle">Vectors, matrices &amp; transformations</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
 
-  </main>
+  </div>
 
   <footer>
     <p>&copy; 2026 Omkar Ray. Built with care.</p>

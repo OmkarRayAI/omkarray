@@ -1,51 +1,182 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-  // ─── Scroll Progress Bar ───
-  const scrollProgress = document.getElementById('scroll-progress');
-  if (scrollProgress) {
-    window.addEventListener('scroll', () => {
-      const total = document.documentElement.scrollHeight - window.innerHeight;
-      const pct = total > 0 ? window.scrollY / total : 0;
-      scrollProgress.style.transform = `scaleX(${pct.toFixed(4)})`;
-    }, { passive: true });
+  // ─── Sound Effects (Web Audio API) ───
+
+  let audioCtx = null;
+
+  function getAudioCtx() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    return audioCtx;
   }
 
-  // ─── Nav: shadow on scroll + active section tracking ───
-  const nav = document.querySelector('nav');
-  const navLinks = document.querySelectorAll('nav a[href^="#"]');
-  const sections = document.querySelectorAll('section[id]');
+  function playInsertSound() {
+    try {
+      const ctx = getAudioCtx();
+      const now = ctx.currentTime;
 
-  window.addEventListener('scroll', () => {
-    nav.classList.toggle('scrolled', window.scrollY > 40);
-  }, { passive: true });
+      // Mechanical click
+      const clickOsc = ctx.createOscillator();
+      const clickGain = ctx.createGain();
+      clickOsc.type = 'square';
+      clickOsc.frequency.setValueAtTime(1800, now);
+      clickOsc.frequency.exponentialRampToValueAtTime(400, now + 0.03);
+      clickGain.gain.setValueAtTime(0.12, now);
+      clickGain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
+      clickOsc.connect(clickGain).connect(ctx.destination);
+      clickOsc.start(now);
+      clickOsc.stop(now + 0.06);
 
-  // Highlight the nav link whose section is most in view
-  const sectionObserver = new IntersectionObserver(entries => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        navLinks.forEach(l => l.classList.remove('active'));
-        const link = document.querySelector(`nav a[href="#${entry.target.id}"]`);
-        if (link) link.classList.add('active');
+      // Soft thud body
+      const thud = ctx.createOscillator();
+      const thudGain = ctx.createGain();
+      thud.type = 'sine';
+      thud.frequency.setValueAtTime(180, now + 0.02);
+      thud.frequency.exponentialRampToValueAtTime(80, now + 0.1);
+      thudGain.gain.setValueAtTime(0.08, now + 0.02);
+      thudGain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+      thud.connect(thudGain).connect(ctx.destination);
+      thud.start(now + 0.02);
+      thud.stop(now + 0.12);
+
+      // Subtle noise burst (floppy texture)
+      const bufferSize = ctx.sampleRate * 0.04;
+      const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+      const data = noiseBuffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) data[i] = (Math.random() * 2 - 1) * 0.5;
+      const noise = ctx.createBufferSource();
+      const noiseGain = ctx.createGain();
+      const noiseFilter = ctx.createBiquadFilter();
+      noise.buffer = noiseBuffer;
+      noiseFilter.type = 'bandpass';
+      noiseFilter.frequency.value = 3000;
+      noiseFilter.Q.value = 1.5;
+      noiseGain.gain.setValueAtTime(0.06, now);
+      noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+      noise.connect(noiseFilter).connect(noiseGain).connect(ctx.destination);
+      noise.start(now);
+      noise.stop(now + 0.04);
+    } catch (e) {
+      // Audio not supported, fail silently
+    }
+  }
+
+  function playEjectSound() {
+    try {
+      const ctx = getAudioCtx();
+      const now = ctx.currentTime;
+
+      // Reverse click (ascending)
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(500, now);
+      osc.frequency.exponentialRampToValueAtTime(1400, now + 0.04);
+      gain.gain.setValueAtTime(0.08, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
+      osc.connect(gain).connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.06);
+
+      // Light spring release
+      const spring = ctx.createOscillator();
+      const springGain = ctx.createGain();
+      spring.type = 'sine';
+      spring.frequency.setValueAtTime(600, now + 0.01);
+      spring.frequency.exponentialRampToValueAtTime(900, now + 0.05);
+      springGain.gain.setValueAtTime(0.04, now + 0.01);
+      springGain.gain.exponentialRampToValueAtTime(0.001, now + 0.07);
+      spring.connect(springGain).connect(ctx.destination);
+      spring.start(now + 0.01);
+      spring.stop(now + 0.07);
+    } catch (e) {
+      // Audio not supported, fail silently
+    }
+  }
+
+  // ─── Floppy Accordion ───
+
+  const floppies = document.querySelectorAll('.floppy[data-folder]');
+  let currentOpen = null;
+
+  function closeFolder(folderName, silent) {
+    const floppy = document.querySelector(`.floppy[data-folder="${folderName}"]`);
+    const wrapper = document.querySelector(`.folder-wrapper[data-for="${folderName}"]`);
+    if (!floppy || !wrapper) return;
+
+    if (!silent) playEjectSound();
+
+    floppy.classList.remove('open');
+    floppy.setAttribute('aria-expanded', 'false');
+    wrapper.classList.remove('expanded');
+    wrapper.style.maxHeight = '0px';
+    currentOpen = null;
+  }
+
+  function openFolder(folderName) {
+    if (currentOpen && currentOpen !== folderName) {
+      closeFolder(currentOpen, true);
+    }
+
+    const floppy = document.querySelector(`.floppy[data-folder="${folderName}"]`);
+    const wrapper = document.querySelector(`.folder-wrapper[data-for="${folderName}"]`);
+    if (!floppy || !wrapper) return;
+
+    playInsertSound();
+
+    floppy.classList.add('open');
+    floppy.setAttribute('aria-expanded', 'true');
+    wrapper.classList.add('expanded');
+    wrapper.style.maxHeight = wrapper.scrollHeight + 'px';
+    currentOpen = folderName;
+
+    setTimeout(() => {
+      wrapper.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }, 120);
+  }
+
+  function toggleFolder(folderName) {
+    if (currentOpen === folderName) {
+      closeFolder(folderName);
+    } else {
+      openFolder(folderName);
+    }
+  }
+
+  floppies.forEach(floppy => {
+    floppy.addEventListener('click', (e) => {
+      e.preventDefault();
+      toggleFolder(floppy.dataset.folder);
+    });
+
+    floppy.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        toggleFolder(floppy.dataset.folder);
       }
     });
-  }, {
-    threshold: 0,
-    rootMargin: '-15% 0px -70% 0px'
   });
 
-  sections.forEach(s => sectionObserver.observe(s));
-
-  // ─── Smooth scroll for nav links ───
-  navLinks.forEach(link => {
-    link.addEventListener('click', e => {
-      e.preventDefault();
-      const target = document.querySelector(link.getAttribute('href'));
-      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  document.querySelectorAll('.folder-close').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (currentOpen) closeFolder(currentOpen);
     });
+  });
+
+  let resizeTimer;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      if (currentOpen) {
+        const wrapper = document.querySelector(`.folder-wrapper[data-for="${currentOpen}"]`);
+        if (wrapper && wrapper.classList.contains('expanded')) {
+          wrapper.style.maxHeight = wrapper.scrollHeight + 'px';
+        }
+      }
+    }, 150);
   });
 
   // ─── Entrance Animations ───
-  // Single reusable observer — marks element visible when it enters viewport
+
   const enterObserver = new IntersectionObserver(entries => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
@@ -55,82 +186,13 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }, { threshold: 0.06, rootMargin: '0px 0px -24px 0px' });
 
-  // Section headings + subtitles — fade in as unit
-  document.querySelectorAll('.section h2, .section .section-subtitle').forEach(el => {
-    el.classList.add('fade-in');
-    enterObserver.observe(el);
-  });
+  document.querySelectorAll('.fade-in').forEach(el => enterObserver.observe(el));
 
-  // Helper: assign stagger delays and observe a NodeList
-  function staggerAndObserve(selector, delayStep) {
-    document.querySelectorAll(selector).forEach((el, i) => {
-      el.classList.add('animate-stagger');
-      el.style.setProperty('--stagger-delay', `${i * delayStep}ms`);
-      enterObserver.observe(el);
+  document.querySelectorAll('.floppy-row').forEach(row => {
+    row.querySelectorAll('.floppy').forEach((floppy, i) => {
+      floppy.style.setProperty('--stagger-delay', `${i * 80}ms`);
+      floppy.style.transitionDelay = `${i * 80}ms`;
     });
-  }
-
-  // Deepdive cards — 70ms apart
-  staggerAndObserve('.card-grid > .card', 70);
-
-  // Blog items — 45ms apart
-  staggerAndObserve('.blog-list > .blog-item', 45);
-
-  // Thesis cards — 90ms apart (slightly slower for wide cards)
-  staggerAndObserve('.thesis-track > .thesis-card', 90);
-
-  // Knowledge cards
-  staggerAndObserve('.knowledge-card', 60);
-
-  // Topic list items — short delay, there are many
-  staggerAndObserve('.topic-list > li', 28);
-
-  // ─── Thesis Carousel ───
-  const track = document.querySelector('.thesis-track');
-  const progressBar = document.querySelector('.thesis-progress-bar');
-  if (!track || !progressBar) return;
-
-  function updateProgress() {
-    const maxScroll = track.scrollWidth - track.clientWidth;
-    if (maxScroll <= 0) { progressBar.style.width = '100%'; return; }
-    progressBar.style.width = Math.max(8, (track.scrollLeft / maxScroll) * 100) + '%';
-  }
-
-  track.addEventListener('scroll', updateProgress, { passive: true });
-  updateProgress();
-
-  document.querySelectorAll('.thesis-nav-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const card = track.querySelector('.thesis-card');
-      track.scrollBy({ left: (card.offsetWidth + 16) * parseInt(btn.dataset.dir, 10), behavior: 'smooth' });
-    });
-  });
-
-  // Drag to scroll
-  let isDragging = false, startX = 0, scrollStart = 0, hasDragged = false;
-
-  track.addEventListener('mousedown', e => {
-    isDragging = true;
-    hasDragged = false;
-    startX = e.pageX;
-    scrollStart = track.scrollLeft;
-    track.style.scrollBehavior = 'auto';
-  });
-
-  window.addEventListener('mousemove', e => {
-    if (!isDragging) return;
-    const dx = e.pageX - startX;
-    if (Math.abs(dx) > 4) hasDragged = true;
-    track.scrollLeft = scrollStart - dx;
-  });
-
-  window.addEventListener('mouseup', () => {
-    isDragging = false;
-    track.style.scrollBehavior = '';
-  });
-
-  track.querySelectorAll('.thesis-card').forEach(card => {
-    card.addEventListener('click', e => { if (hasDragged) e.preventDefault(); });
   });
 
 });
