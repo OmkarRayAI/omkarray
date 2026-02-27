@@ -57,31 +57,43 @@ a {
 /* ─── Hero (minimal) ─── */
 
 .hero {
-  min-height: 44vh;
+  min-height: 42vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 80px 24px 40px;
+  padding: 80px 24px 36px;
   text-align: center;
 }
 
-.hero h1 {
+.hero-name {
   font-family: 'Inter', sans-serif;
   font-size: clamp(42px, 7vw, 64px);
   font-weight: 700;
   letter-spacing: -0.03em;
   line-height: 1.05;
-  margin-bottom: 10px;
+  margin-bottom: 16px;
   color: var(--text);
+  opacity: 0;
+  transform: translateY(20px);
+  animation: heroIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.1s forwards;
 }
 
-.hero-tagline {
-  font-size: 16px;
+.hero-bio {
+  font-size: 15px;
   font-weight: 400;
-  color: var(--text-muted);
-  margin-bottom: 24px;
-  letter-spacing: 0.01em;
+  color: var(--text-secondary);
+  margin-bottom: 22px;
+  letter-spacing: 0.005em;
+  line-height: 1.7;
+  max-width: 460px;
+  opacity: 0;
+  transform: translateY(16px);
+  animation: heroIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.25s forwards;
+}
+
+@keyframes heroIn {
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .hero-links {
@@ -89,6 +101,9 @@ a {
   flex-wrap: wrap;
   justify-content: center;
   gap: 8px;
+  opacity: 0;
+  transform: translateY(12px);
+  animation: heroIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.4s forwards;
 }
 
 .hero-links a {
@@ -122,6 +137,9 @@ a {
   color: var(--text-muted);
   margin-bottom: 32px;
   letter-spacing: 0.01em;
+  opacity: 0;
+  transform: translateY(10px);
+  animation: heroIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.55s forwards;
 }
 
 .floppy-row {
@@ -254,20 +272,12 @@ a {
   z-index: 1;
 }
 
-.floppy-name {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text);
-  margin-top: 10px;
-  letter-spacing: -0.01em;
-  text-align: center;
-}
-
 .floppy-count {
   font-size: 11px;
   color: var(--text-muted);
-  margin-top: 2px;
+  margin-top: 10px;
   text-align: center;
+  letter-spacing: 0.01em;
 }
 
 /* ─── Folder Content (accordion) ─── */
@@ -766,6 +776,127 @@ a {
   letter-spacing: 0.04em;
 }
 
+/* ─── Stagger animation on folder open ─── */
+
+.folder-wrapper .card,
+.folder-wrapper .thesis-card,
+.folder-wrapper .blog-item,
+.folder-wrapper .knowledge-card,
+.folder-wrapper .topic-list li {
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.25s, background 0.25s, box-shadow 0.25s;
+}
+
+.folder-wrapper.expanded .card,
+.folder-wrapper.expanded .thesis-card,
+.folder-wrapper.expanded .blog-item,
+.folder-wrapper.expanded .knowledge-card,
+.folder-wrapper.expanded .topic-list li {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ─── Shutter slide on open ─── */
+
+.floppy-shutter {
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-origin: center top;
+}
+
+.floppy.open .floppy-shutter {
+  transform: translateY(-6px);
+}
+
+/* ─── Study Plan Toggle ─── */
+
+.study-plan-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 14px 18px;
+  margin-top: 28px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  cursor: pointer;
+  font-family: 'Newsreader', Georgia, serif;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text);
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.study-plan-toggle:hover {
+  background: var(--surface-2);
+  border-color: var(--border-hover);
+}
+
+.study-plan-arrow {
+  font-family: 'Inter', sans-serif;
+  font-size: 18px;
+  font-weight: 400;
+  color: var(--text-muted);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  line-height: 1;
+}
+
+.study-plan-toggle[aria-expanded="true"] .study-plan-arrow {
+  transform: rotate(45deg);
+}
+
+.study-plan-collapsible {
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transition: max-height 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+              opacity 0.35s ease;
+}
+
+.study-plan-collapsible.open {
+  opacity: 1;
+}
+
+/* ─── Back to Top ─── */
+
+.back-to-top {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text-secondary);
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(10px);
+  transition: opacity 0.3s, transform 0.3s, background 0.2s, color 0.2s, border-color 0.2s;
+  z-index: 100;
+}
+
+.back-to-top.visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.back-to-top:hover {
+  background: var(--text);
+  color: var(--bg);
+  border-color: var(--text);
+}
+
 /* ─── Footer ─── */
 
 footer {
@@ -859,10 +990,6 @@ footer p {
 
   .floppy {
     width: 120px;
-  }
-
-  .floppy-name {
-    font-size: 11px;
   }
 
   .floppy-count {
