@@ -199,6 +199,96 @@ a {
   background: var(--surface);
 }
 
+/* ─── Must Visits ─── */
+
+.must-visits {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 24px 48px;
+}
+
+.must-visits-label {
+  text-align: center;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-muted);
+  letter-spacing: 0.03em;
+  margin-bottom: 20px;
+}
+
+.must-visits-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.must-visit-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  text-decoration: none;
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+.must-visit-card:hover {
+  border-color: var(--border-hover);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+  transform: translateY(-1px);
+}
+
+.must-visit-icon {
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-secondary);
+}
+.must-visit-icon svg { width: 18px; height: 18px; }
+
+.must-visit-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.must-visit-name {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 2px;
+}
+
+.must-visit-desc {
+  display: block;
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.must-visit-arrow {
+  flex-shrink: 0;
+  font-size: 16px;
+  color: var(--text-muted);
+  transition: color 0.2s, transform 0.2s;
+}
+.must-visit-card:hover .must-visit-arrow {
+  color: var(--text);
+  transform: translate(2px, -2px);
+}
+
+@media (max-width: 640px) {
+  .must-visit-card { padding: 12px 14px; gap: 12px; }
+  .must-visit-desc { display: none; }
+}
+
 /* ─── Spotify Floating Player ─── */
 
 .sp-float {
