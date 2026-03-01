@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-62YF7Y81BS"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-62YF7Y81BS');
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Visa Product Ecosystem — Deep Dive</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1A1A1E;
+    --paper: #ffffff;
+    --accent: #1A1F71;
+    --accent-light: #ECEDF5;
+    --gold: #B89840;
+    --gold-light: #F5F0E4;
+    --muted: #7A7A80;
+    --light: #F6F5F3;
+    --rule: #E2E0DC;
+    --green: #4A7A5C;
+    --green-light: #EFF5F1;
+    --red: #B85450;
+    --red-light: #F5EDEC;
+    --purple: #7A6B8D;
+    --purple-light: #F2F0F5;
+    --orange: #B87840;
+    --orange-light: #F5F0EA;
+    --visa-blue: #1A1F71;
+    --visa-gold: #F7B600;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'IBM Plex Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 48px 32px;
+    line-height: 1.6;
+  }
+
+  .back-link {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: 'IBM Plex Mono', monospace; font-size: 12px;
+    color: var(--muted); text-decoration: none; margin-bottom: 32px;
+    transition: color 0.2s;
+  }
+  .back-link:hover { color: var(--ink); }
+
+  .masthead {
+    border-top: 3px solid var(--visa-blue); border-bottom: 1px solid var(--rule);
+    padding: 24px 0 20px; margin-bottom: 48px;
+    display: flex; justify-content: space-between; align-items: flex-end;
+  }
+  .masthead-label { font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); }
+  .masthead h1 { font-family: 'Playfair Display', serif; font-size: 36px; font-weight: 900; line-height: 1.1; margin: 8px 0 4px; }
+  .masthead-sub { font-size: 13px; color: var(--muted); font-weight: 300; letter-spacing: 0.04em; }
+  .verdict-badge { font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; background: var(--visa-blue); color: white; padding: 6px 12px; border-radius: 2px; }
+
+  .section-header { display: flex; align-items: center; gap: 12px; margin: 56px 0 24px; }
+  .section-number { font-family: 'Playfair Display', serif; font-size: 48px; font-weight: 900; color: var(--rule); line-height: 1; }
+  .section-title { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700; border-bottom: 1.5px solid var(--ink); padding-bottom: 4px; }
+  .section-desc { font-size: 12px; color: var(--muted); font-family: 'IBM Plex Mono', monospace; letter-spacing: 0.08em; text-transform: uppercase; margin-top: 2px; }
+
+  p.body { font-size: 14px; color: var(--ink); margin-bottom: 16px; max-width: 680px; }
+
+  .diagram { background: var(--light); border: 1px solid var(--rule); border-radius: 6px; padding: 32px; margin: 24px 0; }
+  .diagram-title { font-family: 'IBM Plex Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); margin-bottom: 24px; display: flex; align-items: center; gap: 8px; }
+  .diagram-title::before { content: ''; display: block; width: 20px; height: 1px; background: var(--visa-blue); }
+
+  .callout { border-left: 2px solid var(--visa-blue); padding: 12px 20px; background: var(--accent-light); margin: 16px 0; font-size: 13px; font-style: italic; color: var(--ink); }
+
+  .footnote { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--muted); border-top: 1px solid var(--rule); padding-top: 12px; margin-top: 12px; letter-spacing: 0.03em; }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0; }
+  .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin: 16px 0; }
+  .insight-card { border: 1px solid var(--rule); padding: 16px; background: white; border-radius: 4px; }
+  .insight-card h4 { font-family: 'Playfair Display', serif; font-size: 14px; margin-bottom: 6px; }
+  .insight-card p { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+  hr.rule { border: none; border-top: 1px solid var(--rule); margin: 32px 0; }
+
+  .gap-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .gap-table th { font-family: 'IBM Plex Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.1em; color: white; background: var(--visa-blue); padding: 10px 12px; text-align: left; font-weight: 500; }
+  .gap-table td { padding: 10px 12px; border-bottom: 1px solid var(--rule); vertical-align: top; line-height: 1.4; background: white; }
+  .gap-table tr:nth-child(even) td { background: var(--light); }
+
+  .severity-pill { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 10px; font-family: 'IBM Plex Mono', monospace; font-weight: 500; }
+  .sev-green { background: var(--green-light); color: var(--green); }
+  .sev-gold { background: var(--gold-light); color: var(--gold); }
+  .sev-red { background: var(--red-light); color: var(--red); }
+  .sev-blue { background: var(--accent-light); color: var(--visa-blue); }
+  .sev-purple { background: var(--purple-light); color: var(--purple); }
+
+  .pipeline-stack { display: flex; flex-direction: column; gap: 0; }
+  .pipeline-layer { display: flex; align-items: stretch; border: 1px solid var(--rule); margin-bottom: -1px; background: white; }
+  .pipeline-label { width: 160px; min-width: 160px; background: var(--visa-blue); color: white; font-family: 'IBM Plex Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; padding: 14px 16px; display: flex; align-items: center; }
+  .pipeline-content { flex: 1; padding: 14px 20px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 12px; }
+  .pipeline-chip { background: white; border: 1px solid var(--rule); padding: 3px 10px; border-radius: 20px; font-size: 11px; font-family: 'IBM Plex Mono', monospace; color: var(--ink); }
+  .pipeline-chip.b { background: var(--accent-light); border-color: var(--visa-blue); color: var(--visa-blue); }
+  .pipeline-chip.g { background: var(--green-light); border-color: var(--green); color: var(--green); }
+  .pipeline-chip.o { background: var(--orange-light); border-color: var(--orange); color: var(--orange); }
+  .pipeline-chip.p { background: var(--purple-light); border-color: var(--purple); color: var(--purple); }
+  .pipeline-chip.gold { background: var(--gold-light); border-color: var(--gold); color: var(--gold); }
+  .pipeline-latency { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--visa-blue); margin-left: auto; white-space: nowrap; }
+
+  .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 20px 0; }
+  .stat-box { background: white; border: 1px solid var(--rule); padding: 16px; text-align: center; }
+  .stat-num { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 900; color: var(--visa-blue); line-height: 1; }
+  .stat-label { font-family: 'IBM Plex Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-top: 6px; }
+
+  .wrapper-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--rule); border: 1px solid var(--rule); }
+  .wrapper-cell { background: white; padding: 20px; }
+  .wrapper-cell.header { background: var(--visa-blue); color: white; font-family: 'IBM Plex Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; padding: 10px 20px; }
+  .wrapper-cell h4 { font-family: 'Playfair Display', serif; font-size: 15px; margin-bottom: 6px; }
+  .wrapper-cell p { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+  .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+  .dot-blue { background: var(--visa-blue); }
+  .dot-green { background: var(--green); }
+  .dot-gold { background: var(--gold); }
+  .dot-red { background: var(--red); }
+  .dot-purple { background: var(--purple); }
+
+  .verdict-box { border: 1.5px solid var(--ink); padding: 32px; margin: 48px 0; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; background: white; }
+  .verdict-box-title { grid-column: 1 / -1; font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; border-bottom: 1px solid var(--rule); padding-bottom: 12px; margin-bottom: 8px; }
+  .verdict-item h5 { font-family: 'IBM Plex Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 6px; }
+  .verdict-score { font-family: 'Playfair Display', serif; font-size: 36px; font-weight: 900; line-height: 1; }
+  .verdict-score.blue { color: var(--visa-blue); }
+  .verdict-score.green { color: var(--green); }
+  .verdict-score.gold { color: var(--gold); }
+  .verdict-item p { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+  @media (max-width: 640px) {
+    body { padding: 24px 16px; }
+    .masthead { flex-direction: column; align-items: flex-start; gap: 16px; }
+    .masthead h1 { font-size: 28px; }
+    .pipeline-label { width: 100px; min-width: 100px; font-size: 9px; padding: 10px 8px; }
+    .wrapper-grid { grid-template-columns: 1fr; }
+    .verdict-box { grid-template-columns: 1fr; }
+    .two-col { grid-template-columns: 1fr; }
+    .three-col { grid-template-columns: 1fr; }
+    .stat-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<a href="index.html" class="back-link">&larr; Back to omkarray.com</a>
+
+<div class="masthead">
+  <div>
+    <div class="masthead-label">Payments Infrastructure &middot; Product Strategy &middot; Feb 2026</div>
+    <h1>Visa's Product Ecosystem</h1>
+    <div class="masthead-sub">How the world's largest payment network is expanding from cards to a $200 trillion money movement platform</div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end">
+    <div class="verdict-badge">Not a Bank &middot; The Network</div>
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted)">VisaNet &middot; 200+ countries &middot; Since 1958</div>
+  </div>
+</div>
+
+
+<!-- SECTION 1: KEY NUMBERS -->
+<div class="section-header">
+  <div class="section-number">01</div>
+  <div>
+    <div class="section-title">The Scale</div>
+    <div class="section-desc">Numbers that define Visa's operating reality</div>
+  </div>
+</div>
+
+<div class="diagram">
+  <div class="diagram-title">Exhibit A — Visa by the Numbers (FY 2024)</div>
+  <div class="stat-grid">
+    <div class="stat-box">
+      <div class="stat-num">$200T</div>
+      <div class="stat-label">Total addressable flows</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-num">11.5B</div>
+      <div class="stat-label">Network tokens provisioned</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-num">10B</div>
+      <div class="stat-label">Visa Direct transactions</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-num">11B+</div>
+      <div class="stat-label">Potential endpoints</div>
+    </div>
+  </div>
+  <div class="stat-grid">
+    <div class="stat-box">
+      <div class="stat-num">60</div>
+      <div class="stat-label">Countries where Tap to Pay is default</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-num">200+</div>
+      <div class="stat-label">Value-added products</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-num">$3B</div>
+      <div class="stat-label">AI &amp; data infra investment (10yr)</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-num">31.6K</div>
+      <div class="stat-label">Employees in 80+ countries</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- SECTION 2: STRATEGY -->
+<div class="section-header">
+  <div class="section-number">02</div>
+  <div>
+    <div class="section-title">The Concentric Strategy</div>
+    <div class="section-desc">Three revenue layers + foundations underneath</div>
+  </div>
+</div>
+
+<p class="body">Visa's strategy is a set of concentric circles. At the core: <strong>Consumer Payments</strong> — the $20T+ card business. Surrounding it: <strong>New Flows</strong> — the $200T opportunity in B2B, P2P, B2C, and G2C. The outermost ring: <strong>Value-Added Services</strong> — 200+ products spanning fraud, open banking, and advisory. Everything rests on five foundations.</p>
+
+<div class="diagram">
+  <div class="diagram-title">Exhibit B — Visa's Concentric Circle Strategy</div>
+  <svg viewBox="0 0 700 420" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:700px;display:block;margin:0 auto;">
+    <!-- Outermost: Value-Added Services -->
+    <circle cx="350" cy="200" r="190" fill="#ECEDF5" stroke="#1A1F71" stroke-width="1.5" stroke-opacity="0.3"/>
+    <text x="350" y="32" text-anchor="middle" font-family="'Playfair Display',serif" font-size="14" font-weight="700" fill="#1A1F71">Value-Added Services</text>
+    <text x="350" y="50" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#7A7A80" letter-spacing="0.08em">200+ PRODUCTS · FRAUD · OPEN BANKING · ADVISORY</text>
+
+    <!-- VAS labels around the ring -->
+    <text x="100" y="140" text-anchor="middle" font-family="'IBM Plex Sans',sans-serif" font-size="10" fill="#1A1F71" font-weight="500">Acceptance</text>
+    <text x="100" y="152" text-anchor="middle" font-family="'IBM Plex Sans',sans-serif" font-size="10" fill="#1A1F71" font-weight="500">Solutions</text>
+    <text x="600" y="140" text-anchor="middle" font-family="'IBM Plex Sans',sans-serif" font-size="10" fill="#1A1F71" font-weight="500">Risk &amp; Identity</text>
+    <text x="600" y="152" text-anchor="middle" font-family="'IBM Plex Sans',sans-serif" font-size="10" fill="#1A1F71" font-weight="500">Solutions</text>
+    <text x="100" y="270" text-anchor="middle" font-family="'IBM Plex Sans',sans-serif" font-size="10" fill="#1A1F71" font-weight="500">Issuing</text>
+    <text x="100" y="282" text-anchor="middle" font-family="'IBM Plex Sans',sans-serif" font-size="10" fill="#1A1F71" font-weight="500">Solutions</text>
+    <text x="600" y="270" text-anchor="middle" font-family="'IBM Plex Sans',sans-serif" font-size="10" fill="#1A1F71" font-weight="500">Open Banking</text>
+    <text x="600" y="282" text-anchor="middle" font-family="'IBM Plex Sans',sans-serif" font-size="10" fill="#1A1F71" font-weight="500">(Tink)</text>
+
+    <!-- Middle: New Flows -->
+    <circle cx="350" cy="200" r="130" fill="#F5F0E4" stroke="#B89840" stroke-width="1.5" stroke-opacity="0.5"/>
+    <text x="350" y="90" text-anchor="middle" font-family="'Playfair Display',serif" font-size="13" font-weight="700" fill="#B89840">New Flows</text>
+    <text x="350" y="104" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="7.5" fill="#7A7A80" letter-spacing="0.08em">$200T OPPORTUNITY · B2B · P2P · B2C · G2C</text>
+
+    <!-- New Flows labels -->
+    <text x="235" y="160" text-anchor="middle" font-family="'IBM Plex Sans',sans-serif" font-size="9" fill="#B89840" font-weight="500">Visa Commercial</text>
+    <text x="465" y="160" text-anchor="middle" font-family="'IBM Plex Sans',sans-serif" font-size="9" fill="#B89840" font-weight="500">Visa Direct</text>
+    <text x="235" y="265" text-anchor="middle" font-family="'IBM Plex Sans',sans-serif" font-size="9" fill="#B89840" font-weight="500">B2B Connect</text>
+    <text x="465" y="265" text-anchor="middle" font-family="'IBM Plex Sans',sans-serif" font-size="9" fill="#B89840" font-weight="500">Visa+</text>
+
+    <!-- Inner: Consumer Payments -->
+    <circle cx="350" cy="200" r="72" fill="white" stroke="#1A1F71" stroke-width="1.5"/>
+    <text x="350" y="185" text-anchor="middle" font-family="'Playfair Display',serif" font-size="14" font-weight="700" fill="#1A1A1E">Consumer</text>
+    <text x="350" y="202" text-anchor="middle" font-family="'Playfair Display',serif" font-size="14" font-weight="700" fill="#1A1A1E">Payments</text>
+    <text x="350" y="220" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="7.5" fill="#7A7A80" letter-spacing="0.06em">$20T+ · CREDIT · DEBIT · PREPAID</text>
+
+    <!-- Core products circle -->
+    <circle cx="350" cy="200" r="30" fill="none" stroke="#E2E0DC" stroke-width="1" stroke-dasharray="3,3"/>
+    <text x="350" y="196" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="6.5" fill="#7A7A80" letter-spacing="0.05em">CORE</text>
+    <text x="350" y="207" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="6.5" fill="#7A7A80" letter-spacing="0.05em">PRODUCTS</text>
+
+    <!-- Enablers around inner circle -->
+    <text x="290" y="310" text-anchor="middle" font-family="'IBM Plex Sans',sans-serif" font-size="9" fill="#1A1F71" font-weight="500">Tap to Pay</text>
+    <text x="410" y="310" text-anchor="middle" font-family="'IBM Plex Sans',sans-serif" font-size="9" fill="#1A1F71" font-weight="500">Click to Pay</text>
+    <text x="350" y="330" text-anchor="middle" font-family="'IBM Plex Sans',sans-serif" font-size="9" fill="#1A1F71" font-weight="500">Tokenization</text>
+    <text x="350" y="342" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="7" fill="#B89840" letter-spacing="0.08em">KEY ENABLERS</text>
+
+    <!-- Foundation bar at bottom -->
+    <rect x="100" y="380" width="500" height="32" rx="4" fill="#1A1F71"/>
+    <text x="350" y="401" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="8" fill="white" letter-spacing="0.15em">FOUNDATIONS: NETWORK OF NETWORKS · TECHNOLOGY · SECURITY · BRAND · TALENT</text>
+  </svg>
+  <div class="footnote">Visa's strategy radiates outward: defend the core ($20T consumer payments), expand into adjacent flows ($200T), and monetize across the whole stack with value-added services (200+ products). Foundations sit underneath everything.</div>
+</div>
+
+
+<!-- SECTION 3: HOW VISANET WORKS -->
+<div class="section-header">
+  <div class="section-number">03</div>
+  <div>
+    <div class="section-title">How VisaNet Actually Works</div>
+    <div class="section-desc">The four-party model — and where Visa earns revenue</div>
+  </div>
+</div>
+
+<p class="body">Visa is <strong>not a bank</strong>. It doesn't issue cards, extend credit, or set consumer rates. It operates the network that connects everyone. Understanding the four-party model is essential to understanding Visa's economics.</p>
+
+<div class="diagram">
+  <div class="diagram-title">Exhibit C — The VisaNet Transaction Flow</div>
+  <svg viewBox="0 0 740 280" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:740px;display:block;margin:0 auto;">
+    <!-- Consumer -->
+    <rect x="20" y="60" width="110" height="56" rx="4" fill="white" stroke="#1A1F71" stroke-width="1.5"/>
+    <text x="75" y="85" text-anchor="middle" font-family="'IBM Plex Sans',sans-serif" font-size="12" font-weight="600" fill="#1A1A1E">Consumer</text>
+    <text x="75" y="100" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#7A7A80">Cardholder</text>
+
+    <!-- Issuer -->
+    <rect x="175" y="60" width="110" height="56" rx="4" fill="var(--accent-light)" stroke="#1A1F71" stroke-width="1.5"/>
+    <text x="230" y="85" text-anchor="middle" font-family="'IBM Plex Sans',sans-serif" font-size="12" font-weight="600" fill="#1A1F71">Issuer</text>
+    <text x="230" y="100" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#7A7A80">HDFC, Chase</text>
+
+    <!-- VisaNet -->
+    <rect x="325" y="44" width="110" height="72" rx="6" fill="#1A1F71" stroke="#1A1F71" stroke-width="1.5"/>
+    <text x="380" y="74" text-anchor="middle" font-family="'Playfair Display',serif" font-size="15" font-weight="700" fill="white">VisaNet</text>
+    <text x="380" y="92" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="7" fill="rgba(255,255,255,0.7)" letter-spacing="0.08em">THE NETWORK</text>
+    <text x="380" y="106" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="7" fill="rgba(255,255,255,0.5)" letter-spacing="0.06em">AUTH · CLEAR · SETTLE</text>
+
+    <!-- Acquirer -->
+    <rect x="475" y="60" width="110" height="56" rx="4" fill="var(--accent-light)" stroke="#1A1F71" stroke-width="1.5"/>
+    <text x="530" y="85" text-anchor="middle" font-family="'IBM Plex Sans',sans-serif" font-size="12" font-weight="600" fill="#1A1F71">Acquirer</text>
+    <text x="530" y="100" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#7A7A80">Razorpay, Stripe</text>
+
+    <!-- Merchant -->
+    <rect x="625" y="60" width="100" height="56" rx="4" fill="white" stroke="#1A1F71" stroke-width="1.5"/>
+    <text x="675" y="85" text-anchor="middle" font-family="'IBM Plex Sans',sans-serif" font-size="12" font-weight="600" fill="#1A1A1E">Merchant</text>
+    <text x="675" y="100" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#7A7A80">Seller</text>
+
+    <!-- Auth flow arrows (top) -->
+    <line x1="130" y1="72" x2="175" y2="72" stroke="#1A1F71" stroke-width="1.2" marker-end="url(#arrV)"/>
+    <line x1="285" y1="72" x2="325" y2="72" stroke="#1A1F71" stroke-width="1.2" marker-end="url(#arrV)"/>
+    <line x1="435" y1="72" x2="475" y2="72" stroke="#1A1F71" stroke-width="1.2" marker-end="url(#arrV)"/>
+    <line x1="585" y1="72" x2="625" y2="72" stroke="#1A1F71" stroke-width="1.2" marker-end="url(#arrV)"/>
+
+    <!-- Response flow arrows (bottom) -->
+    <line x1="175" y1="100" x2="130" y2="100" stroke="#B89840" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrG)"/>
+    <line x1="325" y1="100" x2="285" y2="100" stroke="#B89840" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrG)"/>
+    <line x1="475" y1="100" x2="435" y2="100" stroke="#B89840" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrG)"/>
+    <line x1="625" y1="100" x2="585" y2="100" stroke="#B89840" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrG)"/>
+
+    <!-- Labels on arrows -->
+    <text x="152" y="65" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="6.5" fill="#1A1F71">AUTH</text>
+    <text x="152" y="112" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="6.5" fill="#B89840">RESPONSE</text>
+
+    <!-- Settlement flow -->
+    <rect x="145" y="155" width="470" height="36" rx="4" fill="var(--gold-light)" stroke="#B89840" stroke-width="1"/>
+    <text x="380" y="170" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#B89840" letter-spacing="0.1em">SETTLEMENT: FLOW OF MONEY</text>
+    <text x="380" y="182" text-anchor="middle" font-family="'IBM Plex Sans',sans-serif" font-size="9" fill="#7A7A80">Issuer → (minus interchange) → VisaNet → (minus MDR) → Acquirer → Merchant</text>
+
+    <!-- Revenue boxes -->
+    <rect x="130" y="210" width="200" height="60" rx="4" fill="white" stroke="#1A1F71" stroke-width="1" stroke-dasharray="3,3"/>
+    <text x="230" y="230" text-anchor="middle" font-family="'IBM Plex Sans',sans-serif" font-size="10" font-weight="600" fill="#1A1F71">Visa's Revenue Sources</text>
+    <text x="230" y="244" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#7A7A80">Service revenue (from issuers)</text>
+    <text x="230" y="256" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#7A7A80">Data processing revenue</text>
+
+    <rect x="400" y="210" width="220" height="60" rx="4" fill="white" stroke="#B85450" stroke-width="1" stroke-dasharray="3,3"/>
+    <text x="510" y="230" text-anchor="middle" font-family="'IBM Plex Sans',sans-serif" font-size="10" font-weight="600" fill="#B85450">NOT Visa's Revenue</text>
+    <text x="510" y="244" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#7A7A80">Interchange (issuer ← acquirer)</text>
+    <text x="510" y="256" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#7A7A80">MDR (acquirer → merchant)</text>
+
+    <defs>
+      <marker id="arrV" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+        <path d="M 0 0 L 10 5 L 0 10 z" fill="#1A1F71"/>
+      </marker>
+      <marker id="arrG" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+        <path d="M 0 0 L 10 5 L 0 10 z" fill="#B89840"/>
+      </marker>
+    </defs>
+  </svg>
+  <div class="footnote">Visa earns service revenue and data processing revenue from both issuers and acquirers. It does NOT earn interchange (paid issuer → acquirer) or MDR (charged acquirer → merchant). This is the single most misunderstood thing about Visa's business model.</div>
+</div>
+
+<div class="callout">"Visa is not a financial institution. Visa does not issue cards, extend credit, or set rates and fees for account holders. Interchange reimbursement fees are set independently from the revenue Visa receives." — Visa 10-K</div>
+
+
+<!-- SECTION 4: CONSUMER PAYMENTS -->
+<div class="section-header">
+  <div class="section-number">04</div>
+  <div>
+    <div class="section-title">The $20T Consumer Engine</div>
+    <div class="section-desc">Core products and the three key enablers driving adoption</div>
+  </div>
+</div>
+
+<p class="body">Consumer payments remain Visa's core business. The opportunity: convert $20T+ of cash, checks, ACH, and domestic schemes into Visa-networked digital transactions. Three core products (credit, debit, prepaid) and three key enablers (Tap to Pay, Tokenization, Click to Pay) drive this.</p>
+
+<div class="diagram">
+  <div class="diagram-title">Exhibit D — Core Products + Key Enablers</div>
+  <div class="three-col">
+    <div class="insight-card" style="border-left:3px solid var(--visa-blue);">
+      <h4><span class="dot dot-blue"></span>Credit</h4>
+      <p>Cards and digital credentials that give consumers and businesses access to credit lines. Affiliated with banks, co-brand partners, and fintechs.</p>
+    </div>
+    <div class="insight-card" style="border-left:3px solid var(--visa-blue);">
+      <h4><span class="dot dot-blue"></span>Debit</h4>
+      <p>Direct access to deposit accounts. No credit line accessed. Plus the Visa/PLUS global ATM network across 200+ countries.</p>
+    </div>
+    <div class="insight-card" style="border-left:3px solid var(--visa-blue);">
+      <h4><span class="dot dot-blue"></span>Prepaid</h4>
+      <p>Designated balance funded by individuals, businesses, or governments. Key financial inclusion vehicle — brings payments to the unbanked.</p>
+    </div>
+  </div>
+  <hr class="rule" style="margin:16px 0;">
+  <div class="three-col">
+    <div class="insight-card" style="border-top:3px solid var(--gold);">
+      <h4>Tap to Pay</h4>
+      <p>Default payment in <strong>60 countries</strong>. 90%+ penetration of face-to-face Visa transactions globally (ex-US). US just surpassed 50% contactless. 535M+ tap-enabled Visa cards issued in US. 870 transit projects activated worldwide. 2B+ transit transactions in FY24.</p>
+    </div>
+    <div class="insight-card" style="border-top:3px solid var(--gold);">
+      <h4>Tokenization</h4>
+      <p><strong>11.5B network tokens</strong> provisioned. Replaces 16-digit card numbers with surrogate tokens + cryptographic data. Works for in-person and online. Reduces fraud, improves auth rates, better consumer experience.</p>
+    </div>
+    <div class="insight-card" style="border-top:3px solid var(--gold);">
+      <h4>Click to Pay</h4>
+      <p>Simplified online checkout. Removes manual entry of personal info. Built on EMV Secure Remote Commerce standard. Goal: make online payments as seamless as in-person tap. Standardized across devices.</p>
+    </div>
+  </div>
+</div>
+
+
+<!-- SECTION 5: NEW FLOWS -->
+<div class="section-header">
+  <div class="section-number">05</div>
+  <div>
+    <div class="section-title">The $200T New Flows Opportunity</div>
+    <div class="section-desc">Beyond C2B — B2B, P2P, B2C, and G2C</div>
+  </div>
+</div>
+
+<p class="body">Visa's largest growth vector. Consumer-to-business (C2B) payments are Visa's historical core. But the $200 trillion opportunity lies in the payment flows that still run on checks, wires, and ACH: business-to-business, peer-to-peer, business-to-consumer, and government-to-consumer.</p>
+
+<div class="diagram">
+  <div class="diagram-title">Exhibit E — The $200 Trillion Opportunity Breakdown</div>
+  <table class="gap-table">
+    <thead>
+      <tr>
+        <th>Flow Type</th>
+        <th>Annual Volume</th>
+        <th>Visa Platform</th>
+        <th>Key Play</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>B2B Payments</strong></td>
+        <td style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--visa-blue);">$145T</td>
+        <td>Visa Commercial Solutions</td>
+        <td>$20T addressable by cards/virtual cards. $105T in AP/AR via checks/ACH/wires. $20T cross-border via Visa Direct + B2B Connect.</td>
+      </tr>
+      <tr>
+        <td><strong>B2C Payouts</strong></td>
+        <td style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--visa-blue);">$20T</td>
+        <td>Visa Direct</td>
+        <td>Employer payouts, gig economy disbursements, merchant settlements, refunds, insurance claims.</td>
+      </tr>
+      <tr>
+        <td><strong>P2P Transfers</strong></td>
+        <td style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--visa-blue);">$20T</td>
+        <td>Visa Direct + Visa+</td>
+        <td>Cross-app transfers (PayPal ↔ Venmo live), remittances, A2A transfers. Visa+ enables interoperability between P2P apps.</td>
+      </tr>
+      <tr>
+        <td><strong>G2C Disbursements</strong></td>
+        <td style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--visa-blue);">$15T</td>
+        <td>Visa Direct</td>
+        <td>Government benefits, tax refunds, social security, disaster relief. Direct-to-account disbursements.</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="footnote">All figures exclude Russia and China. Visa Direct: 10B transactions in FY24, 550+ partners, potential reach to 11B+ endpoints (4B cards + 3.5B bank accounts + 3.5B digital wallets) across 195+ countries. Visa B2B Connect: live in 100+ countries for cross-border B2B.</div>
+</div>
+
+<div class="two-col">
+  <div class="insight-card">
+    <h4>Visa Direct Platform</h4>
+    <p>The money movement engine. Uses 75+ domestic schemes, 15+ real-time payment schemes, 15+ card networks, 5+ payment gateways. Single connection point, every endpoint. Now includes Currencycloud for FX rates, virtual accounts, and liquidity.</p>
+  </div>
+  <div class="insight-card">
+    <h4>Visa+ (Interoperability)</h4>
+    <p>Enables transfers between different P2P apps. Live for eligible PayPal and Venmo users in the US. Also supports B2C payouts (DailyPay). Visa's play to become the rail that connects all the wallets.</p>
+  </div>
+</div>
+
+
+<!-- SECTION 6: VALUE-ADDED SERVICES -->
+<div class="section-header">
+  <div class="section-number">06</div>
+  <div>
+    <div class="section-title">Value-Added Services</div>
+    <div class="section-desc">The revenue diversification layer — 200+ products across five categories</div>
+  </div>
+</div>
+
+<p class="body">VAS is Visa's moat-deepening play: products that work <strong>on Visa transactions</strong>, <strong>on non-Visa transactions</strong> (network-agnostic), and <strong>beyond payments entirely</strong>. This turns Visa from a network into a platform.</p>
+
+<div class="diagram">
+  <div class="diagram-title">Exhibit F — Five Pillars of Value-Added Services</div>
+  <div class="pipeline-stack">
+    <div class="pipeline-layer">
+      <div class="pipeline-label">Issuing Solutions</div>
+      <div class="pipeline-content">
+        <span class="pipeline-chip b">Visa DPS (processor)</span>
+        <span class="pipeline-chip b">Pismo (cloud-native)</span>
+        <span class="pipeline-chip">DPS Forward APIs</span>
+        <span class="pipeline-chip">BNPL / Installments</span>
+        <span class="pipeline-chip">Loyalty & Benefits</span>
+      </div>
+    </div>
+    <div class="pipeline-layer">
+      <div class="pipeline-label" style="background:var(--green);">Acceptance Solutions</div>
+      <div class="pipeline-content" style="background:var(--green-light);">
+        <span class="pipeline-chip g">Cybersource</span>
+        <span class="pipeline-chip g">Authorize.net</span>
+        <span class="pipeline-chip">Token Mgmt Service</span>
+        <span class="pipeline-chip">Account Updater</span>
+        <span class="pipeline-chip">Verifi (disputes)</span>
+      </div>
+    </div>
+    <div class="pipeline-layer">
+      <div class="pipeline-label" style="background:var(--red);">Risk &amp; Identity</div>
+      <div class="pipeline-content" style="background:var(--red-light);">
+        <span class="pipeline-chip" style="background:#F5EDEC;border-color:var(--red);color:var(--red);">Visa Protect suite</span>
+        <span class="pipeline-chip">Deep Authorization (AI)</span>
+        <span class="pipeline-chip">A2A Fraud Prevention</span>
+        <span class="pipeline-chip">Provisioning Intelligence</span>
+      </div>
+    </div>
+    <div class="pipeline-layer">
+      <div class="pipeline-label" style="background:var(--purple);">Open Banking</div>
+      <div class="pipeline-content" style="background:var(--purple-light);">
+        <span class="pipeline-chip p">Tink (Europe)</span>
+        <span class="pipeline-chip p">US expansion</span>
+        <span class="pipeline-chip">Account verification</span>
+        <span class="pipeline-chip">A2A payments (UK launch)</span>
+        <span class="pipeline-chip">PFM data access</span>
+      </div>
+    </div>
+    <div class="pipeline-layer">
+      <div class="pipeline-label" style="background:var(--gold);">Advisory Services</div>
+      <div class="pipeline-content" style="background:var(--gold-light);">
+        <span class="pipeline-chip gold">VCA Consulting</span>
+        <span class="pipeline-chip gold">VCA Managed Services</span>
+        <span class="pipeline-chip">Economic intelligence</span>
+        <span class="pipeline-chip">Marketing services</span>
+        <span class="pipeline-chip">Sponsorship activations</span>
+      </div>
+    </div>
+  </div>
+  <div class="footnote">VAS strategy has three focus areas: (1) services for Visa transactions, (2) network-agnostic services for non-Visa transactions, (3) services beyond payments entirely. Pismo acquisition (2024) adds cloud-native issuer processing and core banking. Tink acquisition adds open banking across Europe and US.</div>
+</div>
+
+
+<!-- SECTION 7: KEY ACQUISITIONS -->
+<div class="section-header">
+  <div class="section-number">07</div>
+  <div>
+    <div class="section-title">The Acquisition Strategy</div>
+    <div class="section-desc">Building the network through M&A</div>
+  </div>
+</div>
+
+<div class="diagram">
+  <div class="diagram-title">Exhibit G — Key Strategic Acquisitions and What They Unlock</div>
+  <table class="gap-table">
+    <thead>
+      <tr>
+        <th>Acquisition</th>
+        <th>Year</th>
+        <th>What It Is</th>
+        <th>Strategic Role</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Cybersource</strong></td>
+        <td>2010</td>
+        <td>Payment gateway and fraud management</td>
+        <td><span class="severity-pill sev-green">Acceptance</span> Omnichannel merchant integration, ecommerce platform</td>
+      </tr>
+      <tr>
+        <td><strong>Verifi</strong></td>
+        <td>2019</td>
+        <td>Dispute management platform</td>
+        <td><span class="severity-pill sev-green">Acceptance</span> Network-agnostic dispute resolution for merchants</td>
+      </tr>
+      <tr>
+        <td><strong>Tink</strong></td>
+        <td>2022</td>
+        <td>European open banking platform</td>
+        <td><span class="severity-pill sev-purple">Open Banking</span> Data access, A2A payments, PFM in Europe + US</td>
+      </tr>
+      <tr>
+        <td><strong>Currencycloud</strong></td>
+        <td>2021</td>
+        <td>Cross-border FX and virtual accounts</td>
+        <td><span class="severity-pill sev-gold">New Flows</span> Real-time FX, settlement, and liquidity for Visa Direct</td>
+      </tr>
+      <tr>
+        <td><strong>Pismo</strong></td>
+        <td>2024</td>
+        <td>Cloud-native issuer processing & core banking</td>
+        <td><span class="severity-pill sev-blue">Issuing</span> Core banking APIs, RTP network connectivity, LATAM/APAC expansion</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="footnote">Each acquisition fills a specific gap in the concentric strategy. Cybersource → acceptance. Tink → open banking. Pismo → issuer processing. Currencycloud → cross-border money movement. Together they make Visa a full-stack platform, not just a card network.</div>
+</div>
+
+
+<!-- SECTION 8: FOUNDATIONS -->
+<div class="section-header">
+  <div class="section-number">08</div>
+  <div>
+    <div class="section-title">The Five Foundations</div>
+    <div class="section-desc">What holds the concentric circles together</div>
+  </div>
+</div>
+
+<div class="diagram">
+  <div class="diagram-title">Exhibit H — Foundation Pillars</div>
+  <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;">
+    <div class="insight-card" style="text-align:center;border-top:3px solid var(--visa-blue);">
+      <h4 style="font-size:13px;">Network of Networks</h4>
+      <p>Interoperability across all networks. Single connection point for all endpoints, all form factors. B2B Connect, Visa Direct, and Visa+ are the strategy in action.</p>
+    </div>
+    <div class="insight-card" style="text-align:center;border-top:3px solid var(--visa-blue);">
+      <h4 style="font-size:13px;">Technology</h4>
+      <p>4 data centers, high-redundancy infrastructure, continuous availability. VisaNet processes billions of transactions with sub-second latency.</p>
+    </div>
+    <div class="insight-card" style="text-align:center;border-top:3px solid var(--visa-blue);">
+      <h4 style="font-size:13px;">Security</h4>
+      <p>Multi-layer approach: data devaluation, embedded SDLC security, IAM controls, AI-powered cyber detection. $3B invested in AI & data infra over 10 years.</p>
+    </div>
+    <div class="insight-card" style="text-align:center;border-top:3px solid var(--visa-blue);">
+      <h4 style="font-size:13px;">Brand</h4>
+      <p>FIFA World Cup 2026, Olympics, NFL, Red Bull F1. Brand trust directly enables consumer adoption and merchant acceptance worldwide.</p>
+    </div>
+    <div class="insight-card" style="text-align:center;border-top:3px solid var(--visa-blue);">
+      <h4 style="font-size:13px;">Talent</h4>
+      <p>31,600 employees. 80+ countries. 57% outside US. 5% voluntary attrition. 42% women in workforce, 38% in leadership.</p>
+    </div>
+  </div>
+</div>
+
+
+<!-- SECTION 9: COMPETITIVE POSITIONING -->
+<div class="section-header">
+  <div class="section-number">09</div>
+  <div>
+    <div class="section-title">The Moat</div>
+    <div class="section-desc">Why Visa is structurally hard to displace</div>
+  </div>
+</div>
+
+<div class="diagram">
+  <div class="diagram-title">Exhibit I — Visa's Structural Advantages</div>
+  <div class="wrapper-grid">
+    <div class="wrapper-cell header">Network Effects</div>
+    <div class="wrapper-cell header">Standards Ownership</div>
+
+    <div class="wrapper-cell">
+      <h4>Two-sided network</h4>
+      <p>More cardholders → more merchants accept Visa → more consumers want Visa cards. This flywheel has been compounding since 1958. 200+ countries, 11B+ potential endpoints. No startup can bootstrap this overnight.</p>
+    </div>
+    <div class="wrapper-cell">
+      <h4>EMV, Tokenization, Click to Pay</h4>
+      <p>Visa doesn't just participate in payment standards — it <strong>sets</strong> them. Visa Token Service (11.5B tokens), EMV Secure Remote Commerce, Tap to Pay infrastructure. When you own the standard, every competitor builds on your rails.</p>
+    </div>
+
+    <div class="wrapper-cell header">Revenue Model</div>
+    <div class="wrapper-cell header">Platform Lock-in</div>
+
+    <div class="wrapper-cell">
+      <h4>Tolling, not lending</h4>
+      <p>Visa takes a small fee on every transaction — no credit risk, no balance sheet risk, no loan defaults. Pure transaction economics with operating margins above 65%. Recurring, predictable, inflation-linked (higher prices = higher volume through the network).</p>
+    </div>
+    <div class="wrapper-cell">
+      <h4>200+ value-added services</h4>
+      <p>Once a bank uses Visa DPS for processing, Cybersource for acceptance, Visa Protect for fraud, and VCA for consulting — switching costs are enormous. Each VAS product deepens the relationship and makes the network stickier.</p>
+    </div>
+  </div>
+</div>
+
+<div class="callout">"Visa's real moat isn't the card. It's the fact that they process billions of transactions at sub-second latency across 200 countries while simultaneously offering 200+ layered services on top. The card is just the surface area."</div>
+
+
+<!-- SECTION 10: WHAT TO WATCH -->
+<div class="section-header">
+  <div class="section-number">10</div>
+  <div>
+    <div class="section-title">What to Watch</div>
+    <div class="section-desc">Threats, tailwinds, and the agentic commerce frontier</div>
+  </div>
+</div>
+
+<div class="diagram">
+  <div class="diagram-title">Exhibit J — Threats, Tailwinds &amp; Frontier</div>
+  <table class="gap-table">
+    <thead>
+      <tr>
+        <th>Category</th>
+        <th>Signal</th>
+        <th>Impact</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Threat: A2A / RTP Rails</strong></td>
+        <td>UPI (India), PIX (Brazil), FedNow (US) bypass card networks entirely. Real-time, zero-MDR, bank-to-bank.</td>
+        <td><span class="severity-pill sev-red">HIGH</span></td>
+      </tr>
+      <tr>
+        <td><strong>Threat: Regulatory pressure</strong></td>
+        <td>Interchange fee caps (EU), merchant routing mandates (US Durbin), digital payment mandates pushing A2A adoption.</td>
+        <td><span class="severity-pill sev-gold">MEDIUM</span></td>
+      </tr>
+      <tr>
+        <td><strong>Tailwind: Cash displacement</strong></td>
+        <td>$20T+ of cash/check/ACH still to digitize. Tap to Pay driving face-to-face conversion. US still at 50% contactless — room to run.</td>
+        <td><span class="severity-pill sev-green">HIGH</span></td>
+      </tr>
+      <tr>
+        <td><strong>Tailwind: Cross-border growth</strong></td>
+        <td>International transactions are Visa's highest-margin segment. Remote work, travel recovery, and globalization drive volumes.</td>
+        <td><span class="severity-pill sev-green">HIGH</span></td>
+      </tr>
+      <tr>
+        <td><strong>Frontier: Agentic commerce</strong></td>
+        <td>Visa's Trusted Agent Protocol (TAP) positions Visa in the trust layer for AI agent payments. Tokenized credentials + agent identity verification.</td>
+        <td><span class="severity-pill sev-blue">EMERGING</span></td>
+      </tr>
+      <tr>
+        <td><strong>Frontier: Open Banking</strong></td>
+        <td>Visa A2A launching in UK (FY25). Tink expanding in US. Visa is positioning to own the A2A standard rather than fight it.</td>
+        <td><span class="severity-pill sev-blue">EMERGING</span></td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="footnote">Visa's response to A2A threats is classic Visa: if you can't beat the rail, own the standard on top of it. Visa Protect for A2A Payments is the first fraud solution built specifically for non-card payments. Visa A2A (Tink) standardizes the A2A experience. TAP positions Visa in the agentic commerce trust layer.</div>
+</div>
+
+
+<!-- VERDICT -->
+<div class="verdict-box">
+  <div class="verdict-box-title">The Verdict</div>
+  <div class="verdict-item">
+    <h5>Core Moat</h5>
+    <div class="verdict-score blue" style="font-size:28px;">Network<br>+ Standards</div>
+    <p>Two-sided network effects + standards ownership creates a compounding advantage no startup can replicate. The 200+ VAS products deepen lock-in.</p>
+  </div>
+  <div class="verdict-item">
+    <h5>Growth Vector</h5>
+    <div class="verdict-score gold">$200T<br>New Flows</div>
+    <p>B2B alone is $145T. Visa Direct processed 10B transactions in FY24. Cross-border, G2C, and P2P are all early innings.</p>
+  </div>
+  <div class="verdict-item">
+    <h5>Key Risk</h5>
+    <div class="verdict-score" style="color:var(--red);font-size:28px;">A2A Rails</div>
+    <p>UPI, PIX, and FedNow bypass card networks entirely. Visa's counter: own the standard and the fraud layer on top of A2A, not fight the rail.</p>
+  </div>
+</div>
+
+<div class="two-col">
+  <div class="insight-card">
+    <h4>The Bull Case</h4>
+    <p>Cash displacement is still the largest secular trend in payments — $20T+ to digitize. New flows ($200T) are early innings. VAS turns Visa from a network into a platform with 200+ products. Cross-border is the highest-margin segment and growing. TAP positions Visa for agentic commerce. Operating margins above 65%. No credit risk on the balance sheet.</p>
+  </div>
+  <div class="insight-card">
+    <h4>The Bear Case</h4>
+    <p>A2A rails (UPI, PIX, FedNow) represent the first structural threat in decades — they bypass card networks entirely at zero MDR. Regulatory pressure on interchange globally. Open banking could enable bank-direct payments that don't need Visa. The "network of networks" strategy is defensive, not offensive. Visa's A2A play (Tink) is unproven at scale.</p>
+  </div>
+</div>
+
+<hr class="rule">
+
+<div class="two-col" style="margin-top:24px;">
+  <div class="insight-card" style="border:none;background:var(--light);">
+    <h4>Key Sources</h4>
+    <p style="line-height:1.8;">
+      <strong>Visa</strong> — 10-K Annual Report (FY2024)<br>
+      <strong>Fintech Wrap Up</strong> — Visa Product Ecosystem and Strategy<br>
+      <strong>Visa</strong> — Investor presentations and product documentation<br>
+      <strong>Ambika Pande</strong> — The Painted Stork (agentic commerce analysis)
+    </p>
+  </div>
+  <div class="insight-card" style="border:none;background:var(--light);">
+    <h4>Related Deep Dives</h4>
+    <p style="line-height:1.8;">
+      <strong><a href="embedded-finance-agents.html" style="color:var(--visa-blue);">Embedded Finance 2.0</a></strong> — The protocol stack for agent-first commerce (MCP, UCP, AP2, ACP)<br><br>
+      <strong><a href="agent-design-deepdive.html" style="color:var(--visa-blue);">Agent Design Patterns</a></strong> — The 7 context management patterns powering Claude Code, Manus, and Cursor<br><br>
+      <strong><a href="india-ecomm-genai.html" style="color:var(--visa-blue);">Indian E-Commerce × GenAI</a></strong> — How Flipkart, Swiggy, and Amazon India deploy GenAI
+    </p>
+  </div>
+</div>
+
+<div class="footnote">
+  Analysis synthesizes Visa's FY2024 10-K annual report, Fintech Wrap Up's product ecosystem coverage, Visa investor presentations, and public product documentation.
+  Feb 2026.
+</div>
+
+</body>
+</html>
