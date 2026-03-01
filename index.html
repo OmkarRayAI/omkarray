@@ -33,48 +33,48 @@
     </div>
   </section>
 
-  <!-- ─── Spotify Mood Recommender ─── -->
-  <div class="spotify-mood-section">
-    <div class="spotify-mood-card">
-      <div class="spotify-mood-left">
-        <span class="spotify-mood-tag">Just for fun</span>
-        <h2 class="spotify-mood-heading">What's your vibe right now?</h2>
-        <p class="spotify-mood-sub">Pick a mood. We'll queue up the perfect playlist.</p>
-      </div>
-      <div class="spotify-mood-right" id="spotifyMoodWidget">
-        <div class="spotify-mood-grid" id="spotifyMoodGrid">
-          <button class="sp-mood-btn" data-mood="chill" type="button">
-            <span class="sp-mood-emoji">~</span>
-            <span class="sp-mood-label">Chill</span>
-          </button>
-          <button class="sp-mood-btn" data-mood="energetic" type="button">
-            <span class="sp-mood-emoji">&uarr;</span>
-            <span class="sp-mood-label">Energetic</span>
-          </button>
-          <button class="sp-mood-btn" data-mood="melancholic" type="button">
-            <span class="sp-mood-emoji">&bull;</span>
-            <span class="sp-mood-label">Sad</span>
-          </button>
-          <button class="sp-mood-btn" data-mood="focus" type="button">
-            <span class="sp-mood-emoji">&middot;</span>
-            <span class="sp-mood-label">Focus</span>
-          </button>
-          <button class="sp-mood-btn" data-mood="party" type="button">
-            <span class="sp-mood-emoji">!</span>
-            <span class="sp-mood-label">Party</span>
-          </button>
-          <button class="sp-mood-btn" data-mood="romantic" type="button">
-            <span class="sp-mood-emoji">&hearts;</span>
-            <span class="sp-mood-label">Romantic</span>
-          </button>
-        </div>
-        <div class="spotify-mood-result" id="spotifyMoodResult" style="display:none;">
-          <div class="spotify-mood-embed" id="spotifyMoodEmbed"></div>
-          <button class="spotify-mood-reset" id="spotifyMoodReset" type="button">Pick another mood</button>
-        </div>
-      </div>
+  <!-- ─── Spotify Floating Widget ─── -->
+  <button class="sp-fab" id="spFab" type="button" aria-label="Pick a mood playlist">
+    <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
+  </button>
+
+  <div class="sp-panel" id="spPanel">
+    <div class="sp-panel-header">
+      <span class="sp-panel-title">What's your vibe?</span>
+      <button class="sp-panel-close" id="spPanelClose" type="button" aria-label="Close">&times;</button>
+    </div>
+    <div class="sp-panel-grid" id="spPanelGrid">
+      <button class="sp-mood-btn" data-mood="chill" type="button">
+        <svg class="sp-mood-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8c.7-1 1-2.2 1-3.5C18 2.5 16.5 1 14.5 1S11 2.5 11 4.5c0 1.3.3 2.5 1 3.5"/><path d="M12 11c-2 2-4 5-4 8a4 4 0 0 0 8 0c0-3-2-6-4-8z"/></svg>
+        <span class="sp-mood-label">Chill</span>
+      </button>
+      <button class="sp-mood-btn" data-mood="energetic" type="button">
+        <svg class="sp-mood-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        <span class="sp-mood-label">Energetic</span>
+      </button>
+      <button class="sp-mood-btn" data-mood="melancholic" type="button">
+        <svg class="sp-mood-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 17.58A5 5 0 0 0 18 8h-1.26A8 8 0 1 0 4 16.25"/><line x1="8" y1="16" x2="8" y2="20"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="16" y1="16" x2="16" y2="20"/></svg>
+        <span class="sp-mood-label">Sad</span>
+      </button>
+      <button class="sp-mood-btn" data-mood="focus" type="button">
+        <svg class="sp-mood-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+        <span class="sp-mood-label">Focus</span>
+      </button>
+      <button class="sp-mood-btn" data-mood="party" type="button">
+        <svg class="sp-mood-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        <span class="sp-mood-label">Party</span>
+      </button>
+      <button class="sp-mood-btn" data-mood="romantic" type="button">
+        <svg class="sp-mood-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        <span class="sp-mood-label">Romantic</span>
+      </button>
+    </div>
+    <div class="sp-panel-result" id="spPanelResult" style="display:none;">
+      <div class="sp-panel-embed" id="spPanelEmbed"></div>
+      <button class="sp-panel-back" id="spPanelBack" type="button">&larr; Pick another mood</button>
     </div>
   </div>
+  <div class="sp-overlay" id="spOverlay"></div>
 
   <!-- ─── Floppy Section ─── -->
   <div class="floppy-section">
@@ -680,64 +680,84 @@
   (function() {
     var playlists = {
       chill: [
-        { name: 'Lo-Fi Beats', id: '37i9dQZF1DWWQRwui0ExPn' },
-        { name: 'Peaceful Piano', id: '37i9dQZF1DX4sWSpwq3LiO' },
-        { name: 'Chill Hits', id: '37i9dQZF1DX0SM0LYsmbMT' }
+        { id: '37i9dQZF1DWWQRwui0ExPn' },
+        { id: '37i9dQZF1DX4sWSpwq3LiO' },
+        { id: '37i9dQZF1DX0SM0LYsmbMT' }
       ],
       energetic: [
-        { name: 'Beast Mode', id: '37i9dQZF1DX76Wlfdnj7AP' },
-        { name: 'Power Workout', id: '37i9dQZF1DX70RN3TfnGWh' },
-        { name: 'Adrenaline Workout', id: '37i9dQZF1DX5gQonLbZD9s' }
+        { id: '37i9dQZF1DX76Wlfdnj7AP' },
+        { id: '37i9dQZF1DX70RN3TfnGWh' },
+        { id: '37i9dQZF1DX5gQonLbZD9s' }
       ],
       melancholic: [
-        { name: 'Sad Songs', id: '37i9dQZF1DX7qK8ma5wgG1' },
-        { name: 'Life Sucks', id: '37i9dQZF1DX3YSRoSdA634' },
-        { name: 'Down in the Dumps', id: '37i9dQZF1DWVrtsSlLKv6o' }
+        { id: '37i9dQZF1DX7qK8ma5wgG1' },
+        { id: '37i9dQZF1DX3YSRoSdA634' },
+        { id: '37i9dQZF1DWVrtsSlLKv6o' }
       ],
       focus: [
-        { name: 'Deep Focus', id: '37i9dQZF1DWZeKCadgRdKQ' },
-        { name: 'Brain Food', id: '37i9dQZF1DWXLeA8Omikj7' },
-        { name: 'Intense Studying', id: '37i9dQZF1DX8NTLI2TtZa6' }
+        { id: '37i9dQZF1DWZeKCadgRdKQ' },
+        { id: '37i9dQZF1DWXLeA8Omikj7' },
+        { id: '37i9dQZF1DX8NTLI2TtZa6' }
       ],
       party: [
-        { name: "Today's Top Hits", id: '37i9dQZF1DXcBWIGoYBM5M' },
-        { name: 'Mega Hit Mix', id: '37i9dQZF1DXaXB8fQg7xif' },
-        { name: 'Dance Party', id: '37i9dQZF1DX0BcQWzuB7ZO' }
+        { id: '37i9dQZF1DXcBWIGoYBM5M' },
+        { id: '37i9dQZF1DXaXB8fQg7xif' },
+        { id: '37i9dQZF1DX0BcQWzuB7ZO' }
       ],
       romantic: [
-        { name: 'Love Pop', id: '37i9dQZF1DX50QitC6Oqtn' },
-        { name: 'Romantic Dinner', id: '37i9dQZF1DX6z20pAl2yef' },
-        { name: 'Date Night', id: '37i9dQZF1DX5IDTimEWxN6' }
+        { id: '37i9dQZF1DX50QitC6Oqtn' },
+        { id: '37i9dQZF1DX6z20pAl2yef' },
+        { id: '37i9dQZF1DX5IDTimEWxN6' }
       ]
     };
 
-    var grid = document.getElementById('spotifyMoodGrid');
-    var result = document.getElementById('spotifyMoodResult');
-    var embed = document.getElementById('spotifyMoodEmbed');
-    var resetBtn = document.getElementById('spotifyMoodReset');
-    var buttons = grid.querySelectorAll('.sp-mood-btn');
+    var fab = document.getElementById('spFab');
+    var panel = document.getElementById('spPanel');
+    var overlay = document.getElementById('spOverlay');
+    var closeBtn = document.getElementById('spPanelClose');
+    var grid = document.getElementById('spPanelGrid');
+    var resultDiv = document.getElementById('spPanelResult');
+    var embedDiv = document.getElementById('spPanelEmbed');
+    var backBtn = document.getElementById('spPanelBack');
 
-    buttons.forEach(function(btn) {
+    function openPanel() {
+      panel.classList.add('open');
+      overlay.classList.add('open');
+      fab.classList.add('hidden');
+    }
+    function closePanel() {
+      panel.classList.remove('open');
+      overlay.classList.remove('open');
+      fab.classList.remove('hidden');
+      setTimeout(resetToGrid, 300);
+    }
+    function resetToGrid() {
+      resultDiv.style.display = 'none';
+      grid.style.display = 'grid';
+      embedDiv.innerHTML = '';
+    }
+
+    fab.addEventListener('click', openPanel);
+    closeBtn.addEventListener('click', closePanel);
+    overlay.addEventListener('click', closePanel);
+
+    grid.querySelectorAll('.sp-mood-btn').forEach(function(btn) {
       btn.addEventListener('click', function() {
         var mood = btn.getAttribute('data-mood');
         var pool = playlists[mood];
         var pick = pool[Math.floor(Math.random() * pool.length)];
 
-        embed.innerHTML = '<iframe style="border-radius:8px" src="https://open.spotify.com/embed/playlist/' +
+        embedDiv.innerHTML = '<iframe style="border-radius:8px" src="https://open.spotify.com/embed/playlist/' +
           pick.id + '?utm_source=generator&theme=0" width="100%" height="152" frameBorder="0" ' +
           'allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" ' +
           'loading="lazy"></iframe>';
 
         grid.style.display = 'none';
-        result.style.display = 'block';
+        resultDiv.style.display = 'block';
       });
     });
 
-    resetBtn.addEventListener('click', function() {
-      result.style.display = 'none';
-      grid.style.display = 'grid';
-      embed.innerHTML = '';
-    });
+    backBtn.addEventListener('click', resetToGrid);
   })();
   </script>
 </body>
