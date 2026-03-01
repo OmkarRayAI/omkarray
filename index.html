@@ -19,6 +19,14 @@
 </head>
 <body>
 
+  <!-- ─── Daily AI Fact ─── -->
+  <div class="fact-strip" id="factStrip">
+    <span class="fact-label">Today's fact</span>
+    <span class="fact-text" id="factText"></span>
+    <a class="fact-source" id="factSource" href="#"></a>
+    <button class="fact-close" id="factClose" type="button" aria-label="Dismiss">&times;</button>
+  </div>
+
   <!-- ─── Hero ─── -->
   <section class="hero">
     <h1 class="hero-name">Omkar Ray</h1>
@@ -648,6 +656,62 @@
     <p>&copy; 2026 Omkar Ray. Built with care.</p>
   </footer>
 
+  <script>
+  (function() {
+    var facts = [
+      { text: "Agent task length doubles every 7 months. Meta bought Manus for $2B+ and Claude Code hit a $1B run rate.", src: "Agent Design Patterns", href: "agent-design-deepdive.html" },
+      { text: "Only ~15% of an agent's context window is the actual task. Tool definitions, chat history, and results eat the rest.", src: "Agent Design Patterns", href: "agent-design-deepdive.html" },
+      { text: "\"Context engineering is the delicate art of filling the context window with just the right information for the next step.\" — Andrej Karpathy", src: "Agent Design Patterns", href: "agent-design-deepdive.html" },
+      { text: "Programmatic Tool Calling gives +11% accuracy and -24% input tokens. Opus 4.6 with PTC is #1 on LMArena Search Arena.", src: "Seeing Like an Agent", href: "seeing-like-an-agent.html" },
+      { text: "Claude Code has ~20 tools. The bar to add tool #21 is high — before adding it, ask: can progressive disclosure handle this?", src: "Seeing Like an Agent", href: "seeing-like-an-agent.html" },
+      { text: "ChatGPT has 65M daily active users in India — 2x the United States. GenAI app downloads in India: 198M (2024) → 602M (2025).", src: "Indian E-Comm × GenAI", href: "india-ecomm-genai.html" },
+      { text: "Meesho's ElevenLabs voice bot handles 60K calls/day with a 95% resolution rate — India's first Gen-AI voice bot at scale.", src: "Indian E-Comm × GenAI", href: "india-ecomm-genai.html" },
+      { text: "BharatML: 66.9 trillion feature retrievals in FY25. Meesho open-sourced their production ML platform doing 3.12T inferences at peak.", src: "Indian E-Comm × GenAI", href: "india-ecomm-genai.html" },
+      { text: "Alipay AI Pay processes 120M transactions per week. Money movement is often just a row change in their own database.", src: "Embedded Finance 2.0", href: "embedded-finance-agents.html" },
+      { text: "\"When a company claims they're building AI-first, I don't ask about their LLM choice. I ask: show me your database schema.\" — Ambika Pande", src: "Embedded Finance 2.0", href: "embedded-finance-agents.html" },
+      { text: "Visa's total addressable flows: $200T. Consumer payments are ~$20T. B2B alone is $145T.", src: "Visa Product Ecosystem", href: "visa-deepdive.html" },
+      { text: "Visa Direct processed 10B transactions in FY24. 11.5B network tokens provisioned across 60+ countries.", src: "Visa Product Ecosystem", href: "visa-deepdive.html" },
+      { text: "Datacenter rack power: 50x increase in 10 years. Volta 20kW/rack (2017) → Rubin Ultra 1,000kW/rack (2027).", src: "Building a Datacenter", href: "datacenter.html" },
+      { text: "China controls ~80% of global gallium supply — needed for GaN transistors in datacenter power systems. Export restrictions active since 2025.", src: "Building a Datacenter", href: "datacenter.html" },
+      { text: "13% of datacenter failures in 2024 were from cooling. Nvidia's 45°C warm-water standard removes the need for chillers (~$2M/MW).", src: "Building a Datacenter", href: "datacenter.html" },
+      { text: "Bolna AI: 200K calls/day, 1,050+ customers. India processes 1 billion voice calls per day.", src: "Bolna AI", href: "bolna-deepdive.html" },
+      { text: "Voice AI pipeline: ASR → LLM → TTS coordinated in under 600ms. Sub-600ms real-time coordination of 3 separate APIs.", src: "Bolna AI", href: "bolna-deepdive.html" },
+      { text: "Smallest.ai achieved a 20x cost reduction: $0.20 → $0.01 per minute. Lightning V2 TTS runs at 100ms time-to-first-byte.", src: "Smallest.ai", href: "smallest-deepdive.html" },
+      { text: "Replicating Smallest.ai's stack would take 24-36 months for a 5-person team with 2 ML researchers. No open-source shortcut.", src: "Smallest.ai", href: "smallest-deepdive.html" },
+      { text: "\"The primary barrier to applying agents to the entire economy is building evals for everything.\" — Brendan Foody, CEO of Mercor", src: "RL Environments", href: "rl-environments.html" },
+      { text: "Frontier labs have put dozens of RL environment vendors into business in the past 18 months. Environments are harder to commoditize than static datasets.", src: "RL Environments", href: "rl-environments.html" },
+      { text: "India has 20% of the world's chip design engineers across 95+ semiconductor GCCs. Robotics market: $1.98B (2025) → $6.81B by 2033.", src: "Physical AI India", href: "physical-ai-india.html" },
+      { text: "India imports 87-95% of processed rare earths from China despite having the 5th largest reserves globally (8.52M tonnes).", src: "Physical AI India", href: "physical-ai-india.html" },
+      { text: "\"You can A/B test a landing page in an afternoon. A/B testing a voice agent prompt takes weeks of manual transcript review.\"", src: "Mixpanel for Voice AI", href: "mixpanel-voice-ai.html" },
+      { text: "\"The companies that own the observability layer tend to outlast the platforms they sit on top of.\"", src: "Mixpanel for Voice AI", href: "mixpanel-voice-ai.html" },
+      { text: "Ringg.ai: 3M+ lead gen calls, 150K+ loan collection calls. 10K+ concurrent call capacity at <330ms latency.", src: "Ringg.ai", href: "ringg-deepdive.html" },
+      { text: "UPI processes 16B+ transactions per month — the underlying rail that embedded finance in India rides on.", src: "Embedded Finance 2.0", href: "embedded-finance-agents.html" },
+      { text: "Addverb (Reliance-backed, 56%): $100M revenue FY25 target, $1B in 5 years. Designed for Indian conditions — dust, heat, power fluctuations.", src: "Physical AI India", href: "physical-ai-india.html" }
+    ];
+
+    var strip = document.getElementById('factStrip');
+    var textEl = document.getElementById('factText');
+    var sourceEl = document.getElementById('factSource');
+    var closeBtn = document.getElementById('factClose');
+
+    if (sessionStorage.getItem('fact_dismissed')) {
+      strip.style.display = 'none';
+    } else {
+      var dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(),0,0)) / 86400000);
+      var fact = facts[dayOfYear % facts.length];
+      textEl.textContent = fact.text;
+      sourceEl.textContent = fact.src;
+      sourceEl.href = fact.href;
+      strip.classList.add('visible');
+    }
+
+    closeBtn.addEventListener('click', function() {
+      strip.classList.remove('visible');
+      sessionStorage.setItem('fact_dismissed', '1');
+      setTimeout(function() { strip.style.display = 'none'; }, 300);
+    });
+  })();
+  </script>
   <script src="script.js"></script>
   <script>
   (function() {
