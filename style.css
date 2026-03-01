@@ -122,13 +122,16 @@ a {
   background: var(--surface);
 }
 
-/* ─── Spotify Floating Widget ─── */
+/* ─── Spotify Floating Player ─── */
 
-.sp-fab {
+.sp-float {
   position: fixed;
   top: 20px;
   right: 20px;
   z-index: 900;
+}
+
+.sp-fab {
   width: 44px;
   height: 44px;
   border-radius: 50%;
@@ -150,132 +153,76 @@ a {
   opacity: 0;
   pointer-events: none;
   transform: scale(0.8);
+  position: absolute;
 }
 .sp-fab svg { width: 22px; height: 22px; }
 
-.sp-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 950;
-  background: rgba(0, 0, 0, 0.35);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.3s;
-}
-.sp-overlay.open {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-.sp-panel {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  z-index: 1000;
-  width: 340px;
+.sp-player {
+  width: 300px;
   background: #1A1A1E;
   border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.4);
+  padding: 10px 12px 12px;
+  box-shadow: 0 6px 32px rgba(0, 0, 0, 0.35);
   opacity: 0;
-  transform: translateY(-10px) scale(0.96);
+  transform: translateY(-8px) scale(0.96);
   pointer-events: none;
   transition: opacity 0.25s, transform 0.25s;
+  position: absolute;
+  top: 0;
+  right: 0;
 }
-.sp-panel.open {
+.sp-player.open {
   opacity: 1;
   transform: translateY(0) scale(1);
   pointer-events: auto;
 }
 
-.sp-panel-header {
+.sp-player-bar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: 16px;
+  justify-content: flex-end;
+  gap: 4px;
+  margin-bottom: 8px;
 }
-.sp-panel-title {
-  font-family: 'Newsreader', serif;
-  font-size: 18px;
-  font-weight: 500;
-  color: #fff;
-}
-.sp-panel-close {
+
+.sp-shuffle-btn {
   background: none;
   border: none;
   color: #666;
-  font-size: 22px;
   cursor: pointer;
-  line-height: 1;
-  padding: 0 4px;
-  transition: color 0.2s;
-}
-.sp-panel-close:hover { color: #fff; }
-
-.sp-panel-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 8px;
-}
-
-.sp-mood-btn {
+  padding: 4px;
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 14px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 8px;
-  color: #aaa;
-  font-family: 'Inter', sans-serif;
-  font-size: 13px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-.sp-mood-btn:hover {
-  background: rgba(29, 185, 84, 0.1);
-  border-color: rgba(29, 185, 84, 0.3);
-  color: #fff;
-}
-
-.sp-mood-icon {
-  width: 18px;
-  height: 18px;
-  flex-shrink: 0;
-  opacity: 0.55;
-  transition: opacity 0.2s;
-}
-.sp-mood-btn:hover .sp-mood-icon { opacity: 1; }
-
-.sp-mood-label { font-weight: 500; }
-
-.sp-panel-result { display: flex; flex-direction: column; gap: 10px; }
-.sp-panel-embed { border-radius: 8px; overflow: hidden; }
-
-.sp-panel-back {
-  align-self: flex-start;
-  font-family: 'Inter', sans-serif;
-  font-size: 12px;
-  font-weight: 500;
-  color: #666;
-  background: none;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 5px 12px;
+  justify-content: center;
   border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.2s;
+  transition: color 0.2s, background 0.2s;
 }
-.sp-panel-back:hover {
+.sp-shuffle-btn svg { width: 16px; height: 16px; }
+.sp-shuffle-btn:hover {
   color: #1DB954;
-  border-color: #1DB954;
+  background: rgba(29, 185, 84, 0.1);
+}
+
+.sp-close-btn {
+  background: none;
+  border: none;
+  color: #666;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: color 0.2s;
+}
+.sp-close-btn:hover { color: #fff; }
+
+.sp-player-embed {
+  border-radius: 8px;
+  overflow: hidden;
 }
 
 @media (max-width: 400px) {
-  .sp-panel {
-    right: 10px;
-    left: 10px;
-    width: auto;
-  }
+  .sp-player { width: calc(100vw - 40px); }
 }
 
 /* ─── Floppy Grid ─── */
