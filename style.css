@@ -122,6 +122,163 @@ a {
   background: var(--surface);
 }
 
+/* ─── Spotify Mood Recommender ─── */
+
+.spotify-mood-section {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 24px 40px;
+}
+
+.spotify-mood-card {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+  background: #1A1A1E;
+  border-radius: var(--radius);
+  padding: 32px 36px;
+  position: relative;
+  overflow: hidden;
+}
+
+.spotify-mood-card::before {
+  content: '';
+  position: absolute;
+  top: -50px;
+  right: -50px;
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  background: rgba(29, 185, 84, 0.06);
+  pointer-events: none;
+}
+
+.spotify-mood-left {
+  flex: 0 0 auto;
+  max-width: 240px;
+}
+
+.spotify-mood-tag {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #fff;
+  background: #1DB954;
+  padding: 3px 8px;
+  border-radius: 3px;
+  margin-bottom: 12px;
+}
+
+.spotify-mood-heading {
+  font-family: 'Newsreader', serif;
+  font-size: 22px;
+  font-weight: 500;
+  color: #fff;
+  line-height: 1.25;
+  margin-bottom: 6px;
+}
+
+.spotify-mood-sub {
+  font-size: 13px;
+  color: #777;
+  line-height: 1.5;
+}
+
+.spotify-mood-right {
+  flex: 1;
+  min-width: 0;
+}
+
+.spotify-mood-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.sp-mood-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  color: #bbb;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.sp-mood-btn:hover {
+  background: rgba(29, 185, 84, 0.12);
+  border-color: rgba(29, 185, 84, 0.3);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+.sp-mood-emoji {
+  font-size: 15px;
+  line-height: 1;
+  width: 20px;
+  text-align: center;
+  opacity: 0.7;
+}
+
+.sp-mood-btn:hover .sp-mood-emoji {
+  opacity: 1;
+}
+
+.sp-mood-label {
+  font-weight: 500;
+}
+
+.spotify-mood-result {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.spotify-mood-embed {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.spotify-mood-reset {
+  align-self: flex-start;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  color: #777;
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 5px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.spotify-mood-reset:hover {
+  color: #1DB954;
+  border-color: #1DB954;
+}
+
+@media (max-width: 640px) {
+  .spotify-mood-card {
+    flex-direction: column;
+    gap: 20px;
+    padding: 24px 20px;
+    text-align: center;
+  }
+  .spotify-mood-left { max-width: 100%; }
+  .spotify-mood-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .spotify-mood-reset { align-self: center; }
+}
+
 /* ─── Floppy Grid ─── */
 
 .floppy-section {
