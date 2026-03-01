@@ -652,6 +652,35 @@
 
   <button class="back-to-top" id="backToTop" aria-label="Back to top">&uarr;</button>
 
+  <!-- ─── AI Chat Widget ─── -->
+  <button class="chat-fab" id="chatFab" type="button" aria-label="Ask about Omkar's work">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+  </button>
+
+  <div class="chat-window" id="chatWindow">
+    <div class="chat-header">
+      <div class="chat-header-left">
+        <div class="chat-avatar">O</div>
+        <div>
+          <div class="chat-header-name">Omkar's site</div>
+          <div class="chat-header-status">Ask me anything about his work</div>
+        </div>
+      </div>
+      <button class="chat-header-close" id="chatClose" type="button" aria-label="Close chat">&times;</button>
+    </div>
+    <div class="chat-body" id="chatBody">
+      <div class="chat-msg bot">
+        <div class="chat-bubble">Hey! Ask me anything about Omkar's deep dives, theses, or blog posts. Try <em>"voice AI"</em>, <em>"fintech"</em>, or <em>"what does Omkar write about?"</em></div>
+      </div>
+    </div>
+    <form class="chat-input-row" id="chatForm" autocomplete="off">
+      <input class="chat-input" id="chatInput" type="text" placeholder="Ask something..." aria-label="Your question">
+      <button class="chat-send" type="submit" aria-label="Send">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      </button>
+    </form>
+  </div>
+
   <footer>
     <p>&copy; 2026 Omkar Ray. Built with care.</p>
   </footer>
@@ -760,6 +789,233 @@
       player.classList.remove('open');
       fab.classList.remove('hidden');
       embedDiv.innerHTML = '';
+    });
+  })();
+  </script>
+
+  <script>
+  (function() {
+    var kb = [
+      {
+        tags: ['voice ai','voice','bolna','tts','asr','speech','call','calls','voice agent','voice bot'],
+        title: 'Voice AI',
+        answer: 'Omkar has written extensively about Voice AI in India. Three deep dives cover the space:',
+        links: [
+          { name: 'Bolna AI', href: 'bolna-deepdive.html', desc: '200K calls/day, YC W25, ASR→LLM→TTS pipeline in <600ms' },
+          { name: 'Smallest.ai', href: 'smallest-deepdive.html', desc: 'Proprietary TTS/LLM/ASR stack, 20x cost reduction to $0.01/min' },
+          { name: 'Ringg.ai', href: 'ringg-deepdive.html', desc: '3M+ lead gen calls, distribution-first no-code platform' }
+        ],
+        extra: 'He also wrote a thesis on building <a href="mixpanel-voice-ai.html">Mixpanel for Voice AI</a> — the missing analytics layer for voice agents.'
+      },
+      {
+        tags: ['agent','agents','ai agent','claude code','cursor','manus','context','context engineering','llm agent','agentic'],
+        title: 'AI Agents',
+        answer: 'Two deep dives cover how modern AI agents actually work:',
+        links: [
+          { name: 'Agent Design Patterns', href: 'agent-design-deepdive.html', desc: '7 context management patterns from Claude Code, Manus, and Cursor' },
+          { name: 'Seeing Like an Agent', href: 'seeing-like-an-agent.html', desc: 'Tool design, action spaces, and progressive disclosure from Claude Code' }
+        ],
+        extra: 'Key insight: agent task length doubles every 7 months, and only ~15% of the context window is the actual task.'
+      },
+      {
+        tags: ['fintech','payments','upi','visa','lending','embedded finance','payment','bank','banking'],
+        title: 'Fintech',
+        answer: 'Omkar tracks fintech closely — payments infrastructure, lending, and embedded finance:',
+        links: [
+          { name: 'Visa Product Ecosystem', href: 'visa-deepdive.html', desc: '$200T total addressable flows, concentric expansion beyond cards' },
+          { name: 'Embedded Finance 2.0', href: 'embedded-finance-agents.html', desc: 'When fintech becomes a function call — the agentic commerce protocol stack' }
+        ],
+        extra: 'He also maintains a reading list on UPI, digital lending, debt collections, and regtech on the homepage.'
+      },
+      {
+        tags: ['ecommerce','e-commerce','ecomm','flipkart','swiggy','meesho','amazon','india ecomm','genai','commerce'],
+        title: 'Indian E-Commerce × GenAI',
+        answer: 'A deep dive on how India\'s largest e-commerce platforms deploy GenAI:',
+        links: [
+          { name: 'Indian E-Comm × GenAI', href: 'india-ecomm-genai.html', desc: 'Flipkart, Swiggy, Meesho, Amazon India — 65M ChatGPT DAUs in India' }
+        ],
+        extra: 'Fun fact: GenAI app downloads in India went from 198M (2024) to 602M (2025) — 3x in one year.'
+      },
+      {
+        tags: ['datacenter','data center','gpu','rack','cooling','nvidia','infrastructure','power'],
+        title: 'Datacenter Infrastructure',
+        answer: 'A deep dive on the six layers being forced into simultaneous transition:',
+        links: [
+          { name: 'Building a Datacenter', href: 'datacenter.html', desc: 'Rack power 50x in 10 years, cooling failures, gallium supply chains' }
+        ],
+        extra: 'China controls ~80% of global gallium supply — critical for GaN transistors in datacenter power.'
+      },
+      {
+        tags: ['rl','reinforcement learning','environment','environments','training','eval','evals'],
+        title: 'RL Environments',
+        answer: 'A thesis on why RL environments are the new data moat:',
+        links: [
+          { name: 'RL Environments Are the New Data Moat', href: 'rl-environments.html', desc: 'As RL scaling consumes environment interactions, who builds the gyms wins' }
+        ],
+        extra: '"The primary barrier to applying agents to the entire economy is building evals for everything." — Brendan Foody, Mercor'
+      },
+      {
+        tags: ['robotics','robot','physical ai','rare earth','manufacturing','addverb','india robotics'],
+        title: 'Physical AI & Robotics in India',
+        answer: 'A thesis on India\'s opportunity in physical AI:',
+        links: [
+          { name: 'Physical AI & Robotics: The India Thesis', href: 'physical-ai-india.html', desc: '$1.98B market, 20% of world\'s chip designers, rare earth reserves' }
+        ],
+        extra: 'India has the 5th largest rare earth reserves but imports 87-95% of processed supply from China.'
+      },
+      {
+        tags: ['transformer','transformers','attention','gpt','llm','language model','neural','deep learning','ml','machine learning'],
+        title: 'ML & Transformers',
+        answer: 'Omkar studies ML from first principles. He has an 80-day LLM & RAG study plan on the homepage covering:',
+        links: [
+          { name: 'Transformers', href: 'transformers.html', desc: 'Attention Is All You Need, and why' },
+          { name: 'Gradient Descent', href: 'gradient-descent.html', desc: 'The geometry of gradient descent' },
+          { name: 'PyTorch', href: 'pytorch.html', desc: 'Tensors to multi-GPU — visual map' }
+        ],
+        extra: 'The 80-day plan goes from Karpathy\'s micrograd to building GPT from scratch to production RAG systems.'
+      },
+      {
+        tags: ['rag','retrieval','vector','embedding','search','chunking','llamaindex','langchain'],
+        title: 'RAG & Retrieval Systems',
+        answer: 'Phase 4 of the 80-day study plan covers RAG in depth:',
+        links: [
+          { name: 'RAG Deep Dive', href: 'rag.html', desc: 'Retrieval-Augmented Generation done right' }
+        ],
+        extra: 'Covers dense vs sparse retrieval, chunking strategies, HyDE, re-ranking, and LlamaIndex internals.'
+      },
+      {
+        tags: ['blog','substack','taste','world model','chatgpt','glp','meesho delivery'],
+        title: 'Blog Posts',
+        answer: 'Omkar writes shorter pieces on Substack:',
+        links: [
+          { name: 'Taste Is the New Bottleneck', href: 'https://omkarray.substack.com/p/taste-is-the-new-bottleneck', desc: 'Feb 2026' },
+          { name: 'The World Model Gold Rush', href: 'https://omkarray.substack.com/p/the-world-model-gold-rush-why-most', desc: 'Feb 2026' },
+          { name: 'Why "Just Use ChatGPT" Is a Strategic Failure', href: 'https://omkarray.substack.com/p/why-just-use-chatgpt-is-a-strategic', desc: 'Dec 2025' }
+        ],
+        extra: 'He also covers India\'s GLP-1 moment and Meesho\'s quick commerce strategy.'
+      },
+      {
+        tags: ['analytics','observability','mixpanel','voice analytics','conversation','funnel'],
+        title: 'Voice AI Analytics',
+        answer: 'A thesis on the missing product analytics layer for voice AI:',
+        links: [
+          { name: 'Mixpanel for Voice AI', href: 'mixpanel-voice-ai.html', desc: 'Conversation funnels, turn-level drop-off, intent resolution heatmaps' }
+        ],
+        extra: '"You can A/B test a landing page in an afternoon. A/B testing a voice agent prompt takes weeks of manual transcript review."'
+      },
+      {
+        tags: ['math','maths','bayesian','gaussian','tensor','hilbert','manifold','probability','linear algebra'],
+        title: 'Mathematics',
+        answer: 'Omkar studies the mathematical foundations behind ML:',
+        links: [
+          { name: 'Bayesian Optimization', href: 'bayesian-optimization.html', desc: 'Probabilistic search & surrogate models' }
+        ],
+        extra: 'He also studies Gaussian processes, tensors, Hilbert spaces, manifolds, probability theory, and linear algebra — all linked on the homepage.'
+      }
+    ];
+
+    var aboutResponses = [
+      'Omkar Ray is based in India, building at the intersection of AI, fintech, and product. He writes long-form deep dives, studies ML from first principles, and tracks what\'s actually shipping in Indian tech. Check out his <a href="https://x.com/OmkarRay9">X</a>, <a href="https://www.linkedin.com/in/omkarray/">LinkedIn</a>, or <a href="https://omkarray.substack.com/">Substack</a>.',
+      'This site has 9 deep dives (voice AI, agents, fintech, e-commerce, datacenters), 3 theses, 5 blog posts, and an 80-day ML study plan. What topic interests you?'
+    ];
+
+    var chatFab = document.getElementById('chatFab');
+    var chatWindow = document.getElementById('chatWindow');
+    var chatClose = document.getElementById('chatClose');
+    var chatBody = document.getElementById('chatBody');
+    var chatForm = document.getElementById('chatForm');
+    var chatInput = document.getElementById('chatInput');
+
+    chatFab.addEventListener('click', function() {
+      chatFab.classList.add('hidden');
+      chatWindow.classList.add('open');
+      chatInput.focus();
+    });
+    chatClose.addEventListener('click', function() {
+      chatWindow.classList.remove('open');
+      chatFab.classList.remove('hidden');
+    });
+
+    function addMsg(html, isUser) {
+      var div = document.createElement('div');
+      div.className = 'chat-msg ' + (isUser ? 'user' : 'bot');
+      div.innerHTML = '<div class="chat-bubble">' + html + '</div>';
+      chatBody.appendChild(div);
+      chatBody.scrollTop = chatBody.scrollHeight;
+    }
+
+    function showTyping() {
+      var div = document.createElement('div');
+      div.className = 'chat-msg bot';
+      div.id = 'chatTyping';
+      div.innerHTML = '<div class="chat-typing"><span></span><span></span><span></span></div>';
+      chatBody.appendChild(div);
+      chatBody.scrollTop = chatBody.scrollHeight;
+    }
+    function hideTyping() {
+      var t = document.getElementById('chatTyping');
+      if (t) t.remove();
+    }
+
+    function buildResponse(q) {
+      var ql = q.toLowerCase().replace(/[?!.,]/g, '');
+
+      if (/^(hi|hello|hey|sup|yo|howdy)/.test(ql)) {
+        return 'Hey there! Ask me about any topic — voice AI, agents, fintech, e-commerce, datacenters, RL, robotics, or ML. What are you curious about?';
+      }
+      if (/who is omkar|about omkar|about you|who are you|what (is|does) (this|omkar)|tell me about omkar/.test(ql)) {
+        return aboutResponses[0];
+      }
+      if (/what (do|does|has) (he|omkar) (write|wrote|cover|work)|what.*write about|overview|everything|all (topics|content|deep ?dives)/.test(ql)) {
+        return aboutResponses[1];
+      }
+      if (/how many|count|number of/.test(ql)) {
+        return 'The site has 9 deep dives, 3 investment theses, 5 Substack blog posts, and an 80-day ML study plan covering 80 lessons from micrograd to production RAG. What topic should I dig into?';
+      }
+      if (/thank|thanks|cheers|appreciate/.test(ql)) {
+        return 'Happy to help! Feel free to ask about any other topic.';
+      }
+
+      var best = null;
+      var bestScore = 0;
+      for (var i = 0; i < kb.length; i++) {
+        var score = 0;
+        for (var j = 0; j < kb[i].tags.length; j++) {
+          if (ql.indexOf(kb[i].tags[j]) !== -1) {
+            score += kb[i].tags[j].split(' ').length;
+          }
+        }
+        if (score > bestScore) { bestScore = score; best = kb[i]; }
+      }
+
+      if (best) {
+        var html = best.answer;
+        html += '<br><br>';
+        for (var k = 0; k < best.links.length; k++) {
+          var l = best.links[k];
+          html += '&bull; <a href="' + l.href + '">' + l.name + '</a> — ' + l.desc + '<br>';
+        }
+        if (best.extra) html += '<br>' + best.extra;
+        return html;
+      }
+
+      var allTags = [];
+      for (var m = 0; m < kb.length; m++) allTags.push(kb[m].title);
+      return 'I don\'t have a specific match for that, but I can help with: ' + allTags.join(', ') + '. Try asking about one of those!';
+    }
+
+    chatForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      var q = chatInput.value.trim();
+      if (!q) return;
+      addMsg(q.replace(/</g,'&lt;'), true);
+      chatInput.value = '';
+      showTyping();
+      var delay = 400 + Math.random() * 600;
+      setTimeout(function() {
+        hideTyping();
+        addMsg(buildResponse(q), false);
+      }, delay);
     });
   })();
   </script>
