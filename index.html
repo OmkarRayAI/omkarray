@@ -654,27 +654,35 @@
 
   <!-- ─── AI Chat Widget ─── -->
   <button class="chat-fab" id="chatFab" type="button" aria-label="Ask about Omkar's work">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    <svg class="chat-fab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    <span class="chat-fab-ping"></span>
   </button>
 
   <div class="chat-window" id="chatWindow">
     <div class="chat-header">
       <div class="chat-header-left">
-        <div class="chat-avatar">O</div>
+        <div class="chat-avatar">O<span class="chat-online"></span></div>
         <div>
-          <div class="chat-header-name">Omkar's site</div>
-          <div class="chat-header-status">Ask me anything about his work</div>
+          <div class="chat-header-name">Ask Omkar's site</div>
+          <div class="chat-header-status" id="chatStatus">Online — knows all 9 deep dives</div>
         </div>
       </div>
       <button class="chat-header-close" id="chatClose" type="button" aria-label="Close chat">&times;</button>
     </div>
     <div class="chat-body" id="chatBody">
-      <div class="chat-msg bot">
-        <div class="chat-bubble">Hey! Ask me anything about Omkar's deep dives, theses, or blog posts. Try <em>"voice AI"</em>, <em>"fintech"</em>, or <em>"what does Omkar write about?"</em></div>
+      <div class="chat-msg bot chat-animate">
+        <div class="chat-bubble">Hey! I know everything Omkar has published. Ask me about any topic or try one of these:</div>
+      </div>
+      <div class="chat-chips" id="chatChips">
+        <button type="button" class="chat-chip" data-q="What has Omkar written about voice AI?">Voice AI</button>
+        <button type="button" class="chat-chip" data-q="Tell me about AI agents">AI Agents</button>
+        <button type="button" class="chat-chip" data-q="What fintech content is there?">Fintech</button>
+        <button type="button" class="chat-chip" data-q="Who is Omkar?">About Omkar</button>
+        <button type="button" class="chat-chip" data-q="Show me everything">All topics</button>
       </div>
     </div>
     <form class="chat-input-row" id="chatForm" autocomplete="off">
-      <input class="chat-input" id="chatInput" type="text" placeholder="Ask something..." aria-label="Your question">
+      <input class="chat-input" id="chatInput" type="text" placeholder="Ask about voice AI, fintech, agents..." aria-label="Your question">
       <button class="chat-send" type="submit" aria-label="Send">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
       </button>
@@ -797,105 +805,116 @@
   (function() {
     var kb = [
       {
-        tags: ['voice ai','voice','bolna','tts','asr','speech','call','calls','voice agent','voice bot'],
+        tags: ['voice ai','voice','bolna','tts','asr','speech','call','calls','voice agent','voice bot','telephony','ivr','conversational'],
+        synonyms: { 'speak': 'voice', 'talk': 'voice', 'audio': 'voice', 'phone': 'call', 'sound': 'voice', 'eleven labs': 'tts', 'elevenlabs': 'tts' },
         title: 'Voice AI',
         answer: 'Omkar has written extensively about Voice AI in India. Three deep dives cover the space:',
         links: [
-          { name: 'Bolna AI', href: 'bolna-deepdive.html', desc: '200K calls/day, YC W25, ASR→LLM→TTS pipeline in <600ms' },
+          { name: 'Bolna AI', href: 'bolna-deepdive.html', desc: '200K calls/day, YC W25, sub-600ms ASR→LLM→TTS pipeline' },
           { name: 'Smallest.ai', href: 'smallest-deepdive.html', desc: 'Proprietary TTS/LLM/ASR stack, 20x cost reduction to $0.01/min' },
-          { name: 'Ringg.ai', href: 'ringg-deepdive.html', desc: '3M+ lead gen calls, distribution-first no-code platform' }
+          { name: 'Ringg.ai', href: 'ringg-deepdive.html', desc: '3M+ lead gen calls, no-code distribution-first platform' }
         ],
-        extra: 'He also wrote a thesis on building <a href="mixpanel-voice-ai.html">Mixpanel for Voice AI</a> — the missing analytics layer for voice agents.'
+        extra: 'He also wrote a thesis on <a href="mixpanel-voice-ai.html">Mixpanel for Voice AI</a> — the missing analytics layer for voice agents.'
       },
       {
-        tags: ['agent','agents','ai agent','claude code','cursor','manus','context','context engineering','llm agent','agentic'],
+        tags: ['agent','agents','ai agent','claude code','cursor','manus','context','context engineering','llm agent','agentic','tool use','tool calling','scaffold'],
+        synonyms: { 'assistant': 'agent', 'copilot': 'agent', 'autonomous': 'agent', 'orchestrat': 'agent' },
         title: 'AI Agents',
-        answer: 'Two deep dives cover how modern AI agents actually work:',
+        answer: 'Two deep dives cover how modern AI agents work behind the scenes:',
         links: [
-          { name: 'Agent Design Patterns', href: 'agent-design-deepdive.html', desc: '7 context management patterns from Claude Code, Manus, and Cursor' },
-          { name: 'Seeing Like an Agent', href: 'seeing-like-an-agent.html', desc: 'Tool design, action spaces, and progressive disclosure from Claude Code' }
+          { name: 'Agent Design Patterns', href: 'agent-design-deepdive.html', desc: '7 context management patterns from Claude Code, Manus & Cursor' },
+          { name: 'Seeing Like an Agent', href: 'seeing-like-an-agent.html', desc: 'Tool design, action spaces & progressive disclosure' }
         ],
-        extra: 'Key insight: agent task length doubles every 7 months, and only ~15% of the context window is the actual task.'
+        extra: 'Agent task length doubles every 7 months, yet only ~15% of the context window is the actual task.'
       },
       {
-        tags: ['fintech','payments','upi','visa','lending','embedded finance','payment','bank','banking'],
+        tags: ['fintech','payments','upi','visa','lending','embedded finance','payment','bank','banking','money','credit','debit','card','transaction'],
+        synonyms: { 'finance': 'fintech', 'pay': 'payment', 'loan': 'lending', 'rupee': 'upi', 'npci': 'upi', 'mastercard': 'visa' },
         title: 'Fintech',
-        answer: 'Omkar tracks fintech closely — payments infrastructure, lending, and embedded finance:',
+        answer: 'Omkar tracks fintech closely — payments, lending, and embedded finance:',
         links: [
-          { name: 'Visa Product Ecosystem', href: 'visa-deepdive.html', desc: '$200T total addressable flows, concentric expansion beyond cards' },
-          { name: 'Embedded Finance 2.0', href: 'embedded-finance-agents.html', desc: 'When fintech becomes a function call — the agentic commerce protocol stack' }
+          { name: 'Visa Product Ecosystem', href: 'visa-deepdive.html', desc: '$200T addressable flows, concentric expansion beyond cards' },
+          { name: 'Embedded Finance 2.0', href: 'embedded-finance-agents.html', desc: 'When fintech becomes a function call — agentic commerce stack' }
         ],
-        extra: 'He also maintains a reading list on UPI, digital lending, debt collections, and regtech on the homepage.'
+        extra: 'He also maintains a reading list on UPI, digital lending, and regtech on the homepage.'
       },
       {
-        tags: ['ecommerce','e-commerce','ecomm','flipkart','swiggy','meesho','amazon','india ecomm','genai','commerce'],
+        tags: ['ecommerce','e-commerce','ecomm','flipkart','swiggy','meesho','amazon','india ecomm','genai','commerce','shopping','delivery','quick commerce'],
+        synonyms: { 'shop': 'ecommerce', 'retail': 'ecommerce', 'blinkit': 'quick commerce', 'zepto': 'quick commerce', 'zomato': 'swiggy' },
         title: 'Indian E-Commerce × GenAI',
-        answer: 'A deep dive on how India\'s largest e-commerce platforms deploy GenAI:',
+        answer: 'How India\'s top platforms deploy GenAI across commerce:',
         links: [
           { name: 'Indian E-Comm × GenAI', href: 'india-ecomm-genai.html', desc: 'Flipkart, Swiggy, Meesho, Amazon India — 65M ChatGPT DAUs in India' }
         ],
-        extra: 'Fun fact: GenAI app downloads in India went from 198M (2024) to 602M (2025) — 3x in one year.'
+        extra: 'GenAI app downloads in India: 198M (2024) → 602M (2025). 3x in one year.'
       },
       {
-        tags: ['datacenter','data center','gpu','rack','cooling','nvidia','infrastructure','power'],
+        tags: ['datacenter','data center','gpu','rack','cooling','nvidia','infrastructure','power','server','chip','semiconductor'],
+        synonyms: { 'hardware': 'datacenter', 'compute': 'gpu', 'cluster': 'datacenter', 'energy': 'power' },
         title: 'Datacenter Infrastructure',
         answer: 'A deep dive on the six layers being forced into simultaneous transition:',
         links: [
-          { name: 'Building a Datacenter', href: 'datacenter.html', desc: 'Rack power 50x in 10 years, cooling failures, gallium supply chains' }
+          { name: 'Building a Datacenter', href: 'datacenter.html', desc: 'Rack power 50x in 10 years, cooling crisis, gallium supply chains' }
         ],
         extra: 'China controls ~80% of global gallium supply — critical for GaN transistors in datacenter power.'
       },
       {
-        tags: ['rl','reinforcement learning','environment','environments','training','eval','evals'],
+        tags: ['rl','reinforcement learning','environment','environments','training','eval','evals','reward','policy','gym'],
+        synonyms: { 'benchmark': 'eval', 'simulate': 'environment', 'simulation': 'environment' },
         title: 'RL Environments',
         answer: 'A thesis on why RL environments are the new data moat:',
         links: [
-          { name: 'RL Environments Are the New Data Moat', href: 'rl-environments.html', desc: 'As RL scaling consumes environment interactions, who builds the gyms wins' }
+          { name: 'RL Environments Are the New Data Moat', href: 'rl-environments.html', desc: 'RL scaling consumes environment interactions — who builds the gyms wins' }
         ],
         extra: '"The primary barrier to applying agents to the entire economy is building evals for everything." — Brendan Foody, Mercor'
       },
       {
-        tags: ['robotics','robot','physical ai','rare earth','manufacturing','addverb','india robotics'],
-        title: 'Physical AI & Robotics in India',
-        answer: 'A thesis on India\'s opportunity in physical AI:',
+        tags: ['robotics','robot','physical ai','rare earth','manufacturing','addverb','india robotics','automation','warehouse'],
+        synonyms: { 'factory': 'manufacturing', 'assembly': 'manufacturing', 'drone': 'robotics', 'humanoid': 'robot' },
+        title: 'Physical AI & Robotics',
+        answer: 'A thesis on India\'s opportunity in physical AI and robotics:',
         links: [
           { name: 'Physical AI & Robotics: The India Thesis', href: 'physical-ai-india.html', desc: '$1.98B market, 20% of world\'s chip designers, rare earth reserves' }
         ],
         extra: 'India has the 5th largest rare earth reserves but imports 87-95% of processed supply from China.'
       },
       {
-        tags: ['transformer','transformers','attention','gpt','llm','language model','neural','deep learning','ml','machine learning'],
+        tags: ['transformer','transformers','attention','gpt','llm','language model','neural','deep learning','ml','machine learning','karpathy','pre-training','fine-tuning','finetuning'],
+        synonyms: { 'model': 'llm', 'openai': 'gpt', 'anthropic': 'llm', 'google': 'llm', 'gemini': 'llm', 'mistral': 'llm', 'deepseek': 'llm', 'train': 'training' },
         title: 'ML & Transformers',
-        answer: 'Omkar studies ML from first principles. He has an 80-day LLM & RAG study plan on the homepage covering:',
+        answer: 'Omkar studies ML from first principles with an 80-day study plan:',
         links: [
           { name: 'Transformers', href: 'transformers.html', desc: 'Attention Is All You Need, and why' },
           { name: 'Gradient Descent', href: 'gradient-descent.html', desc: 'The geometry of gradient descent' },
           { name: 'PyTorch', href: 'pytorch.html', desc: 'Tensors to multi-GPU — visual map' }
         ],
-        extra: 'The 80-day plan goes from Karpathy\'s micrograd to building GPT from scratch to production RAG systems.'
+        extra: 'The plan covers micrograd → makemore → GPT from scratch → RAG → agents → deployment. 80 lessons total.'
       },
       {
-        tags: ['rag','retrieval','vector','embedding','search','chunking','llamaindex','langchain'],
-        title: 'RAG & Retrieval Systems',
-        answer: 'Phase 4 of the 80-day study plan covers RAG in depth:',
+        tags: ['rag','retrieval','vector','embedding','search','chunking','llamaindex','langchain','pinecone','chroma','weaviate'],
+        synonyms: { 'database': 'vector', 'index': 'retrieval', 'semantic': 'embedding', 'knowledge base': 'rag' },
+        title: 'RAG & Retrieval',
+        answer: 'Phase 4 of the 80-day study plan covers RAG deeply:',
         links: [
           { name: 'RAG Deep Dive', href: 'rag.html', desc: 'Retrieval-Augmented Generation done right' }
         ],
         extra: 'Covers dense vs sparse retrieval, chunking strategies, HyDE, re-ranking, and LlamaIndex internals.'
       },
       {
-        tags: ['blog','substack','taste','world model','chatgpt','glp','meesho delivery'],
+        tags: ['blog','substack','taste','world model','chatgpt','glp','meesho delivery','writing','article','post'],
+        synonyms: { 'newsletter': 'substack', 'essay': 'blog', 'opinion': 'blog' },
         title: 'Blog Posts',
-        answer: 'Omkar writes shorter pieces on Substack:',
+        answer: 'Shorter pieces on Substack:',
         links: [
-          { name: 'Taste Is the New Bottleneck', href: 'https://omkarray.substack.com/p/taste-is-the-new-bottleneck', desc: 'Feb 2026' },
-          { name: 'The World Model Gold Rush', href: 'https://omkarray.substack.com/p/the-world-model-gold-rush-why-most', desc: 'Feb 2026' },
-          { name: 'Why "Just Use ChatGPT" Is a Strategic Failure', href: 'https://omkarray.substack.com/p/why-just-use-chatgpt-is-a-strategic', desc: 'Dec 2025' }
+          { name: 'Taste Is the New Bottleneck', href: 'https://omkarray.substack.com/p/taste-is-the-new-bottleneck', desc: 'Why taste matters more than technical skill now' },
+          { name: 'The World Model Gold Rush', href: 'https://omkarray.substack.com/p/the-world-model-gold-rush-why-most', desc: 'Why most world-model startups will fail' },
+          { name: 'Why "Just Use ChatGPT" Is a Strategic Failure', href: 'https://omkarray.substack.com/p/why-just-use-chatgpt-is-a-strategic', desc: 'The hidden cost of defaulting to ChatGPT' }
         ],
-        extra: 'He also covers India\'s GLP-1 moment and Meesho\'s quick commerce strategy.'
+        extra: 'Also covers India\'s GLP-1 moment and Meesho\'s quick commerce strategy.'
       },
       {
-        tags: ['analytics','observability','mixpanel','voice analytics','conversation','funnel'],
+        tags: ['analytics','observability','mixpanel','voice analytics','conversation','funnel','monitoring','metrics'],
+        synonyms: { 'dashboard': 'analytics', 'tracking': 'analytics', 'telemetry': 'observability' },
         title: 'Voice AI Analytics',
         answer: 'A thesis on the missing product analytics layer for voice AI:',
         links: [
@@ -904,20 +923,87 @@
         extra: '"You can A/B test a landing page in an afternoon. A/B testing a voice agent prompt takes weeks of manual transcript review."'
       },
       {
-        tags: ['math','maths','bayesian','gaussian','tensor','hilbert','manifold','probability','linear algebra'],
+        tags: ['math','maths','bayesian','gaussian','tensor','hilbert','manifold','probability','linear algebra','calculus','statistics'],
+        synonyms: { 'equation': 'math', 'proof': 'math', 'theorem': 'math', 'matrix': 'linear algebra', 'stat': 'statistics' },
         title: 'Mathematics',
-        answer: 'Omkar studies the mathematical foundations behind ML:',
+        answer: 'Mathematical foundations behind ML:',
         links: [
           { name: 'Bayesian Optimization', href: 'bayesian-optimization.html', desc: 'Probabilistic search & surrogate models' }
         ],
-        extra: 'He also studies Gaussian processes, tensors, Hilbert spaces, manifolds, probability theory, and linear algebra — all linked on the homepage.'
+        extra: 'Also studies Gaussian processes, tensors, Hilbert spaces, manifolds, probability theory, and linear algebra — all on the homepage.'
       }
     ];
 
-    var aboutResponses = [
-      'Omkar Ray is based in India, building at the intersection of AI, fintech, and product. He writes long-form deep dives, studies ML from first principles, and tracks what\'s actually shipping in Indian tech. Check out his <a href="https://x.com/OmkarRay9">X</a>, <a href="https://www.linkedin.com/in/omkarray/">LinkedIn</a>, or <a href="https://omkarray.substack.com/">Substack</a>.',
-      'This site has 9 deep dives (voice AI, agents, fintech, e-commerce, datacenters), 3 theses, 5 blog posts, and an 80-day ML study plan. What topic interests you?'
-    ];
+    var synonymMap = {};
+    kb.forEach(function(entry) {
+      if (entry.synonyms) {
+        for (var k in entry.synonyms) synonymMap[k] = entry.synonyms[k];
+      }
+    });
+
+    function stem(word) {
+      return word.replace(/(ation|ment|ness|ity|ing|tion|sion|ment|able|ible|ful|less|ous|ive|ly|er|ed|es|s)$/i, '');
+    }
+
+    function fuzzyMatch(a, b) {
+      if (a === b) return 0;
+      if (a.length < 3 || b.length < 3) return 99;
+      var m = a.length, n = b.length;
+      if (Math.abs(m - n) > 2) return 99;
+      var d = [];
+      for (var i = 0; i <= m; i++) { d[i] = [i]; }
+      for (var j = 0; j <= n; j++) { d[0][j] = j; }
+      for (i = 1; i <= m; i++) {
+        for (j = 1; j <= n; j++) {
+          d[i][j] = Math.min(
+            d[i-1][j] + 1,
+            d[i][j-1] + 1,
+            d[i-1][j-1] + (a[i-1] === b[j-1] ? 0 : 1)
+          );
+        }
+      }
+      return d[m][n];
+    }
+
+    function scoreEntry(entry, words) {
+      var score = 0;
+      var matched = {};
+      words.forEach(function(w) {
+        var ws = stem(w);
+        entry.tags.forEach(function(tag) {
+          var parts = tag.split(' ');
+          parts.forEach(function(tp) {
+            var ts = stem(tp);
+            if (w === tp) { score += 3; matched[tag] = true; }
+            else if (ws === ts && ws.length >= 3) { score += 2.5; matched[tag] = true; }
+            else if (tp.indexOf(w) === 0 || w.indexOf(tp) === 0) { score += 1.5; matched[tag] = true; }
+            else if (w.length >= 4 && fuzzyMatch(w, tp) <= 1) { score += 1; matched[tag] = true; }
+          });
+        });
+        if (synonymMap[w]) {
+          var syn = synonymMap[w];
+          entry.tags.forEach(function(tag) {
+            if (tag.indexOf(syn) !== -1) { score += 2; matched[tag] = true; }
+          });
+        }
+        entry.tags.forEach(function(tag) {
+          if (tag.length > 3 && w.length > 3 && tag.indexOf(w) !== -1) {
+            score += 1.5; matched[tag] = true;
+          }
+        });
+      });
+      return score;
+    }
+
+    function buildLinkCards(links) {
+      var html = '';
+      links.forEach(function(l) {
+        html += '<a class="chat-link-card" href="' + l.href + '">' +
+          '<div class="chat-link-card-title">' + l.name + '</div>' +
+          '<div class="chat-link-card-desc">' + l.desc + '</div></a>';
+      });
+      return html;
+    }
 
     var chatFab = document.getElementById('chatFab');
     var chatWindow = document.getElementById('chatWindow');
@@ -925,6 +1011,8 @@
     var chatBody = document.getElementById('chatBody');
     var chatForm = document.getElementById('chatForm');
     var chatInput = document.getElementById('chatInput');
+    var chatStatus = document.getElementById('chatStatus');
+    var chatChips = document.getElementById('chatChips');
 
     chatFab.addEventListener('click', function() {
       chatFab.classList.add('hidden');
@@ -938,13 +1026,29 @@
 
     function addMsg(html, isUser) {
       var div = document.createElement('div');
-      div.className = 'chat-msg ' + (isUser ? 'user' : 'bot');
+      div.className = 'chat-msg ' + (isUser ? 'user' : 'bot') + ' chat-animate';
       div.innerHTML = '<div class="chat-bubble">' + html + '</div>';
       chatBody.appendChild(div);
       chatBody.scrollTop = chatBody.scrollHeight;
     }
 
+    function addChips(suggestions) {
+      var wrap = document.createElement('div');
+      wrap.className = 'chat-chips chat-animate';
+      suggestions.forEach(function(s) {
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'chat-chip';
+        btn.setAttribute('data-q', s.q);
+        btn.textContent = s.label;
+        wrap.appendChild(btn);
+      });
+      chatBody.appendChild(wrap);
+      chatBody.scrollTop = chatBody.scrollHeight;
+    }
+
     function showTyping() {
+      chatStatus.textContent = 'Typing...';
       var div = document.createElement('div');
       div.className = 'chat-msg bot';
       div.id = 'chatTyping';
@@ -953,69 +1057,130 @@
       chatBody.scrollTop = chatBody.scrollHeight;
     }
     function hideTyping() {
+      chatStatus.textContent = 'Online — knows all 9 deep dives';
       var t = document.getElementById('chatTyping');
       if (t) t.remove();
     }
 
     function buildResponse(q) {
-      var ql = q.toLowerCase().replace(/[?!.,]/g, '');
+      var ql = q.toLowerCase().replace(/[?!.,;:'"()]/g, '').replace(/\s+/g, ' ').trim();
+      var words = ql.split(' ').filter(function(w) { return w.length > 1; });
 
-      if (/^(hi|hello|hey|sup|yo|howdy)/.test(ql)) {
-        return 'Hey there! Ask me about any topic — voice AI, agents, fintech, e-commerce, datacenters, RL, robotics, or ML. What are you curious about?';
+      if (/^(hi|hello|hey|sup|yo|howdy|hola|namaste)\b/.test(ql)) {
+        return { text: 'Hey! I know everything across Omkar\'s 9 deep dives, 3 theses, and 5 blog posts. What are you curious about?', chips: [
+          { label: 'Voice AI startups', q: 'Tell me about voice AI startups' },
+          { label: 'Agent patterns', q: 'How do AI agents work?' },
+          { label: 'India fintech', q: 'What fintech content is there?' }
+        ]};
       }
-      if (/who is omkar|about omkar|about you|who are you|what (is|does) (this|omkar)|tell me about omkar/.test(ql)) {
-        return aboutResponses[0];
+      if (/who is omkar|about omkar|about you|who are you|about him|who made this|who built/.test(ql)) {
+        return { text: 'Omkar Ray is based in India, building at the intersection of AI, fintech, and product. He writes long-form deep dives, studies ML from first principles, and tracks what\'s actually shipping in Indian tech.' +
+          buildLinkCards([
+            { name: 'X / Twitter', href: 'https://x.com/OmkarRay9', desc: '@OmkarRay9' },
+            { name: 'LinkedIn', href: 'https://www.linkedin.com/in/omkarray/', desc: 'in/omkarray' },
+            { name: 'Substack', href: 'https://omkarray.substack.com/', desc: 'omkarray.substack.com' }
+          ]) };
       }
-      if (/what (do|does|has) (he|omkar) (write|wrote|cover|work)|what.*write about|overview|everything|all (topics|content|deep ?dives)/.test(ql)) {
-        return aboutResponses[1];
+      if (/show me everything|all (topics|content|deep ?dives)|what.*write about|what.*cover|overview|everything|list|catalog/.test(ql)) {
+        var allHtml = 'Here\'s everything on the site:<br>';
+        kb.forEach(function(e) {
+          allHtml += buildLinkCards(e.links);
+        });
+        return { text: allHtml, chips: [
+          { label: 'Which is the best?', q: 'Which deep dive should I read first?' },
+          { label: 'Latest posts', q: 'What are the latest blog posts?' }
+        ]};
       }
-      if (/how many|count|number of/.test(ql)) {
-        return 'The site has 9 deep dives, 3 investment theses, 5 Substack blog posts, and an 80-day ML study plan covering 80 lessons from micrograd to production RAG. What topic should I dig into?';
+      if (/how many|count|number of|how much content/.test(ql)) {
+        return { text: '<strong>9</strong> deep dives, <strong>3</strong> investment theses, <strong>5</strong> Substack blog posts, and an <strong>80-day</strong> ML study plan covering 80 lessons from micrograd to production RAG.', chips: [
+          { label: 'Deep dives', q: 'Show me all deep dives' },
+          { label: 'Study plan', q: 'Tell me about the ML study plan' }
+        ]};
       }
-      if (/thank|thanks|cheers|appreciate/.test(ql)) {
-        return 'Happy to help! Feel free to ask about any other topic.';
+      if (/recommend|suggest|best|start|first|favorite|favourite|should i read/.test(ql)) {
+        return { text: 'If you\'re into AI, start with <strong>Agent Design Patterns</strong> — it\'s the most popular. For fintech, <strong>Visa\'s Product Ecosystem</strong> is a favourite. For something unique, the <strong>Voice AI trilogy</strong> (Bolna, Smallest, Ringg) is one-of-a-kind analysis.' +
+          buildLinkCards([
+            { name: 'Agent Design Patterns', href: 'agent-design-deepdive.html', desc: 'Most popular — 7 patterns from Claude Code & Manus' },
+            { name: 'Visa Product Ecosystem', href: 'visa-deepdive.html', desc: '$200T opportunity, concentric expansion' },
+            { name: 'Bolna AI', href: 'bolna-deepdive.html', desc: 'Start of the Voice AI trilogy' }
+          ]) };
+      }
+      if (/india|indian/.test(ql) && !/ecomm|flipkart|swiggy|meesho|amazon/.test(ql)) {
+        return { text: 'Omkar covers several India-specific themes:', chips: [
+          { label: 'India E-Commerce', q: 'Indian ecommerce and GenAI' },
+          { label: 'India Robotics', q: 'Physical AI India thesis' },
+          { label: 'India Fintech', q: 'UPI and embedded finance' },
+          { label: 'Voice AI in India', q: 'Voice AI startups in India' }
+        ]};
+      }
+      if (/thank|thanks|cheers|appreciate|great|awesome|cool|nice/.test(ql)) {
+        return { text: 'Glad I could help! Anything else you want to explore?', chips: [
+          { label: 'Something new', q: 'Recommend something to read' },
+          { label: 'All topics', q: 'Show me everything' }
+        ]};
+      }
+      if (/bye|goodbye|see you|later/.test(ql)) {
+        return { text: 'See you! Come back anytime — new deep dives drop regularly.' };
       }
 
-      var best = null;
-      var bestScore = 0;
-      for (var i = 0; i < kb.length; i++) {
-        var score = 0;
-        for (var j = 0; j < kb[i].tags.length; j++) {
-          if (ql.indexOf(kb[i].tags[j]) !== -1) {
-            score += kb[i].tags[j].split(' ').length;
-          }
+      var scored = [];
+      kb.forEach(function(entry) {
+        var s = scoreEntry(entry, words);
+        if (s > 0) scored.push({ entry: entry, score: s });
+      });
+      scored.sort(function(a, b) { return b.score - a.score; });
+
+      if (scored.length >= 2 && scored[1].score >= scored[0].score * 0.5) {
+        var html = 'I found a couple of relevant topics:<br><br>';
+        html += '<strong>' + scored[0].entry.title + '</strong>';
+        html += buildLinkCards(scored[0].entry.links);
+        html += '<br><strong>' + scored[1].entry.title + '</strong>';
+        html += buildLinkCards(scored[1].entry.links);
+        return { text: html };
+      }
+
+      if (scored.length >= 1) {
+        var best = scored[0].entry;
+        var h = best.answer + buildLinkCards(best.links);
+        if (best.extra) h += '<div class="chat-extra">' + best.extra + '</div>';
+        var relatedChips = [];
+        if (scored.length > 1) {
+          relatedChips.push({ label: 'Also: ' + scored[1].entry.title, q: 'Tell me about ' + scored[1].entry.title });
         }
-        if (score > bestScore) { bestScore = score; best = kb[i]; }
+        return { text: h, chips: relatedChips };
       }
 
-      if (best) {
-        var html = best.answer;
-        html += '<br><br>';
-        for (var k = 0; k < best.links.length; k++) {
-          var l = best.links[k];
-          html += '&bull; <a href="' + l.href + '">' + l.name + '</a> — ' + l.desc + '<br>';
-        }
-        if (best.extra) html += '<br>' + best.extra;
-        return html;
-      }
+      var topics = kb.map(function(e) { return e.title; });
+      return { text: 'Hmm, I couldn\'t find a match for that. I know about these topics:', chips: topics.slice(0, 6).map(function(t) {
+        return { label: t, q: 'Tell me about ' + t };
+      })};
+    }
 
-      var allTags = [];
-      for (var m = 0; m < kb.length; m++) allTags.push(kb[m].title);
-      return 'I don\'t have a specific match for that, but I can help with: ' + allTags.join(', ') + '. Try asking about one of those!';
+    function handleQuery(q) {
+      addMsg(q.replace(/</g,'&lt;'), true);
+      if (chatChips) { chatChips.remove(); chatChips = null; }
+      document.querySelectorAll('.chat-body .chat-chips').forEach(function(c) { c.remove(); });
+      chatInput.value = '';
+      showTyping();
+      var delay = 500 + Math.random() * 500;
+      setTimeout(function() {
+        hideTyping();
+        var resp = buildResponse(q);
+        addMsg(resp.text, false);
+        if (resp.chips && resp.chips.length) addChips(resp.chips);
+      }, delay);
     }
 
     chatForm.addEventListener('submit', function(e) {
       e.preventDefault();
       var q = chatInput.value.trim();
       if (!q) return;
-      addMsg(q.replace(/</g,'&lt;'), true);
-      chatInput.value = '';
-      showTyping();
-      var delay = 400 + Math.random() * 600;
-      setTimeout(function() {
-        hideTyping();
-        addMsg(buildResponse(q), false);
-      }, delay);
+      handleQuery(q);
+    });
+
+    chatBody.addEventListener('click', function(e) {
+      var chip = e.target.closest('.chat-chip');
+      if (chip && chip.dataset.q) handleQuery(chip.dataset.q);
     });
   })();
   </script>
