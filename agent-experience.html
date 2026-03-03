@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-62YF7Y81BS"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-62YF7Y81BS');
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent Experience — A Reference Map</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #EDEBE3;
+    --surface: #FFFFFF;
+    --text: #1A1A1A;
+    --text-secondary: #5c5854;
+    --text-muted: #9A9790;
+    --border: #DBD9D0;
+    --border-hover: #C5C3BA;
+    --radius: 10px;
+    --max-width: 1080px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    font-size: 16px;
+  }
+
+  a { color: inherit; text-decoration: none; }
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--text-muted);
+    text-decoration: none;
+    padding: 24px 0 0;
+    transition: color 0.2s;
+  }
+  .back-link:hover { color: var(--text); }
+
+  .ax-container {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 0 32px 80px;
+  }
+
+  /* Hero */
+  .ax-hero {
+    text-align: center;
+    padding: 80px 0 48px;
+  }
+  .ax-hero-date {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+  }
+  .ax-hero h1 {
+    font-family: 'Newsreader', Georgia, serif;
+    font-size: clamp(42px, 6vw, 64px);
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    color: var(--text);
+    margin-bottom: 20px;
+  }
+  .ax-hero-sub {
+    font-size: 15px;
+    color: var(--text-secondary);
+    max-width: 560px;
+    margin: 0 auto;
+    line-height: 1.7;
+  }
+
+  /* Filter tabs */
+  .ax-filters {
+    display: flex;
+    justify-content: center;
+    gap: 4px;
+    margin-bottom: 56px;
+    flex-wrap: wrap;
+  }
+  .ax-filter-btn {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 18px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .ax-filter-btn:hover {
+    border-color: var(--border-hover);
+    background: var(--surface);
+  }
+  .ax-filter-btn.active {
+    background: var(--text);
+    color: var(--bg);
+    border-color: var(--text);
+  }
+
+  /* Section labels */
+  .ax-section-label {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .ax-section-desc {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .ax-section { margin-bottom: 56px; }
+
+  .label-foundations { color: #B87840; }
+  .label-patterns { color: #6B7A5C; }
+  .label-infrastructure { color: #7A6B8D; }
+  .label-surfaces { color: #3D6B9E; }
+  .label-design { color: #4A7A5C; }
+
+  /* Card grid */
+  .ax-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+
+  /* Individual card */
+  .ax-card {
+    display: block;
+    background: var(--surface);
+    border-radius: var(--radius);
+    overflow: hidden;
+    border: 1px solid var(--border);
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 0.3s,
+                border-color 0.2s;
+  }
+  .ax-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
+    border-color: var(--border-hover);
+  }
+
+  .ax-card-visual {
+    aspect-ratio: 4 / 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .ax-card-icon {
+    width: 56px;
+    height: 56px;
+    opacity: 0.9;
+  }
+  .ax-card-icon svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .ax-card-body {
+    padding: 16px 18px 20px;
+  }
+  .ax-card-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.01em;
+    margin-bottom: 4px;
+    line-height: 1.3;
+  }
+  .ax-card-desc {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  /* Color palettes for cards */
+  .bg-sage      { background: #7A8B6F; }
+  .bg-dusty-rose { background: #A88B84; }
+  .bg-olive     { background: #7A8B6F; }
+  .bg-steel     { background: #8A8D94; }
+  .bg-mauve     { background: #8B7B8D; }
+  .bg-clay      { background: #B89878; }
+  .bg-teal      { background: #6B8E8B; }
+  .bg-slate     { background: #7A7D82; }
+  .bg-plum      { background: #7A6B7D; }
+  .bg-moss      { background: #6B8B5C; }
+  .bg-copper    { background: #B08858; }
+  .bg-forest    { background: #5C7A5C; }
+  .bg-warm-gray { background: #8A8580; }
+  .bg-dusk      { background: #6E707A; }
+  .bg-sienna    { background: #A07060; }
+  .bg-ocean     { background: #5C7A8B; }
+  .bg-wine      { background: #7A5C6B; }
+  .bg-stone     { background: #9A9488; }
+  .bg-indigo    { background: #5C5C7A; }
+  .bg-terracotta { background: #B87860; }
+  .bg-sage-dark { background: #5C6B5C; }
+  .bg-ash       { background: #6B6B70; }
+
+  /* Footer */
+  .ax-footer {
+    text-align: center;
+    padding: 40px 0;
+    border-top: 1px solid var(--border);
+    margin-top: 32px;
+  }
+  .ax-footer p {
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+  .ax-footer a {
+    font-weight: 600;
+    color: var(--text-secondary);
+    transition: color 0.2s;
+  }
+  .ax-footer a:hover { color: var(--text); }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .ax-grid { grid-template-columns: repeat(2, 1fr); }
+    .ax-container { padding: 0 20px 60px; }
+    .ax-hero { padding: 48px 0 36px; }
+  }
+  @media (max-width: 520px) {
+    .ax-grid { grid-template-columns: 1fr; }
+    .ax-filters { gap: 6px; }
+    .ax-filter-btn { padding: 6px 14px; font-size: 12px; }
+  }
+
+  /* Fade-in animation */
+  .ax-fade {
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+                transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .ax-fade.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+</style>
+</head>
+<body>
+
+<div class="ax-container">
+
+<a href="index.html" class="back-link">&larr; Back to omkarray.com</a>
+
+<div class="ax-hero">
+  <div class="ax-hero-date">Updated March 2026</div>
+  <h1>Agent Experience</h1>
+  <p class="ax-hero-sub">A practical reference to the patterns, surfaces, and design principles behind AI agents, from primitives to production.</p>
+</div>
+
+<div class="ax-filters">
+  <button class="ax-filter-btn active" data-filter="all">All</button>
+  <button class="ax-filter-btn" data-filter="foundations">Foundations</button>
+  <button class="ax-filter-btn" data-filter="patterns">Patterns</button>
+  <button class="ax-filter-btn" data-filter="infrastructure">Infrastructure</button>
+  <button class="ax-filter-btn" data-filter="surfaces">Surfaces</button>
+  <button class="ax-filter-btn" data-filter="design">Design</button>
+</div>
+
+<!-- Foundations -->
+<div class="ax-section" data-category="foundations">
+  <div class="ax-section-label label-foundations">Foundations</div>
+  <p class="ax-section-desc">The mental models you need before building anything</p>
+  <div class="ax-grid">
+
+    <a href="agent-design-deepdive.html" class="ax-card ax-fade">
+      <div class="ax-card-visual bg-sage">
+        <div class="ax-card-icon">
+          <svg viewBox="0 0 56 56" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="28" cy="28" r="10"/>
+            <line x1="28" y1="12" x2="28" y2="8"/><line x1="28" y1="48" x2="28" y2="44"/>
+            <line x1="12" y1="28" x2="8" y2="28"/><line x1="48" y1="28" x2="44" y2="28"/>
+            <line x1="16.7" y1="16.7" x2="13.9" y2="13.9"/><line x1="42.1" y1="42.1" x2="39.3" y2="39.3"/>
+            <line x1="16.7" y1="39.3" x2="13.9" y2="42.1"/><line x1="42.1" y1="13.9" x2="39.3" y2="16.7"/>
+          </svg>
+        </div>
+      </div>
+      <div class="ax-card-body">
+        <div class="ax-card-title">Tool Use & Function Calling</div>
+        <div class="ax-card-desc">The building block of every agent</div>
+      </div>
+    </a>
+
+    <a href="agent-design-deepdive.html" class="ax-card ax-fade">
+      <div class="ax-card-visual bg-dusty-rose">
+        <div class="ax-card-icon">
+          <svg viewBox="0 0 56 56" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="20" cy="28" r="5"/><circle cx="36" cy="18" r="5"/><circle cx="36" cy="38" r="5"/>
+            <line x1="24.5" y1="25.5" x2="31.5" y2="20.5"/><line x1="24.5" y1="30.5" x2="31.5" y2="35.5"/>
+          </svg>
+        </div>
+      </div>
+      <div class="ax-card-body">
+        <div class="ax-card-title">ReAct Pattern</div>
+        <div class="ax-card-desc">Think, act, observe, repeat</div>
+      </div>
+    </a>
+
+    <a href="agent-design-deepdive.html" class="ax-card ax-fade">
+      <div class="ax-card-visual bg-olive">
+        <div class="ax-card-icon">
+          <svg viewBox="0 0 56 56" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="28" y1="14" x2="28" y2="42"/>
+            <line x1="28" y1="14" x2="18" y2="24"/><line x1="28" y1="14" x2="38" y2="24"/>
+            <line x1="18" y1="24" x2="12" y2="34"/><line x1="18" y1="24" x2="24" y2="34"/>
+            <line x1="38" y1="24" x2="32" y2="34"/><line x1="38" y1="24" x2="44" y2="34"/>
+          </svg>
+        </div>
+      </div>
+      <div class="ax-card-body">
+        <div class="ax-card-title">Planning & Decomposition</div>
+        <div class="ax-card-desc">Breaking big problems into small steps</div>
+      </div>
+    </a>
+
+    <a href="seeing-like-an-agent.html" class="ax-card ax-fade">
+      <div class="ax-card-visual bg-indigo">
+        <div class="ax-card-icon">
+          <svg viewBox="0 0 56 56" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="16 36 22 28 28 32 34 22 40 28"/>
+            <rect x="12" y="16" width="32" height="24" rx="3"/>
+          </svg>
+        </div>
+      </div>
+      <div class="ax-card-body">
+        <div class="ax-card-title">Reflection & Self-Correction</div>
+        <div class="ax-card-desc">Agents that check their own work</div>
+      </div>
+    </a>
+
+  </div>
+</div>
+
+<!-- Patterns -->
+<div class="ax-section" data-category="patterns">
+  <div class="ax-section-label label-patterns">Patterns</div>
+  <p class="ax-section-desc">Concrete architectures you'll implement</p>
+  <div class="ax-grid">
+
+    <a href="agent-design-deepdive.html" class="ax-card ax-fade">
+      <div class="ax-card-visual bg-steel">
+        <div class="ax-card-icon">
+          <svg viewBox="0 0 56 56" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="14" y="20" width="12" height="16" rx="2"/>
+            <rect x="30" y="20" width="12" height="16" rx="2"/>
+            <line x1="26" y1="28" x2="30" y2="28"/>
+            <circle cx="20" cy="15" r="3"/><circle cx="36" cy="15" r="3"/>
+          </svg>
+        </div>
+      </div>
+      <div class="ax-card-body">
+        <div class="ax-card-title">Model Context Protocol</div>
+        <div class="ax-card-desc">A universal plug for AI tools</div>
+      </div>
+    </a>
+
+    <a href="seeing-like-an-agent.html" class="ax-card ax-fade">
+      <div class="ax-card-visual bg-teal">
+        <div class="ax-card-icon">
+          <svg viewBox="0 0 56 56" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="14" y="14" width="28" height="22" rx="3"/>
+            <line x1="14" y1="40" x2="42" y2="40"/>
+            <circle cx="28" cy="44" r="2"/>
+            <rect x="20" y="20" width="16" height="10" rx="1" stroke-dasharray="2 2"/>
+          </svg>
+        </div>
+      </div>
+      <div class="ax-card-body">
+        <div class="ax-card-title">Computer Use Agents</div>
+        <div class="ax-card-desc">AI that sees and clicks like a human</div>
+      </div>
+    </a>
+
+    <a href="seeing-like-an-agent.html" class="ax-card ax-fade">
+      <div class="ax-card-visual bg-clay">
+        <div class="ax-card-icon">
+          <svg viewBox="0 0 56 56" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="28" cy="28" r="12"/>
+            <line x1="28" y1="16" x2="28" y2="22"/><line x1="28" y1="34" x2="28" y2="40"/>
+            <line x1="16" y1="28" x2="22" y2="28"/><line x1="34" y1="28" x2="40" y2="28"/>
+          </svg>
+        </div>
+      </div>
+      <div class="ax-card-body">
+        <div class="ax-card-title">Skills</div>
+        <div class="ax-card-desc">Plug-in expertise for agents</div>
+      </div>
+    </a>
+
+    <a href="agent-design-deepdive.html" class="ax-card ax-fade">
+      <div class="ax-card-visual bg-slate">
+        <div class="ax-card-icon">
+          <svg viewBox="0 0 56 56" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="16" y="14" width="24" height="28" rx="2"/>
+            <line x1="22" y1="22" x2="34" y2="22"/><line x1="22" y1="28" x2="34" y2="28"/><line x1="22" y1="34" x2="30" y2="34"/>
+          </svg>
+        </div>
+      </div>
+      <div class="ax-card-body">
+        <div class="ax-card-title">agents.md</div>
+        <div class="ax-card-desc">A spec file for your agent</div>
+      </div>
+    </a>
+
+    <a href="agent-design-deepdive.html" class="ax-card ax-fade">
+      <div class="ax-card-visual bg-mauve">
+        <div class="ax-card-icon">
+          <svg viewBox="0 0 56 56" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="10" y="20" width="14" height="14" rx="2"/>
+            <rect x="32" y="20" width="14" height="14" rx="2"/>
+            <rect x="21" y="34" width="14" height="14" rx="2"/>
+            <line x1="24" y1="27" x2="32" y2="27"/>
+            <line x1="24" y1="34" x2="28" y2="34"/>
+          </svg>
+        </div>
+      </div>
+      <div class="ax-card-body">
+        <div class="ax-card-title">Multi-Agent Orchestration</div>
+        <div class="ax-card-desc">Agents managing agents</div>
+      </div>
+    </a>
+
+    <a href="agent-design-deepdive.html" class="ax-card ax-fade">
+      <div class="ax-card-visual bg-copper">
+        <div class="ax-card-icon">
+          <svg viewBox="0 0 56 56" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="28" cy="18" r="6"/>
+            <line x1="28" y1="24" x2="16" y2="38"/><line x1="28" y1="24" x2="28" y2="42"/><line x1="28" y1="24" x2="40" y2="38"/>
+            <circle cx="16" cy="40" r="3"/><circle cx="28" cy="44" r="3"/><circle cx="40" cy="40" r="3"/>
+          </svg>
+        </div>
+      </div>
+      <div class="ax-card-body">
+        <div class="ax-card-title">Routing & Intent Detection</div>
+        <div class="ax-card-desc">Sending tasks to the right agent</div>
+      </div>
+    </a>
+
+    <a href="agent-design-deepdive.html" class="ax-card ax-fade">
+      <div class="ax-card-visual bg-warm-gray">
+        <div class="ax-card-icon">
+          <svg viewBox="0 0 56 56" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M28 16 C36 16 40 22 40 28 C40 34 36 40 28 40 C20 40 16 34 16 28 C16 22 20 16 28 16"/>
+            <path d="M28 20 L32 28 L28 32 L24 28 Z"/>
+            <path d="M40 28 L44 28" stroke-dasharray="2 2"/><path d="M12 28 L16 28" stroke-dasharray="2 2"/>
+          </svg>
+        </div>
+      </div>
+      <div class="ax-card-body">
+        <div class="ax-card-title">Autonomous Loops</div>
+        <div class="ax-card-desc">Let it cook</div>
+      </div>
+    </a>
+
+  </div>
+</div>
+
+<!-- Infrastructure -->
+<div class="ax-section" data-category="infrastructure">
+  <div class="ax-section-label label-infrastructure">Infrastructure</div>
+  <p class="ax-section-desc">The plumbing that holds it all together</p>
+  <div class="ax-grid">
+
+    <a href="agent-design-deepdive.html" class="ax-card ax-fade">
+      <div class="ax-card-visual bg-moss">
+        <div class="ax-card-icon">
+          <svg viewBox="0 0 56 56" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <ellipse cx="28" cy="20" rx="14" ry="6"/>
+            <path d="M14 20 L14 36 C14 39.3 20.3 42 28 42 C35.7 42 42 39.3 42 36 L42 20"/>
+            <path d="M14 28 C14 31.3 20.3 34 28 34 C35.7 34 42 31.3 42 28"/>
+          </svg>
+        </div>
+      </div>
+      <div class="ax-card-body">
+        <div class="ax-card-title">Memory Patterns</div>
+        <div class="ax-card-desc">Giving agents a past and a future</div>
+      </div>
+    </a>
+
+    <a href="agent-design-deepdive.html" class="ax-card ax-fade">
+      <div class="ax-card-visual bg-dusty-rose">
+        <div class="ax-card-icon">
+          <svg viewBox="0 0 56 56" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="14" y="16" width="28" height="20" rx="2"/>
+            <circle cx="22" cy="26" r="2" fill="rgba(255,255,255,0.85)"/>
+            <circle cx="30" cy="26" r="2" fill="rgba(255,255,255,0.85)"/>
+            <circle cx="38" cy="26" r="2" fill="rgba(255,255,255,0.85)"/>
+            <line x1="14" y1="40" x2="42" y2="40"/>
+          </svg>
+        </div>
+      </div>
+      <div class="ax-card-body">
+        <div class="ax-card-title">Context Management</div>
+        <div class="ax-card-desc">Fitting the world into a window</div>
+      </div>
+    </a>
+
+    <a href="agent-design-deepdive.html" class="ax-card ax-fade">
+      <div class="ax-card-visual bg-copper">
+        <div class="ax-card-icon">
+          <svg viewBox="0 0 56 56" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <text x="18" y="36" font-family="Inter" font-size="24" font-weight="600" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="1.5">{}</text>
+          </svg>
+        </div>
+      </div>
+      <div class="ax-card-body">
+        <div class="ax-card-title">Structured Output</div>
+        <div class="ax-card-desc">Getting reliable data out of language models</div>
+      </div>
+    </a>
+
+    <a href="agent-design-deepdive.html" class="ax-card ax-fade">
+      <div class="ax-card-visual bg-forest">
+        <div class="ax-card-icon">
+          <svg viewBox="0 0 56 56" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M28 16 L28 12 M28 44 L28 40 M16 28 L12 28 M44 28 L40 28"/>
+            <path d="M28 20 L28 24 M28 32 L28 36 M20 28 L24 28 M32 28 L36 28"/>
+            <polygon points="28,20 36,28 28,36 20,28"/>
+          </svg>
+        </div>
+      </div>
+      <div class="ax-card-body">
+        <div class="ax-card-title">Guardrails & Safety</div>
+        <div class="ax-card-desc">Keeping agents on the rails</div>
+      </div>
+    </a>
+
+    <a href="agent-design-deepdive.html" class="ax-card ax-fade">
+      <div class="ax-card-visual bg-teal">
+        <div class="ax-card-icon">
+          <svg viewBox="0 0 56 56" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="16" y="20" width="24" height="20" rx="3"/>
+            <rect x="22" y="26" width="12" height="8" rx="2"/>
+            <line x1="28" y1="20" x2="28" y2="14"/>
+            <circle cx="28" cy="12" r="2"/>
+          </svg>
+        </div>
+      </div>
+      <div class="ax-card-body">
+        <div class="ax-card-title">Sandboxes</div>
+        <div class="ax-card-desc">Letting agents act without breaking things</div>
+      </div>
+    </a>
+
+    <a href="agent-design-deepdive.html" class="ax-card ax-fade">
+      <div class="ax-card-visual bg-plum">
+        <div class="ax-card-icon">
+          <svg viewBox="0 0 56 56" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="28" cy="28" r="14"/>
+            <line x1="18" y1="22" x2="22" y2="26"/><line x1="22" y1="22" x2="18" y2="26"/>
+            <line x1="34" y1="22" x2="38" y2="26"/><line x1="38" y1="22" x2="34" y2="26"/>
+            <path d="M20 34 Q28 40 36 34"/>
+          </svg>
+        </div>
+      </div>
+      <div class="ax-card-body">
+        <div class="ax-card-title">Agent Harnesses</div>
+        <div class="ax-card-desc">The outer loop that makes agents reliable</div>
+      </div>
+    </a>
+
+  </div>
+</div>
+
+<!-- Surfaces -->
+<div class="ax-section" data-category="surfaces">
+  <div class="ax-section-label label-surfaces">Surfaces</div>
+  <p class="ax-section-desc">Where agents meet humans</p>
+  <div class="ax-grid">
+
+    <a href="agent-design-deepdive.html" class="ax-card ax-fade">
+      <div class="ax-card-visual bg-ocean">
+        <div class="ax-card-icon">
+          <svg viewBox="0 0 56 56" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="14" y="14" width="28" height="28" rx="4"/>
+            <line x1="14" y1="22" x2="42" y2="22"/>
+            <rect x="18" y="26" width="8" height="6" rx="1"/><rect x="30" y="26" width="8" height="6" rx="1"/>
+            <rect x="18" y="34" width="20" height="4" rx="1"/>
+          </svg>
+        </div>
+      </div>
+      <div class="ax-card-body">
+        <div class="ax-card-title">Generative UI</div>
+        <div class="ax-card-desc">Interfaces that write themselves</div>
+      </div>
+    </a>
+
+    <a href="seeing-like-an-agent.html" class="ax-card ax-fade">
+      <div class="ax-card-visual bg-steel">
+        <div class="ax-card-icon">
+          <svg viewBox="0 0 56 56" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="12" y="14" width="32" height="28" rx="3"/>
+            <line x1="24" y1="14" x2="24" y2="42"/>
+            <line x1="16" y1="22" x2="21" y2="22"/><line x1="16" y1="26" x2="20" y2="26"/><line x1="16" y1="30" x2="22" y2="30"/>
+            <rect x="27" y="18" width="14" height="20" rx="1" stroke-dasharray="2 2"/>
+          </svg>
+        </div>
+      </div>
+      <div class="ax-card-body">
+        <div class="ax-card-title">IDE-Embedded Agents</div>
+        <div class="ax-card-desc">The agent lives in your editor</div>
+      </div>
+    </a>
+
+    <a href="agent-design-deepdive.html" class="ax-card ax-fade">
+      <div class="ax-card-visual bg-sage-dark">
+        <div class="ax-card-icon">
+          <svg viewBox="0 0 56 56" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="14" y="14" width="28" height="28" rx="3"/>
+            <text x="18" y="30" font-family="monospace" font-size="10" fill="rgba(255,255,255,0.85)">$_</text>
+            <polyline points="18 34 22 38 18 42" stroke-width="1.5"/>
+            <line x1="26" y1="42" x2="36" y2="42"/>
+          </svg>
+        </div>
+      </div>
+      <div class="ax-card-body">
+        <div class="ax-card-title">TUI / CLI Agents</div>
+        <div class="ax-card-desc">Agents in your terminal</div>
+      </div>
+    </a>
+
+    <a href="agent-design-deepdive.html" class="ax-card ax-fade">
+      <div class="ax-card-visual bg-wine">
+        <div class="ax-card-icon">
+          <svg viewBox="0 0 56 56" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M16 40 L16 16 C16 14 18 12 20 12 L36 12 C38 12 40 14 40 16 L40 40"/>
+            <path d="M16 40 L12 40"/><path d="M40 40 L44 40"/>
+            <line x1="22" y1="20" x2="34" y2="20"/><line x1="22" y1="26" x2="30" y2="26"/>
+            <circle cx="28" cy="34" r="3"/>
+          </svg>
+        </div>
+      </div>
+      <div class="ax-card-body">
+        <div class="ax-card-title">Chat Interfaces</div>
+        <div class="ax-card-desc">The conversation as the interface</div>
+      </div>
+    </a>
+
+    <a href="agent-design-deepdive.html" class="ax-card ax-fade">
+      <div class="ax-card-visual bg-dusk">
+        <div class="ax-card-icon">
+          <svg viewBox="0 0 56 56" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="12" y="18" width="14" height="20" rx="2"/>
+            <rect x="30" y="18" width="14" height="20" rx="2"/>
+            <line x1="19" y1="24" x2="19" y2="32"/><line x1="37" y1="24" x2="37" y2="32"/>
+          </svg>
+        </div>
+      </div>
+      <div class="ax-card-body">
+        <div class="ax-card-title">Multi-Agent Workspaces</div>
+        <div class="ax-card-desc">A control room for your agents</div>
+      </div>
+    </a>
+
+    <a href="agent-design-deepdive.html" class="ax-card ax-fade">
+      <div class="ax-card-visual bg-ash">
+        <div class="ax-card-icon">
+          <svg viewBox="0 0 56 56" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="16" y="16" width="24" height="24" rx="3" stroke-dasharray="3 3"/>
+            <circle cx="28" cy="28" r="6"/>
+            <line x1="28" y1="22" x2="28" y2="18"/><line x1="28" y1="38" x2="28" y2="34"/>
+          </svg>
+        </div>
+      </div>
+      <div class="ax-card-body">
+        <div class="ax-card-title">Headless / CI Agents</div>
+        <div class="ax-card-desc">No human watching</div>
+      </div>
+    </a>
+
+  </div>
+</div>
+
+<!-- Design -->
+<div class="ax-section" data-category="design">
+  <div class="ax-section-label label-design">Design</div>
+  <p class="ax-section-desc">Making agents usable, testable, and trustworthy</p>
+  <div class="ax-grid">
+
+    <a href="agent-design-deepdive.html" class="ax-card ax-fade">
+      <div class="ax-card-visual bg-forest">
+        <div class="ax-card-icon">
+          <svg viewBox="0 0 56 56" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="28" cy="18" r="6"/>
+            <path d="M28 24 L28 32"/>
+            <path d="M20 40 C20 34 24 32 28 32 C32 32 36 34 36 40"/>
+            <circle cx="18" cy="30" r="3" stroke-dasharray="2 2"/>
+          </svg>
+        </div>
+      </div>
+      <div class="ax-card-body">
+        <div class="ax-card-title">Human-in-the-Loop</div>
+        <div class="ax-card-desc">Knowing when to ask for help</div>
+      </div>
+    </a>
+
+    <a href="agent-design-deepdive.html" class="ax-card ax-fade">
+      <div class="ax-card-visual bg-copper">
+        <div class="ax-card-icon">
+          <svg viewBox="0 0 56 56" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="28" cy="28" r="14"/>
+            <circle cx="28" cy="28" r="8"/>
+            <circle cx="28" cy="28" r="2" fill="rgba(255,255,255,0.85)"/>
+          </svg>
+        </div>
+      </div>
+      <div class="ax-card-body">
+        <div class="ax-card-title">Observability & Tracing</div>
+        <div class="ax-card-desc">Debugging the black box</div>
+      </div>
+    </a>
+
+    <a href="agent-design-deepdive.html" class="ax-card ax-fade">
+      <div class="ax-card-visual bg-terracotta">
+        <div class="ax-card-icon">
+          <svg viewBox="0 0 56 56" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="18" y="38" width="6" height="6" rx="1"/><rect x="26" y="30" width="6" height="14" rx="1"/><rect x="34" y="22" width="6" height="22" rx="1"/>
+            <line x1="16" y1="44" x2="42" y2="44"/>
+          </svg>
+        </div>
+      </div>
+      <div class="ax-card-body">
+        <div class="ax-card-title">Evaluation & Testing</div>
+        <div class="ax-card-desc">How do you know your agent is good?</div>
+      </div>
+    </a>
+
+  </div>
+</div>
+
+<div class="ax-footer">
+  <p>Inspired by <a href="https://agent-experience.dev/" target="_blank" rel="noopener">agent-experience.dev</a> by <a href="https://x.com/burcs" target="_blank" rel="noopener">@burcs</a></p>
+</div>
+
+</div>
+
+<script>
+(function() {
+  var btns = document.querySelectorAll('.ax-filter-btn');
+  var sections = document.querySelectorAll('.ax-section');
+
+  btns.forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      btns.forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      var filter = btn.dataset.filter;
+      sections.forEach(function(s) {
+        if (filter === 'all' || s.dataset.category === filter) {
+          s.style.display = '';
+        } else {
+          s.style.display = 'none';
+        }
+      });
+    });
+  });
+
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+  document.querySelectorAll('.ax-fade').forEach(function(el, i) {
+    el.style.transitionDelay = (i % 3) * 80 + 'ms';
+    observer.observe(el);
+  });
+})();
+</script>
+
+</body>
+</html>
