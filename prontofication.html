@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-62YF7Y81BS"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-62YF7Y81BS');
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pronto-fication — The Unbundling of Urban Company</title>
+<meta name="description" content="Deep dive on how India's $60B home services market is being unbundled by vertical-first, speed-obsessed startups like Pronto and Snabbit.">
+<meta property="og:title" content="Pronto-fication — The Unbundling of Urban Company">
+<meta property="og:description" content="India's Craigslist moment for home services. $95M+ raised, 69K+ daily bookings, 9 months from zero.">
+<meta property="og:url" content="https://omkarray.com/prontofication.html">
+<meta property="og:type" content="article">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@300;400;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FAFAF8;
+    --card: #FFFFFF;
+    --card-alt: #F5F3EF;
+    --text: #1A1A1A;
+    --text-muted: #6B6B6B;
+    --accent: #C45B28;
+    --accent-light: #F0DDD0;
+    --border: #E8E4DE;
+    --green: #2D7A4F;
+    --green-light: #E8F5EE;
+    --blue: #2B5EA7;
+    --blue-light: #E4EDF8;
+    --purple: #6B4C9A;
+    --purple-light: #EDE4F5;
+    --red: #B83232;
+    --red-light: #FCE8E8;
+    --yellow: #C49A1A;
+    --yellow-light: #FDF5E0;
+    --dark: #1A1A1A;
+    --dark-muted: #3A3A3A;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--text-muted);
+    text-decoration: none;
+    padding: 24px 48px 0;
+  }
+  .back-link:hover { color: var(--accent); }
+
+  .header {
+    border-bottom: 1px solid var(--border);
+    padding: 24px 48px;
+    background: var(--card);
+  }
+  .header-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .header .label {
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--accent);
+    font-weight: 600;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .header h1 {
+    font-size: 36px;
+    font-weight: 300;
+    color: var(--text);
+    font-family: 'Playfair Display', Georgia, serif;
+    line-height: 1.2;
+  }
+  .header .subtitle {
+    font-size: 15px;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
+  .header .meta {
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .nav {
+    border-bottom: 1px solid var(--border);
+    padding: 0 48px;
+    background: var(--card);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    gap: 0;
+    overflow-x: auto;
+    max-width: 100%;
+  }
+  .nav button {
+    padding: 14px 20px;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    text-transform: uppercase;
+    white-space: nowrap;
+    transition: all 0.15s ease;
+    font-family: 'Inter', sans-serif;
+  }
+  .nav button:hover { color: var(--accent); }
+  .nav button.active {
+    font-weight: 700;
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+
+  .content {
+    padding: 40px 48px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .section { display: none; }
+  .section.active { display: block; }
+
+  .exhibit-label {
+    font-size: 13px;
+    letter-spacing: 2px;
+    color: var(--accent);
+    font-weight: 600;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .exhibit-title {
+    font-size: 32px;
+    font-weight: 300;
+    color: var(--text);
+    line-height: 1.3;
+    margin-bottom: 12px;
+    font-family: 'Playfair Display', Georgia, serif;
+  }
+  .exhibit-desc {
+    font-size: 16px;
+    color: var(--text-muted);
+    line-height: 1.8;
+    max-width: 680px;
+    margin-bottom: 36px;
+  }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 40px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 40px; }
+
+  .box {
+    border-radius: 12px;
+    padding: 32px;
+  }
+  .box .box-label {
+    font-size: 12px;
+    letter-spacing: 1.5px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+  }
+  .box p { font-size: 15px; color: var(--text); line-height: 1.7; }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 32px;
+  }
+
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center;
+  }
+  .stat-card .stat-label {
+    font-size: 11px;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    font-weight: 600;
+  }
+  .stat-card .stat-value {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    font-family: 'Playfair Display', Georgia, serif;
+  }
+  .stat-card .stat-sub {
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  .timeline {
+    display: flex;
+    align-items: center;
+    gap: 0;
+  }
+  .timeline-item {
+    flex: 1;
+    text-align: center;
+    position: relative;
+  }
+  .timeline-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    margin: 0 auto 12px;
+    position: relative;
+    z-index: 2;
+  }
+  .timeline-line {
+    position: absolute;
+    top: 6px;
+    left: 50%;
+    width: 100%;
+    height: 2px;
+    background: var(--border);
+    z-index: 1;
+  }
+  .timeline-year {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .timeline-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.4;
+    padding: 0 4px;
+  }
+
+  .insight-box {
+    background: var(--card-alt);
+    border-radius: 12px;
+    padding: 24px;
+    margin-top: 32px;
+    border-left: 4px solid var(--accent);
+  }
+  .insight-box p {
+    font-size: 14px;
+    color: var(--text);
+    line-height: 1.7;
+  }
+
+  .table-header {
+    display: grid;
+    gap: 0;
+    padding: 12px 20px;
+    border-bottom: 2px solid var(--dark);
+  }
+  .table-header p {
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    color: var(--text-muted);
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+  .table-row {
+    display: grid;
+    gap: 0;
+    padding: 16px 20px;
+    border-radius: 8px;
+    align-items: center;
+  }
+  .table-row:nth-child(even) { background: var(--card); }
+  .table-row:nth-child(odd) { background: var(--card-alt); }
+
+  .unbundling-cols { grid-template-columns: 2fr 2fr 1fr 1fr 1.5fr; }
+  .economics-cols { grid-template-columns: 2fr 1.5fr 1.5fr 1.5fr; }
+  .risk-cols { grid-template-columns: 240px 1fr 1fr; }
+
+  .player-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .player-card .player-header {
+    padding: 20px 24px;
+    color: #FFF;
+  }
+  .player-card .player-header h3 {
+    font-size: 22px;
+    font-weight: 700;
+    font-family: 'Playfair Display', Georgia, serif;
+  }
+  .player-card .player-header .founded {
+    font-size: 12px;
+    color: rgba(255,255,255,0.8);
+    margin-top: 4px;
+  }
+  .player-card .player-body { padding: 24px; }
+  .player-field {
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .player-field:last-of-type { border-bottom: none; }
+  .player-field .field-label {
+    font-size: 10px;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .player-field .field-value {
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.4;
+  }
+  .player-model {
+    margin-top: 12px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    border-left: 3px solid;
+  }
+
+  .principle-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 28px;
+    position: relative;
+    overflow: hidden;
+  }
+  .principle-number {
+    position: absolute;
+    top: -8px;
+    right: -4px;
+    font-size: 72px;
+    font-weight: 800;
+    opacity: 0.06;
+    font-family: 'Playfair Display', Georgia, serif;
+    line-height: 1;
+  }
+  .principle-bar {
+    width: 32px;
+    height: 3px;
+    border-radius: 2px;
+    display: inline-block;
+    margin-right: 12px;
+    vertical-align: middle;
+  }
+  .principle-label {
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    display: inline;
+    vertical-align: middle;
+  }
+  .principle-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text);
+    margin: 14px 0 10px;
+    font-family: 'Playfair Display', Georgia, serif;
+  }
+  .principle-desc {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.7;
+    margin-bottom: 14px;
+  }
+  .principle-lens {
+    border-radius: 8px;
+    padding: 12px 16px;
+    border-left: 3px solid;
+  }
+  .principle-lens .lens-label {
+    font-size: 10px;
+    letter-spacing: 1px;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .principle-lens p {
+    font-size: 12px;
+    color: var(--text);
+    line-height: 1.6;
+    font-style: italic;
+  }
+
+  .risk-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    display: grid;
+    grid-template-columns: 240px 1fr 1fr;
+    gap: 24px;
+    align-items: start;
+  }
+
+  .severity-badge {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    display: inline-block;
+  }
+
+  .bottom-box {
+    background: var(--dark);
+    border-radius: 12px;
+    padding: 32px;
+    margin-top: 40px;
+    color: #FFF;
+    text-align: center;
+  }
+  .bottom-box .bl-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: rgba(255,255,255,0.5);
+    font-weight: 600;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .bottom-box .bl-text {
+    font-size: 20px;
+    font-weight: 300;
+    line-height: 1.6;
+    max-width: 640px;
+    margin: 0 auto;
+    font-family: 'Playfair Display', Georgia, serif;
+  }
+  .bottom-stats {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    margin-top: 24px;
+  }
+  .bottom-stats .stat-num {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--accent);
+    font-family: 'Playfair Display', Georgia, serif;
+  }
+  .bottom-stats .stat-label {
+    font-size: 11px;
+    color: rgba(255,255,255,0.5);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .bottom-stats .divider {
+    width: 1px;
+    background: rgba(255,255,255,0.1);
+  }
+
+  .market-bar {
+    display: flex;
+    align-items: flex-end;
+    gap: 4px;
+    height: 200px;
+    margin-bottom: 16px;
+  }
+  .market-bar-segment {
+    border-radius: 8px 8px 0 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid var(--border);
+  }
+
+  .economics-header {
+    display: grid;
+    grid-template-columns: 2fr 1.5fr 1.5fr 1.5fr;
+    background: var(--dark);
+    padding: 16px 24px;
+    border-radius: 12px 12px 0 0;
+  }
+  .economics-header p {
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+
+  .footer {
+    padding: 24px 48px;
+    border-top: 1px solid var(--border);
+    text-align: center;
+  }
+  .footer p {
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+  }
+
+  .color-dot {
+    width: 4px;
+    height: 32px;
+    border-radius: 2px;
+    display: inline-block;
+    margin-right: 10px;
+    vertical-align: middle;
+  }
+
+  .status-pill {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 20px;
+    display: inline-block;
+    white-space: nowrap;
+  }
+
+  .share-bar {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    border-radius: 40px;
+    z-index: 200;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  }
+  .share-bar a, .share-bar button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: none;
+    background: var(--bg);
+    cursor: pointer;
+    transition: background 0.2s;
+    text-decoration: none;
+    color: var(--text-muted);
+  }
+  .share-bar a:hover, .share-bar button:hover {
+    background: var(--accent-light);
+    color: var(--accent);
+  }
+  .share-bar svg { width: 18px; height: 18px; }
+  .view-count {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-weight: 500;
+    padding: 0 4px;
+  }
+
+  @media (max-width: 768px) {
+    .header { padding: 16px 20px; }
+    .nav { padding: 0 20px; }
+    .content { padding: 24px 20px; }
+    .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+    .header h1 { font-size: 28px; }
+    .exhibit-title { font-size: 24px; }
+    .risk-card { grid-template-columns: 1fr; }
+    .unbundling-cols { grid-template-columns: 1fr; }
+    .economics-cols { grid-template-columns: 1fr; }
+    .economics-header { grid-template-columns: 1fr; }
+    .header-inner { flex-direction: column; align-items: flex-start; gap: 8px; }
+    .share-bar { bottom: 12px; right: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<a class="back-link" href="/">← Back to omkarray.com</a>
+
+<div class="header">
+  <div class="header-inner">
+    <div>
+      <p class="label">Deep Dive</p>
+      <h1>Pronto-fication</h1>
+      <p class="subtitle">The Unbundling of Urban Company</p>
+    </div>
+    <p class="meta">7 Exhibits · By Omkar Ray</p>
+  </div>
+</div>
+
+<div class="nav" id="nav">
+  <button class="active" data-section="thesis">Thesis</button>
+  <button data-section="market">Market</button>
+  <button data-section="unbundling">Unbundling Map</button>
+  <button data-section="players">Players</button>
+  <button data-section="economics">Unit Economics</button>
+  <button data-section="frameworks">Frameworks</button>
+  <button data-section="risks">Risk Matrix</button>
+</div>
+
+<div class="content">
+
+<!-- ═══════════════ THESIS ═══════════════ -->
+<div class="section active" id="thesis">
+  <p class="exhibit-label">Exhibit 01</p>
+  <h2 class="exhibit-title">The Craigslist Moment for<br>Indian Home Services</h2>
+  <p class="exhibit-desc">Just as Craigslist was unbundled into Airbnb (stays), Indeed (jobs), Tinder (dating), and Etsy (crafts) — Urban Company's horizontal home services platform is being decomposed into vertical-specific, speed-first startups that own a single use case deeply.</p>
+
+  <div class="grid-2">
+    <div class="box" style="background:var(--accent-light);">
+      <p class="box-label" style="color:var(--accent);">The Pattern</p>
+      <p>Every horizontal marketplace eventually gets unbundled by vertical specialists who offer 10× better experience in a single category. Urban Company is India's Craigslist of home services — and the unbundling has begun.</p>
+    </div>
+    <div class="box" style="background:var(--green-light);">
+      <p class="box-label" style="color:var(--green);">The Catalyst</p>
+      <p>Quick commerce trained India's urban consumers to expect 10-minute delivery. That same expectation now applies to home services — sweeping, cooking, laundry, beauty — all in under 15 minutes.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <p style="font-size:12px;letter-spacing:1.5px;color:var(--text-muted);font-weight:600;margin-bottom:20px;text-transform:uppercase;">The Unbundling Timeline</p>
+    <div class="timeline">
+      <div class="timeline-item">
+        <div class="timeline-dot" style="background:var(--blue);"></div>
+        <div class="timeline-line"></div>
+        <p class="timeline-year" style="color:var(--blue);">2014</p>
+        <p class="timeline-label">Urban Company founded</p>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot" style="background:var(--purple);"></div>
+        <div class="timeline-line"></div>
+        <p class="timeline-year" style="color:var(--purple);">2020</p>
+        <p class="timeline-label">ChefKart, Broomees emerge</p>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot" style="background:var(--green);"></div>
+        <div class="timeline-line"></div>
+        <p class="timeline-year" style="color:var(--green);">2024</p>
+        <p class="timeline-label">Snabbit launched</p>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot" style="background:var(--accent);"></div>
+        <div class="timeline-line"></div>
+        <p class="timeline-year" style="color:var(--accent);">2025</p>
+        <p class="timeline-label">Pronto, InstaHelp, funding frenzy</p>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot" style="background:var(--red);"></div>
+        <p class="timeline-year" style="color:var(--red);">2026</p>
+        <p class="timeline-label">$95M+ raised by unbundlers</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ MARKET ═══════════════ -->
+<div class="section" id="market">
+  <p class="exhibit-label">Exhibit 02</p>
+  <h2 class="exhibit-title">The $60 Billion Unorganized Ocean</h2>
+  <p class="exhibit-desc">India's home services market is one of the largest and most fragmented consumer categories globally — and online platforms have barely scratched the surface.</p>
+
+  <div class="grid-4">
+    <div class="stat-card">
+      <p class="stat-label">Total Home Services TAM (FY25)</p>
+      <p class="stat-value" style="color:var(--dark);">₹5,100-5,210 Bn</p>
+      <p class="stat-sub">~$60 Billion</p>
+    </div>
+    <div class="stat-card">
+      <p class="stat-label">Online Penetration (FY25)</p>
+      <p class="stat-value" style="color:var(--red);">&lt;1%</p>
+      <p class="stat-sub">₹41-43 Bn online</p>
+    </div>
+    <div class="stat-card">
+      <p class="stat-label">Online Market by FY30</p>
+      <p class="stat-value" style="color:var(--green);">₹85-88 Bn</p>
+      <p class="stat-sub">18-22% CAGR</p>
+    </div>
+    <div class="stat-card">
+      <p class="stat-label">Top 8 Cities Share</p>
+      <p class="stat-value" style="color:var(--blue);">85-90%</p>
+      <p class="stat-sub">of online demand</p>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:24px;">
+    <p style="font-size:12px;letter-spacing:1.5px;color:var(--text-muted);font-weight:600;margin-bottom:24px;text-transform:uppercase;">Market Structure — FY25</p>
+    <div class="market-bar">
+      <div class="market-bar-segment" style="flex:90.5;background:var(--card-alt);height:100%;">
+        <p style="font-size:36px;font-weight:700;color:var(--text-muted);font-family:'Playfair Display',Georgia,serif;">90.5%</p>
+        <p style="font-size:12px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:1px;">Unorganised</p>
+      </div>
+      <div class="market-bar-segment" style="flex:8.7;background:var(--blue-light);height:50%;">
+        <p style="font-size:16px;font-weight:700;color:var(--blue);">8.7%</p>
+        <p style="font-size:9px;color:var(--blue);font-weight:600;text-transform:uppercase;text-align:center;line-height:1.2;padding:0 2px;">Offline Organised</p>
+      </div>
+      <div class="market-bar-segment" style="flex:0.8;background:var(--accent);height:12%;min-width:60px;position:relative;justify-content:flex-start;">
+        <div style="position:absolute;top:-48px;text-align:center;white-space:nowrap;">
+          <p style="font-size:14px;font-weight:700;color:var(--accent);">0.8%</p>
+          <p style="font-size:9px;color:var(--accent);font-weight:600;text-transform:uppercase;">Online Full-Stack</p>
+        </div>
+      </div>
+    </div>
+    <p style="font-size:13px;color:var(--text-muted);font-style:italic;text-align:center;">99.2% of India's home services market remains offline. The opportunity is structural, not cyclical.</p>
+  </div>
+</div>
+
+<!-- ═══════════════ UNBUNDLING ═══════════════ -->
+<div class="section" id="unbundling">
+  <p class="exhibit-label">Exhibit 03</p>
+  <h2 class="exhibit-title">The Unbundling Map</h2>
+  <p class="exhibit-desc">Each category within Urban Company's grid represents a standalone business opportunity. The highest-frequency categories are being unbundled first.</p>
+
+  <div class="table-header unbundling-cols">
+    <p>UC Category</p><p>Unbundlers</p><p>Speed</p><p>Frequency</p><p>Status</p>
+  </div>
+
+  <div class="table-row unbundling-cols">
+    <div style="display:flex;align-items:center;gap:10px;"><div class="color-dot" style="background:var(--accent);"></div><p style="font-size:14px;font-weight:600;">Daily Cleaning & Housekeeping</p></div>
+    <p style="font-size:13px;color:var(--text-muted);">Snabbit, Pronto, Broomees</p>
+    <p style="font-size:13px;font-weight:600;color:var(--accent);">10 min</p>
+    <p style="font-size:13px;color:var(--text-muted);">Daily</p>
+    <span class="status-pill" style="color:var(--accent);background:rgba(196,91,40,0.08);">Hot — $95M+ raised</span>
+  </div>
+  <div class="table-row unbundling-cols">
+    <div style="display:flex;align-items:center;gap:10px;"><div class="color-dot" style="background:var(--green);"></div><p style="font-size:14px;font-weight:600;">Cooking & Meal Prep</p></div>
+    <p style="font-size:13px;color:var(--text-muted);">ChefKart, Pronto (piloting), COOX</p>
+    <p style="font-size:13px;font-weight:600;color:var(--green);">30-60 min</p>
+    <p style="font-size:13px;color:var(--text-muted);">Daily</p>
+    <span class="status-pill" style="color:var(--green);background:rgba(45,122,79,0.08);">Emerging</span>
+  </div>
+  <div class="table-row unbundling-cols">
+    <div style="display:flex;align-items:center;gap:10px;"><div class="color-dot" style="background:var(--purple);"></div><p style="font-size:14px;font-weight:600;">Beauty & Salon (Women)</p></div>
+    <p style="font-size:13px;color:var(--text-muted);">Yes Madam, Parlour at Home</p>
+    <p style="font-size:13px;font-weight:600;color:var(--purple);">Scheduled</p>
+    <p style="font-size:13px;color:var(--text-muted);">Monthly</p>
+    <span class="status-pill" style="color:var(--purple);background:rgba(107,76,154,0.08);">Scaled — ₹200Cr rev</span>
+  </div>
+  <div class="table-row unbundling-cols">
+    <div style="display:flex;align-items:center;gap:10px;"><div class="color-dot" style="background:var(--blue);"></div><p style="font-size:14px;font-weight:600;">Men's Grooming</p></div>
+    <p style="font-size:13px;color:var(--text-muted);">Groom Inn, At-Home Barber</p>
+    <p style="font-size:13px;font-weight:600;color:var(--blue);">Scheduled</p>
+    <p style="font-size:13px;color:var(--text-muted);">Bi-weekly</p>
+    <span class="status-pill" style="color:var(--blue);background:rgba(43,94,167,0.08);">Early</span>
+  </div>
+  <div class="table-row unbundling-cols">
+    <div style="display:flex;align-items:center;gap:10px;"><div class="color-dot" style="background:var(--yellow);"></div><p style="font-size:14px;font-weight:600;">AC & Appliance Repair</p></div>
+    <p style="font-size:13px;color:var(--text-muted);">OnSiteGo, Serve Easy</p>
+    <p style="font-size:13px;font-weight:600;color:var(--yellow);">Same day</p>
+    <p style="font-size:13px;color:var(--text-muted);">Seasonal</p>
+    <span class="status-pill" style="color:var(--yellow);background:rgba(196,154,26,0.08);">Fragmented</span>
+  </div>
+  <div class="table-row unbundling-cols">
+    <div style="display:flex;align-items:center;gap:10px;"><div class="color-dot" style="background:var(--dark-muted);"></div><p style="font-size:14px;font-weight:600;">Electrician / Plumber</p></div>
+    <p style="font-size:13px;color:var(--text-muted);">Mr. Right, UrbanClap Lite</p>
+    <p style="font-size:13px;font-weight:600;color:var(--dark-muted);">2-4 hours</p>
+    <p style="font-size:13px;color:var(--text-muted);">As needed</p>
+    <span class="status-pill" style="color:var(--dark-muted);background:rgba(58,58,58,0.08);">Needs unbundling</span>
+  </div>
+
+  <div class="insight-box">
+    <p><strong style="color:var(--accent);">Key Insight:</strong> The unbundling follows the same pattern as Craigslist → the highest-frequency, highest-emotion categories get unbundled first. Daily cleaning (trust + frequency) is the current battleground, just as jobs and dating were for Craigslist.</p>
+  </div>
+</div>
+
+<!-- ═══════════════ PLAYERS ═══════════════ -->
+<div class="section" id="players">
+  <p class="exhibit-label">Exhibit 04</p>
+  <h2 class="exhibit-title">The Three-Way Race</h2>
+  <p class="exhibit-desc">Instant home services is the most funded sub-category of India's home services market in 2025-26. Three players are scaling aggressively — each with a distinct strategic playbook.</p>
+
+  <div class="grid-3">
+    <div class="player-card">
+      <div class="player-header" style="background:var(--blue);">
+        <h3>Snabbit</h3>
+        <p class="founded">Founded 2024</p>
+      </div>
+      <div class="player-body">
+        <div class="player-field"><p class="field-label">Founder</p><p class="field-value">Aayush Agarwal (ex-Zepto CoS)</p></div>
+        <div class="player-field"><p class="field-label">Funding</p><p class="field-value">$56.2M (Series C)</p></div>
+        <div class="player-field"><p class="field-label">Valuation</p><p class="field-value">$180M</p></div>
+        <div class="player-field"><p class="field-label">Daily Bookings</p><p class="field-value">10,000+</p></div>
+        <div class="player-field"><p class="field-label">Coverage</p><p class="field-value">5 cities, 40 micro-markets</p></div>
+        <div class="player-field"><p class="field-label">Key Investors</p><p class="field-value">Lightspeed, Elevation, Bertelsmann, Nexus</p></div>
+        <div class="player-model" style="background:rgba(43,94,167,0.06);border-left-color:var(--blue);">
+          <p style="font-size:11px;font-weight:600;color:var(--blue);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Model</p>
+          <p style="font-size:12px;color:var(--text);">100% women fleet, 10-min promise</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="player-card">
+      <div class="player-header" style="background:var(--accent);">
+        <h3>Pronto</h3>
+        <p class="founded">Founded 2025</p>
+      </div>
+      <div class="player-body">
+        <div class="player-field"><p class="field-label">Founder</p><p class="field-value">Anjali Sardana (23, ex-Bain Capital)</p></div>
+        <div class="player-field"><p class="field-label">Funding</p><p class="field-value">$40M (Series B)</p></div>
+        <div class="player-field"><p class="field-label">Valuation</p><p class="field-value">$100M</p></div>
+        <div class="player-field"><p class="field-label">Daily Bookings</p><p class="field-value">18,000+</p></div>
+        <div class="player-field"><p class="field-label">Coverage</p><p class="field-value">10 cities, 150+ micro-markets</p></div>
+        <div class="player-field"><p class="field-label">Key Investors</p><p class="field-value">Epiq Capital, General Catalyst, Bain Capital Ventures</p></div>
+        <div class="player-model" style="background:rgba(196,91,40,0.06);border-left-color:var(--accent);">
+          <p style="font-size:11px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Model</p>
+          <p style="font-size:12px;color:var(--text);">Referral-led supply, structured shifts</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="player-card">
+      <div class="player-header" style="background:var(--green);">
+        <h3>UC InstaHelp</h3>
+        <p class="founded">Founded Mar 2025</p>
+      </div>
+      <div class="player-body">
+        <div class="player-field"><p class="field-label">Founder</p><p class="field-value">Urban Company (incumbent)</p></div>
+        <div class="player-field"><p class="field-label">Funding</p><p class="field-value">Internal — public company</p></div>
+        <div class="player-field"><p class="field-label">Valuation</p><p class="field-value">Part of UC (₹1,260Cr FY25 rev)</p></div>
+        <div class="player-field"><p class="field-label">Daily Bookings</p><p class="field-value">51,520 (peak)</p></div>
+        <div class="player-field"><p class="field-label">Coverage</p><p class="field-value">5 metros</p></div>
+        <div class="player-field"><p class="field-label">Key Investors</p><p class="field-value">Public company post IPO</p></div>
+        <div class="player-model" style="background:rgba(45,122,79,0.06);border-left-color:var(--green);">
+          <p style="font-size:11px;font-weight:600;color:var(--green);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Model</p>
+          <p style="font-size:12px;color:var(--text);">Leveraging existing UC supply + brand</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top:32px;" class="grid-2">
+    <div class="box" style="background:var(--purple-light);">
+      <p class="box-label" style="color:var(--purple);">Vertical Specialists (Scaled)</p>
+      <p><strong>Yes Madam</strong> — At-home beauty, ₹200Cr FY26 revenue target, 2.4L monthly bookings, EBITDA positive, 60+ cities. Bootstrapped.</p>
+      <p style="margin-top:8px;"><strong>ChefKart</strong> — At-home cooks on subscription/on-demand. Training centers, steady employment model for cooks.</p>
+    </div>
+    <div class="box" style="background:var(--yellow-light);">
+      <p class="box-label" style="color:var(--yellow);">Early-stage Unbundlers</p>
+      <p><strong>Broomees</strong> — Verified domestic help (maids, babysitters, cooks). Shark Tank India featured. Full-time placement model. Training centers across Delhi-NCR.</p>
+      <p style="margin-top:8px;"><strong>BookMyBai, Pync (shut down)</strong> — Competitors entering and exiting, validating the space.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ ECONOMICS ═══════════════ -->
+<div class="section" id="economics">
+  <p class="exhibit-label">Exhibit 05</p>
+  <h2 class="exhibit-title">The Economics of Instant</h2>
+  <p class="exhibit-desc">Can you build a profitable business on ₹150/hour tasks? The unit economics of instant home services are still being written — but the signals are promising.</p>
+
+  <div class="card" style="padding:0;overflow:hidden;">
+    <div class="economics-header">
+      <p style="color:rgba(255,255,255,0.6);">Metric</p>
+      <p style="color:var(--blue-light);">Snabbit</p>
+      <p style="color:var(--accent-light);">Pronto</p>
+      <p style="color:var(--green-light);">UC InstaHelp</p>
+    </div>
+    <div class="table-row economics-cols"><p style="font-size:13px;font-weight:600;">Avg Ticket Size</p><p style="font-size:13px;color:var(--text-muted);">₹240 (~$3)</p><p style="font-size:13px;color:var(--text-muted);">₹150-200</p><p style="font-size:13px;color:var(--text-muted);">₹149-₹49 (promo)</p></div>
+    <div class="table-row economics-cols"><p style="font-size:13px;font-weight:600;">Pricing Model</p><p style="font-size:13px;color:var(--text-muted);">₹150-199/hr</p><p style="font-size:13px;color:var(--text-muted);">Per task</p><p style="font-size:13px;color:var(--text-muted);">Per task (low intro)</p></div>
+    <div class="table-row economics-cols"><p style="font-size:13px;font-weight:600;">Worker Earnings/mo</p><p style="font-size:13px;color:var(--text-muted);">₹25-30K</p><p style="font-size:13px;color:var(--text-muted);">Structured shifts</p><p style="font-size:13px;color:var(--text-muted);">₹28,322 avg (UC)</p></div>
+    <div class="table-row economics-cols"><p style="font-size:13px;font-weight:600;">CAC</p><p style="font-size:13px;color:var(--text-muted);">&lt;₹500 (~$6)</p><p style="font-size:13px;color:var(--text-muted);">Referral-led</p><p style="font-size:13px;color:var(--text-muted);">UC brand leverage</p></div>
+    <div class="table-row economics-cols"><p style="font-size:13px;font-weight:600;">Retention</p><p style="font-size:13px;color:var(--text-muted);">30-35%</p><p style="font-size:13px;color:var(--text-muted);">High repeat</p><p style="font-size:13px;color:var(--text-muted);">Growing repeat</p></div>
+    <div class="table-row economics-cols"><p style="font-size:13px;font-weight:600;">Unit Economics</p><p style="font-size:13px;color:var(--text-muted);">Older MMs break-even</p><p style="font-size:13px;color:var(--text-muted);">2+ yr runway</p><p style="font-size:13px;color:var(--text-muted);">₹381 loss/order (Q3)</p></div>
+    <div class="table-row economics-cols"><p style="font-size:13px;font-weight:600;">Supply Model</p><p style="font-size:13px;color:var(--text-muted);">Full-stack, women fleet</p><p style="font-size:13px;color:var(--text-muted);">Referral compounds</p><p style="font-size:13px;color:var(--text-muted);">Existing UC pool</p></div>
+    <div class="table-row economics-cols"><p style="font-size:13px;font-weight:600;">WoW Growth</p><p style="font-size:13px;color:var(--text-muted);">~20%</p><p style="font-size:13px;color:var(--text-muted);">~20%</p><p style="font-size:13px;color:var(--text-muted);">Scaling fast</p></div>
+  </div>
+
+  <div class="insight-box" style="margin-top:24px;">
+    <p><strong style="color:var(--accent);">The AOV Problem:</strong> Urban Company's CEO has publicly stated InstaHelp needs AOV to rise 1.8-2× from current levels (₹149→₹270-300+) to approach break-even. The loss per order halved from ₹760 (Q2) to ₹381 (Q3 FY26) — showing rapid improvement but still a long road.</p>
+  </div>
+</div>
+
+<!-- ═══════════════ FRAMEWORKS ═══════════════ -->
+<div class="section" id="frameworks">
+  <p class="exhibit-label">Exhibit 06</p>
+  <h2 class="exhibit-title">Six Principles of Pronto-fication</h2>
+  <p class="exhibit-desc">Investment principles and design thinking distilled from the emergent pattern of home services unbundling. Each principle reveals what makes this cycle different.</p>
+
+  <div class="grid-2">
+    <div class="principle-card">
+      <div class="principle-number" style="color:var(--blue);">01</div>
+      <div style="position:relative;z-index:1;">
+        <div style="margin-bottom:14px;"><div class="principle-bar" style="background:var(--blue);"></div><span class="principle-label" style="color:var(--blue);">Principle 01</span></div>
+        <h3 class="principle-title">Win Micromarkets, Not Cities</h3>
+        <p class="principle-desc">In hyperlocal services, you win or lose at the 1.5-2km radius level. Snabbit's median walking distance between jobs: 250m. The game is density, not breadth.</p>
+        <div class="principle-lens" style="background:rgba(43,94,167,0.04);border-left-color:var(--blue);">
+          <p class="lens-label" style="color:var(--blue);">Strategic Lens</p>
+          <p>This mirrors how Zepto won quick commerce — by building dark store networks in high-density clusters before going wide. Geographic concentration creates defensibility.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="principle-card">
+      <div class="principle-number" style="color:var(--green);">02</div>
+      <div style="position:relative;z-index:1;">
+        <div style="margin-bottom:14px;"><div class="principle-bar" style="background:var(--green);"></div><span class="principle-label" style="color:var(--green);">Principle 02</span></div>
+        <h3 class="principle-title">Frequency Creates Moats</h3>
+        <p class="principle-desc">Daily cleaning has fundamentally different economics than monthly beauty services. High-frequency categories build habit loops, reduce CAC through repeat usage, and create referral compounding.</p>
+        <div class="principle-lens" style="background:rgba(45,122,79,0.04);border-left-color:var(--green);">
+          <p class="lens-label" style="color:var(--green);">Strategic Lens</p>
+          <p>The unbundlers target ₹150/hr tasks because frequency trumps ticket size. A customer who books 20 times/month at ₹200 is worth more than one who books once at ₹2,000.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="principle-card">
+      <div class="principle-number" style="color:var(--accent);">03</div>
+      <div style="position:relative;z-index:1;">
+        <div style="margin-bottom:14px;"><div class="principle-bar" style="background:var(--accent);"></div><span class="principle-label" style="color:var(--accent);">Principle 03</span></div>
+        <h3 class="principle-title">Supply is the Moat, Not Demand</h3>
+        <p class="principle-desc">99.99% of this market is offline. Demand exists. The constraint is structured, reliable, trained supply deployed within walking distance. Pronto's referral-led supply growth compounds at 20% WoW.</p>
+        <div class="principle-lens" style="background:rgba(196,91,40,0.04);border-left-color:var(--accent);">
+          <p class="lens-label" style="color:var(--accent);">Strategic Lens</p>
+          <p>This is an operational moat, not a technical one. Whoever trains, retains, and positions workers best wins. Supply-side network effects in micromarkets create local monopolies.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="principle-card">
+      <div class="principle-number" style="color:var(--purple);">04</div>
+      <div style="position:relative;z-index:1;">
+        <div style="margin-bottom:14px;"><div class="principle-bar" style="background:var(--purple);"></div><span class="principle-label" style="color:var(--purple);">Principle 04</span></div>
+        <h3 class="principle-title">The Incumbent's Dilemma</h3>
+        <p class="principle-desc">Urban Company's InstaHelp is growing fast (51K daily bookings) but is dilutive to the core business: ₹21Cr quarterly loss, ₹381 loss per order. The startup attackers have no legacy margins to protect.</p>
+        <div class="principle-lens" style="background:rgba(107,76,154,0.04);border-left-color:var(--purple);">
+          <p class="lens-label" style="color:var(--purple);">Strategic Lens</p>
+          <p>Classic innovator's dilemma: UC must invest in InstaHelp to defend against unbundlers, but the economics threaten its newly-achieved profitability narrative as a public company.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="principle-card">
+      <div class="principle-number" style="color:var(--yellow);">05</div>
+      <div style="position:relative;z-index:1;">
+        <div style="margin-bottom:14px;"><div class="principle-bar" style="background:var(--yellow);"></div><span class="principle-label" style="color:var(--yellow);">Principle 05</span></div>
+        <h3 class="principle-title">Variable Cost > Fixed Cost = Advantage</h3>
+        <p class="principle-desc">Unlike quick commerce with its dark stores (capex-heavy), instant home services run on variable cost structures. Workers are the infrastructure. No warehouses, no cold chains.</p>
+        <div class="principle-lens" style="background:rgba(196,154,26,0.04);border-left-color:var(--yellow);">
+          <p class="lens-label" style="color:var(--yellow);">Strategic Lens</p>
+          <p>Pronto's founder noted: "The cost structure is more in our favour" vs. quick commerce. Total aggregate burn should be lower because there's less capex. This is a margin advantage at scale.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="principle-card">
+      <div class="principle-number" style="color:var(--red);">06</div>
+      <div style="position:relative;z-index:1;">
+        <div style="margin-bottom:14px;"><div class="principle-bar" style="background:var(--red);"></div><span class="principle-label" style="color:var(--red);">Principle 06</span></div>
+        <h3 class="principle-title">Trust Inside the Home</h3>
+        <p class="principle-desc">This isn't delivering a grocery bag. A worker enters your home. Background verification, training, insurance, SOS features — these aren't nice-to-haves, they're table stakes.</p>
+        <div class="principle-lens" style="background:rgba(184,50,50,0.04);border-left-color:var(--red);">
+          <p class="lens-label" style="color:var(--red);">Strategic Lens</p>
+          <p>The trust barrier is what kept this market 99% offline. Whoever builds the highest-trust brand in each city wins disproportionately. Trust doesn't unbundle — it concentrates.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ RISKS ═══════════════ -->
+<div class="section" id="risks">
+  <p class="exhibit-label">Exhibit 07</p>
+  <h2 class="exhibit-title">Risk-Reward Matrix</h2>
+  <p class="exhibit-desc">Every structural shift carries embedded risks. Understanding both sides of each risk is essential for clear-eyed assessment of the Pronto-fication thesis.</p>
+
+  <div style="display:grid;gap:16px;">
+    <div class="risk-card">
+      <div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+          <div style="width:8px;height:8px;border-radius:50%;background:var(--red);"></div>
+          <span class="severity-badge" style="color:var(--red);background:rgba(184,50,50,0.08);">High</span>
+        </div>
+        <p style="font-size:16px;font-weight:600;font-family:'Playfair Display',Georgia,serif;">Burn Rate Escalation</p>
+      </div>
+      <div>
+        <p style="font-size:10px;letter-spacing:1px;color:var(--red);font-weight:700;text-transform:uppercase;margin-bottom:6px;">The Risk</p>
+        <p style="font-size:13px;color:var(--text-muted);line-height:1.6;">InstaHelp lost ₹61Cr adjusted EBITDA in one quarter. Startups face similar burn dynamics with aggressive pricing.</p>
+      </div>
+      <div>
+        <p style="font-size:10px;letter-spacing:1px;color:var(--green);font-weight:700;text-transform:uppercase;margin-bottom:6px;">The Counter</p>
+        <p style="font-size:13px;color:var(--text-muted);line-height:1.6;">Variable cost structure means burn can be modulated. No fixed dark store costs.</p>
+      </div>
+    </div>
+
+    <div class="risk-card">
+      <div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+          <div style="width:8px;height:8px;border-radius:50%;background:var(--yellow);"></div>
+          <span class="severity-badge" style="color:var(--yellow);background:rgba(196,154,26,0.08);">Medium</span>
+        </div>
+        <p style="font-size:16px;font-weight:600;font-family:'Playfair Display',Georgia,serif;">Winner-Take-Most Isn't Guaranteed</p>
+      </div>
+      <div>
+        <p style="font-size:10px;letter-spacing:1px;color:var(--red);font-weight:700;text-transform:uppercase;margin-bottom:6px;">The Risk</p>
+        <p style="font-size:13px;color:var(--text-muted);line-height:1.6;">Unlike ride-hailing where one app dominates, home services may support 2-3 players per city due to supply constraints.</p>
+      </div>
+      <div>
+        <p style="font-size:10px;letter-spacing:1px;color:var(--green);font-weight:700;text-transform:uppercase;margin-bottom:6px;">The Counter</p>
+        <p style="font-size:13px;color:var(--text-muted);line-height:1.6;">Micromarket density creates local monopolies. Multiple winners across different micromarkets.</p>
+      </div>
+    </div>
+
+    <div class="risk-card">
+      <div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+          <div style="width:8px;height:8px;border-radius:50%;background:var(--red);"></div>
+          <span class="severity-badge" style="color:var(--red);background:rgba(184,50,50,0.08);">High</span>
+        </div>
+        <p style="font-size:16px;font-weight:600;font-family:'Playfair Display',Georgia,serif;">Supply Attrition</p>
+      </div>
+      <div>
+        <p style="font-size:10px;letter-spacing:1px;color:var(--red);font-weight:700;text-transform:uppercase;margin-bottom:6px;">The Risk</p>
+        <p style="font-size:13px;color:var(--text-muted);line-height:1.6;">Workers can leave for competitors or return to informal arrangements. Retention is the hardest problem in gig platforms.</p>
+      </div>
+      <div>
+        <p style="font-size:10px;letter-spacing:1px;color:var(--green);font-weight:700;text-transform:uppercase;margin-bottom:6px;">The Counter</p>
+        <p style="font-size:13px;color:var(--text-muted);line-height:1.6;">Better pay (₹25-30K vs ₹9K informal), insurance, structured shifts. Worker NPS is high at Pronto/Snabbit.</p>
+      </div>
+    </div>
+
+    <div class="risk-card">
+      <div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+          <div style="width:8px;height:8px;border-radius:50%;background:var(--yellow);"></div>
+          <span class="severity-badge" style="color:var(--yellow);background:rgba(196,154,26,0.08);">Medium</span>
+        </div>
+        <p style="font-size:16px;font-weight:600;font-family:'Playfair Display',Georgia,serif;">Regulatory Risk</p>
+      </div>
+      <div>
+        <p style="font-size:10px;letter-spacing:1px;color:var(--red);font-weight:700;text-transform:uppercase;margin-bottom:6px;">The Risk</p>
+        <p style="font-size:13px;color:var(--text-muted);line-height:1.6;">UC's 'Insta Maids' naming controversy shows sensitivity around domestic work. Labour unions may push for employee classification.</p>
+      </div>
+      <div>
+        <p style="font-size:10px;letter-spacing:1px;color:var(--green);font-weight:700;text-transform:uppercase;margin-bottom:6px;">The Counter</p>
+        <p style="font-size:13px;color:var(--text-muted);line-height:1.6;">Platforms are formally better for workers than informal alternatives. Proactive worker benefits help narrative.</p>
+      </div>
+    </div>
+
+    <div class="risk-card">
+      <div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+          <div style="width:8px;height:8px;border-radius:50%;background:var(--yellow);"></div>
+          <span class="severity-badge" style="color:var(--yellow);background:rgba(196,154,26,0.08);">Medium</span>
+        </div>
+        <p style="font-size:16px;font-weight:600;font-family:'Playfair Display',Georgia,serif;">Consumer Price Sensitivity</p>
+      </div>
+      <div>
+        <p style="font-size:10px;letter-spacing:1px;color:var(--red);font-weight:700;text-transform:uppercase;margin-bottom:6px;">The Risk</p>
+        <p style="font-size:13px;color:var(--text-muted);line-height:1.6;">Can you raise AOV from ₹149 to ₹300+ without destroying demand? Premium vs. volume tension.</p>
+      </div>
+      <div>
+        <p style="font-size:10px;letter-spacing:1px;color:var(--green);font-weight:700;text-transform:uppercase;margin-bottom:6px;">The Counter</p>
+        <p style="font-size:13px;color:var(--text-muted);line-height:1.6;">Convenience premium exists. Post-COVID trust concerns drive willingness to pay. Habit formation reduces price sensitivity.</p>
+      </div>
+    </div>
+
+    <div class="risk-card">
+      <div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+          <div style="width:8px;height:8px;border-radius:50%;background:var(--green);"></div>
+          <span class="severity-badge" style="color:var(--green);background:rgba(45,122,79,0.08);">Low</span>
+        </div>
+        <p style="font-size:16px;font-weight:600;font-family:'Playfair Display',Georgia,serif;">Horizontal Re-bundling</p>
+      </div>
+      <div>
+        <p style="font-size:10px;letter-spacing:1px;color:var(--red);font-weight:700;text-transform:uppercase;margin-bottom:6px;">The Risk</p>
+        <p style="font-size:13px;color:var(--text-muted);line-height:1.6;">Urban Company or a super-app (Zepto, Swiggy) could re-bundle services, eliminating vertical advantage.</p>
+      </div>
+      <div>
+        <p style="font-size:10px;letter-spacing:1px;color:var(--green);font-weight:700;text-transform:uppercase;margin-bottom:6px;">The Counter</p>
+        <p style="font-size:13px;color:var(--text-muted);line-height:1.6;">Home services require deep operational excellence per category. Re-bundling doesn't solve the quality problem.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-box">
+    <p class="bl-label">Bottom Line</p>
+    <p class="bl-text">India's $60B home services market is &lt;1% online. The unbundling of Urban Company is not a competitive response — it's a structural inevitability. The question isn't whether it happens, but who wins each micromarket.</p>
+    <div class="bottom-stats">
+      <div>
+        <p class="stat-num">$95M+</p>
+        <p class="stat-label">Raised by Unbundlers</p>
+      </div>
+      <div class="divider"></div>
+      <div>
+        <p class="stat-num">69K+</p>
+        <p class="stat-label">Combined Daily Bookings</p>
+      </div>
+      <div class="divider"></div>
+      <div>
+        <p class="stat-num">9 mo</p>
+        <p class="stat-label">From 0 to 50K bookings/day</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- end content -->
+
+<div class="footer">
+  <p>Sources: TechCrunch, Inc42, Redseer Strategy Consultants, YourStory, Urban Company Filings, Tracxn · Data as of 2026</p>
+</div>
+
+<!-- Share Bar -->
+<div class="share-bar">
+  <span class="view-count" id="viewCount">0 views</span>
+  <a href="https://twitter.com/intent/tweet?url=https://omkarray.com/prontofication.html&text=Pronto-fication: The Unbundling of Urban Company" target="_blank" title="Share on X">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+  </a>
+  <a href="https://www.linkedin.com/sharing/share-offsite/?url=https://omkarray.com/prontofication.html" target="_blank" title="Share on LinkedIn">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+  </a>
+  <button onclick="navigator.clipboard.writeText('https://omkarray.com/prontofication.html').then(()=>{this.innerHTML='<svg viewBox=\'0 0 24 24\' fill=\'currentColor\' style=\'color:var(--green)\'><path d=\'M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z\'/></svg>';setTimeout(()=>{this.innerHTML='<svg viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\'><rect x=\'9\' y=\'9\' width=\'13\' height=\'13\' rx=\'2\'/><path d=\'M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1\'/></svg>'},2000)})" title="Copy link">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+  </button>
+  <a href="mailto:?subject=Pronto-fication: The Unbundling of Urban Company&body=https://omkarray.com/prontofication.html" title="Email">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+  </a>
+</div>
+
+<script>
+// Tab navigation
+document.querySelectorAll('.nav button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.section).classList.add('active');
+  });
+});
+
+// View counter
+(function() {
+  var key = 'prontofication_views';
+  var views = parseInt(localStorage.getItem(key) || '0', 10) + 1;
+  localStorage.setItem(key, views);
+  document.getElementById('viewCount').textContent = views + (views === 1 ? ' view' : ' views');
+})();
+</script>
+
+</body>
+</html>
