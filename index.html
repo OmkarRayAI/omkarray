@@ -125,6 +125,12 @@
         </div>
         <p class="folder-subtitle">Long-form explorations into topics I find fascinating.</p>
         <div class="card-grid">
+          <a href="prontofication.html" class="card" data-cat="consumer">
+            <span class="card-tag">Consumer Tech</span>
+            <h3>Pronto-fication</h3>
+            <p>The unbundling of Urban Company — how India's $60B home services market is being decomposed by speed-first vertical startups.</p>
+            <span class="card-date">2026</span>
+          </a>
           <a href="visa-deepdive.html" class="card" data-cat="fintech">
             <span class="card-tag">Fintech</span>
             <h3>Visa's Product Ecosystem</h3>
@@ -729,7 +735,7 @@
         <div class="chat-avatar">O<span class="chat-online"></span></div>
         <div>
           <div class="chat-header-name">Ask Omkar's site</div>
-          <div class="chat-header-status" id="chatStatus">Online — knows all 9 deep dives</div>
+          <div class="chat-header-status" id="chatStatus">Online — knows all 10 deep dives</div>
         </div>
       </div>
       <button class="chat-header-close" id="chatClose" type="button" aria-label="Close chat">&times;</button>
@@ -787,6 +793,9 @@
       { text: "\"You can A/B test a landing page in an afternoon. A/B testing a voice agent prompt takes weeks of manual transcript review.\"", src: "Mixpanel for Voice AI", href: "mixpanel-voice-ai.html" },
       { text: "\"The companies that own the observability layer tend to outlast the platforms they sit on top of.\"", src: "Mixpanel for Voice AI", href: "mixpanel-voice-ai.html" },
       { text: "Ringg.ai: 3M+ lead gen calls, 150K+ loan collection calls. 10K+ concurrent call capacity at <330ms latency.", src: "Ringg.ai", href: "ringg-deepdive.html" },
+      { text: "India's home services TAM: ₹5,100-5,210 Bn (~$60B). Online penetration is <1%. 90.5% is unorganised.", src: "Pronto-fication", href: "prontofication.html" },
+      { text: "$95M+ raised by Urban Company unbundlers. Combined daily bookings hit 69K+ in 9 months from zero.", src: "Pronto-fication", href: "prontofication.html" },
+      { text: "Snabbit's median walking distance between jobs: 250m. Win micromarkets (1.5-2km radius), not cities.", src: "Pronto-fication", href: "prontofication.html" },
       { text: "UPI processes 16B+ transactions per month — the underlying rail that embedded finance in India rides on.", src: "Embedded Finance 2.0", href: "embedded-finance-agents.html" },
       { text: "Addverb (Reliance-backed, 56%): $100M revenue FY25 target, $1B in 5 years. Designed for Indian conditions — dust, heat, power fluctuations.", src: "Physical AI India", href: "physical-ai-india.html" }
     ];
@@ -919,6 +928,16 @@
           { name: 'Embedded Finance 2.0', href: 'embedded-finance-agents.html', desc: 'When fintech becomes a function call — agentic commerce stack' }
         ],
         extra: 'He also maintains a reading list on UPI, digital lending, and regtech on the homepage.'
+      },
+      {
+        tags: ['pronto','snabbit','urban company','home services','unbundling','cleaning','maid','housekeeping','domestic help','instahelp','broomees','chefkart','hyperlocal'],
+        synonyms: { 'uc': 'urban company', 'house help': 'home services', 'cook': 'chefkart', 'beauty': 'home services' },
+        title: 'Pronto-fication',
+        answer: 'The unbundling of Urban Company — India\'s $60B home services market being decomposed by vertical-first startups:',
+        links: [
+          { name: 'Pronto-fication', href: 'prontofication.html', desc: '$95M+ raised, 69K+ daily bookings, Snabbit/Pronto/UC InstaHelp three-way race' }
+        ],
+        extra: 'India\'s home services market is <1% online. 90.5% unorganised. The unbundling follows the Craigslist pattern — highest-frequency categories first.'
       },
       {
         tags: ['ecommerce','e-commerce','ecomm','flipkart','swiggy','meesho','amazon','india ecomm','genai','commerce','shopping','delivery','quick commerce'],
@@ -1139,7 +1158,7 @@
       chatBody.scrollTop = chatBody.scrollHeight;
     }
     function hideTyping() {
-      chatStatus.textContent = 'Online — knows all 9 deep dives';
+      chatStatus.textContent = 'Online — knows all 10 deep dives';
       var t = document.getElementById('chatTyping');
       if (t) t.remove();
     }
