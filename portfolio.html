@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nomad — Omkar Ray</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
+    
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        cream: {
+                            DEFAULT: '#F3EFE9',
+                            light: '#FCFAF8',
+                        },
+                        navy: {
+                            DEFAULT: '#1B2236',
+                            muted: '#5C687C',
+                        },
+                        sienna: {
+                            DEFAULT: '#D16246',
+                            light: '#E8BAAC',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['"Playfair Display"', 'serif'],
+                        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @keyframes ticker {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        .animate-ticker {
+            animation: ticker 40s linear infinite;
+        }
+        .animate-ticker:hover {
+            animation-play-state: paused;
+        }
+        .noise-overlay {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.03;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+    </style>
+</head>
+<body class="bg-cream text-navy font-sans antialiased relative selection:bg-sienna selection:text-white min-h-screen flex flex-col overflow-x-hidden">
+    
+    <div class="noise-overlay"></div>
+
+    
+    <div class="w-full bg-navy text-white py-2 overflow-hidden border-t-[3px] border-sienna flex relative z-40">
+        <div class="flex whitespace-nowrap animate-ticker w-max">
+            
+            <div class="flex items-center">
+                <span class="text-sienna mx-5"><i class="ph-fill ph-sparkle"></i></span>
+                <span class="text-[11px] font-semibold tracking-[0.15em] uppercase text-white/90">Today's Fact: The first computer mouse was invented in 1964 by Doug Engelbart and was made of wood.</span>
+                <span class="text-sienna mx-5"><i class="ph-fill ph-sparkle"></i></span>
+                <span class="text-[11px] font-semibold tracking-[0.15em] uppercase text-white/90">Today's Fact: The first computer mouse was invented in 1964 by Doug Engelbart and was made of wood.</span>
+                <span class="text-sienna mx-5"><i class="ph-fill ph-sparkle"></i></span>
+                <span class="text-[11px] font-semibold tracking-[0.15em] uppercase text-white/90">Today's Fact: The first computer mouse was invented in 1964 by Doug Engelbart and was made of wood.</span>
+                <span class="text-sienna mx-5"><i class="ph-fill ph-sparkle"></i></span>
+                <span class="text-[11px] font-semibold tracking-[0.15em] uppercase text-white/90">Today's Fact: The first computer mouse was invented in 1964 by Doug Engelbart and was made of wood.</span>
+            </div>
+            
+            <div class="flex items-center">
+                <span class="text-sienna mx-5"><i class="ph-fill ph-sparkle"></i></span>
+                <span class="text-[11px] font-semibold tracking-[0.15em] uppercase text-white/90">Today's Fact: The first computer mouse was invented in 1964 by Doug Engelbart and was made of wood.</span>
+                <span class="text-sienna mx-5"><i class="ph-fill ph-sparkle"></i></span>
+                <span class="text-[11px] font-semibold tracking-[0.15em] uppercase text-white/90">Today's Fact: The first computer mouse was invented in 1964 by Doug Engelbart and was made of wood.</span>
+                <span class="text-sienna mx-5"><i class="ph-fill ph-sparkle"></i></span>
+                <span class="text-[11px] font-semibold tracking-[0.15em] uppercase text-white/90">Today's Fact: The first computer mouse was invented in 1964 by Doug Engelbart and was made of wood.</span>
+                <span class="text-sienna mx-5"><i class="ph-fill ph-sparkle"></i></span>
+                <span class="text-[11px] font-semibold tracking-[0.15em] uppercase text-white/90">Today's Fact: The first computer mouse was invented in 1964 by Doug Engelbart and was made of wood.</span>
+            </div>
+        </div>
+    </div>
+
+    
+    <div class="fixed top-24 right-8 z-50 flex flex-col gap-4">
+        <button class="w-[46px] h-[46px] rounded-full bg-cream-light border border-navy/10 shadow-[0_4px_12px_rgba(27,34,54,0.05)] flex items-center justify-center text-navy/80 hover:text-sienna hover:border-sienna/30 hover:shadow-md transition-all duration-300 group relative">
+            <i class="ph ph-vinyl-record text-[22px]"></i>
+            <span class="absolute right-full mr-4 py-1.5 px-3 bg-navy text-white text-[10px] font-bold tracking-widest uppercase rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none shadow-lg">Currently listening</span>
+        </button>
+        <button class="w-[46px] h-[46px] rounded-full bg-cream-light border border-navy/10 shadow-[0_4px_12px_rgba(27,34,54,0.05)] flex items-center justify-center text-navy/80 hover:text-sienna hover:border-sienna/30 hover:shadow-md transition-all duration-300 group relative">
+            <i class="ph ph-compass text-[22px]"></i>
+            <span class="absolute right-full mr-4 py-1.5 px-3 bg-navy text-white text-[10px] font-bold tracking-widest uppercase rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none shadow-lg">Must visits</span>
+        </button>
+    </div>
+
+    
+    <div class="fixed bottom-8 right-8 z-50">
+        <button class="w-14 h-14 rounded-full bg-sienna text-white shadow-[0_8px_24px_rgba(209,98,70,0.3)] flex items-center justify-center hover:bg-navy hover:scale-[1.05] hover:shadow-[0_8px_24px_rgba(27,34,54,0.3)] transition-all duration-300 group relative">
+            <i class="ph-fill ph-paper-plane-tilt text-[26px]"></i>
+            <span class="absolute right-full mr-4 py-2 px-4 bg-white text-navy text-[11px] font-bold tracking-widest uppercase rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none border border-navy/5">Say Hello 👋</span>
+        </button>
+    </div>
+
+    
+    <main class="flex-grow w-full max-w-[1100px] mx-auto px-6 sm:px-12 pt-24 pb-20 relative z-10">
+        
+        
+        <section class="max-w-3xl mb-32 relative">
+            <h1 class="font-serif text-[5rem] sm:text-[7.5rem] leading-[0.9] text-navy tracking-tight mb-12 -ml-1">Omkar <span class="italic text-navy/90">Ray</span></h1>
+            
+            <div class="relative pl-8 md:pl-10">
+                <div class="absolute left-0 top-1.5 bottom-1.5 w-1 bg-sienna-light rounded-full"></div>
+                <p class="text-2xl md:text-[28px] text-navy/80 font-light leading-[1.4] mb-6">
+                    Curious, first principles thinker. AMA Music, Tech and Product.
+                </p>
+                <p class="text-lg md:text-[19px] text-navy/60 font-light leading-[1.6] max-w-2xl">
+                    I write about the intersection of human behavior, emerging technology, and market dynamics to understand where the world is heading.
+                </p>
+            </div>
+
+            <div class="flex flex-wrap gap-x-8 gap-y-4 mt-16 text-[12px] font-bold tracking-[0.1em] uppercase text-navy/70">
+                <a href="#" class="group flex items-center gap-1.5 hover:text-sienna transition-colors">
+                    X (Twitter)
+                    <i class="ph ph-arrow-up-right text-sm opacity-50 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-300"></i>
+                </a>
+                <a href="#" class="group flex items-center gap-1.5 hover:text-sienna transition-colors">
+                    LinkedIn
+                    <i class="ph ph-arrow-up-right text-sm opacity-50 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-300"></i>
+                </a>
+                <a href="#" class="group flex items-center gap-1.5 hover:text-sienna transition-colors">
+                    Substack
+                    <i class="ph ph-arrow-up-right text-sm opacity-50 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-300"></i>
+                </a>
+                <a href="#" class="group flex items-center gap-1.5 hover:text-sienna transition-colors">
+                    Email
+                    <i class="ph ph-arrow-up-right text-sm opacity-50 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-300"></i>
+                </a>
+            </div>
+        </section>
+
+        
+        <section class="mb-32">
+            <div class="flex items-end justify-between border-b border-navy/10 pb-5 mb-12">
+                <h2 class="font-serif text-[2.5rem] md:text-5xl text-navy leading-none">What I write about</h2>
+                <a href="#" class="hidden sm:flex items-center gap-2 text-[13px] font-medium text-navy/60 hover:text-sienna transition-colors group pb-1">
+                    View full archive
+                    <i class="ph ph-arrow-right text-base group-hover:translate-x-1 transition-transform"></i>
+                </a>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                
+                <a href="#" class="bg-cream-light border border-navy/5 p-8 flex flex-col justify-between min-h-[260px] hover:-translate-y-1 hover:shadow-[0_20px_40px_-15px_rgba(27,34,54,0.08)] hover:border-navy/15 transition-all duration-500 group rounded-sm relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-[3px] bg-sienna transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></div>
+                    <div class="flex justify-between items-start">
+                        <div class="w-12 h-12 rounded-full border border-navy/10 flex items-center justify-center text-navy/40 group-hover:text-sienna group-hover:border-sienna/30 transition-colors duration-500 bg-white shadow-sm">
+                            <i class="ph ph-magnifying-glass text-xl"></i>
+                        </div>
+                        <span class="text-[10px] font-bold tracking-[0.15em] uppercase text-navy/30 mt-1">9 Explorations</span>
+                    </div>
+                    <div class="mt-8">
+                        <h3 class="font-serif text-3xl text-navy group-hover:text-sienna transition-colors duration-500 mb-3">Deepdives</h3>
+                        <p class="text-[13px] text-navy/60 leading-relaxed font-light">Comprehensive teardowns of products, companies, and the mechanics of their success.</p>
+                    </div>
+                </a>
+
+                
+                <a href="#" class="bg-cream-light border border-navy/5 p-8 flex flex-col justify-between min-h-[260px] hover:-translate-y-1 hover:shadow-[0_20px_40px_-15px_rgba(27,34,54,0.08)] hover:border-navy/15 transition-all duration-500 group rounded-sm relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-[3px] bg-sienna transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></div>
+                    <div class="flex justify-between items-start">
+                        <div class="w-12 h-12 rounded-full border border-navy/10 flex items-center justify-center text-navy/40 group-hover:text-sienna group-hover:border-sienna/30 transition-colors duration-500 bg-white shadow-sm">
+                            <i class="ph ph-lightbulb text-xl"></i>
+                        </div>
+                        <span class="text-[10px] font-bold tracking-[0.15em] uppercase text-navy/30 mt-1">3 Theses</span>
+                    </div>
+                    <div class="mt-8">
+                        <h3 class="font-serif text-3xl text-navy group-hover:text-sienna transition-colors duration-500 mb-3">Thesis</h3>
+                        <p class="text-[13px] text-navy/60 leading-relaxed font-light">Core beliefs and formulated frameworks on where specific markets are heading.</p>
+                    </div>
+                </a>
+
+                
+                <a href="#" class="bg-cream-light border border-navy/5 p-8 flex flex-col justify-between min-h-[260px] hover:-translate-y-1 hover:shadow-[0_20px_40px_-15px_rgba(27,34,54,0.08)] hover:border-navy/15 transition-all duration-500 group rounded-sm relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-[3px] bg-sienna transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></div>
+                    <div class="flex justify-between items-start">
+                        <div class="w-12 h-12 rounded-full border border-navy/10 flex items-center justify-center text-navy/40 group-hover:text-sienna group-hover:border-sienna/30 transition-colors duration-500 bg-white shadow-sm">
+                            <i class="ph ph-article text-xl"></i>
+                        </div>
+                        <span class="text-[10px] font-bold tracking-[0.15em] uppercase text-navy/30 mt-1">5 Posts</span>
+                    </div>
+                    <div class="mt-8">
+                        <h3 class="font-serif text-3xl text-navy group-hover:text-sienna transition-colors duration-500 mb-3">Blogs</h3>
+                        <p class="text-[13px] text-navy/60 leading-relaxed font-light">Shorter musings, mental models, and observations on daily tech occurrences.</p>
+                    </div>
+                </a>
+
+                
+                <a href="#" class="bg-cream-light border border-navy/5 p-8 flex flex-col justify-between min-h-[260px] hover:-translate-y-1 hover:shadow-[0_20px_40px_-15px_rgba(27,34,54,0.08)] hover:border-navy/15 transition-all duration-500 group rounded-sm relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-[3px] bg-sienna transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></div>
+                    <div class="flex justify-between items-start">
+                        <div class="w-12 h-12 rounded-full border border-navy/10 flex items-center justify-center text-navy/40 group-hover:text-sienna group-hover:border-sienna/30 transition-colors duration-500 bg-white shadow-sm">
+                            <i class="ph ph-bank text-xl"></i>
+                        </div>
+                        <span class="text-[10px] font-bold tracking-[0.15em] uppercase text-navy/30 mt-1">Themes &amp; Reading</span>
+                    </div>
+                    <div class="mt-8">
+                        <h3 class="font-serif text-3xl text-navy group-hover:text-sienna transition-colors duration-500 mb-3">Fintech</h3>
+                        <p class="text-[13px] text-navy/60 leading-relaxed font-light">Navigating payments, lending infrastructure, and the evolution of modern money.</p>
+                    </div>
+                </a>
+
+                
+                <a href="#" class="bg-cream-light border border-navy/5 p-8 flex flex-col justify-between min-h-[260px] hover:-translate-y-1 hover:shadow-[0_20px_40px_-15px_rgba(27,34,54,0.08)] hover:border-navy/15 transition-all duration-500 group rounded-sm relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-[3px] bg-sienna transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></div>
+                    <div class="flex justify-between items-start">
+                        <div class="w-12 h-12 rounded-full border border-navy/10 flex items-center justify-center text-navy/40 group-hover:text-sienna group-hover:border-sienna/30 transition-colors duration-500 bg-white shadow-sm">
+                            <i class="ph ph-brain text-xl"></i>
+                        </div>
+                        <span class="text-[10px] font-bold tracking-[0.15em] uppercase text-navy/30 mt-1">80-Day Plan</span>
+                    </div>
+                    <div class="mt-8">
+                        <h3 class="font-serif text-3xl text-navy group-hover:text-sienna transition-colors duration-500 mb-3">AI / ML</h3>
+                        <p class="text-[13px] text-navy/60 leading-relaxed font-light">Tracking the frontier of intelligence, tooling, and its practical applications.</p>
+                    </div>
+                </a>
+
+                
+                <a href="#" class="bg-cream-light border border-navy/5 p-8 flex flex-col justify-between min-h-[260px] hover:-translate-y-1 hover:shadow-[0_20px_40px_-15px_rgba(27,34,54,0.08)] hover:border-navy/15 transition-all duration-500 group rounded-sm relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-[3px] bg-sienna transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></div>
+                    <div class="flex justify-between items-start">
+                        <div class="w-12 h-12 rounded-full border border-navy/10 flex items-center justify-center text-navy/40 group-hover:text-sienna group-hover:border-sienna/30 transition-colors duration-500 bg-white shadow-sm">
+                            <i class="ph ph-function text-xl"></i>
+                        </div>
+                        <span class="text-[10px] font-bold tracking-[0.15em] uppercase text-navy/30 mt-1">7 Topics</span>
+                    </div>
+                    <div class="mt-8">
+                        <h3 class="font-serif text-3xl text-navy group-hover:text-sienna transition-colors duration-500 mb-3">Maths</h3>
+                        <p class="text-[13px] text-navy/60 leading-relaxed font-light">Exploring the beautiful patterns, probabilities, and equations that govern systems.</p>
+                    </div>
+                </a>
+            </div>
+            
+            <a href="#" class="flex sm:hidden items-center justify-center gap-2 text-[13px] font-medium text-navy hover:text-sienna transition-colors group mt-8 border border-navy/20 w-full px-6 py-3 rounded-full mx-auto">
+                View full archive
+                <i class="ph ph-arrow-right text-base group-hover:translate-x-1 transition-transform"></i>
+            </a>
+        </section>
+
+        
+        <section>
+            <div class="flex items-end justify-between border-b border-navy/10 pb-5 mb-8">
+                <h2 class="font-serif text-[2.5rem] md:text-5xl text-navy leading-none">Featured Writing</h2>
+            </div>
+            <div class="flex flex-col">
+                
+                <a href="#" class="group py-8 border-b border-navy/5 flex flex-col md:flex-row md:items-center gap-4 hover:bg-cream-light transition-colors duration-300 -mx-6 px-6 rounded-xl">
+                    <div class="md:w-36 flex-shrink-0">
+                        <span class="text-[13px] font-mono text-navy/50">Oct 24, 2023</span>
+                    </div>
+                    <div class="flex-grow">
+                        <h3 class="font-serif text-2xl text-navy group-hover:text-sienna transition-colors mb-2">The Architecture of Modern Payment Rails</h3>
+                        <p class="text-sm text-navy/60 max-w-2xl leading-relaxed font-light">An in-depth look at how money actually moves across borders, examining the infrastructure choices of Stripe, Adyen, and newer challengers in the space.</p>
+                    </div>
+                    <div class="flex-shrink-0 md:w-32 md:text-right mt-4 md:mt-0 flex items-center md:justify-end gap-4">
+                        <span class="text-[10px] font-bold tracking-[0.1em] uppercase text-navy/50 border border-navy/10 px-3 py-1.5 rounded-sm bg-white">Fintech</span>
+                        <i class="ph ph-arrow-right text-lg text-navy/30 group-hover:text-sienna group-hover:translate-x-1 transition-all"></i>
+                    </div>
+                </a>
+
+                
+                <a href="#" class="group py-8 border-b border-navy/5 flex flex-col md:flex-row md:items-center gap-4 hover:bg-cream-light transition-colors duration-300 -mx-6 px-6 rounded-xl">
+                    <div class="md:w-36 flex-shrink-0">
+                        <span class="text-[13px] font-mono text-navy/50">Sep 12, 2023</span>
+                    </div>
+                    <div class="flex-grow">
+                        <h3 class="font-serif text-2xl text-navy group-hover:text-sienna transition-colors mb-2">Mental Models for the Generative Era</h3>
+                        <p class="text-sm text-navy/60 max-w-2xl leading-relaxed font-light">How to adapt your product thinking when marginal cost of creation approaches zero. A framework for building defensible software in 2024.</p>
+                    </div>
+                    <div class="flex-shrink-0 md:w-32 md:text-right mt-4 md:mt-0 flex items-center md:justify-end gap-4">
+                        <span class="text-[10px] font-bold tracking-[0.1em] uppercase text-navy/50 border border-navy/10 px-3 py-1.5 rounded-sm bg-white">AI / ML</span>
+                        <i class="ph ph-arrow-right text-lg text-navy/30 group-hover:text-sienna group-hover:translate-x-1 transition-all"></i>
+                    </div>
+                </a>
+
+                
+                <a href="#" class="group py-8 border-b border-navy/5 flex flex-col md:flex-row md:items-center gap-4 hover:bg-cream-light transition-colors duration-300 -mx-6 px-6 rounded-xl">
+                    <div class="md:w-36 flex-shrink-0">
+                        <span class="text-[13px] font-mono text-navy/50">Aug 05, 2023</span>
+                    </div>
+                    <div class="flex-grow">
+                        <h3 class="font-serif text-2xl text-navy group-hover:text-sienna transition-colors mb-2">Spotify's Algorithm and the Homogenization of Taste</h3>
+                        <p class="text-sm text-navy/60 max-w-2xl leading-relaxed font-light">A deepdive into recommendation engines and whether optimizing for engagement inadvertently flattens culture and discovery.</p>
+                    </div>
+                    <div class="flex-shrink-0 md:w-32 md:text-right mt-4 md:mt-0 flex items-center md:justify-end gap-4">
+                        <span class="text-[10px] font-bold tracking-[0.1em] uppercase text-navy/50 border border-navy/10 px-3 py-1.5 rounded-sm bg-white">Deepdives</span>
+                        <i class="ph ph-arrow-right text-lg text-navy/30 group-hover:text-sienna group-hover:translate-x-1 transition-all"></i>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="mt-12">
+                 <a href="#" class="inline-flex items-center gap-2 text-[13px] font-medium text-navy hover:text-sienna transition-colors group">
+                    Read more articles
+                    <i class="ph ph-arrow-right text-base group-hover:translate-x-1 transition-transform"></i>
+                </a>
+            </div>
+        </section>
+
+        
+        <footer class="mt-24 pt-10 border-t border-navy/10 flex flex-col md:flex-row justify-between items-center gap-6">
+            <p class="text-[15px] text-navy/60 font-serif italic">© 2024 Omkar Ray. All rights reserved.</p>
+            <div class="flex items-center gap-8 text-[11px] font-bold tracking-widest text-navy/50 uppercase">
+                <a href="#" class="hover:text-sienna transition-colors">RSS Feed</a>
+                <a href="#" class="hover:text-sienna transition-colors">Colophon</a>
+            </div>
+        </footer>
+
+    </main>
+
+</body>
+</html>
