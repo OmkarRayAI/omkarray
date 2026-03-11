@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Setup — Nomad</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #EAEBE6;
+            --ink: #111111;
+            --ink-light: #555555;
+            --pastel-sand: #EAE0CC;
+            --pastel-blue: #B5C6E8;
+            --pastel-green: #BBD2BC;
+            --pastel-lilac: #C4B1D6;
+            --font-serif: 'Instrument Serif', serif;
+            --font-sans: 'Inter', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --border-style: 1px solid var(--ink);
+            --safe-padding: 24px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--ink);
+            font-family: var(--font-sans);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: var(--safe-padding);
+        }
+
+        .header { margin-top: 40px; margin-bottom: 32px; }
+
+        .step-label {
+            font-family: var(--font-mono); font-size: 0.7rem;
+            text-transform: uppercase; letter-spacing: 0.1em;
+            margin-bottom: 8px; display: block;
+        }
+
+        .title {
+            font-family: var(--font-serif); font-size: 3rem;
+            line-height: 0.95; letter-spacing: -0.02em;
+        }
+
+        .location-prompt {
+            border: var(--border-style); border-radius: 12px;
+            padding: 16px; margin-bottom: 32px;
+            display: flex; justify-content: space-between; align-items: center;
+            background-color: rgba(255,255,255,0.2);
+        }
+
+        .location-text {
+            font-family: var(--font-mono); font-size: 0.75rem;
+        }
+
+        .location-btn {
+            background: var(--ink); color: var(--bg-color);
+            border: none; padding: 6px 12px; border-radius: 20px;
+            font-size: 0.7rem; font-weight: 600; text-transform: uppercase;
+            cursor: pointer;
+        }
+
+        .style-grid {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 12px; flex-grow: 1; margin-bottom: 40px;
+        }
+
+        .style-tile {
+            position: relative; border-radius: 16px; overflow: hidden;
+            border: var(--border-style); display: flex; flex-direction: column;
+            cursor: pointer; transition: transform 0.2s ease;
+            min-height: 180px;
+        }
+        .style-tile:active { transform: scale(0.98); }
+
+        .tile-img {
+            width: 100%; height: 100%; object-fit: cover;
+            position: absolute; z-index: 0;
+            filter: grayscale(20%); opacity: 0.9;
+        }
+
+        .tile-overlay {
+            position: absolute; inset: 0;
+            background: linear-gradient(to bottom, transparent 40%, rgba(0,0,0,0.6));
+            z-index: 1;
+        }
+
+        .tile-content {
+            position: relative; z-index: 2;
+            margin-top: auto; padding: 12px; color: white;
+        }
+
+        .tile-label {
+            font-family: var(--font-serif); font-size: 1.5rem; line-height: 1;
+        }
+
+        .tile-check {
+            position: absolute; top: 12px; right: 12px; z-index: 2;
+            width: 20px; height: 20px;
+            border: 1px solid rgba(255,255,255,0.5); border-radius: 50%;
+            background: rgba(255,255,255,0.2); backdrop-filter: blur(4px);
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        .selected .tile-check {
+            background: #fff; border-color: #fff;
+        }
+
+        .selected .tile-check::after {
+            content: "";
+            width: 8px; height: 4px;
+            border-left: 2px solid var(--ink);
+            border-bottom: 2px solid var(--ink);
+            transform: rotate(-45deg) translateY(-1px);
+        }
+
+        .footer-nav {
+            display: flex; justify-content: space-between;
+            align-items: center; padding-bottom: 20px;
+        }
+
+        .btn-skip {
+            font-family: var(--font-mono); font-size: 0.7rem;
+            text-transform: uppercase; text-decoration: underline;
+            background: none; border: none; color: var(--ink-light);
+            cursor: pointer;
+        }
+
+        .btn-continue {
+            background: var(--ink); color: var(--bg-color);
+            border: none; padding: 16px 32px; border-radius: 40px;
+            font-weight: 600; font-size: 0.9rem;
+            display: flex; align-items: center; gap: 12px;
+            cursor: pointer; transition: opacity 0.2s ease;
+        }
+        .btn-continue:hover { opacity: 0.85; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <span class="step-label">01 — Identity</span>
+            <h1 class="title">Define your<br>travel style.</h1>
+        </header>
+
+        <div class="location-prompt">
+            <div class="location-text">
+                <span style="opacity: 0.5;">DETECTING COORDINATES...</span><br>
+                CURRENT LAT: --.--
+            </div>
+            <button class="location-btn" id="gpsBtn">Allow GPS</button>
+        </div>
+
+        <div class="style-grid" id="styleGrid">
+            <div class="style-tile selected" data-style="architecture">
+                <img src="https://images.pexels.com/photos/221502/pexels-photo-221502.jpeg?auto=compress&cs=tinysrgb&w=400" class="tile-img" alt="Architecture">
+                <div class="tile-overlay"></div>
+                <div class="tile-check"></div>
+                <div class="tile-content">
+                    <span class="tile-label">Architecture</span>
+                </div>
+            </div>
+
+            <div class="style-tile" data-style="culinary">
+                <img src="https://images.pexels.com/photos/1267320/pexels-photo-1267320.jpeg?auto=compress&cs=tinysrgb&w=400" class="tile-img" alt="Culinary">
+                <div class="tile-overlay"></div>
+                <div class="tile-check"></div>
+                <div class="tile-content">
+                    <span class="tile-label">Culinary</span>
+                </div>
+            </div>
+
+            <div class="style-tile selected" data-style="off-grid">
+                <img src="https://images.pexels.com/photos/2387873/pexels-photo-2387873.jpeg?auto=compress&cs=tinysrgb&w=400" class="tile-img" alt="Off-Grid">
+                <div class="tile-overlay"></div>
+                <div class="tile-check"></div>
+                <div class="tile-content">
+                    <span class="tile-label">Off-Grid</span>
+                </div>
+            </div>
+
+            <div class="style-tile" data-style="heritage">
+                <img src="https://images.pexels.com/photos/1008155/pexels-photo-1008155.jpeg?auto=compress&cs=tinysrgb&w=400" class="tile-img" alt="Heritage">
+                <div class="tile-overlay"></div>
+                <div class="tile-check"></div>
+                <div class="tile-content">
+                    <span class="tile-label">Heritage</span>
+                </div>
+            </div>
+        </div>
+
+        <footer class="footer-nav">
+            <button class="btn-skip">Skip for now</button>
+            <a href="/nomad.html" class="btn-continue" style="text-decoration:none;">
+                Continue
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline points="12 5 19 12 12 19"></polyline>
+                </svg>
+            </a>
+        </footer>
+    </div>
+
+    <script>
+        document.getElementById('styleGrid').addEventListener('click', function(e) {
+            const tile = e.target.closest('.style-tile');
+            if (tile) tile.classList.toggle('selected');
+        });
+
+        document.getElementById('gpsBtn').addEventListener('click', function() {
+            const textEl = this.previousElementSibling || this.parentElement.querySelector('.location-text');
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(pos) {
+                    textEl.innerHTML =
+                        '<span style="opacity:0.5;">COORDINATES LOCKED</span><br>CURRENT LAT: ' +
+                        pos.coords.latitude.toFixed(2);
+                });
+            }
+        });
+    </script>
+</body>
+</html>
