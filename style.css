@@ -700,6 +700,7 @@ a {
 .card[data-cat="ecomm"]     { --file-accent: #1e6b3c; }
 .card[data-cat="fintech"]   { --file-accent: #2a7a5c; }
 .card[data-cat="agents"]    { --file-accent: #5a2080; }
+.card[data-cat="design"]    { --file-accent: #6b3fa0; }
 
 .card-tag {
   display: inline-flex;

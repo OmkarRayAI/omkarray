@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-62YF7Y81BS"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-62YF7Y81BS');
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Acai Theory — Packaging Design Artifact</title>
+<meta name="description" content="A functional packaging label concept for a cold-pressed acai blend — designed as a visual artifact.">
+<meta property="og:title" content="Acai Theory — Packaging Design Artifact">
+<meta property="og:description" content="Three-panel packaging label with WebGL paper texture, ink-style illustrations, and risograph-inspired color.">
+<meta property="og:image" content="acai-theory-og.png">
+<meta property="og:type" content="article">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Serif+Display:ital@0;1&family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #EDEBE3;
+    --surface: #FFFFFF;
+    --text: #1A1A1A;
+    --text-secondary: #5c5854;
+    --text-muted: #9A9790;
+    --border: #DBD9D0;
+    --radius: 10px;
+    --max-width: 1080px;
+
+    --paper-color: #b28ee6;
+    --ink-accent: #f04d28;
+    --ink-dark: #2c1450;
+    --font-brand: 'DM Serif Display', serif;
+    --font-data: 'JetBrains Mono', monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    font-size: 16px;
+  }
+
+  a { color: inherit; text-decoration: none; }
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--text-muted);
+    padding: 24px 0 0;
+    transition: color 0.2s;
+  }
+  .back-link:hover { color: var(--text); }
+
+  .page-header {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 0 24px 40px;
+  }
+
+  .page-kicker {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    margin-top: 32px;
+    margin-bottom: 8px;
+  }
+
+  .page-title {
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-size: clamp(28px, 5vw, 42px);
+    font-weight: 400;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    margin-bottom: 12px;
+  }
+
+  .page-subtitle {
+    font-size: 15px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    max-width: 600px;
+  }
+
+  .artifact-stage {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+    min-height: 70vh;
+    background-color: #1a1a1a;
+  }
+
+  /* ─── Packaging Label ─── */
+
+  .packaging-label {
+    position: relative;
+    background-color: var(--paper-color);
+    width: 100%;
+    max-width: 1200px;
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    border-radius: 4px;
+    font-family: var(--font-data);
+    color: var(--ink-dark);
+  }
+
+  #texture-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.8;
+  }
+
+  .ink-layer {
+    position: relative;
+    z-index: 1;
+    mix-blend-mode: multiply;
+  }
+
+  .panel {
+    padding: 3rem 2.5rem;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid rgba(44, 20, 80, 0.15);
+  }
+  .panel:last-child { border-right: none; }
+
+  .panel-front {
+    justify-content: space-between;
+    background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(0,0,0,0) 100%);
+  }
+
+  .meta-top {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .brand-lockup {
+    display: flex;
+    flex-direction: column;
+    margin-top: 4rem;
+    margin-bottom: 4rem;
+  }
+
+  .brand-name {
+    font-family: var(--font-brand);
+    font-style: italic;
+    color: var(--ink-accent);
+    font-size: clamp(4rem, 8vw, 7.5rem);
+    line-height: 0.85;
+    letter-spacing: -0.04em;
+    margin-left: -0.05em;
+    word-wrap: break-word;
+  }
+
+  .brand-descriptor {
+    margin-top: 1.5rem;
+    font-size: 0.85rem;
+    font-weight: 700;
+    line-height: 1.4;
+    max-width: 80%;
+    border-left: 2px solid var(--ink-accent);
+    padding-left: 1rem;
+  }
+
+  .volume {
+    font-size: 2rem;
+    font-family: var(--font-brand);
+    align-self: flex-start;
+  }
+  .volume span {
+    font-family: var(--font-data);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    vertical-align: super;
+  }
+
+  .panel-ingredients { gap: 2rem; }
+
+  .section-title {
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    border-bottom: 1px solid var(--ink-dark);
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .ingredient-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    flex-grow: 1;
+  }
+
+  .ingredient-item {
+    display: grid;
+    grid-template-columns: 40px 1fr;
+    gap: 1rem;
+    align-items: center;
+  }
+
+  .ing-icon {
+    width: 40px;
+    height: 40px;
+    fill: var(--ink-accent);
+  }
+
+  .ing-text {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .ing-name {
+    font-family: var(--font-brand);
+    font-size: 1.5rem;
+    line-height: 1;
+    color: var(--ink-dark);
+  }
+
+  .ing-desc {
+    font-size: 0.65rem;
+    opacity: 0.7;
+    margin-top: 0.25rem;
+  }
+
+  .system-code {
+    font-family: var(--font-data);
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    margin-top: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  .system-code span { display: block; }
+
+  .barcode-lines {
+    height: 20px;
+    width: 100%;
+    background: repeating-linear-gradient(
+      to right,
+      var(--ink-dark),
+      var(--ink-dark) 2px,
+      transparent 2px,
+      transparent 4px,
+      var(--ink-dark) 4px,
+      var(--ink-dark) 5px,
+      transparent 5px,
+      transparent 8px
+    );
+  }
+
+  .panel-nutrition {
+    background-color: rgba(255, 255, 255, 0.03);
+  }
+
+  .nutrition-label {
+    border: 2px solid var(--ink-dark);
+    padding: 0.5rem;
+    font-family: var(--font-data);
+    font-size: 0.75rem;
+  }
+
+  .nut-header {
+    font-family: var(--font-brand);
+    font-size: 2.5rem;
+    line-height: 0.9;
+    margin-bottom: 0.5rem;
+    color: var(--ink-accent);
+    text-transform: lowercase;
+  }
+
+  .nut-serving {
+    border-bottom: 5px solid var(--ink-dark);
+    padding-bottom: 0.5rem;
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+  }
+
+  .nut-row {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--ink-dark);
+    padding: 0.3rem 0;
+  }
+  .nut-row.thick { border-bottom-width: 3px; }
+  .nut-row.indent { padding-left: 1rem; }
+
+  .nut-bold { font-weight: 800; }
+  .nut-right { text-align: right; }
+
+  .daily-value {
+    font-size: 0.6rem;
+    text-align: right;
+    padding: 0.2rem 0;
+    border-bottom: 1px solid var(--ink-dark);
+  }
+
+  .footnote {
+    font-size: 0.55rem;
+    line-height: 1.2;
+    margin-top: 0.5rem;
+    opacity: 0.8;
+  }
+
+  .badges {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: auto;
+    padding-top: 2rem;
+  }
+  .badge {
+    border: 1px solid var(--ink-dark);
+    border-radius: 50%;
+    width: 45px;
+    height: 45px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 0.5rem;
+    font-weight: 700;
+    text-align: center;
+    text-transform: uppercase;
+    font-family: var(--font-data);
+    color: var(--ink-dark);
+  }
+  .badge.accent {
+    background-color: var(--ink-accent);
+    color: var(--paper-color);
+    border-color: var(--ink-accent);
+  }
+
+  /* ─── Design Notes ─── */
+
+  .design-notes {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 48px 24px 80px;
+  }
+
+  .notes-title {
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+  }
+
+  .notes-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+
+  .note-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+  }
+
+  .note-card h3 {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  .note-card p {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.55;
+  }
+
+  .note-swatch {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .swatch {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+  }
+
+  .note-fonts {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 10px;
+  }
+
+  .note-font-sample {
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+
+  @media (max-width: 900px) {
+    .packaging-label {
+      grid-template-columns: 1fr;
+      max-width: 500px;
+    }
+    .panel {
+      border-right: none;
+      border-bottom: 1px solid rgba(44, 20, 80, 0.15);
+    }
+    .panel:last-child { border-bottom: none; }
+    .brand-name { font-size: 5rem; }
+    .notes-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <a href="index.html" class="back-link">&larr; Back to omkarray.com</a>
+  <div class="page-kicker">Design Artifact</div>
+  <h1 class="page-title">Acai Theory</h1>
+  <p class="page-subtitle">A packaging label concept for a cold-pressed functional acai blend. Three-panel layout with WebGL paper texture, ink-style illustrations, and typographic hierarchy drawn from physical product design.</p>
+</div>
+
+<div class="artifact-stage">
+  <div class="packaging-label">
+    <canvas id="texture-canvas"></canvas>
+
+    <section class="panel panel-front ink-layer">
+      <div class="meta-top">
+        <span>Batch No. 084</span>
+        <span>Cold-Pressed</span>
+      </div>
+
+      <div class="brand-lockup">
+        <h1 class="brand-name">acai<br>theory</h1>
+        <p class="brand-descriptor">A functional blend of organic wild-harvested acai, activated seeds, and ancient grains. Unpasteurized.</p>
+      </div>
+
+      <div class="volume">
+        16<span>FL OZ</span> (473<span>ML</span>)
+      </div>
+    </section>
+
+    <section class="panel panel-ingredients ink-layer">
+      <h2 class="section-title">Formulation</h2>
+
+      <div class="ingredient-list">
+        <div class="ingredient-item">
+          <svg class="ing-icon" viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="45"></circle>
+          </svg>
+          <div class="ing-text">
+            <span class="ing-name">Acai Berry</span>
+            <span class="ing-desc">Wild-harvested puree</span>
+          </div>
+        </div>
+
+        <div class="ingredient-item">
+          <svg class="ing-icon" viewBox="0 0 100 100" style="fill:none; stroke:var(--ink-accent); stroke-width:8px;">
+            <polygon points="50,10 90,30 80,80 20,80 10,30"></polygon>
+            <line x1="20" y1="80" x2="90" y2="30"></line>
+          </svg>
+          <div class="ing-text">
+            <span class="ing-name">Granola</span>
+            <span class="ing-desc">Toasted ancient grains</span>
+          </div>
+        </div>
+
+        <div class="ingredient-item">
+          <svg class="ing-icon" viewBox="0 0 100 100">
+            <circle cx="30" cy="30" r="20"></circle>
+            <circle cx="70" cy="60" r="25"></circle>
+            <circle cx="40" cy="80" r="15"></circle>
+          </svg>
+          <div class="ing-text">
+            <span class="ing-name">Blueberries</span>
+            <span class="ing-desc">Antioxidant complex</span>
+          </div>
+        </div>
+
+        <div class="ingredient-item">
+          <svg class="ing-icon" viewBox="0 0 100 100">
+            <path d="M50 10 C 80 10, 90 50, 50 90 C 10 50, 20 10, 50 10 Z"></path>
+          </svg>
+          <div class="ing-text">
+            <span class="ing-name">Strawberries</span>
+            <span class="ing-desc">Vitamin C source</span>
+          </div>
+        </div>
+
+        <div class="ingredient-item">
+          <svg class="ing-icon" viewBox="0 0 100 100">
+            <rect x="20" y="20" width="10" height="20" rx="5"></rect>
+            <rect x="50" y="10" width="10" height="20" rx="5"></rect>
+            <rect x="70" y="40" width="10" height="20" rx="5"></rect>
+            <rect x="30" y="60" width="10" height="20" rx="5"></rect>
+            <rect x="60" y="70" width="10" height="20" rx="5"></rect>
+          </svg>
+          <div class="ing-text">
+            <span class="ing-name">Chia Seeds</span>
+            <span class="ing-desc">Omega-3 &amp; hydration</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="system-code">
+        <span>SKU-AC-16OZ-REV.B</span>
+        <div class="barcode-lines"></div>
+        <span>0 12345 67890 5</span>
+      </div>
+    </section>
+
+    <section class="panel panel-nutrition ink-layer">
+      <h2 class="section-title">Data</h2>
+
+      <div class="nutrition-label">
+        <div class="nut-header">facts</div>
+        <div class="nut-serving">
+          1 serving per container<br>
+          Serving size 1 Bottle (473mL)
+        </div>
+
+        <div class="nut-row thick" style="align-items: flex-end;">
+          <span class="nut-bold" style="font-size: 1.5rem;">Calories</span>
+          <span class="nut-bold" style="font-size: 2rem; line-height: 0.8;">240</span>
+        </div>
+
+        <div class="daily-value nut-bold">% Daily Value*</div>
+
+        <div class="nut-row">
+          <span><span class="nut-bold">Total Fat</span> 6g</span>
+          <span class="nut-bold">8%</span>
+        </div>
+        <div class="nut-row indent">
+          <span>Saturated Fat 1g</span>
+          <span class="nut-bold">5%</span>
+        </div>
+        <div class="nut-row indent">
+          <span>Trans Fat 0g</span>
+          <span></span>
+        </div>
+        <div class="nut-row">
+          <span><span class="nut-bold">Cholesterol</span> 0mg</span>
+          <span class="nut-bold">0%</span>
+        </div>
+        <div class="nut-row">
+          <span><span class="nut-bold">Sodium</span> 45mg</span>
+          <span class="nut-bold">2%</span>
+        </div>
+        <div class="nut-row">
+          <span><span class="nut-bold">Total Carbohydrate</span> 42g</span>
+          <span class="nut-bold">15%</span>
+        </div>
+        <div class="nut-row indent">
+          <span>Dietary Fiber 8g</span>
+          <span class="nut-bold">29%</span>
+        </div>
+        <div class="nut-row indent">
+          <span>Total Sugars 24g</span>
+          <span></span>
+        </div>
+        <div class="nut-row thick">
+          <span><span class="nut-bold">Protein</span> 5g</span>
+          <span></span>
+        </div>
+
+        <div class="nut-row">
+          <span>Vitamin D 0mcg</span>
+          <span>0%</span>
+        </div>
+        <div class="nut-row">
+          <span>Calcium 40mg</span>
+          <span>4%</span>
+        </div>
+        <div class="nut-row">
+          <span>Iron 1.8mg</span>
+          <span>10%</span>
+        </div>
+        <div class="nut-row">
+          <span>Potassium 450mg</span>
+          <span>10%</span>
+        </div>
+
+        <div class="footnote">
+          * The % Daily Value (DV) tells you how much a nutrient in a serving of food contributes to a daily diet. 2,000 calories a day is used for general nutrition advice.
+        </div>
+      </div>
+
+      <div class="badges">
+        <div class="badge">Non<br>GMO</div>
+        <div class="badge accent">Raw</div>
+        <div class="badge">Vegan</div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<div class="design-notes">
+  <div class="notes-title">Design Notes</div>
+  <div class="notes-grid">
+    <div class="note-card">
+      <h3>Palette</h3>
+      <p>Purple kraft paper, vermillion ink accent, deep aubergine for text. Inspired by risograph and letterpress printing.</p>
+      <div class="note-swatch">
+        <div class="swatch" style="background:#b28ee6;"></div>
+        <div class="swatch" style="background:#f04d28;"></div>
+        <div class="swatch" style="background:#2c1450;"></div>
+        <div class="swatch" style="background:#1a1a1a;"></div>
+      </div>
+    </div>
+    <div class="note-card">
+      <h3>Typography</h3>
+      <p>DM Serif Display italic for brand presence. JetBrains Mono for data density — nutrition facts, SKU codes, and metadata.</p>
+      <div class="note-fonts">
+        <span class="note-font-sample" style="font-family:'DM Serif Display',serif; font-style:italic; font-size:18px;">DM Serif Display</span>
+        <span class="note-font-sample" style="font-family:'JetBrains Mono',monospace; font-size:12px; letter-spacing:0.04em;">JetBrains Mono 400/700/800</span>
+      </div>
+    </div>
+    <div class="note-card">
+      <h3>Texture</h3>
+      <p>WebGL fragment shader generates a real-time paper grain. Noise + directional fiber artifacts give the surface physicality without a texture image.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  const canvas = document.getElementById('texture-canvas');
+  const gl = canvas.getContext('webgl', { alpha: true });
+
+  if (gl) {
+    const vsSource = `
+      attribute vec4 aVertexPosition;
+      varying vec2 vUv;
+      void main() {
+        gl_Position = aVertexPosition;
+        vUv = aVertexPosition.xy * 0.5 + 0.5;
+      }
+    `;
+
+    const fsSource = `
+      precision highp float;
+      varying vec2 vUv;
+      const vec3 paperColor = vec3(0.698, 0.557, 0.902);
+      float random(vec2 st) {
+        return fract(sin(dot(st.xy, vec2(12.9898,78.233))) * 43758.5453123);
+      }
+      void main() {
+        vec2 uv = vUv * 800.0;
+        float noise = random(floor(uv));
+        float grain = (noise - 0.5) * 0.08;
+        float fiberX = random(vec2(vUv.y * 1000.0, 1.0)) * 0.02;
+        float fiberY = random(vec2(vUv.x * 1000.0, 1.0)) * 0.02;
+        vec3 finalColor = paperColor + grain + fiberX + fiberY;
+        gl_FragColor = vec4(finalColor, 1.0);
+      }
+    `;
+
+    function createShader(gl, type, source) {
+      const shader = gl.createShader(type);
+      gl.shaderSource(shader, source);
+      gl.compileShader(shader);
+      if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+        gl.deleteShader(shader);
+        return null;
+      }
+      return shader;
+    }
+
+    const vertexShader = createShader(gl, gl.VERTEX_SHADER, vsSource);
+    const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fsSource);
+
+    const shaderProgram = gl.createProgram();
+    gl.attachShader(shaderProgram, vertexShader);
+    gl.attachShader(shaderProgram, fragmentShader);
+    gl.linkProgram(shaderProgram);
+
+    const vertexPosition = gl.getAttribLocation(shaderProgram, 'aVertexPosition');
+
+    const positions = [1.0, 1.0, -1.0, 1.0, 1.0, -1.0, -1.0, -1.0];
+    const positionBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
+
+    function resize() {
+      const w = canvas.clientWidth;
+      const h = canvas.clientHeight;
+      if (canvas.width !== w || canvas.height !== h) {
+        canvas.width = w;
+        canvas.height = h;
+        gl.viewport(0, 0, w, h);
+        drawScene();
+      }
+    }
+
+    function drawScene() {
+      gl.clearColor(0, 0, 0, 0);
+      gl.clear(gl.COLOR_BUFFER_BIT);
+      gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+      gl.vertexAttribPointer(vertexPosition, 2, gl.FLOAT, false, 0, 0);
+      gl.enableVertexAttribArray(vertexPosition);
+      gl.useProgram(shaderProgram);
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    }
+
+    window.addEventListener('resize', resize);
+    resize();
+  }
+</script>
+</body>
+</html>
