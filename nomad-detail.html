@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Umbrian Stone — Nomad</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #EAEBE6;
+            --ink: #111111;
+            --ink-light: #555555;
+            --pastel-sand: #EAE0CC;
+            --pastel-blue: #B5C6E8;
+            --pastel-green: #BBD2BC;
+            --pastel-lilac: #C4B1D6;
+            --font-serif: 'Instrument Serif', serif;
+            --font-sans: 'Inter', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --border-style: 1px solid var(--ink);
+            --safe-padding: 20px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--ink);
+            font-family: var(--font-sans);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .hero {
+            position: relative;
+            width: 100%;
+            height: 70vh;
+            overflow: hidden;
+        }
+        .hero img { width: 100%; height: 100%; object-fit: cover; }
+
+        .hero-overlay {
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, transparent 40%, rgba(234, 235, 230, 1) 98%);
+        }
+
+        .top-nav-overlay {
+            position: absolute; top: 0; left: 0; right: 0;
+            padding: var(--safe-padding);
+            padding-top: max(var(--safe-padding), env(safe-area-inset-top));
+            display: flex; justify-content: space-between; z-index: 10;
+        }
+
+        .back-btn {
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.3);
+            width: 40px; height: 40px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            color: white; cursor: pointer; text-decoration: none;
+        }
+
+        .detail-body {
+            position: relative; margin-top: -60px;
+            padding: var(--safe-padding); padding-bottom: 120px; z-index: 5;
+        }
+
+        .header-meta {
+            display: flex; justify-content: space-between;
+            align-items: flex-end; margin-bottom: 32px;
+        }
+
+        .detail-title {
+            font-family: var(--font-serif);
+            font-size: 4rem; line-height: 0.9; letter-spacing: -0.03em;
+        }
+
+        .detail-stats { display: flex; gap: 8px; }
+
+        .content-section { margin-top: 48px; }
+
+        .section-label {
+            font-family: var(--font-mono);
+            font-size: 0.65rem; text-transform: uppercase;
+            letter-spacing: 0.1em; color: var(--ink-light);
+            margin-bottom: 16px; display: block;
+        }
+
+        .description-text {
+            font-size: 1rem; line-height: 1.5;
+            color: var(--ink-light); margin-bottom: 32px;
+        }
+
+        .timeline {
+            display: flex; flex-direction: column; gap: 24px;
+            border-top: var(--border-style); padding-top: 24px;
+        }
+
+        .day-node { display: grid; grid-template-columns: 60px 1fr; gap: 16px; }
+
+        .day-num {
+            font-family: var(--font-mono);
+            font-size: 0.75rem; font-weight: 600;
+        }
+
+        .day-content h3 {
+            font-family: var(--font-serif);
+            font-size: 1.5rem; margin-bottom: 8px;
+        }
+        .day-content p { font-size: 0.85rem; color: var(--ink-light); line-height: 1.4; }
+
+        .accommodation-card {
+            background: var(--pastel-sand); border-radius: 12px;
+            padding: 20px; margin-bottom: 12px;
+            display: flex; gap: 16px; align-items: center;
+        }
+
+        .acc-img { width: 80px; height: 80px; border-radius: 8px; object-fit: cover; }
+        .acc-info h4 { font-size: 1rem; margin-bottom: 4px; }
+        .acc-info p { font-size: 0.75rem; color: var(--ink-light); }
+
+        .sticky-footer {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            padding: 20px;
+            padding-bottom: max(20px, env(safe-area-inset-bottom));
+            background: linear-gradient(to top, var(--bg-color) 80%, transparent);
+            display: flex; gap: 12px; z-index: 100;
+        }
+
+        .btn-save {
+            width: 60px; height: 60px; border-radius: 30px;
+            border: var(--border-style); background: transparent;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+        }
+
+        .btn-book {
+            flex-grow: 1; height: 60px; border-radius: 30px;
+            background: var(--ink); color: white;
+            font-weight: 600; font-size: 0.9rem;
+            border: none; letter-spacing: 0.02em; cursor: pointer;
+        }
+
+        .metric-badge {
+            width: 52px; height: 52px; border-radius: 50%;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            font-family: var(--font-mono); font-size: 0.65rem; font-weight: 600;
+            border: 1px solid rgba(17,17,17,0.1);
+        }
+        .lilac { background: var(--pastel-lilac); }
+        .green { background: var(--pastel-green); margin-left: -12px; }
+        .badge-val { font-size: 0.9rem; font-family: var(--font-sans); }
+    </style>
+</head>
+<body>
+
+    <div class="hero">
+        <nav class="top-nav-overlay">
+            <a href="/nomad.html" class="back-btn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7"></path>
+                </svg>
+            </a>
+            <button class="back-btn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="1"></circle>
+                    <circle cx="12" cy="5" r="1"></circle>
+                    <circle cx="12" cy="19" r="1"></circle>
+                </svg>
+            </button>
+        </nav>
+        <img src="https://images.pexels.com/photos/16301366/pexels-photo-16301366.jpeg?auto=compress&cs=tinysrgb&w=1200" alt="Umbria Detail">
+        <div class="hero-overlay"></div>
+    </div>
+
+    <main class="detail-body">
+        <header class="header-meta">
+            <h1 class="detail-title">Umbrian<br>Stone</h1>
+            <div class="detail-stats">
+                <div class="metric-badge lilac">
+                    <span class="badge-val">14</span>
+                    <span>DAYS</span>
+                </div>
+                <div class="metric-badge green">
+                    <span class="badge-val">9.2</span>
+                    <span>IDX</span>
+                </div>
+            </div>
+        </header>
+
+        <p class="description-text">
+            An exploration of silence and texture through Italy's green heart. We move through reclaimed stone structures, focusing on the intersection of ancient monastic life and contemporary brutalist intervention.
+        </p>
+
+        <section class="content-section">
+            <span class="section-label">The Route</span>
+            <div class="timeline">
+                <div class="day-node">
+                    <span class="day-num">01—03</span>
+                    <div class="day-content">
+                        <h3>The Hermitage</h3>
+                        <p>Arrival in Perugia followed by a private transfer to the Eremo retreat. Early morning meditation and olive oil pressing workshops.</p>
+                    </div>
+                </div>
+                <div class="day-node">
+                    <span class="day-num">04—08</span>
+                    <div class="day-content">
+                        <h3>Spoleto Valleys</h3>
+                        <p>Hiking through the dense oak forests and visiting the Albornoz Fortress. Evenings focused on regional viticulture and local geometry.</p>
+                    </div>
+                </div>
+                <div class="day-node">
+                    <span class="day-num">09—14</span>
+                    <div class="day-content">
+                        <h3>Tiberian Silence</h3>
+                        <p>Final week at a converted 13th-century abbey. Architectural sketching sessions and slow culinary immersions.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="content-section">
+            <span class="section-label">Primary Residence</span>
+            <div class="accommodation-card">
+                <img src="https://images.pexels.com/photos/271639/pexels-photo-271639.jpeg?auto=compress&cs=tinysrgb&w=200" class="acc-img" alt="Abbey interior">
+                <div class="acc-info">
+                    <h4>Vocabolo Moscatelli</h4>
+                    <p>A monastery reimagined by architect Jacopo Venerosi Pesciolini. Raw materials meet refined comfort.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="sticky-footer">
+        <button class="btn-save">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+            </svg>
+        </button>
+        <button class="btn-book">RESERVE JOURNEY — $4,850</button>
+    </footer>
+
+</body>
+</html>

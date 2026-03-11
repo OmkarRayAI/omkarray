@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Nomad — Curated Journeys</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #EAEBE6;
+            --ink: #111111;
+            --ink-light: #555555;
+            --pastel-sand: #EAE0CC;
+            --pastel-blue: #B5C6E8;
+            --pastel-green: #BBD2BC;
+            --pastel-lilac: #C4B1D6;
+            --font-serif: 'Instrument Serif', serif;
+            --font-sans: 'Inter', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --border-style: 1px solid var(--ink);
+            --safe-padding: 20px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--ink);
+            font-family: var(--font-sans);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--safe-padding);
+            padding-top: max(var(--safe-padding), env(safe-area-inset-top));
+            border-bottom: var(--border-style);
+        }
+
+        .status-pill {
+            border: var(--border-style);
+            border-radius: 40px;
+            padding: 4px 12px;
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
+            font-weight: 500;
+            letter-spacing: -0.02em;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .status-indicator {
+            width: 6px; height: 6px;
+            background-color: var(--ink);
+            border-radius: 50%;
+        }
+
+        .nav-actions { display: flex; gap: 16px; }
+
+        .icon-btn {
+            background: none; border: none; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--ink);
+        }
+        .icon-btn svg { width: 20px; height: 20px; stroke-width: 1.5; }
+
+        main { padding: var(--safe-padding); }
+
+        .page-title {
+            font-family: var(--font-serif);
+            font-size: 3.5rem;
+            line-height: 1;
+            margin: 24px 0 32px 0;
+            letter-spacing: -0.02em;
+        }
+
+        .category-scroll {
+            display: flex; gap: 8px; overflow-x: auto;
+            padding-bottom: 24px; border-bottom: var(--border-style);
+            scrollbar-width: none;
+        }
+        .category-scroll::-webkit-scrollbar { display: none; }
+
+        .category-pill {
+            flex: 0 0 auto;
+            border: var(--border-style); border-radius: 40px;
+            padding: 8px 16px; font-size: 0.65rem; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 0.05em;
+            background: transparent; color: var(--ink); cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .category-pill.active { background: var(--ink); color: var(--bg-color); }
+        .category-icon-pill { padding: 8px 12px; }
+
+        .feed { display: flex; flex-direction: column; }
+
+        .card {
+            padding: 32px 0; border-bottom: var(--border-style);
+            display: flex; flex-direction: column; gap: 16px;
+        }
+        .card:last-child { border-bottom: none; }
+
+        .card-media {
+            position: relative; width: 100%; aspect-ratio: 4/3;
+            border-radius: 20px; overflow: hidden; background-color: #ddd;
+        }
+        .card-media img { width: 100%; height: 100%; object-fit: cover; }
+
+        .badge-cluster {
+            position: absolute; top: 16px; right: 16px;
+            display: flex; align-items: center;
+        }
+
+        .metric-badge {
+            width: 52px; height: 52px; border-radius: 50%;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            font-family: var(--font-mono); font-size: 0.65rem; font-weight: 600;
+            color: var(--ink); line-height: 1.1;
+            margin-left: -12px;
+            border: 1px solid rgba(17, 17, 17, 0.1);
+        }
+        .metric-badge:first-child { margin-left: 0; z-index: 2; }
+        .metric-badge.blue { background-color: var(--pastel-blue); }
+        .metric-badge.green { background-color: var(--pastel-green); }
+        .metric-badge.lilac { background-color: var(--pastel-lilac); z-index: 1; }
+
+        .badge-val {
+            font-size: 0.9rem; font-family: var(--font-sans);
+            font-weight: 600; letter-spacing: -0.03em;
+        }
+
+        .card-footer { display: flex; align-items: stretch; min-height: 60px; }
+
+        .card-info {
+            flex-grow: 1; padding-right: 16px;
+            display: flex; flex-direction: column; justify-content: center;
+        }
+
+        .card-title {
+            font-family: var(--font-serif); font-size: 2rem;
+            line-height: 1.1; margin-bottom: 4px;
+        }
+
+        .card-desc {
+            font-size: 0.75rem; color: var(--ink-light);
+            line-height: 1.4; max-width: 90%;
+        }
+
+        .card-action {
+            width: 60px; border-left: var(--border-style);
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        }
+
+        .itineraries-section { margin-top: 48px; margin-bottom: 64px; }
+
+        .section-header {
+            font-family: var(--font-serif); font-size: 2.5rem;
+            margin-bottom: 24px; line-height: 1;
+        }
+
+        .itinerary-list { display: flex; flex-direction: column; gap: 12px; }
+
+        .itinerary-row {
+            display: flex; align-items: stretch;
+            border-radius: 8px; overflow: hidden;
+        }
+
+        .itinerary-title {
+            flex-grow: 1; padding: 20px 16px; font-size: 1.1rem;
+            font-weight: 600; letter-spacing: -0.02em;
+            display: flex; align-items: center;
+        }
+
+        .itinerary-meta {
+            width: 60px; border-left: var(--border-style);
+            display: flex; align-items: center; justify-content: center;
+            font-family: var(--font-mono); font-size: 0.85rem;
+            font-weight: 500; flex-shrink: 0;
+        }
+
+        .bg-sand { background-color: var(--pastel-sand); }
+        .bg-blue { background-color: var(--pastel-blue); }
+        .bg-green { background-color: var(--pastel-green); }
+    </style>
+</head>
+<body>
+
+    <header class="top-bar">
+        <div class="status-pill">
+            <span class="status-indicator"></span>
+            LAT 45.4
+        </div>
+        <div class="nav-actions">
+            <button class="icon-btn" aria-label="Search">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+            </button>
+            <button class="icon-btn" aria-label="Menu">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <line x1="3" y1="12" x2="21" y2="12"></line>
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <main>
+        <h1 class="page-title">Journeys</h1>
+
+        <nav class="category-scroll">
+            <button class="category-pill category-icon-pill">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 5v14M5 12h14"></path>
+                </svg>
+            </button>
+            <button class="category-pill active">All Regions</button>
+            <button class="category-pill">Architecture</button>
+            <button class="category-pill">Culinary</button>
+            <button class="category-pill">Off-Grid</button>
+        </nav>
+
+        <section class="feed">
+            <article class="card" onclick="window.location='/nomad-detail.html'" style="cursor:pointer;">
+                <div class="card-media">
+                    <img src="https://images.pexels.com/photos/16301366/pexels-photo-16301366.jpeg?auto=compress&cs=tinysrgb&w=800&q=80" alt="Texture of an ancient stone building in Italy">
+                    <div class="badge-cluster">
+                        <div class="metric-badge lilac">
+                            <span class="badge-val">14</span>
+                            <span>DAYS</span>
+                        </div>
+                        <div class="metric-badge green">
+                            <span class="badge-val">9.2</span>
+                            <span>IDX</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div class="card-info">
+                        <h2 class="card-title">Umbrian Stone</h2>
+                        <p class="card-desc">Monasteries converted to brutalist retreats. Olive harvests and silent courtyards.</p>
+                    </div>
+                    <button class="icon-btn card-action" aria-label="Save">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                        </svg>
+                    </button>
+                </div>
+            </article>
+
+            <article class="card">
+                <div class="card-media">
+                    <img src="https://images.pexels.com/photos/3408354/pexels-photo-3408354.jpeg?auto=compress&cs=tinysrgb&w=800&q=80" alt="Minimalist wooden interior in Japan">
+                    <div class="badge-cluster">
+                        <div class="metric-badge blue">
+                            <span class="badge-val">07</span>
+                            <span>DAYS</span>
+                        </div>
+                        <div class="metric-badge lilac">
+                            <span class="badge-val">8.8</span>
+                            <span>IDX</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div class="card-info">
+                        <h2 class="card-title">Kiso Valley</h2>
+                        <p class="card-desc">Following the Nakasendo trail. Cedar wood baths, tatami, and preserved post towns.</p>
+                    </div>
+                    <button class="icon-btn card-action" aria-label="Save">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                        </svg>
+                    </button>
+                </div>
+            </article>
+        </section>
+
+        <section class="itineraries-section">
+            <h2 class="section-header">Curated Routes</h2>
+            <div class="itinerary-list">
+                <div class="itinerary-row bg-sand">
+                    <div class="itinerary-title">Nordic Coastal Architecture</div>
+                    <div class="itinerary-meta">12</div>
+                </div>
+                <div class="itinerary-row bg-blue">
+                    <div class="itinerary-title">Aegean Modernism</div>
+                    <div class="itinerary-meta">08</div>
+                </div>
+                <div class="itinerary-row bg-green">
+                    <div class="itinerary-title">Andalusian Courtyards</div>
+                    <div class="itinerary-meta">14</div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+</body>
+</html>
