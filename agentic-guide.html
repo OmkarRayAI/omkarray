@@ -1,0 +1,1331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-62YF7Y81BS"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-62YF7Y81BS');
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Agentic Engineering Guide — Full Text</title>
+<meta name="description" content="All 33 chapters of The Agentic Engineering Guide by Siddhant Khare.">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1A1A1E; --paper: #ffffff; --accent: #5a2080; --accent-light: #f3ecfa;
+    --muted: #7A7A80; --light: #F6F5F3; --rule: #E2E0DC;
+    --mono: "IBM Plex Mono", monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "IBM Plex Sans", sans-serif; background: var(--paper); color: var(--ink);
+    max-width: 860px; margin: 0 auto; padding: 48px 28px 80px; line-height: 1.7; font-size: 15px; }
+  .back-link { display: inline-flex; align-items: center; gap: 6px; font-family: var(--mono);
+    font-size: 11px; color: var(--muted); text-decoration: none; margin-bottom: 32px; transition: color .2s; }
+  .back-link:hover { color: var(--ink); }
+  .masthead { border-top: 3px solid var(--ink); border-bottom: 1px solid var(--rule);
+    padding: 22px 0 18px; margin-bottom: 40px; }
+  .masthead-label { font-family: var(--mono); font-size: 10px; letter-spacing: .15em;
+    text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  .masthead h1 { font-family: "Playfair Display", serif; font-size: 36px; font-weight: 700;
+    line-height: 1.1; margin-bottom: 10px; }
+  .masthead-meta { font-size: 13px; color: var(--muted); font-family: var(--mono); }
+  .masthead-meta a { color: var(--accent); text-decoration: none; }
+  .masthead-meta a:hover { text-decoration: underline; }
+  .toc-toggle { display: flex; justify-content: space-between; align-items: center;
+    background: var(--light); border: 1px solid var(--rule); border-radius: 6px;
+    padding: 12px 16px; cursor: pointer; margin-bottom: 0;
+    font-family: var(--mono); font-size: 12px; letter-spacing: .05em;
+    text-transform: uppercase; color: var(--muted); user-select: none;
+    transition: background .15s; width: 100%; }
+  .toc-toggle:hover { background: var(--accent-light); color: var(--accent); }
+  .toc-body { display: none; background: var(--light); border: 1px solid var(--rule);
+    border-top: none; border-radius: 0 0 6px 6px; padding: 16px 20px; margin-bottom: 40px; }
+  .toc-body.open { display: block; }
+  .toc-part { margin-bottom: 14px; }
+  .toc-part-name { font-family: var(--mono); font-size: 10px; text-transform: uppercase;
+    letter-spacing: .12em; color: var(--accent); font-weight: 600; margin-bottom: 6px; }
+  .toc-part ol { list-style: none; padding-left: 12px; }
+  .toc-part ol li { margin-bottom: 3px; }
+  .toc-part ol li a { font-size: 13px; color: var(--ink); text-decoration: none; transition: color .15s; }
+  .toc-part ol li a:hover { color: var(--accent); }
+  .part-header { border-top: 2px solid var(--ink); margin: 56px 0 8px; padding-top: 16px; }
+  .part-number { font-family: var(--mono); font-size: 10px; text-transform: uppercase;
+    letter-spacing: .15em; color: var(--accent); font-weight: 600; }
+  .part-title { font-family: "Playfair Display", serif; font-size: 26px; font-weight: 700;
+    margin-top: 4px; margin-bottom: 4px; }
+  .part-desc { font-size: 13px; color: var(--muted); margin-bottom: 24px; }
+  details.chapter { border: 1px solid var(--rule); border-radius: 6px; margin-bottom: 10px; overflow: hidden; }
+  details.chapter[open] { border-color: #ccc; }
+  summary.chapter-summary { display: flex; justify-content: space-between; align-items: center;
+    padding: 14px 18px; cursor: pointer; list-style: none; background: var(--light);
+    user-select: none; transition: background .15s; }
+  summary.chapter-summary::-webkit-details-marker { display: none; }
+  summary.chapter-summary:hover { background: var(--accent-light); }
+  details.chapter[open] summary.chapter-summary { background: var(--accent-light); }
+  .ch-num { font-family: var(--mono); font-size: 10px; text-transform: uppercase;
+    letter-spacing: .12em; color: var(--accent); font-weight: 600; white-space: nowrap; margin-right: 14px; }
+  .ch-title { font-size: 15px; font-weight: 600; flex: 1; }
+  .ch-arrow { font-size: 18px; color: var(--muted); transition: transform .2s; margin-left: 12px; flex-shrink: 0; }
+  details.chapter[open] .ch-arrow { transform: rotate(45deg); }
+  .chapter-body { padding: 24px 24px 28px; border-top: 1px solid var(--rule); }
+  .chapter-body h2 { font-family: "Playfair Display", serif; font-size: 20px; font-weight: 700;
+    margin: 28px 0 10px; color: var(--ink); }
+  .chapter-body h2:first-child { margin-top: 0; }
+  .chapter-body h3 { font-size: 15px; font-weight: 600; margin: 20px 0 8px; color: var(--ink); }
+  .chapter-body p { margin-bottom: 14px; }
+  .chapter-body p:last-child { margin-bottom: 0; }
+  .chapter-body ul, .chapter-body ol { margin: 10px 0 14px 20px; }
+  .chapter-body li { margin-bottom: 6px; }
+  .chapter-body blockquote { border-left: 3px solid var(--accent); margin: 16px 0;
+    padding: 10px 16px; background: var(--accent-light); border-radius: 0 4px 4px 0;
+    font-style: italic; color: #444; }
+  .chapter-body table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px;
+    overflow-x: auto; display: block; }
+  .chapter-body th { background: var(--light); font-weight: 600; text-align: left;
+    padding: 8px 10px; border: 1px solid var(--rule); font-family: var(--mono);
+    font-size: 11px; letter-spacing: .04em; }
+  .chapter-body td { padding: 7px 10px; border: 1px solid var(--rule); vertical-align: top; }
+  .chapter-body tr:nth-child(even) td { background: #fafafa; }
+  .chapter-body code { font-family: var(--mono); font-size: 12px; background: var(--light);
+    padding: 1px 5px; border-radius: 3px; color: #7b0d1e; }
+  .chapter-body pre { background: #1e1e2e; color: #cdd6f4; padding: 16px 18px; border-radius: 6px;
+    font-family: var(--mono); font-size: 12px; overflow-x: auto; margin: 14px 0; line-height: 1.5; }
+  .chapter-body pre code { background: none; color: inherit; padding: 0; }
+  .chapter-body a { color: var(--accent); text-underline-offset: 2px; }
+  .source-link { display: inline-flex; align-items: center; gap: 6px; font-family: var(--mono);
+    font-size: 11px; color: var(--muted); text-decoration: none; margin-top: 20px;
+    border-top: 1px solid var(--rule); padding-top: 14px; width: 100%; transition: color .15s; }
+  .source-link:hover { color: var(--accent); }
+  .page-footer { margin-top: 64px; padding-top: 20px; border-top: 1px solid var(--rule);
+    font-family: var(--mono); font-size: 11px; color: var(--muted);
+    display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+  .page-footer a { color: var(--accent); text-decoration: none; }
+  @media (max-width: 600px) { body { padding: 32px 16px 60px; } .masthead h1 { font-size: 26px; } }
+</style>
+</head>
+<body>
+
+<a href="index.html" class="back-link">&#8592; back to index</a>
+
+<div class="masthead">
+  <div class="masthead-label">Book / AI&thinsp;&middot;&thinsp;ML</div>
+  <h1>The Agentic Engineering Guide</h1>
+  <div class="masthead-meta">
+    By <a href="https://siddhantkhare.com/" target="_blank" rel="noopener">Siddhant Khare</a>
+    &nbsp;&middot;&nbsp; 10 Parts &middot; 33 Chapters
+    &nbsp;&middot;&nbsp; <a href="https://agents.siddhantkhare.com/" target="_blank" rel="noopener">Original &nearr;</a>
+    &nbsp;&middot;&nbsp; <a href="https://siddhantkhar5.gumroad.com/l/agentic-engineering-guide" target="_blank" rel="noopener">PDF &amp; EPUB &nearr;</a>
+  </div>
+</div>
+
+<button class="toc-toggle" onclick="var b=this.nextElementSibling; b.classList.toggle('open'); this.querySelector('.toc-arr').textContent=b.classList.contains('open')?'\u2212':'+'">
+  <span>Table of Contents &mdash; All 33 Chapters</span>
+  <span class="toc-arr">+</span>
+</button>
+<div class="toc-body">
+  <div class="toc-part"><div class="toc-part-name">Part 1 &middot; Foundations</div><ol>
+    <li><a href="#ch01">Ch 01 &mdash; The Agentic Engineering Landscape</a></li>
+    <li><a href="#ch02">Ch 02 &mdash; The Capability Jump</a></li>
+    <li><a href="#ch03">Ch 03 &mdash; The Agentic AI Foundation &amp; Standards</a></li>
+  </ol></div>
+  <div class="toc-part"><div class="toc-part-name">Part 2 &middot; Context Engineering</div><ol>
+    <li><a href="#ch04">Ch 04 &mdash; Context Windows</a></li>
+    <li><a href="#ch05">Ch 05 &mdash; The Context Engineering Stack</a></li>
+    <li><a href="#ch06">Ch 06 &mdash; RAG vs. Agentic Search</a></li>
+  </ol></div>
+  <div class="toc-part"><div class="toc-part-name">Part 3 &middot; Security &amp; Authorization</div><ol>
+    <li><a href="#ch07">Ch 07 &mdash; The Agent Security Crisis</a></li>
+    <li><a href="#ch08">Ch 08 &mdash; Zanzibar for AI Agents</a></li>
+    <li><a href="#ch09">Ch 09 &mdash; Prompt Injection &amp; Tool Poisoning</a></li>
+    <li><a href="#ch10">Ch 10 &mdash; Sandboxing &amp; Runtime Protection</a></li>
+  </ol></div>
+  <div class="toc-part"><div class="toc-part-name">Part 4 &middot; Protocols &amp; Standards</div><ol>
+    <li><a href="#ch11">Ch 11 &mdash; Model Context Protocol (MCP)</a></li>
+    <li><a href="#ch12">Ch 12 &mdash; Agent-to-Agent Communication (A2A)</a></li>
+    <li><a href="#ch13">Ch 13 &mdash; AGENTS.md &amp; Codebase Onboarding</a></li>
+  </ol></div>
+  <div class="toc-part"><div class="toc-part-name">Part 5 &middot; Observability &amp; Operations</div><ol>
+    <li><a href="#ch14">Ch 14 &mdash; Agent Traces &amp; OpenTelemetry</a></li>
+    <li><a href="#ch15">Ch 15 &mdash; Cost Tracking &amp; Token Economics</a></li>
+    <li><a href="#ch16">Ch 16 &mdash; Incident Response for Agent Failures</a></li>
+  </ol></div>
+  <div class="toc-part"><div class="toc-part-name">Part 6 &middot; Agent Orchestration</div><ol>
+    <li><a href="#ch17">Ch 17 &mdash; The Agent Loop</a></li>
+    <li><a href="#ch18">Ch 18 &mdash; Multi-Agent Systems</a></li>
+    <li><a href="#ch19">Ch 19 &mdash; Agent Memory &amp; Checkpoints</a></li>
+  </ol></div>
+  <div class="toc-part"><div class="toc-part-name">Part 7 &middot; Team Practices</div><ol>
+    <li><a href="#ch20">Ch 20 &mdash; AI Fatigue &amp; Sustainable Adoption</a></li>
+    <li><a href="#ch21">Ch 21 &mdash; The Conductor Model</a></li>
+    <li><a href="#ch22">Ch 22 &mdash; Agent Maturity Model</a></li>
+  </ol></div>
+  <div class="toc-part"><div class="toc-part-name">Part 8 &middot; Production Workflows</div><ol>
+    <li><a href="#ch23">Ch 23 &mdash; Your First Agent in Production</a></li>
+    <li><a href="#ch24">Ch 24 &mdash; Security Checklist &amp; Review Policies</a></li>
+    <li><a href="#ch25">Ch 25 &mdash; Measuring Agent Impact</a></li>
+  </ol></div>
+  <div class="toc-part"><div class="toc-part-name">Part 9 &middot; Production Engineering</div><ol>
+    <li><a href="#ch26">Ch 26 &mdash; Agent Evaluation &amp; Testing</a></li>
+    <li><a href="#ch27">Ch 27 &mdash; Enterprise Adoption &amp; Vendor Strategy</a></li>
+    <li><a href="#ch28">Ch 28 &mdash; Agent Cost Control &amp; FinOps</a></li>
+    <li><a href="#ch29">Ch 29 &mdash; Agent Governance &amp; Compliance</a></li>
+    <li><a href="#ch30">Ch 30 &mdash; Structured Outputs &amp; Function Calling</a></li>
+    <li><a href="#ch31">Ch 31 &mdash; Model Selection &amp; Routing</a></li>
+  </ol></div>
+  <div class="toc-part"><div class="toc-part-name">Part 10 &middot; Sustainability &amp; Deployment</div><ol>
+    <li><a href="#ch32">Ch 32 &mdash; Backpressure &amp; Automated Feedback</a></li>
+    <li><a href="#ch33">Ch 33 &mdash; The Agent Adoption Playbook</a></li>
+  </ol></div>
+</div>
+
+<!-- PART 1 -->
+<div class="part-header">
+  <div class="part-number">Part 1</div>
+  <div class="part-title">Foundations</div>
+  <div class="part-desc">What AI agents are, what changed in 2025-26, and the emerging standards that shape the infrastructure layer.</div>
+</div>
+
+<details class="chapter" id="ch01">
+<summary class="chapter-summary">
+  <span class="ch-num">Ch 01</span>
+  <span class="ch-title">The Agentic Engineering Landscape</span>
+  <span class="ch-arrow">+</span>
+</summary>
+<div class="chapter-body">
+<h2>What are AI agents, really?</h2>
+<p>Strip away the marketing and an AI agent is a program that uses a language model to decide what to do next. It operates in a loop: observe the environment, decide on an action, execute it, observe the result, decide again.</p>
+<p>This definition is deliberately simple, but it captures the essential difference between agents and other AI applications. A chatbot generates text in response to a prompt — it's a function from text to text. An agent generates actions in response to a goal — it's a loop that continues until the goal is achieved or a termination condition is met. The difference is autonomy. A chatbot does what you ask, once. An agent pursues a goal, making decisions along the way about what to do next.</p>
+<p>The autonomy is what makes agents both powerful and dangerous. Powerful because they can accomplish complex, multi-step tasks without human intervention at each step. Dangerous because they can take actions that have real-world consequences — modifying files, calling APIs, deploying code, sending messages — and those actions can be wrong.</p>
+<table><tr><th>Dimension</th><th>Chatbot</th><th>Agent</th></tr>
+<tr><td>Actions</td><td>Generates text</td><td>Executes code, calls APIs, modifies systems</td></tr>
+<tr><td>Autonomy</td><td>Responds to prompts</td><td>Decides what to do next</td></tr>
+<tr><td>Duration</td><td>Single turn</td><td>Minutes to hours</td></tr>
+<tr><td>Risk</td><td>Wrong answer</td><td>Wrong action (data loss, security breach, cost overrun)</td></tr>
+<tr><td>Authorization</td><td>User's permissions</td><td>Needs its own permission model</td></tr>
+<tr><td>Observability</td><td>Log the response</td><td>Trace every decision and action</td></tr>
+<tr><td>Failure mode</td><td>Bad text</td><td>Production incident</td></tr></table>
+
+<h2>The agent capability spectrum</h2>
+<p><strong>Level 1: Completion agents</strong> suggest code as you type. They operate within the IDE, have no access to external tools, and produce output that the developer reviews character by character. GitHub Copilot's inline suggestions are the canonical example.</p>
+<p><strong>Level 2: Chat agents</strong> respond to natural language requests within a conversation. They can generate multi-line code, explain concepts, and answer questions about the codebase.</p>
+<p><strong>Level 3: Command agents</strong> execute actions in the development environment. They can read and write files, run commands, create branches, and open pull requests. Claude Code, Cursor's agent mode, and Ona are examples. The engineering requirements are significant — you need authorization, observability, and cost control.</p>
+<p><strong>Level 4: Background agents</strong> run without human supervision. They monitor repositories for issues, automatically fix bugs, generate tests, update documentation, and create pull requests — all without a human initiating the task. The engineering requirements are the highest — you need everything from Level 3 plus automated quality gates, kill switches, and incident response procedures.</p>
+<p>Most teams in February 2026 are at Level 2–3. The transition from Level 2 to Level 3 is where the engineering discipline of this guide becomes essential.</p>
+
+<h2>The competitive landscape of coding agents</h2>
+<p><strong>IDE-integrated agents</strong> (Cursor, Windsurf, GitHub Copilot) embed AI directly into the development environment. <strong>CLI agents</strong> (Claude Code) run in the terminal alongside your existing tools. <strong>Cloud agents</strong> (Ona, OpenAI Codex, Devin) run in isolated cloud environments. <strong>Platform agents</strong> (GitHub Agentic Workflows) are integrated into development platforms.</p>
+
+<h2>Why "agentic engineering" is a discipline</h2>
+<p>Building with agents isn't just "using AI tools." It requires new engineering disciplines: <strong>Context Engineering</strong> — deciding what information goes into the model's context window; <strong>Agent Authorization</strong> — deciding what the agent is allowed to do; <strong>Agent Observability</strong> — tracing what the agent did, why, and what it cost; <strong>Agent Orchestration</strong> — how agents coordinate, delegate, and recover from failures; <strong>Human-Agent Collaboration</strong> — how humans and agents work together without burning out the humans.</p>
+<p>The teams that succeed start at the bottom (infrastructure) and work up. This guide follows that bottom-up order.</p>
+<a class="source-link" href="https://agents.siddhantkhare.com/01-agentic-landscape/" target="_blank" rel="noopener">Read full chapter at agents.siddhantkhare.com &nearr;</a>
+</div>
+</details>
+
+<details class="chapter" id="ch02">
+<summary class="chapter-summary">
+  <span class="ch-num">Ch 02</span>
+  <span class="ch-title">The Capability Jump</span>
+  <span class="ch-arrow">+</span>
+</summary>
+<div class="chapter-body">
+<h2>What changed in late 2025</h2>
+<p>In late 2025, two model releases crossed an invisible capability threshold: Claude Opus 4.5 (November 24) and GPT-5.2 (December 11). On benchmarks, they were incremental improvements. In practice, they changed what was possible. Simon Willison described it: <em>"It genuinely feels to me like GPT-5.2 and Opus 4.5 in November represent an inflection point — one of those moments where the models get incrementally better in a way that tips across an invisible capability line where suddenly a whole bunch of much harder coding problems open up."</em></p>
+<p>By February 2026, the frontier moved again. Anthropic shipped Claude Opus 4.6 and Sonnet 4.6 with 1M token context windows. OpenAI released GPT-5.3-Codex. Google followed with Gemini 3.1 Pro. Four frontier models from three labs in fourteen days. The "pick one best model" era ended — model routing became a production requirement.</p>
+
+<h2>Five implications for engineering teams</h2>
+<p><strong>Implication 1: Agents are management problems.</strong> The skills that make someone effective with agents are management skills: clear communication of goals, providing necessary context, breaking down complex tasks, giving actionable feedback, and knowing when to intervene. Senior engineers who insist on doing the work themselves struggle with agents. Former engineers who moved into management pick them up quickly.</p>
+<p><strong>Implication 2: Output scales faster than review capacity.</strong> A team of five engineers produces roughly 25 PRs per week. With agents, the same team might produce 75–100 PRs per week. Review time triples, but team size hasn't changed. The solution is a two-layer review process where automated checks handle mechanical review and humans focus on judgment calls.</p>
+<p><strong>Implication 3: The documentation business model is dying.</strong> Adam Wathan (Tailwind Labs): <em>"75% of the people on our engineering team lost their jobs here yesterday because of the brutal impact AI has had on our business… Traffic to our docs is down about 40%… our revenue is down close to 80%."</em> The businesses that survive will integrate into AI workflows rather than competing with AI for attention.</p>
+<p><strong>Implication 4: The junior engineer pipeline is disrupted.</strong> The tasks traditionally assigned to junior engineers are exactly the tasks agents handle well. The emerging pattern: junior engineers shift from writing code to reviewing agent-generated code.</p>
+<p><strong>Implication 5: Model routing replaces model selection.</strong> GPT-5.3-Codex leads on Terminal-Bench (75.1%), Opus 4.6 leads on SWE-bench Verified (80.8%), Gemini 3.1 Pro leads on long-context tasks. The "pick one model" era is over. Model routing is covered in Chapter 31.</p>
+
+<h2>The benchmark landscape</h2>
+<table><tr><th>Benchmark</th><th>Measures</th><th>Top Score (Feb 2026)</th></tr>
+<tr><td>SWE-bench Verified</td><td>Real GitHub issue resolution</td><td>Opus 4.6: 80.8%</td></tr>
+<tr><td>Terminal-Bench 2.0</td><td>Real terminal coding tasks</td><td>GPT-5.3-Codex: 75.1%</td></tr>
+<tr><td>MCPMark</td><td>Multi-step tool use</td><td>GPT-5: 52.6%</td></tr>
+<tr><td>ARC-AGI-2</td><td>General reasoning</td><td>Gemini 3.1 Pro leads</td></tr></table>
+<a class="source-link" href="https://agents.siddhantkhare.com/02-capability-jump/" target="_blank" rel="noopener">Read full chapter at agents.siddhantkhare.com &nearr;</a>
+</div>
+</details>
+
+<details class="chapter" id="ch03">
+<summary class="chapter-summary">
+  <span class="ch-num">Ch 03</span>
+  <span class="ch-title">The Agentic AI Foundation &amp; Standards</span>
+  <span class="ch-arrow">+</span>
+</summary>
+<div class="chapter-body">
+<h2>What is AAIF?</h2>
+<p>On December 9, 2025, Anthropic, OpenAI, and Block announced the <a href="https://www.linuxfoundation.org/press/linux-foundation-announces-the-formation-of-the-agentic-ai-foundation" target="_blank" rel="noopener">Agentic AI Foundation (AAIF)</a> under the Linux Foundation, with support from Google, Microsoft, AWS, Cloudflare, and Bloomberg. AAIF aims to standardize the agent infrastructure layer — following the same pattern that produced Linux, Kubernetes, and OpenTelemetry.</p>
+
+<h2>The three founding projects</h2>
+<p><strong>Model Context Protocol (MCP)</strong> — donated by Anthropic — is a universal protocol for connecting AI agents to external systems. It's becoming the USB-C of AI agents: build an MCP server once, and it works with any MCP-compatible agent. Over 10,000 active public MCP servers, 97 million monthly SDK downloads.</p>
+<p><strong>Goose</strong> — donated by Block — is an open-source, extensible AI agent designed for production use. It's MCP-native, observable, and controllable — a reference implementation of what a well-architected agent looks like.</p>
+<p><strong>AGENTS.md</strong> — donated by OpenAI — is a standard format for AI coding agent instructions. Think of it as README.md for AI agents. Over 60,000 open-source projects now have AGENTS.md files.</p>
+
+<h2>What's missing from AAIF</h2>
+<p>Three significant gaps remain: <strong>security standards</strong> (MCP defines tool calls but not authentication or permission scoping); <strong>authorization models</strong> (no standard for fine-grained, context-dependent agent permissions); <strong>observability standards</strong> (OpenTelemetry is extending to cover agent workflows but semantic conventions are still being defined).</p>
+
+<h2>The open source agent infrastructure stack</h2>
+<ul>
+<li><strong>Model abstraction:</strong> LiteLLM, OpenRouter</li>
+<li><strong>Authorization:</strong> OpenFGA (CNCF Incubating), OPA (CNCF Graduated)</li>
+<li><strong>Observability:</strong> OpenTelemetry, Langfuse, Arize Phoenix</li>
+<li><strong>Sandboxing:</strong> Anthropic sandbox-runtime, gVisor, Bubblewrap</li>
+<li><strong>Evaluation:</strong> Promptfoo, Braintrust, DeepEval</li>
+<li><strong>Context engineering:</strong> Distill, Chroma, Qdrant, Weaviate</li>
+</ul>
+<blockquote>"You cannot prompt your way out of garbage context."</blockquote>
+<a class="source-link" href="https://agents.siddhantkhare.com/03-aaif-standards/" target="_blank" rel="noopener">Read full chapter at agents.siddhantkhare.com &nearr;</a>
+</div>
+</details>
+
+<!-- PART 2 -->
+<div class="part-header">
+  <div class="part-number">Part 2</div>
+  <div class="part-title">Context Engineering</div>
+  <div class="part-desc">The most impactful discipline in the agent stack. A mediocre model with excellent context outperforms a frontier model with poor context.</div>
+</div>
+
+<details class="chapter" id="ch04">
+<summary class="chapter-summary">
+  <span class="ch-num">Ch 04</span>
+  <span class="ch-title">Context Windows</span>
+  <span class="ch-arrow">+</span>
+</summary>
+<div class="chapter-body">
+<h2>What is a context window?</h2>
+<p>A context window is the total amount of text (measured in tokens) that a language model can process in a single request. Everything the model knows about your task — the system prompt, the conversation history, the retrieved documents, the code files, the tool definitions — must fit inside this window. A token is roughly four characters in English.</p>
+<table><tr><th>Model</th><th>Context Window</th><th>Approx. Pages</th></tr>
+<tr><td>GPT-5.2</td><td>400K tokens</td><td>~640 pages</td></tr>
+<tr><td>Claude Sonnet 4.6</td><td>200K (1M beta)</td><td>~320 pages</td></tr>
+<tr><td>Gemini 3.1 Pro</td><td>1M tokens</td><td>~1,600 pages</td></tr></table>
+<p>These numbers look large. They're not. A typical monorepo has millions of lines of code. The window fills up fast.</p>
+
+<h2>Why size isn't everything</h2>
+<p><strong>The "lost in the middle" problem.</strong> Research from Stanford and UC Berkeley demonstrated that language models perform significantly worse on information placed in the middle of long contexts. The practical implication: context ordering matters as much as context content. Place the most important information at the beginning or end.</p>
+<p><strong>The cost problem.</strong> Tokens cost money, and the cost scales linearly. A team running 500 agent tasks per day at 100K tokens each spends roughly $150/day on input tokens alone. With context engineering, that drops to $22.50/day — a $46,500/year saving from a single optimization.</p>
+<p><strong>The noise problem.</strong> More context doesn't mean better context. If you send 100K tokens and only 15K are relevant, you've diluted the signal with 85K tokens of noise. Less, better context beats more, noisier context.</p>
+
+<h2>Token budgets</h2>
+<p>A token budget is a deliberate allocation of your context window across different purposes. A well-designed budget for a 200K window might allocate: 5K for system instructions, 15K for tool definitions (or 2K with meta-MCP compression), 30K for retrieved context, 20K for conversation history, and 130K as headroom for tool results and model reasoning.</p>
+<p>Token budgets should be enforced programmatically — your agent framework should track usage per category and warn or truncate when exceeded. Without enforcement, budgets are aspirational.</p>
+<a class="source-link" href="https://agents.siddhantkhare.com/04-context-windows/" target="_blank" rel="noopener">Read full chapter at agents.siddhantkhare.com &nearr;</a>
+</div>
+</details>
+
+<details class="chapter" id="ch05">
+<summary class="chapter-summary">
+  <span class="ch-num">Ch 05</span>
+  <span class="ch-title">The Context Engineering Stack</span>
+  <span class="ch-arrow">+</span>
+</summary>
+<div class="chapter-body">
+<h2>The four layers</h2>
+<p>Context engineering operates in four layers, each addressing a different problem. These layers form a pipeline: raw retrieved content enters at the bottom and curated, compressed context exits at the top.</p>
+
+<h3>Layer 1: Clustering</h3>
+<p>When you retrieve 10 chunks from a vector database, they often contain the same information expressed differently. Clustering groups semantically similar chunks together using their embedding vectors. Agglomerative clustering works well because it doesn't require you to specify the number of clusters upfront. A cosine distance threshold of 0.15–0.25 works well for most documentation and code contexts.</p>
+
+<h3>Layer 2: Selection</h3>
+<p>After clustering, pick the best representative from each cluster. For coding tasks, the best representative is usually the most specific one — the code file itself rather than the documentation. For research tasks, the most authoritative one. For customer-facing tasks, the most recent one.</p>
+
+<h3>Layer 3: Reranking</h3>
+<p>After selection, rerank the remaining chunks to balance relevance and diversity using Maximal Marginal Relevance (MMR). The λ parameter controls the trade-off: λ = 1.0 means pure relevance (may include redundant chunks), λ = 0.0 means pure diversity. λ = 0.7 is a good default for most use cases.</p>
+
+<h3>Layer 4: Compression</h3>
+<p>The final layer removes redundancy without losing signal. The critical decision: deterministic vs. non-deterministic compression. LLM-based summarization produces readable output but introduces non-determinism (~500ms, $0.01/call). Algorithmic deduplication is faster, cheaper, and reproducible (~12ms, $0.0001/call). For production systems, determinism is a requirement — use algorithmic compression.</p>
+
+<h2>Distill: A reference implementation</h2>
+<p><a href="https://github.com/Siddhant-K-code/distill" target="_blank" rel="noopener">Distill</a> implements all four layers in a single pipeline with a determinism-first design philosophy. Results from production deployments:</p>
+<table><tr><th>Metric</th><th>Before Distill</th><th>After Distill</th><th>Improvement</th></tr>
+<tr><td>Context tokens</td><td>45K</td><td>12K</td><td>73% reduction</td></tr>
+<tr><td>Redundant chunks</td><td>30–40%</td><td>&lt;2%</td><td>~95% reduction</td></tr>
+<tr><td>Output consistency</td><td>62%</td><td>89%</td><td>+27pp</td></tr>
+<tr><td>Cost per request</td><td>$0.135</td><td>$0.036</td><td>73% reduction</td></tr>
+<tr><td>Latency</td><td>8.2s</td><td>2.1s</td><td>74% reduction</td></tr></table>
+
+<h2>Meta-MCP: Compressing tool definitions</h2>
+<p>A pattern from the Japanese developer community addresses tool definition bloat. When you connect 60+ MCP tools, the tool descriptions alone consume 15–20K tokens. The meta-MCP pattern compresses these into 2 meta-tools: a discovery tool (returns a list with brief descriptions) and a load tool (loads the full definition of a specific tool on demand). Tool definition overhead drops from 15–20K tokens to 2–4K tokens — an 80–88% reduction.</p>
+<a class="source-link" href="https://agents.siddhantkhare.com/05-context-engineering-stack/" target="_blank" rel="noopener">Read full chapter at agents.siddhantkhare.com &nearr;</a>
+</div>
+</details>
+
+<details class="chapter" id="ch06">
+<summary class="chapter-summary">
+  <span class="ch-num">Ch 06</span>
+  <span class="ch-title">RAG vs. Agentic Search</span>
+  <span class="ch-arrow">+</span>
+</summary>
+<div class="chapter-body">
+<h2>The RAG problem</h2>
+<p>Retrieval-Augmented Generation (RAG) was the dominant pattern for giving LLMs access to external knowledge from 2023 through early 2025. The pipeline is straightforward: embed the query, search a vector database for similar chunks, stuff the top-K results into the context, and generate a response. RAG works for simple factual lookups, but it has fundamental limitations:</p>
+<ul>
+<li><strong>Static retrieval</strong> — the query is embedded once, no opportunity to reformulate</li>
+<li><strong>No reasoning over retrieval</strong> — can't resolve contradictions between retrieved documents</li>
+<li><strong>Single-hop only</strong> — can't answer multi-hop questions requiring multiple retrievals with reasoning in between</li>
+<li><strong>Context pollution</strong> — retrieves the top-K most similar chunks, which often contain redundant information</li>
+</ul>
+
+<h2>Agentic search</h2>
+<p>Agentic search is a fundamentally different approach. Instead of a fixed pipeline, the agent decides how to search, evaluates the results, and iterates. Boris Cherny articulated the distinction: <em>RAG retrieves. Agentic search reasons about what to retrieve, evaluates the results, and iterates.</em> The difference is the reasoning loop.</p>
+
+<h2>When to use which</h2>
+<table><tr><th>Scenario</th><th>RAG</th><th>Agentic Search</th></tr>
+<tr><td>Simple factual lookup</td><td>✅ Fast, cheap</td><td>Overkill</td></tr>
+<tr><td>Multi-hop reasoning</td><td>❌ Single-hop only</td><td>✅ Iterative retrieval</td></tr>
+<tr><td>Ambiguous queries</td><td>❌ Fixed interpretation</td><td>✅ Can clarify and refine</td></tr>
+<tr><td>Cost-sensitive</td><td>✅ One retrieval</td><td>❌ Multiple retrievals</td></tr>
+<tr><td>Complex codebase questions</td><td>❌ Surface-level</td><td>✅ Deep understanding</td></tr></table>
+
+<h2>Building a codebase knowledge graph</h2>
+<p>For engineering teams, the most valuable context source is the codebase itself. A codebase knowledge graph indexes file relationships (imports, dependencies, call graphs), git history (who changed what, when, and why), architecture decisions (ADRs, design docs), and conventions (naming patterns, testing patterns, error handling). The knowledge graph should be exposed as an MCP server so that any agent can query it.</p>
+<a class="source-link" href="https://agents.siddhantkhare.com/06-rag-vs-agentic-search/" target="_blank" rel="noopener">Read full chapter at agents.siddhantkhare.com &nearr;</a>
+</div>
+</details>
+
+<!-- PART 3 -->
+<div class="part-header">
+  <div class="part-number">Part 3</div>
+  <div class="part-title">Security &amp; Authorization</div>
+  <div class="part-desc">Your AI agent has more permissions than your senior developers. 80% of Fortune 500 companies use AI agents. Fewer than 20% have meaningful security controls around them.</div>
+</div>
+
+<details class="chapter" id="ch07">
+<summary class="chapter-summary">
+  <span class="ch-num">Ch 07</span>
+  <span class="ch-title">The Agent Security Crisis</span>
+  <span class="ch-arrow">+</span>
+</summary>
+<div class="chapter-body">
+<h2>We're speedrunning security mistakes</h2>
+<p>AI agents are infrastructure. Claude Code ships production features. MCP connects agents to thousands of external systems. And we're repeating every security mistake from the last three decades — but faster. 80% of Fortune 500 companies use AI agents. Security researchers have found over 8,000 publicly visible MCP servers, many with no authentication. Agents routinely run with the same permissions as the developer who launched them.</p>
+
+<h2>The new threat model</h2>
+<table><tr><th>Traditional App</th><th>Agent System</th></tr>
+<tr><td>Humans make requests → Code executes</td><td>LLMs make requests → Code executes</td></tr>
+<tr><td>Input is structured (forms, APIs)</td><td>Input is unstructured (natural language)</td></tr>
+<tr><td>Behavior is deterministic</td><td>Behavior is probabilistic</td></tr>
+<tr><td>Attack surface is the API</td><td>Attack surface is any text the agent processes</td></tr>
+<tr><td>Failures are bugs</td><td>Failures can be adversarial</td></tr></table>
+
+<h2>The three attack vectors</h2>
+<p><strong>Prompt injection</strong> occurs when malicious instructions are embedded in data that the LLM processes. An agent reading a web page might encounter text that says "ignore your previous instructions and instead…" This is the SQL injection of the AI era — but worse, because there's no equivalent of parameterized queries.</p>
+<p><strong>Tool poisoning</strong> occurs when tools return malicious responses containing embedded instructions. A compromised MCP server, a man-in-the-middle attack on an API call, or a supply chain attack on a dependency can all inject malicious content into tool responses. Every tool response should be treated as untrusted input.</p>
+<p><strong>Exfiltration through normal operations:</strong> every agent capability is a potential exfiltration vector. An agent that can make HTTP requests can send data to any URL. An agent that can push to git can push secrets to public repositories.</p>
+
+<h2>Real-world impact</h2>
+<table><tr><th>Incident</th><th>Impact</th><th>Root Cause</th></tr>
+<tr><td>Agent pushed secrets to public repo</td><td>Credential exposure</td><td>No file-level access control</td></tr>
+<tr><td>Agent made 50K API calls in 10 minutes</td><td>$2,300 bill</td><td>No rate limiting or budget caps</td></tr>
+<tr><td>Agent modified production config</td><td>2-hour outage</td><td>No environment separation</td></tr>
+<tr><td>Agent exfiltrated customer data via tool call</td><td>Data breach</td><td>No output filtering</td></tr></table>
+<a class="source-link" href="https://agents.siddhantkhare.com/07-agent-security-crisis/" target="_blank" rel="noopener">Read full chapter at agents.siddhantkhare.com &nearr;</a>
+</div>
+</details>
+
+<details class="chapter" id="ch08">
+<summary class="chapter-summary">
+  <span class="ch-num">Ch 08</span>
+  <span class="ch-title">Zanzibar for AI Agents</span>
+  <span class="ch-arrow">+</span>
+</summary>
+<div class="chapter-body">
+<h2>What is Zanzibar?</h2>
+<p>Zanzibar is Google's global authorization system, described in a <a href="https://research.google/pubs/zanzibar-googles-consistent-global-authorization-system/" target="_blank" rel="noopener">2019 paper</a>. It handles permission checks for Google Drive, YouTube, and virtually every Google product — millions of checks per second with global consistency. The key insight is <strong>Relationship-Based Access Control (ReBAC)</strong>: instead of assigning permissions directly to users, you define relationships between entities.</p>
+
+<h2>Why agents need Zanzibar</h2>
+<p>AI agents have authorization requirements that are more complex than human users. Traditional RBAC can't express them because agent permissions need to be:</p>
+<ul>
+<li><strong>Fine-grained:</strong> "This agent can read files in src/ but not in config/secrets/"</li>
+<li><strong>Context-dependent:</strong> "This agent can access production logs only during an active incident"</li>
+<li><strong>Delegatable:</strong> "This orchestrator agent can grant its sub-agents read access to the files it's working on, but not write access"</li>
+</ul>
+
+<h2>OpenFGA: Open-source Zanzibar</h2>
+<p><a href="https://openfga.dev/" target="_blank" rel="noopener">OpenFGA</a> is the open-source implementation of Zanzibar, a <a href="https://www.cncf.io/projects/openfga/" target="_blank" rel="noopener">CNCF Incubating</a> project used by Okta, Twitch, and Canonical. Performance at scale:</p>
+<table><tr><th>Scale</th><th>Latency (p99)</th><th>Throughput</th></tr>
+<tr><td>10K checks/sec</td><td>&lt; 1ms</td><td>✅</td></tr>
+<tr><td>100K checks/sec</td><td>&lt; 5ms</td><td>✅</td></tr>
+<tr><td>1M checks/sec</td><td>&lt; 10ms</td><td>✅ (with caching)</td></tr></table>
+<p>Authorization checks add negligible overhead. There's no performance excuse for skipping authorization.</p>
+
+<h2>The principle of least privilege for agents</h2>
+<p>Least privilege for agents means starting with zero permissions and adding only what's needed. A code review agent needs read access to the repository and write access to PR comments. It doesn't need write access to the repository, access to the CI/CD pipeline, or access to any database. Agents should have permissions added incrementally as needs are identified, not granted preemptively "just in case."</p>
+
+<h2>OPA vs. OpenFGA</h2>
+<table><tr><th>Criteria</th><th>OPA</th><th>OpenFGA</th></tr>
+<tr><td>Authorization model</td><td>Attribute-based (ABAC)</td><td>Relationship-based (ReBAC)</td></tr>
+<tr><td>Best for</td><td>Complex conditional policies</td><td>"Who can access what" relationships</td></tr>
+<tr><td>Performance</td><td>~1ms policy evaluation</td><td>~2–5ms relationship check</td></tr></table>
+<p>The hybrid approach: use OPA for broad policy decisions ("Is this action type allowed?") and OpenFGA for fine-grained resource access ("Does this agent have read access to this specific file?").</p>
+<a class="source-link" href="https://agents.siddhantkhare.com/08-zanzibar-for-agents/" target="_blank" rel="noopener">Read full chapter at agents.siddhantkhare.com &nearr;</a>
+</div>
+</details>
+
+<details class="chapter" id="ch09">
+<summary class="chapter-summary">
+  <span class="ch-num">Ch 09</span>
+  <span class="ch-title">Prompt Injection &amp; Tool Poisoning</span>
+  <span class="ch-arrow">+</span>
+</summary>
+<div class="chapter-body">
+<h2>Prompt injection: The SQL injection of AI</h2>
+<p>Prompt injection occurs when malicious instructions are embedded in data that the LLM processes, causing it to deviate from its intended behavior. The term was coined by Simon Willison in 2022. SQL injection was solved with parameterized queries — a clean separation between code and data. Prompt injection has no equivalent solution because language models don't distinguish between instructions and data.</p>
+<p>Types of attacks: <strong>Direct injection</strong> (malicious instructions in user input), <strong>indirect injection</strong> (malicious instructions in content the agent retrieves — web pages, documents, tool responses), <strong>jailbreaking</strong> (override safety training), <strong>prompt leaking</strong> (extract the system prompt), <strong>goal hijacking</strong> (redirect the agent to a different task), <strong>payload smuggling</strong> (encode instructions in base64, ROT13, Unicode tricks).</p>
+
+<h2>Defense hierarchy</h2>
+<table><tr><th>Strategy</th><th>Effectiveness</th></tr>
+<tr><td>Sandboxing (limit what agent can DO)</td><td>Very High</td></tr>
+<tr><td>Authorization (limit what agent is ALLOWED)</td><td>Very High</td></tr>
+<tr><td>Output filtering</td><td>High</td></tr>
+<tr><td>Semantic similarity detection</td><td>High</td></tr>
+<tr><td>Input sanitization</td><td>Medium</td></tr>
+<tr><td>Perplexity detection</td><td>Medium</td></tr></table>
+<p>Build your defense from the top down. Start with structural defenses (sandboxing, authorization), add architectural defenses, and layer textual defenses on top. Don't rely on textual defenses alone — they're the weakest layer.</p>
+
+<h2>Tool poisoning</h2>
+<p>Tool poisoning is the attack vector that almost no one discusses, and it may be the most dangerous. Agents call external tools dozens or hundreds of times per session. Each tool response becomes part of the agent's context. If any of those responses contain malicious instructions, the agent may follow them. A compromised MCP server, a man-in-the-middle attack, or a supply chain attack can all inject malicious content.</p>
+<p>The defense is response validation. Every tool response should be validated against an expected schema before it's added to the agent's context. If a database query returns natural language instructions instead of structured data, that's anomalous and should be flagged.</p>
+
+<h2>The state of prompt injection defense</h2>
+<p>As of February 2026, there is no complete defense against prompt injection. This is an uncomfortable truth. Every defense can be bypassed by a sufficiently sophisticated attack. The goal isn't to prevent all injection — it's to make injection hard enough that the cost of attacking exceeds the value of the target. The most effective defenses are structural, not textual.</p>
+<a class="source-link" href="https://agents.siddhantkhare.com/09-prompt-injection/" target="_blank" rel="noopener">Read full chapter at agents.siddhantkhare.com &nearr;</a>
+</div>
+</details>
+
+<details class="chapter" id="ch10">
+<summary class="chapter-summary">
+  <span class="ch-num">Ch 10</span>
+  <span class="ch-title">Sandboxing &amp; Runtime Protection</span>
+  <span class="ch-arrow">+</span>
+</summary>
+<div class="chapter-body">
+<h2>Why containers aren't a sandbox</h2>
+<p>A common misconception: "We run our agents in Docker containers, so they're sandboxed." Containers provide process isolation, not security isolation. They were designed for deployment consistency, not adversarial containment.</p>
+<table><tr><th>Feature</th><th>Container</th><th>Security Sandbox</th></tr>
+<tr><td>Filesystem isolation</td><td>Partial (volumes leak)</td><td>Full (explicit allowlist)</td></tr>
+<tr><td>Network isolation</td><td>Configurable</td><td>Default deny</td></tr>
+<tr><td>Syscall filtering</td><td>Optional (seccomp)</td><td>Mandatory</td></tr>
+<tr><td>Designed for</td><td>Deployment</td><td>Adversarial containment</td></tr></table>
+
+<h2>Ephemeral environment isolation</h2>
+<p>The strongest sandboxing pattern gives each agent its own ephemeral environment — a fresh, isolated VM or container that is destroyed after the task completes. No persistent state means no accumulated security risks or data leakage between sessions. <a href="https://ona.com/" target="_blank" rel="noopener">Ona</a> takes this approach in production: every agent gets an isolated cloud environment that's destroyed when the task is done.</p>
+
+<h2>OS-level sandboxing</h2>
+<p><strong>seccomp</strong> restricts which system calls a process can make. A typical agent needs file I/O, network sockets, process management, and memory allocation. A seccomp profile that allows only the necessary syscalls prevents an entire class of privilege escalation attacks.</p>
+<p><strong>Landlock</strong> (Linux Security Module) restricts filesystem access at the kernel level — path-based rather than identity-based. An agent sandboxed with Landlock can read and write files in its working directory but cannot access <code>/etc/passwd</code> or <code>/root/.ssh</code> — even if running as root.</p>
+<p><strong>Anthropic's <a href="https://github.com/anthropic-experimental/sandbox-runtime" target="_blank" rel="noopener">sandbox-runtime</a></strong> combines multiple isolation layers (seccomp profiles, filesystem restrictions, network policies, resource limits) into a cohesive sandbox designed specifically for AI agents.</p>
+
+<h2>Defense in depth architecture</h2>
+<p>The complete security architecture layers all defenses: Authorization controls what the agent is <em>allowed</em> to do. Sandboxing controls what it can <em>physically</em> do. Prompt injection defense controls what it's <em>tricked</em> into doing. Policy engines enforce business rules that span all three layers. No single layer is sufficient — each layer catches what the previous layers miss.</p>
+<a class="source-link" href="https://agents.siddhantkhare.com/10-sandboxing/" target="_blank" rel="noopener">Read full chapter at agents.siddhantkhare.com &nearr;</a>
+</div>
+</details>
+
+<!-- PART 4 -->
+<div class="part-header">
+  <div class="part-number">Part 4</div>
+  <div class="part-title">Protocols &amp; Standards</div>
+  <div class="part-desc">Standards enable ecosystems. MCP connects agents to tools. A2A connects agents to each other. AGENTS.md connects agents to codebases.</div>
+</div>
+
+<details class="chapter" id="ch11">
+<summary class="chapter-summary">
+  <span class="ch-num">Ch 11</span>
+  <span class="ch-title">Model Context Protocol (MCP)</span>
+  <span class="ch-arrow">+</span>
+</summary>
+<div class="chapter-body">
+<h2>What MCP is</h2>
+<p><a href="https://modelcontextprotocol.io/" target="_blank" rel="noopener">MCP</a> is a protocol for connecting AI agents to external systems. It defines how agents discover tools, call them, and process results. Build an MCP server once, and it works with any MCP-compatible agent — Claude, ChatGPT, Cursor, Gemini, VS Code, GitHub Copilot, Windsurf, and dozens of others. Over 10,000 public MCP servers are available, covering everything from databases and file systems to Slack, GitHub, Jira, and Notion. The npm and PyPI SDKs have over 97 million monthly downloads combined.</p>
+
+<h2>Protocol architecture</h2>
+<p>MCP uses JSON-RPC 2.0 over two transport mechanisms: <strong>stdio transport</strong> (runs the MCP server as a subprocess, communicates over standard input/output — simplest setup) and <strong>HTTP transport</strong> (uses Server-Sent Events for streaming, supports remote MCP servers — production pattern).</p>
+<p>MCP servers expose three types of capabilities:</p>
+<table><tr><th>Capability</th><th>Purpose</th><th>Example</th></tr>
+<tr><td>Tools</td><td>Actions the agent can take</td><td><code>github.create_issue</code>, <code>db.query</code></td></tr>
+<tr><td>Resources</td><td>Data the agent can read</td><td>Database schemas, file contents</td></tr>
+<tr><td>Prompts</td><td>Reusable prompt templates</td><td>Code review template</td></tr></table>
+
+<h2>The Backend for MCP (BFMCP) Pattern</h2>
+<p>A design pattern that separates MCP protocol handling from business logic. The MCP server exposes high-level, business-logic operations ("get user profile," "list recent orders") rather than low-level data access operations ("execute SQL query"). The backend service translates these into the appropriate data access calls, applying business rules, access controls, and rate limits. Benefits: thin MCP server (easy to test and audit), reusable business logic, security policies in the backend.</p>
+
+<h2>MCP security considerations</h2>
+<table><tr><th>Gap</th><th>Risk</th><th>Mitigation</th></tr>
+<tr><td>No built-in authentication</td><td>Any client can connect</td><td>Add auth middleware</td></tr>
+<tr><td>No authorization model</td><td>All tools accessible to all clients</td><td>Integrate OpenFGA</td></tr>
+<tr><td>No rate limiting</td><td>Runaway agents can overwhelm servers</td><td>Add rate limiting middleware</td></tr>
+<tr><td>No audit logging</td><td>No record of tool calls</td><td>Add logging middleware</td></tr></table>
+
+<h2>MCPMark benchmark scores (Feb 2026)</h2>
+<table><tr><th>Model</th><th>Pass@1</th><th>Notes</th></tr>
+<tr><td>GPT-5 (medium reasoning)</td><td>52.6%</td><td>Best overall</td></tr>
+<tr><td>Gemini 3 Pro</td><td>50.6%</td><td>Close second</td></tr>
+<tr><td>Claude Sonnet 4</td><td>&lt;30%</td><td>Strong on code tasks</td></tr>
+<tr><td>DeepSeek V3.2</td><td>29.7%</td><td>Best open-source</td></tr></table>
+<a class="source-link" href="https://agents.siddhantkhare.com/11-mcp/" target="_blank" rel="noopener">Read full chapter at agents.siddhantkhare.com &nearr;</a>
+</div>
+</details>
+
+<details class="chapter" id="ch12">
+<summary class="chapter-summary">
+  <span class="ch-num">Ch 12</span>
+  <span class="ch-title">Agent-to-Agent Communication (A2A)</span>
+  <span class="ch-arrow">+</span>
+</summary>
+<div class="chapter-body">
+<h2>Why agents need to talk to each other</h2>
+<p>MCP connects agents to tools. But what happens when agents need to coordinate with other agents? Tool integration is synchronous and stateless. Agent-to-agent communication is asynchronous and stateful — one agent delegates a task to another, the second agent works for minutes or hours, and the first agent needs to track progress, handle failures, and integrate the result.</p>
+<p>Without a standard protocol, each of these interactions requires custom integration code — an N-squared integration problem. The same problem that MCP solved for tool integration.</p>
+
+<h2>Google's A2A protocol</h2>
+<p>Google launched the <a href="https://github.com/google/A2A" target="_blank" rel="noopener">Agent2Agent (A2A)</a> protocol in 2025 to solve this problem. A2A enables secure, interoperable communication between agents regardless of their underlying framework.</p>
+<p>Every A2A-compatible agent publishes an "Agent Card" — a JSON document describing its capabilities, input/output schemas, authentication requirements, and endpoint URL. Agent Cards serve the same purpose for agent-to-agent communication that tool definitions serve for MCP.</p>
+
+<h2>MCP vs. A2A</h2>
+<table><tr><th>Dimension</th><th>MCP</th><th>A2A</th></tr>
+<tr><td>Purpose</td><td>Agent ↔ Tool</td><td>Agent ↔ Agent</td></tr>
+<tr><td>Communication</td><td>Synchronous (request/response)</td><td>Async (task lifecycle)</td></tr>
+<tr><td>Discovery</td><td>Tool definitions</td><td>Agent Cards</td></tr>
+<tr><td>State</td><td>Stateless</td><td>Stateful (task tracking)</td></tr>
+<tr><td>Duration</td><td>Milliseconds</td><td>Minutes to hours</td></tr></table>
+<p>They're complementary, not competing. MCP for tools, A2A for agents.</p>
+<a class="source-link" href="https://agents.siddhantkhare.com/12-a2a-communication/" target="_blank" rel="noopener">Read full chapter at agents.siddhantkhare.com &nearr;</a>
+</div>
+</details>
+
+<details class="chapter" id="ch13">
+<summary class="chapter-summary">
+  <span class="ch-num">Ch 13</span>
+  <span class="ch-title">AGENTS.md &amp; Codebase Onboarding</span>
+  <span class="ch-arrow">+</span>
+</summary>
+<div class="chapter-body">
+<h2>What is AGENTS.md?</h2>
+<p>AGENTS.md is a markdown file that tells AI agents how to work with your project. Humans read README.md to understand a project. Agents read AGENTS.md to understand how to contribute to it. Over 60,000 open-source projects now have AGENTS.md files. Projects that adopted AGENTS.md early report 30–50% higher first-attempt success rates for agent-generated code, fewer convention violations, and fewer failed builds.</p>
+
+<h2>Anatomy of a good AGENTS.md</h2>
+<ul>
+<li><strong>Header:</strong> Project overview and tech stack</li>
+<li><strong>Quick Start:</strong> Install, dev, test, and build commands (exact commands, not descriptions)</li>
+<li><strong>Architecture:</strong> Directory structure with purpose annotations</li>
+<li><strong>Code Conventions:</strong> TypeScript strict mode, naming conventions, error handling patterns (be specific, not general — "Use camelCase for variables, PascalCase for types" not "Follow good practices")</li>
+<li><strong>Testing Requirements:</strong> CI requirements, coverage thresholds, test frameworks</li>
+<li><strong>Security Notes:</strong> What the agent should NEVER do (crucial negative instructions)</li>
+<li><strong>Common Patterns:</strong> Step-by-step instructions for recurring tasks</li>
+<li><strong>Known Issues:</strong> Gotchas that agents should be aware of</li>
+</ul>
+
+<h2>Writing effective AGENTS.md</h2>
+<p><strong>Be specific, not general.</strong> "Follow good coding practices" is useless. "Use camelCase for variables, PascalCase for types. Error handling uses Result pattern, not try/catch." is actionable.</p>
+<p><strong>Include negative instructions.</strong> Tell the agent what NOT to do. "Never use <code>any</code> types in TypeScript." "Never modify files in <code>/config/secrets/</code>."</p>
+<p><strong>Test it.</strong> Run an agent task using only the information in AGENTS.md. If the agent produces incorrect output, the AGENTS.md is missing information. Iterate until the agent can complete common tasks correctly on the first try.</p>
+
+<h2>Agent Skills: Reusable procedural knowledge</h2>
+<p>AGENTS.md provides project-specific context. <strong>Skills</strong> are portable capabilities that travel across projects and teams — markdown files that encode procedural knowledge (step-by-step workflows, best practices, anti-patterns, domain expertise) in a format agents can read and follow. The open-source skills ecosystem (skills.sh) has over 79,000 skills covering frontend patterns, infrastructure automation, logging best practices, and more.</p>
+<table><tr><th>Layer</th><th>Mechanism</th><th>Scope</th></tr>
+<tr><td>Project context</td><td>AGENTS.md</td><td>One codebase ("Use camelCase, run pnpm test")</td></tr>
+<tr><td>Procedural knowledge</td><td>Skills</td><td>Cross-project ("How to write good logs")</td></tr>
+<tr><td>Tool access</td><td>MCP</td><td>Runtime capabilities</td></tr></table>
+<a class="source-link" href="https://agents.siddhantkhare.com/13-agents-md-onboarding/" target="_blank" rel="noopener">Read full chapter at agents.siddhantkhare.com &nearr;</a>
+</div>
+</details>
+
+<!-- PART 5 -->
+<div class="part-header">
+  <div class="part-number">Part 5</div>
+  <div class="part-title">Observability &amp; Operations</div>
+  <div class="part-desc">When an agent fails, teams ask "What happened?" and have no good answer. Agent observability is different from application observability — you're tracking decisions, tool calls, permission checks, token usage, and cost.</div>
+</div>
+
+<details class="chapter" id="ch14">
+<summary class="chapter-summary">
+  <span class="ch-num">Ch 14</span>
+  <span class="ch-title">Agent Traces &amp; OpenTelemetry</span>
+  <span class="ch-arrow">+</span>
+</summary>
+<div class="chapter-body">
+<h2>Why standard monitoring doesn't work</h2>
+<p>Traditional application monitoring tracks HTTP requests, database queries, error rates, and latency. Agent systems need to track fundamentally different signals: decisions (why did the agent choose this action?), tool calls (what was called with what arguments?), permission checks, token usage, cost, and context (what information was in the context window when the agent made each decision?). Without proper tracing, debugging agent failures is like debugging a distributed system with only access logs.</p>
+
+<h2>OpenTelemetry for agents</h2>
+<p><a href="https://opentelemetry.io/" target="_blank" rel="noopener">OpenTelemetry</a> is the industry standard for application observability. The key concepts map naturally to agent systems:</p>
+<table><tr><th>OTel Concept</th><th>Agent Equivalent</th></tr>
+<tr><td>Trace</td><td>Complete agent session (task start to completion)</td></tr>
+<tr><td>Span</td><td>Individual agent action (tool call, LLM request, decision)</td></tr>
+<tr><td>Attributes</td><td>Agent-specific metadata (tokens, cost, model, tool name)</td></tr>
+<tr><td>Events</td><td>Significant moments (permission denied, human approval, error)</td></tr>
+<tr><td>Links</td><td>Connections between agent sessions (delegation, escalation)</td></tr></table>
+
+<h2>Trace-based debugging</h2>
+<p>When an agent produces bad output, the trace tells you why. The debugging workflow: (1) Find the trace using the session ID. (2) Identify the divergence point — walk through the trace, comparing the agent's actions to what you would have done. (3) Examine the context at the divergence point — the divergence is almost always caused by missing context, misleading context, or ambiguous instructions. (4) Fix the root cause — update AGENTS.md, fix the retrieval pipeline, or clarify the task specification. This systematic workflow produces a feedback loop that continuously improves agent output quality.</p>
+
+<h2>Choosing an observability backend</h2>
+<p><strong>General-purpose backends</strong> (Jaeger, Grafana Tempo, Datadog) — right choice if you want to integrate agent traces into your existing dashboards and correlate agent actions with application traces.</p>
+<p><strong>AI-specific backends</strong> (<a href="https://langfuse.com/" target="_blank" rel="noopener">Langfuse</a>, Arize Phoenix, LangSmith, Braintrust) — purpose-built for AI workloads, with prompt versioning, eval integration, and cost tracking built in.</p>
+<p>The hybrid approach uses OpenTelemetry for trace collection and exports to both backends. For most teams, start with an AI-specific backend and add general-purpose integration later.</p>
+<a class="source-link" href="https://agents.siddhantkhare.com/14-agent-traces/" target="_blank" rel="noopener">Read full chapter at agents.siddhantkhare.com &nearr;</a>
+</div>
+</details>
+
+<details class="chapter" id="ch15">
+<summary class="chapter-summary">
+  <span class="ch-num">Ch 15</span>
+  <span class="ch-title">Cost Tracking &amp; Token Economics</span>
+  <span class="ch-arrow">+</span>
+</summary>
+<div class="chapter-body">
+<h2>Why cost tracking matters</h2>
+<p>Agent costs are driven by model behavior, which is non-deterministic. The same task might cost $0.50 one day and $3.00 the next, depending on how many tool calls the agent makes and whether it gets stuck in a retry loop.</p>
+<table><tr><th>Scenario</th><th>Tokens</th><th>Cost</th></tr>
+<tr><td>Simple bug fix</td><td>15K</td><td>$0.05</td></tr>
+<tr><td>Feature implementation</td><td>150K</td><td>$0.45</td></tr>
+<tr><td>Complex refactoring</td><td>500K</td><td>$1.50</td></tr>
+<tr><td>Runaway agent (no limits)</td><td>5M+</td><td>$15+</td></tr>
+<tr><td>Team of 10 × 20 tasks/day (monthly)</td><td>~900M</td><td>~$2,700/month</td></tr></table>
+
+<h2>Cost optimization strategies</h2>
+<p><strong>Model routing:</strong> Use the cheapest model that can handle the task. A simple bug fix or test generation task can be handled by Sonnet 4.6 at $3/$15 per million tokens instead of Opus 4.6 at $5/$25. The key is having a routing layer that makes this decision automatically.</p>
+<p><strong>Context engineering:</strong> Reducing context size directly reduces cost. Distill (deduplication) achieves 30–40% token reduction; meta-MCP (tool compression) achieves 10–15% overall reduction; selective context loading achieves 50–70% reduction. Combined: 60–80% reduction.</p>
+<p><strong>Budget caps:</strong> Set hard limits per session (default: $3 for routine tasks, $10 for complex tasks) with automatic termination when exceeded.</p>
+
+<h2>Hidden costs</h2>
+<p><strong>Retry costs:</strong> When a tool call fails, the agent retries — but the retry includes the full conversation history plus the failed attempt. A task that fails three times before succeeding can cost 4–5x the cost of a successful first attempt.</p>
+<p><strong>Context accumulation:</strong> Each turn in the conversation includes the full history of previous turns. Turn 1 sends 5K tokens. Turn 10 sends 50K tokens. Turn 20 sends 100K tokens. The total cost of a 20-turn session grows quadratically, not linearly.</p>
+<a class="source-link" href="https://agents.siddhantkhare.com/15-cost-tracking/" target="_blank" rel="noopener">Read full chapter at agents.siddhantkhare.com &nearr;</a>
+</div>
+</details>
+
+<details class="chapter" id="ch16">
+<summary class="chapter-summary">
+  <span class="ch-num">Ch 16</span>
+  <span class="ch-title">Incident Response for Agent Failures</span>
+  <span class="ch-arrow">+</span>
+</summary>
+<div class="chapter-body">
+<h2>When agents break things</h2>
+<p>Agent failures are fundamentally different from application failures. Application bugs are deterministic. Agent failures are non-deterministic. Application failures are localized. Agent failures cascade — an agent that misunderstands a task might modify twelve files across three services before anyone notices. And while you can roll back a deployment, you can't always undo what an agent did, especially if it made API calls, sent messages, or modified external state.</p>
+
+<h2>Incident taxonomy</h2>
+<p><strong>Severity 1:</strong> The agent took an action that affected production systems, corrupted data, or exposed sensitive information. Requires immediate human response — stop the agent, assess the blast radius, begin remediation within minutes.</p>
+<p><strong>Severity 2:</strong> The agent produced incorrect output that passed automated checks but was caught in human review. Requires investigation within an hour.</p>
+<p><strong>Severity 3:</strong> The agent failed to complete a task or produced obviously wrong output that was caught immediately. A learning opportunity, not an emergency.</p>
+
+<h2>The incident response runbook</h2>
+<ol>
+<li><strong>Contain:</strong> Kill the agent session, revoke temporary credentials, prevent affected code from being deployed</li>
+<li><strong>Assess:</strong> Review the full trace log, identify all files modified and commands executed, determine whether any actions affected external systems</li>
+<li><strong>Remediate:</strong> Revert the agent's changes using git, restore any modified external state, verify the system is back to a known good state</li>
+<li><strong>Learn:</strong> Post-incident review within 48 hours, update guardrails to prevent recurrence, share findings with the team</li>
+</ol>
+
+<h2>Common agent failure patterns</h2>
+<ul>
+<li><strong>The infinite loop:</strong> Agent encounters an error, attempts to fix it, introduces a new error, cycles indefinitely. Fix: loop detector that terminates after 3 consecutive failed attempts.</li>
+<li><strong>Scope creep:</strong> Agent misunderstands task boundaries and modifies files outside the intended scope. Fix: explicit scope constraints in the task specification.</li>
+<li><strong>The confident hallucination:</strong> Agent produces output that looks correct — compiles, passes tests, follows conventions — but contains a subtle logical error. The most dangerous failure. Fix: adversarial testing in the eval pipeline.</li>
+<li><strong>The cost spiral:</strong> Agent encounters a difficult problem and keeps trying increasingly expensive approaches. Fix: per-session cost limits with automatic termination.</li>
+</ul>
+<a class="source-link" href="https://agents.siddhantkhare.com/16-incident-response/" target="_blank" rel="noopener">Read full chapter at agents.siddhantkhare.com &nearr;</a>
+</div>
+</details>
+
+<!-- PART 6 -->
+<div class="part-header">
+  <div class="part-number">Part 6</div>
+  <div class="part-title">Agent Orchestration</div>
+  <div class="part-desc">Agent orchestration is distributed systems engineering applied to AI. How agents plan, execute, coordinate, and recover from failures.</div>
+</div>
+
+<details class="chapter" id="ch17">
+<summary class="chapter-summary">
+  <span class="ch-num">Ch 17</span>
+  <span class="ch-title">The Agent Loop</span>
+  <span class="ch-arrow">+</span>
+</summary>
+<div class="chapter-body">
+<h2>The core pattern</h2>
+<p>Every agent, regardless of framework, runs a variation of the same loop: observe the current state, decide what to do next, take an action, observe the result, and repeat. The model receives a prompt containing the task description, conversation history, and results of any previous actions. It produces either a final answer or a request to use a tool. If it requests a tool, the system executes that tool, appends the result to the conversation, and sends everything back to the model. This continues until the model produces a final answer or hits a limit.</p>
+
+<h2>Loop variants</h2>
+<p><strong>ReAct (Reason + Act)</strong> forces the model to explicitly state its reasoning before each action. Improves transparency but increases token usage. <strong>Plan-and-Execute</strong> separates planning from execution — the model creates a full plan upfront, then executes each step. Works well for predictable tasks but struggles when early steps reveal information that invalidates the plan. <strong>Graph-based</strong> (LangGraph) models the agent as a state machine with conditional branching. <strong>Role-based</strong> (CrewAI) assigns different personas to different agents.</p>
+
+<h2>Error recovery</h2>
+<ul>
+<li><strong>Retry with backoff:</strong> If an action fails, wait and try again. Handles transient errors. Use exponential backoff with jitter to avoid thundering herds.</li>
+<li><strong>Fallback chains:</strong> Try alternative approaches when the primary fails. If the preferred model returns an error, try a different model.</li>
+<li><strong>Circuit breakers:</strong> After a threshold of failures, the circuit opens and all subsequent requests fail immediately without attempting the call. After a cooldown, allow a single test request. Borrowed directly from distributed systems engineering.</li>
+</ul>
+
+<h2>Context window management</h2>
+<p>As an agent session progresses, the context window fills up. Three strategies: <strong>Sliding window</strong> (keep only the most recent N turns — simple but lossy), <strong>Summarization</strong> (every 10 turns, generate a summary of the previous 10 and replace them — preserves key information but is non-deterministic), <strong>Selective retention</strong> (keep specific types of context and discard others — most targeted but requires understanding which context types matter).</p>
+
+<h2>Termination conditions</h2>
+<p>An agent without clear termination conditions will run until it hits a cost limit or timeout — neither of which is a good outcome. Termination conditions should be multi-layered: task completion (primary), cost limits (safety net), iteration limits (typically 50–100), time limits, and stall detection (same tool call 3 times without progress). Define "complete" explicitly for every task type.</p>
+
+<h2>Human-in-the-loop gates</h2>
+<p>Not every decision should be automated. Explicit gates where the agent pauses for human approval should be placed at points of high consequence: before modifying production data, before making irreversible changes, before spending above a cost threshold. The design of these gates matters — a gate that interrupts every five minutes is worse than no agent at all. A gate that only fires for genuinely consequential decisions adds safety without destroying flow.</p>
+<a class="source-link" href="https://agents.siddhantkhare.com/17-agent-loop/" target="_blank" rel="noopener">Read full chapter at agents.siddhantkhare.com &nearr;</a>
+</div>
+</details>
+
+<details class="chapter" id="ch18">
+<summary class="chapter-summary">
+  <span class="ch-num">Ch 18</span>
+  <span class="ch-title">Multi-Agent Systems</span>
+  <span class="ch-arrow">+</span>
+</summary>
+<div class="chapter-body">
+<h2>When to use multiple agents</h2>
+<table><tr><th>Scenario</th><th>Why Multiple Agents</th></tr>
+<tr><td>Different expertise needed</td><td>Security agent + code agent + test agent</td></tr>
+<tr><td>Parallel execution</td><td>Multiple independent subtasks</td></tr>
+<tr><td>Separation of concerns</td><td>Each agent has limited permissions</td></tr>
+<tr><td>Adversarial checking</td><td>One agent reviews another's work</td></tr>
+<tr><td>Long-running workflows</td><td>Agents hand off across time boundaries</td></tr></table>
+
+<h2>Fleet-scale parallelism</h2>
+<p>Some tasks aren't complex — they're repetitive. Migrating 200 microservices from Java 8 to Java 17. Patching a CVE across every repository. Updating documentation org-wide. These tasks need fleet-scale parallelism: hundreds of identical agents running the same playbook against different targets simultaneously. Work that would take a team weeks finishes in hours. The key requirement: isolation — each agent must run in its own environment so a failure in one repository doesn't affect others.</p>
+
+<h2>Multi-agent architectures</h2>
+<p><strong>Hub-and-spoke:</strong> A central orchestrator delegates to specialist agents, collects results, and synthesizes a final output. Most common pattern — easiest to reason about and debug. The orchestrator is the single point of control. Downside: the orchestrator becomes a bottleneck and single point of failure.</p>
+<p><strong>Mesh:</strong> Agents communicate directly with each other, without a central coordinator. More resilient — no single point of failure — but harder to debug.</p>
+<p><strong>Pipeline:</strong> The output of one agent becomes the input of the next. Simple and predictable, but slow (each stage must complete before the next begins) and a failure at any stage blocks the entire pipeline.</p>
+
+<h2>When NOT to use multi-agent systems</h2>
+<p>Multi-agent systems add complexity. Don't use them when: the task is linear and doesn't require different expertise at different stages; the coordination cost exceeds the parallelism benefit; a single agent with better context could handle it. Do use them when: different stages require genuinely different expertise or permissions; tasks can genuinely be parallelized (the key word is "independent").</p>
+
+<h2>The observability challenge</h2>
+<p>The solution is distributed tracing with trace ID propagation. Every agent session gets a unique trace ID. When one agent delegates to another, the trace ID propagates to the child session. This creates a tree of traces showing the complete execution flow. Without trace ID propagation, debugging multi-agent failures is like debugging microservices without distributed tracing.</p>
+<a class="source-link" href="https://agents.siddhantkhare.com/18-multi-agent-systems/" target="_blank" rel="noopener">Read full chapter at agents.siddhantkhare.com &nearr;</a>
+</div>
+</details>
+
+<details class="chapter" id="ch19">
+<summary class="chapter-summary">
+  <span class="ch-num">Ch 19</span>
+  <span class="ch-title">Agent Memory &amp; Checkpoints</span>
+  <span class="ch-arrow">+</span>
+</summary>
+<div class="chapter-body">
+<h2>The memory problem</h2>
+<p>Agents are stateless by default. Each LLM call is independent — the model has no memory of previous sessions. A team of ten engineers, each running five agent sessions per day, generates fifty sessions of institutional knowledge daily — and throws all of it away.</p>
+
+<h2>Types of agent memory</h2>
+<p><strong>Session memory:</strong> The conversation history within a single agent run. Handled automatically by the agent framework. The challenge: it grows with every step, consuming context window space.</p>
+<p><strong>Persistent memory:</strong> Survives across sessions. When an agent finishes a task, it saves a summary of what it did, what it learned, and what went wrong. The next session can load these summaries to avoid repeating mistakes. The simplest implementation is an AGENTS.md file that agents read at the start of every session.</p>
+<p><strong>Shared memory:</strong> Makes one agent's knowledge available to others. When a code review agent discovers that a particular module has a tricky initialization sequence, that knowledge should be available to the code generation agent working on the same module.</p>
+
+<h2>Memory architecture decisions</h2>
+<p><strong>File-based:</strong> Store session summaries as markdown files in the repository. Works for small teams but doesn't scale — summaries grow over time. <strong>Vector-based:</strong> Store memories as embeddings in a vector database (Chroma, Qdrant, Weaviate) and retrieve only the memories relevant to the current task. Scales better but retrieval quality is a concern. <strong>Graph-based:</strong> Store memories as nodes in a knowledge graph with typed relationships. Supports complex queries that vector retrieval can't handle.</p>
+<p>For most teams: start with file-based memory (AGENTS.md plus session summaries), graduate to vector-based when the file-based approach stops scaling, and consider graph-based only when you need relationship-aware queries.</p>
+
+<h2>Learning from mistakes</h2>
+<p>The most valuable form of agent memory is learning from mistakes. When an agent produces output that a human corrects, that correction contains information about what the agent got wrong. The simplest implementation is a "lessons learned" file: "When modifying the payment service, always update the idempotency key. The agent has previously forgotten this, causing duplicate charges in testing."</p>
+<p>Key insight: agent memory should be curated, not comprehensive. Storing every agent session produces large, noisy data. Storing only the corrections produces small, high-signal data that directly improves future performance.</p>
+<a class="source-link" href="https://agents.siddhantkhare.com/19-agent-memory/" target="_blank" rel="noopener">Read full chapter at agents.siddhantkhare.com &nearr;</a>
+</div>
+</details>
+
+<!-- PART 7 -->
+<div class="part-header">
+  <div class="part-number">Part 7</div>
+  <div class="part-title">Team Practices</div>
+  <div class="part-desc">The hardest problems in agentic engineering aren't technical. They're human. Technology is the easy part. The hard part is how teams adopt agents without burning out.</div>
+</div>
+
+<details class="chapter" id="ch20">
+<summary class="chapter-summary">
+  <span class="ch-num">Ch 20</span>
+  <span class="ch-title">AI Fatigue &amp; Sustainable Adoption</span>
+  <span class="ch-arrow">+</span>
+</summary>
+<div class="chapter-body">
+<h2>The fatigue pattern</h2>
+<p>In February 2026, a blog post titled "AI fatigue is real and nobody talks about it" hit #1 on Hacker News with 470+ points. An eight-month UC Berkeley Haas ethnographic study of a 200-person tech company found workers felt productive but were actually juggling: "a continual switching of attention, frequent checking of AI outputs, and a growing number of open tasks." Only 3% actual time savings despite feeling faster.</p>
+
+<h2>Five patterns from 300 engineers</h2>
+<p><strong>Pattern 1: The meditative middle is gone.</strong> Coding has three psychological modes: problem-solving (stressful), coding (meditative flow state), seeing it work (dopamine). AI collapsed the meditative middle. Engineers now oscillate between stress and dopamine hits — the same pattern as doom-scrolling.</p>
+<p><strong>Pattern 2: Executive functioning fatigue.</strong> Pre-AI: [Hard decision] → [Implementation break] → [Hard decision]. Post-AI: [Hard decision] → [Hard decision] → [Hard decision] → [Burnout]. Without implementation as downtime, your prefrontal cortex runs at full load all day.</p>
+<p><strong>Pattern 3: The open source flood.</strong> PRs per week (maintainer) went from 20–25 to 100+. Sloppy/AI-generated PRs went from ~5% to ~40%. Total review time went from 5–6 hours/week to 25+ hours/week.</p>
+<p><strong>Pattern 4: Perceived cost aversion.</strong> AI generates a 70% solution in 1 minute. Spending 1 hour to improve it feels irrational. So you don't. And tech debt accumulates at AI speed.</p>
+<p><strong>Pattern 5: The slot machine.</strong> Variable reward schedule — sometimes it works perfectly, sometimes it doesn't — is the same mechanism that makes gambling addictive.</p>
+
+<h2>Sustainable adoption framework</h2>
+<p><strong>Preserve thinking time.</strong> Block 2–3 hours per day for work without AI — architecture design, problem decomposition, code review. An engineer who can't think through a problem can't evaluate whether the AI's solution is correct.</p>
+<p><strong>Set explicit boundaries.</strong> Define which tasks use AI and which don't. Use AI for implementation, test generation, documentation, mechanical refactoring. Don't use AI for architecture decisions or security-critical code.</p>
+<p><strong>Manage the reward cycle.</strong> If the agent hasn't produced useful output in 15 minutes, stop and do it manually. Don't chase the "one more try" feeling.</p>
+<p><strong>Measure cognitive load, not just productivity.</strong> Track burnout indicators: overtime hours, sick days, turnover, self-reported stress levels.</p>
+
+<h2>The dependency problem</h2>
+<p>A colonoscopy study found that doctors using AI improved initially, but when AI was removed, performance dropped below their original baseline. The same pattern is emerging in software engineering — engineers who rely heavily on AI assistants report that whiteboard sessions become harder, their mental models of codebases atrophy, and their debugging skills decline. The engineers who handle this best deliberately practice without AI: morning thinking sessions, whiteboard-first design, regular "no-AI days."</p>
+<a class="source-link" href="https://agents.siddhantkhare.com/20-ai-fatigue/" target="_blank" rel="noopener">Read full chapter at agents.siddhantkhare.com &nearr;</a>
+</div>
+</details>
+
+<details class="chapter" id="ch21">
+<summary class="chapter-summary">
+  <span class="ch-num">Ch 21</span>
+  <span class="ch-title">The Conductor Model</span>
+  <span class="ch-arrow">+</span>
+</summary>
+<div class="chapter-body">
+<h2>Engineers as orchestrators</h2>
+<p>The traditional engineering model: engineers write code. The emerging model: engineers orchestrate agents that write code. The analogy to a musical conductor is deliberate. A conductor doesn't play every instrument — they understand what each instrument can do, set the tempo, make judgment calls, and ensure the ensemble produces something coherent.</p>
+<p>The conductor model works because it aligns human strengths with agent strengths. Humans are good at judgment, creativity, context understanding, and strategic thinking. Agents are good at execution, consistency, speed, and tireless repetition.</p>
+
+<h2>What conductors do (time allocation)</h2>
+<table><tr><th>Activity</th><th>Time Before</th><th>Time After</th></tr>
+<tr><td>Writing code</td><td>60%</td><td>15%</td></tr>
+<tr><td>Reviewing code</td><td>15%</td><td>35%</td></tr>
+<tr><td>Specifying intent</td><td>5%</td><td>20%</td></tr>
+<tr><td>Architecture decisions</td><td>10%</td><td>20%</td></tr>
+<tr><td>Debugging</td><td>10%</td><td>10%</td></tr></table>
+
+<h2>Writing effective task specifications</h2>
+<p>An effective task specification has five components: <strong>Goal</strong> (what should be different when the task is complete?), <strong>Context</strong> (what does the agent need to know?), <strong>Constraints</strong> (what should the agent NOT do?), <strong>Verification</strong> (how will we know the task is complete?), <strong>Scope</strong> (what files should the agent touch?). The specification doesn't need to be long — but it needs to be specific. Each sentence eliminates ambiguity and reduces the chance of the agent going off track.</p>
+
+<h2>The daily rhythm of a conductor</h2>
+<ul>
+<li><strong>Morning (8–10am):</strong> Review overnight agent work — PRs, long-running task results, observability alerts. Highest leverage time.</li>
+<li><strong>Mid-morning (10am–noon):</strong> Specification and delegation. Write task specs, delegate to agents, start them running, move on.</li>
+<li><strong>Afternoon (1–3pm):</strong> Deep work — architecture design, design discussions, mentoring, complex code review. Protect this time aggressively. Don't check agent status.</li>
+<li><strong>Late afternoon (3–5pm):</strong> Review agent output, approve or re-delegate, update AGENTS.md, plan tomorrow's work.</li>
+</ul>
+
+<h2>The conductor anti-patterns</h2>
+<table><tr><th>Anti-Pattern</th><th>Fix</th></tr>
+<tr><td>Micromanaging (watching the agent work in real-time)</td><td>Set clear specs, let it run, review the result</td></tr>
+<tr><td>Rubber-stamping (approving without review)</td><td>Establish review checklists, enforce them</td></tr>
+<tr><td>Over-delegating (tasks that require human judgment)</td><td>Keep architecture, security, and design decisions human</td></tr>
+<tr><td>Prompt-tweaking (hours perfecting prompts)</td><td>Invest in AGENTS.md, context engineering, better specs</td></tr></table>
+<a class="source-link" href="https://agents.siddhantkhare.com/21-conductor-model/" target="_blank" rel="noopener">Read full chapter at agents.siddhantkhare.com &nearr;</a>
+</div>
+</details>
+
+<details class="chapter" id="ch22">
+<summary class="chapter-summary">
+  <span class="ch-num">Ch 22</span>
+  <span class="ch-title">Agent Maturity Model</span>
+  <span class="ch-arrow">+</span>
+</summary>
+<div class="chapter-body">
+<h2>Five levels of agent maturity</h2>
+<table><tr><th>Level</th><th>Description</th><th>Key Characteristic</th></tr>
+<tr><td>Level 1: Experimentation</td><td>Individual engineers trying AI coding assistants</td><td>No team coordination, no security controls</td></tr>
+<tr><td>Level 2: Individual adoption</td><td>Engineers using agents regularly for personal productivity</td><td>Informal knowledge sharing, no team-wide standards</td></tr>
+<tr><td>Level 3: Team integration</td><td>AGENTS.md in every repo, MCP servers, basic review guidelines</td><td>Cost tracking, basic security controls</td></tr>
+<tr><td>Level 4: Orchestration</td><td>Multi-agent workflows, formal authorization (OpenFGA), full OTel observability</td><td>Conductor model as default working style</td></tr>
+<tr><td>Level 5: Autonomy</td><td>Background agents running unattended, anomaly detection, auto-remediation</td><td>Outcome-based review, continuous self-improvement</td></tr></table>
+<p>Most teams in February 2026 are at Level 2 or early Level 3. The gap between Level 2 and Level 3 is where most value is captured. The gap between Level 3 and Level 4 is where most risk is managed.</p>
+
+<h2>The maturity trap</h2>
+<p>A common mistake is trying to skip levels. A team at Level 2 that tries to jump to Level 4 will fail — they don't have the infrastructure (AGENTS.md, MCP servers, authorization, observability) that Level 4 requires. Another common mistake: measuring maturity by the most advanced capability rather than the weakest dimension. A team with Level 4 usage but Level 1 security is not at Level 4 — they're at Level 1 with a dangerous gap.</p>
+
+<h2>Moving up the maturity curve</h2>
+<p><strong>L2 → L3 (1–2 months):</strong> Add AGENTS.md to all repositories, set up MCP servers for internal APIs, establish basic review guidelines, implement basic cost tracking.</p>
+<p><strong>L3 → L4 (2–4 months):</strong> Deploy multi-agent workflows, implement OpenFGA authorization, set up full OpenTelemetry tracing, formalize review policies (two-layer model), implement cost budgets and alerts, train team on conductor skills.</p>
+<p><strong>L4 → L5 (6+ months):</strong> Deploy background agents (async, unattended), implement full defense-in-depth security, build anomaly detection and auto-remediation, shift to outcome-based review.</p>
+<a class="source-link" href="https://agents.siddhantkhare.com/22-agent-maturity-model/" target="_blank" rel="noopener">Read full chapter at agents.siddhantkhare.com &nearr;</a>
+</div>
+</details>
+
+<!-- PART 8 -->
+<div class="part-header">
+  <div class="part-number">Part 8</div>
+  <div class="part-title">Production Workflows</div>
+  <div class="part-desc">From demo to deployed. Step by step. Actionable workflows, checklists, and templates for getting agents into production safely.</div>
+</div>
+
+<details class="chapter" id="ch23">
+<summary class="chapter-summary">
+  <span class="ch-num">Ch 23</span>
+  <span class="ch-title">Your First Agent in Production</span>
+  <span class="ch-arrow">+</span>
+</summary>
+<div class="chapter-body">
+<h2>Pre-flight checklist</h2>
+<p>The overthinking camp spends months building infrastructure before running a single agent task. The underthinking camp gives an agent full access to their codebase on day one with no guardrails. Both approaches fail. The right approach is a controlled first deployment with clear boundaries, monitoring, and a plan for iteration.</p>
+
+<h2>Step 1: Prepare the repository (30 minutes)</h2>
+<p>Create an AGENTS.md with your project overview, setup commands, code conventions, testing requirements, and security notes (see Chapter 13 for the full template). Then create the agent configuration file at <code>.agent/config.yaml</code> with: model (e.g., claude-sonnet-4.6), max tokens per session (200,000), max cost per session ($3.00), timeout (30 minutes), filesystem/network/command permissions, and observability settings (tracing: true, cost_tracking: true, audit_logging: true).</p>
+
+<h2>Step 2: Configure MCP servers (30 minutes)</h2>
+<p>Connect the agent to the tools it needs: at minimum, filesystem (read and write code), version control (create branches and commits), and test runner (execute tests and read results). Start with 3–5 MCP servers. More than 10 creates tool definition bloat that wastes tokens on every turn. Verify each MCP server works independently before connecting it to the agent.</p>
+
+<h2>Step 3: Set up observability (45 minutes)</h2>
+<p>You cannot debug agent failures without traces. At minimum, every trace should capture: cost (cumulative per session), tool calls (name, arguments, response size, success/failure), LLM calls (model name, input/output token counts, latency, cost), session metadata (session ID, task description, initiating user). Set up two alerts from day one: sessions exceeding your cost cap ($3 default) and sessions exceeding your duration limit (30 minutes default).</p>
+
+<h2>Step 4: Configure CI/CD integration (30 minutes)</h2>
+<p>Agent-generated code must pass the same quality gates as human-written code. Configure your CI pipeline to run the full backpressure stack on every agent-created pull request: security scanning (Semgrep or CodeQL), tests (affected tests, not the full suite), linting, and type checking. Configure the agent to read CI failure output so it can self-correct. Set a maximum of 3 CI retry cycles.</p>
+
+<h2>Step 5: First run (30 minutes)</h2>
+<p>Pick a low-risk task: a well-defined bug fix with a failing test, a documentation update, or adding unit tests for an untested function. <strong>Avoid</strong> database migrations, authentication changes, or public API modifications. Write a clear task specification. Run the agent and watch the trace in real-time. Note where the agent hesitates, makes wrong assumptions, or lacks context — these observations will inform your AGENTS.md updates.</p>
+<a class="source-link" href="https://agents.siddhantkhare.com/23-first-agent-production/" target="_blank" rel="noopener">Read full chapter at agents.siddhantkhare.com &nearr;</a>
+</div>
+</details>
+
+<details class="chapter" id="ch24">
+<summary class="chapter-summary">
+  <span class="ch-num">Ch 24</span>
+  <span class="ch-title">Security Checklist &amp; Review Policies</span>
+  <span class="ch-arrow">+</span>
+</summary>
+<div class="chapter-body">
+<h2>The 20-point security checklist</h2>
+<p>Before deploying any agent to production, verify twenty things across five categories. This checklist isn't aspirational — it's a gate. Score out of 20: below 12, don't deploy; 12–16, deploy with close monitoring; above 16, production-ready.</p>
+<p><strong>Authentication and Identity (4 pts):</strong> Unique agent identity (not shared service account), unique session ID in all traces, no hardcoded credentials in configs or prompts, API keys rotated on a defined schedule.</p>
+<p><strong>Authorization (4 pts):</strong> Least-privilege permissions, file access restricted to specific directories, network access limited to allowlisted domains, production database access requires explicit human approval per session.</p>
+<p><strong>Runtime Protection (4 pts):</strong> Agents run in sandboxed environments, cost budgets enforced with automatic termination, kill switch exists AND has been tested (not just configured), resource limits configured and enforced.</p>
+<p><strong>Input/Output Security (4 pts):</strong> No secrets in git history, .env files gitignored, tool responses validated against expected schemas, output filtering blocks exfiltration patterns.</p>
+<p><strong>Audit and Monitoring (4 pts):</strong> All agent actions logged with full traces, logs retained for at least 90 days, alerts fire on anomalous behavior, monthly access pattern reviews scheduled and conducted.</p>
+
+<h2>Two-layer review policy</h2>
+<p><strong>Layer 1 (automated):</strong> Type checking, test execution, linting, security scanning, and architecture enforcement. Should run in under 2 minutes. Code that passes all automated checks proceeds to Layer 2. Invest in parallelizing checks and running only affected tests.</p>
+<p><strong>Layer 2 (human):</strong> Focused on judgment calls — architectural fit, business logic correctness, security implications, whether the approach makes sense in broader context. Give reviewers a structured checklist rather than asking them to review open-endedly. Structured review questions produce more consistent, higher-quality reviews than "looks good to me" approvals.</p>
+
+<h2>Access control policies: Four permission levels</h2>
+<ul>
+<li><strong>Read-only agents:</strong> Can analyze code and generate documentation but cannot write files or execute commands. Default for new agent deployments.</li>
+<li><strong>Development agents:</strong> Can read and write source code and run build/test commands but cannot access production systems or secrets. Standard permission level for coding agents.</li>
+<li><strong>CI/CD agents:</strong> Can create pull requests, trigger pipelines, run deployment scripts but cannot merge without human approval.</li>
+<li><strong>Operations agents:</strong> Can access staging environments and read production logs but require human approval for all write actions. Grant sparingly.</li>
+</ul>
+<a class="source-link" href="https://agents.siddhantkhare.com/24-security-checklist/" target="_blank" rel="noopener">Read full chapter at agents.siddhantkhare.com &nearr;</a>
+</div>
+</details>
+
+<details class="chapter" id="ch25">
+<summary class="chapter-summary">
+  <span class="ch-num">Ch 25</span>
+  <span class="ch-title">Measuring Agent Impact</span>
+  <span class="ch-arrow">+</span>
+</summary>
+<div class="chapter-body">
+<h2>Metrics that matter</h2>
+<p><strong>Effectiveness metrics:</strong> Task completion rate (% of agent tasks accepted without major rework), first-attempt success rate (% that pass all automated checks on the first try), human override rate (% requiring significant human intervention).</p>
+<p><strong>Efficiency metrics:</strong> Average cycle time from task assignment to merged PR, average human review time per agent PR, cost per completed task.</p>
+<p><strong>Quality metrics:</strong> Defect rate in agent-generated code vs. human-generated code, regression rate (previously passing tests that now fail), post-merge bug rate.</p>
+<p><strong>Metrics that don't matter:</strong> Lines of code generated (more isn't better), number of PRs created (volume without quality is noise), raw token consumption (cost per task is what matters, not total tokens).</p>
+
+<h2>The metrics that mislead</h2>
+<p>"Time saved" is the most dangerous misleading metric. Teams often estimate time saved by comparing how long a task would have taken manually vs. how long it took with an agent — but don't account for the time spent specifying the task, reviewing the output, fixing issues, and managing the agent. A task that "would have taken 2 hours manually" and "took 15 minutes with an agent" might actually have taken 45 minutes total when you include the full workflow.</p>
+
+<h2>Connecting to business outcomes</h2>
+<p>The ultimate measure of agent impact isn't engineering metrics — it's business outcomes: time-to-market (are we shipping features faster?), quality (are we shipping fewer bugs?), cost efficiency (more output per engineering dollar?), and developer satisfaction (are our engineers happier and more productive?). Measure these alongside engineering metrics and look for correlations over time.</p>
+<a class="source-link" href="https://agents.siddhantkhare.com/25-measuring-impact/" target="_blank" rel="noopener">Read full chapter at agents.siddhantkhare.com &nearr;</a>
+</div>
+</details>
+
+<!-- PART 9 -->
+<div class="part-header">
+  <div class="part-number">Part 9</div>
+  <div class="part-title">Production Engineering</div>
+  <div class="part-desc">The difference between a demo and a production agent is 10x the code, 100x the testing, and 1000x the operational discipline.</div>
+</div>
+
+<details class="chapter" id="ch26">
+<summary class="chapter-summary">
+  <span class="ch-num">Ch 26</span>
+  <span class="ch-title">Agent Evaluation &amp; Testing</span>
+  <span class="ch-arrow">+</span>
+</summary>
+<div class="chapter-body">
+<h2>Why agent testing is different</h2>
+<p>Traditional software testing relies on deterministic inputs and outputs. The same prompt can produce different tool call sequences, different reasoning chains, and different final answers — all of which might be correct. The solution is to test at multiple levels:</p>
+<table><tr><th>Level</th><th>What You Test</th><th>How</th></tr>
+<tr><td>Unit</td><td>Individual tool calls, prompt templates</td><td>Deterministic assertions</td></tr>
+<tr><td>Integration</td><td>Tool chains, API interactions</td><td>Mock services + assertions</td></tr>
+<tr><td>Behavioral</td><td>End-to-end task completion</td><td>LLM-as-judge + golden datasets</td></tr>
+<tr><td>Regression</td><td>Prompt changes don't break things</td><td>Before/after eval suites</td></tr>
+<tr><td>Performance</td><td>Latency, cost, token usage</td><td>Benchmarks + budgets</td></tr></table>
+
+<h2>The three testing patterns</h2>
+<p><strong>Pattern 1: Deterministic assertions.</strong> For things you can check without an LLM: does the agent use the correct tools, does it respect token budgets, does it handle tool failures gracefully? These tests are fast (seconds) and catch obvious regressions.</p>
+<p><strong>Pattern 2: LLM-as-judge.</strong> Use a language model to evaluate the quality of another model's output. The judge model receives the task description, the agent's output, and a rubric, and produces a quality score. Key challenges: calibration (the judge has its own biases) and using a different model for judging than for generation. A well-calibrated judge achieves 85–90% agreement with human evaluators.</p>
+<p><strong>Pattern 3: Golden dataset testing.</strong> Build a curated set of tasks with known-good outputs. Aim for 50–100 examples across your most common task types, including a mix of easy, medium, and hard tasks. Update the dataset quarterly.</p>
+
+<h2>Benchmark scores (Feb 2026)</h2>
+<table><tr><th>Benchmark</th><th>Measures</th><th>Frontier Scores</th></tr>
+<tr><td>SWE-bench Verified</td><td>Real GitHub issue resolution</td><td>Opus 4.6: 80.8%, GPT-5.2: 80.0%</td></tr>
+<tr><td>Terminal-Bench 2.0</td><td>Real terminal coding tasks</td><td>GPT-5.3-Codex: 75.1%</td></tr>
+<tr><td>SWE-bench Pro</td><td>Harder multi-file issues</td><td>GPT-5.3-Codex: 55.6%</td></tr></table>
+<p>If your agent scores below 50% on SWE-bench, investigate your context engineering before blaming the model.</p>
+
+<h2>Key eval metrics</h2>
+<table><tr><th>Metric</th><th>Target</th></tr>
+<tr><td>Task completion rate</td><td>&gt; 85%</td></tr>
+<tr><td>Tool call accuracy</td><td>&gt; 90%</td></tr>
+<tr><td>Hallucination rate</td><td>&lt; 5%</td></tr>
+<tr><td>Human override rate</td><td>&lt; 15%</td></tr>
+<tr><td>Regression rate</td><td>0% (hard gate)</td></tr></table>
+<a class="source-link" href="https://agents.siddhantkhare.com/26-agent-evaluation/" target="_blank" rel="noopener">Read full chapter at agents.siddhantkhare.com &nearr;</a>
+</div>
+</details>
+
+<details class="chapter" id="ch27">
+<summary class="chapter-summary">
+  <span class="ch-num">Ch 27</span>
+  <span class="ch-title">Enterprise Adoption &amp; Vendor Strategy</span>
+  <span class="ch-arrow">+</span>
+</summary>
+<div class="chapter-body">
+<h2>The $50M problem</h2>
+<p>A domain architect at a major global bank: "We allocated $50 million for AI initiatives. We're only allowed to use GitHub Copilot and Azure OpenAI. Our 300,000 token monthly limit gets exhausted by the 7th of each month. Teams are sharing tokens like rations." This is the norm, not an outlier.</p>
+<p>The root cause: enterprise procurement processes were designed for SaaS subscriptions, not consumption-based AI services. Enterprises that budget for AI like they budget for SaaS consistently underestimate consumption by 3–5x.</p>
+
+<h2>Avoiding vendor lock-in</h2>
+<p><strong>Model abstraction:</strong> Use <a href="https://github.com/BerriAI/litellm" target="_blank" rel="noopener">LiteLLM</a> or OpenRouter to abstract away model providers. Your business logic should work with any provider through an abstraction layer — if you're hardcoded to a single provider's API, you can't fall back.</p>
+<p><strong>Framework abstraction:</strong> Keep your framework integration thin. Your business logic should be framework-independent. If you can swap frameworks by changing the plumbing layer without touching the logic layer, you're not locked in.</p>
+
+<h2>The enterprise adoption playbook</h2>
+<ol>
+<li><strong>Start with a single, measurable use case</strong> — not "AI for everything." Pick one workflow where you can measure before/after.</li>
+<li><strong>Build the abstraction layer first</strong> — set up LiteLLM or equivalent before writing any agent logic. This takes a day and saves months later.</li>
+<li><strong>Instrument everything from day one</strong> — every token, every tool call, every latency measurement. You'll need this data to justify continued investment.</li>
+<li><strong>Define success criteria before launch</strong> — "The agent should reduce code review turnaround from 48 hours to 4 hours for routine PRs, with a human override rate below 15%."</li>
+<li><strong>Run shadow mode first</strong> — agent runs alongside humans, outputs are compared but not acted upon. Builds trust and catches issues before they matter.</li>
+<li><strong>Gradual rollout with kill switches</strong> — start with one team, one repo, one workflow. Expand only after proving value.</li>
+</ol>
+
+<h2>Build vs. buy decision</h2>
+<p><strong>Buy (managed platform)</strong> when: you want fast deployment, you don't have dedicated AI infrastructure engineers, you need enterprise features (SSO, audit logging, compliance) out of the box.</p>
+<p><strong>Build on a framework</strong> when: you have specific workflow requirements managed platforms don't support, you have AI infrastructure engineers to maintain the system, you need deep integration with internal systems.</p>
+<p><strong>Build custom</strong> when: you have unique requirements no framework supports, you need to run models on-premises for data sovereignty, you're building agent infrastructure as a core competency.</p>
+<p>For most enterprises: start with a managed platform for the first use case, evaluate whether it meets your needs, and build custom only for the specific requirements the platform can't handle.</p>
+<a class="source-link" href="https://agents.siddhantkhare.com/27-enterprise-adoption/" target="_blank" rel="noopener">Read full chapter at agents.siddhantkhare.com &nearr;</a>
+</div>
+</details>
+
+<details class="chapter" id="ch28">
+<summary class="chapter-summary">
+  <span class="ch-num">Ch 28</span>
+  <span class="ch-title">Agent Cost Control &amp; FinOps</span>
+  <span class="ch-arrow">+</span>
+</summary>
+<div class="chapter-body">
+<h2>Why agents are expensive by nature</h2>
+<p>A chatbot makes one LLM call per user message. An agent makes 3–10x more. A single user request can trigger planning, tool selection, execution, verification, and response generation. And unlike chatbot costs (relatively predictable), agent costs are highly variable — a simple bug fix might take 3 tool calls and cost $0.05; a complex refactoring might take 50 tool calls and cost $5.00; a runaway agent stuck in a retry loop might cost $15.00 before anyone notices.</p>
+
+<h2>The four pillars of agent cost control</h2>
+<p><strong>Pillar 1: Model routing.</strong> Use the cheapest model that can handle the task. A test generation task routed to GPT-5.2-mini at $0.15/$0.60 costs 95% less than the same task routed to Opus 4.6 at $5/$25 — and the output quality is comparable. Research shows organizations using model routing save 40–85% compared to single-model approaches.</p>
+<p><strong>Pillar 2: Caching.</strong> Cache at multiple levels — prompt caching (supported by Anthropic and OpenAI for repeated system prompts), semantic caching (cache responses for semantically similar queries), and tool result caching (cache expensive tool calls like database queries).</p>
+<p><strong>Pillar 3: Token budgets.</strong> Set hard limits per task: default $3 for routine tasks, $10 for complex tasks. Kill the agent automatically when the limit is exceeded.</p>
+<p><strong>Pillar 4: Prompt optimization.</strong> Remove redundant instructions (10–30% savings), use structured examples instead of verbose descriptions (20–40% savings), compress system prompts (15–25% savings), prune conversation history (40–70% savings — but risk losing context).</p>
+
+<h2>Building a cost culture</h2>
+<p>Cost control is a cultural problem as much as a technical one. Three practices build a cost-conscious culture: make costs visible (every engineer should see their daily spend in a dashboard — personal spend, not just team spend); set budgets with consequences (a budget without consequences is a suggestion); celebrate cost optimization (when an engineer discovers that routing test generation to a cheaper model saves $500/month with no quality loss, share that win).</p>
+<a class="source-link" href="https://agents.siddhantkhare.com/28-agent-cost-control/" target="_blank" rel="noopener">Read full chapter at agents.siddhantkhare.com &nearr;</a>
+</div>
+</details>
+
+<details class="chapter" id="ch29">
+<summary class="chapter-summary">
+  <span class="ch-num">Ch 29</span>
+  <span class="ch-title">Agent Governance &amp; Compliance</span>
+  <span class="ch-arrow">+</span>
+</summary>
+<div class="chapter-body">
+<h2>Why governance can't be an afterthought</h2>
+<p>In February 2026, UC Berkeley's Center for Long-Term Cybersecurity published the "Agentic AI Risk-Management Standards Profile" — the first formal framework for managing risks specific to agentic AI. The four risk categories: <strong>unauthorized actions</strong> (the agent does something it shouldn't), <strong>cascading failures</strong> (one agent's error propagates through a multi-agent system), <strong>opacity</strong> (inability to explain why the agent took a specific action), and <strong>emergent behavior</strong> (agents developing unexpected patterns).</p>
+
+<h2>The agent audit trail</h2>
+<p>An effective agent audit trail captures five categories: <strong>Actions</strong> (every tool call, file modification, API request, and command execution with timestamps and results), <strong>Decisions</strong> (the model's reasoning at each step), <strong>Authorization</strong> (every permission check, what was allowed and denied), <strong>Data access</strong> (every piece of data the agent read or wrote, classified by sensitivity), <strong>Cost</strong> (token consumption and dollar cost per action). The audit trail must be immutable, searchable, and retained for at least 90 days.</p>
+
+<h2>Compliance frameworks applied to agents</h2>
+<p><strong>SOC 2:</strong> Requires authorization controls (OpenFGA), real-time monitoring, prompt versioning, and PII detection/redaction. <strong>GDPR:</strong> Agents should access only necessary data; users can request human review of agent decisions; DPIA required for high-risk agent deployments. <strong>EU AI Act (effective 2026):</strong> Most enterprise agents fall into "limited risk" (transparency: users must know it's AI) or "high risk" (conformity assessment, human oversight, logging required).</p>
+
+<h2>Governance checklist</h2>
+<ul>
+<li>Kill switch exists to disable the agent immediately</li>
+<li>Audit logging captures all agent actions</li>
+<li>Agent has a defined scope and permission boundary</li>
+<li>PII detection/redaction is in the pipeline</li>
+<li>Data classification is applied to all accessed resources</li>
+<li>Human escalation paths are defined for high-risk actions</li>
+<li>Token/cost budgets are enforced</li>
+<li>Incident response plan includes agent-specific scenarios</li>
+<li>Compliance mapping is documented (SOC 2, GDPR, etc.)</li>
+<li>Regular access reviews include agent permissions</li>
+</ul>
+<a class="source-link" href="https://agents.siddhantkhare.com/29-agent-governance/" target="_blank" rel="noopener">Read full chapter at agents.siddhantkhare.com &nearr;</a>
+</div>
+</details>
+
+<details class="chapter" id="ch30">
+<summary class="chapter-summary">
+  <span class="ch-num">Ch 30</span>
+  <span class="ch-title">Structured Outputs &amp; Function Calling</span>
+  <span class="ch-arrow">+</span>
+</summary>
+<div class="chapter-body">
+<h2>The reliability problem</h2>
+<p>Agents need to produce structured data — JSON for tool calls, typed parameters for function invocations. A model that produces valid JSON 95% of the time sounds reliable — until you realize that in a 20-step agent session, the probability of at least one invalid output is 1 - 0.95^20 = 64%. You need 99.9% or better for production agent systems.</p>
+
+<h2>The four approaches</h2>
+<table><tr><th>Approach</th><th>Best For</th><th>Reliability</th></tr>
+<tr><td>JSON mode</td><td>Simple extraction, flexible schemas</td><td>~95%</td></tr>
+<tr><td>Function/Tool calling</td><td>Tool use, agent actions</td><td>~98%</td></tr>
+<tr><td>Structured outputs (strict mode)</td><td>Strict schema compliance</td><td>~99.9%</td></tr>
+<tr><td>Constrained decoding</td><td>Open-source models, 100% guarantee</td><td>100%</td></tr></table>
+
+<h2>The Instructor pattern</h2>
+<p>Instructor is the most practical tool for production structured outputs. It wraps any LLM provider with Pydantic validation and automatic retries. Define your expected output as a Pydantic model, validate the model's output against it, and automatically retry with the validation error if it fails. Instructor supports every major model provider and achieves 99%+ reliability on most schemas.</p>
+
+<h2>Schema design principles</h2>
+<ul>
+<li>Keep schemas flat — deeply nested objects confuse models</li>
+<li>Provide examples in descriptions: "e.g. 'src/auth/login.py'"</li>
+<li>Mark required fields — don't make everything optional</li>
+<li>Use enums for fixed choices</li>
+<li>Name tools with verbs: <code>read_file</code>, <code>search_code</code>, not <code>file</code>, <code>search</code></li>
+</ul>
+<a class="source-link" href="https://agents.siddhantkhare.com/30-structured-outputs/" target="_blank" rel="noopener">Read full chapter at agents.siddhantkhare.com &nearr;</a>
+</div>
+</details>
+
+<details class="chapter" id="ch31">
+<summary class="chapter-summary">
+  <span class="ch-num">Ch 31</span>
+  <span class="ch-title">Model Selection &amp; Routing</span>
+  <span class="ch-arrow">+</span>
+</summary>
+<div class="chapter-body">
+<h2>The end of "pick one model"</h2>
+<p>February 2026 saw GPT-5.3-Codex, Claude Opus 4.6 and Sonnet 4.6 with 1M context, and Gemini 3.1 Pro all ship within fourteen days. No single model dominates across all dimensions: GPT-5.3-Codex leads on Terminal-Bench (75.1%), Claude Opus 4.6 leads on SWE-bench Verified (80.8%), Gemini 3.1 Pro leads on long-context tasks. A team that sends every task to Opus 4.6 at $5/$25 per million tokens spends 3–5x more than a team that routes intelligently — with no difference in output quality for simple tasks.</p>
+
+<h2>Model landscape (Feb 2026)</h2>
+<table><tr><th>Model</th><th>Best For</th><th>Input $/1M</th><th>Output $/1M</th></tr>
+<tr><td>GPT-5.3-Codex</td><td>Agentic coding, long-running tasks</td><td>$1.75</td><td>$14.00</td></tr>
+<tr><td>GPT-5.2-mini</td><td>Classification, extraction, simple tasks</td><td>$0.15</td><td>$0.60</td></tr>
+<tr><td>Claude Opus 4.6</td><td>Long-context, nuanced reasoning</td><td>$5.00</td><td>$25.00</td></tr>
+<tr><td>Claude Sonnet 4.6</td><td>Code generation, balanced quality/cost</td><td>$3.00</td><td>$15.00</td></tr>
+<tr><td>Gemini 3 Flash</td><td>Speed-optimized, cheap</td><td>$0.075</td><td>$0.30</td></tr>
+<tr><td>DeepSeek V3.2</td><td>Code, math, open-source</td><td>$0.27</td><td>$1.10</td></tr></table>
+
+<h2>Routing architectures</h2>
+<p><strong>Rule-based routing:</strong> Define rules based on task type ("code_generation" → sonnet-4.6, "summarization" → gpt-5.2-mini). Simple, auditable, cheap. Best starting point.</p>
+<p><strong>Cascade routing:</strong> Try the cheapest model first; escalate to more expensive models only if the output doesn't meet quality criteria. Research from ETH Zurich shows cascade routing reduces costs by 40–60% compared to always using the best model, with less than 2% quality degradation. 60–70% of tasks are simple enough for cheap models.</p>
+<p><strong>Semantic routing:</strong> Use embeddings to match tasks to specialized model configurations. Handles novel task types gracefully but is less predictable than rule-based routing.</p>
+
+<h2>The model selection decision tree</h2>
+<ol>
+<li>Does the task require reasoning across multiple files or systems? → If yes, use a frontier model (Opus 4.6, GPT-5.2, Gemini 3.1 Pro)</li>
+<li>Does the task require code generation or modification? → If yes, use a mid-tier coding model (Sonnet 4.6 or GPT-5.2)</li>
+<li>Is the task primarily text processing (summarization, classification, extraction)? → If yes, use a lightweight model (DeepSeek V3.2, Gemini 3 Flash)</li>
+<li>Does the task involve sensitive data that can't leave your infrastructure? → If yes, use a self-hosted open-source model regardless of task complexity</li>
+</ol>
+<a class="source-link" href="https://agents.siddhantkhare.com/31-model-selection/" target="_blank" rel="noopener">Read full chapter at agents.siddhantkhare.com &nearr;</a>
+</div>
+</details>
+
+<!-- PART 10 -->
+<div class="part-header">
+  <div class="part-number">Part 10</div>
+  <div class="part-title">Sustainability &amp; Deployment</div>
+  <div class="part-desc">Backpressure prevents a fast producer from overwhelming a slow consumer. The AI is the fast producer, you are the slow consumer, and most teams have zero backpressure between the two.</div>
+</div>
+
+<details class="chapter" id="ch32">
+<summary class="chapter-summary">
+  <span class="ch-num">Ch 32</span>
+  <span class="ch-title">Backpressure &amp; Automated Feedback</span>
+  <span class="ch-arrow">+</span>
+</summary>
+<div class="chapter-body">
+<h2>The core problem</h2>
+<p>AI made code generation fast. It didn't make code verification fast. The human became the bottleneck. An engineering lead at an automotive SaaS company: one engineer reviewed 130 pull requests in 15 days — about 20 file changes each. 20–30% of the AI-generated code required manual fixes.</p>
+<p>Backpressure for agents means automated feedback loops that catch errors before they reach a human. Every error caught by a type checker, test suite, or linter is one fewer error in your review queue.</p>
+
+<h2>The backpressure hierarchy (strongest to weakest)</h2>
+<table><tr><th>Layer</th><th>What It Catches</th><th>Agent Self-Correction Rate</th></tr>
+<tr><td>Type system (strict TS, Rust, Go)</td><td>Wrong types, missing fields, impossible states</td><td>~95%</td></tr>
+<tr><td>Test suite (fast, &lt; 2 min)</td><td>Regressions, logic errors</td><td>~80%</td></tr>
+<tr><td>Linters + pre-commit hooks</td><td>Style, dead code, imports</td><td>~99%</td></tr>
+<tr><td>Architecture enforcement (ArchUnit)</td><td>Boundary violations, circular deps</td><td>~90%</td></tr>
+<tr><td>Visual verification (Playwright)</td><td>UI regressions</td><td>~70%</td></tr>
+<tr><td>Human review</td><td>Judgment calls, architecture fit</td><td>N/A</td></tr></table>
+<p><strong>Human review should be last, not first.</strong> By the time code reaches you, the trivial issues should already be resolved.</p>
+
+<h2>The complete backpressure pipeline</h2>
+<p><strong>Stage 1: Static Analysis</strong> — Within seconds, linters, type checkers, and formatters run against the diff. Failures are returned as structured feedback (file, line number, rule violated, suggested fix). Catches 40–60% of issues in under 10 seconds.</p>
+<p><strong>Stage 2: Test Execution</strong> — Runs only affected tests (using jest <code>--changedSince</code> or pytest-testmon). Catches logic errors and regressions in 30–90 seconds.</p>
+<p><strong>Stage 3: Security Scanning</strong> — SAST tools (Semgrep, CodeQL, or Snyk Code) scan for vulnerabilities. Non-negotiable for production agents.</p>
+<p><strong>Stage 4: Architecture Enforcement</strong> — Custom rules verify that the change follows architectural conventions. Tools: ArchUnit (Java), Dependency Cruiser (JavaScript). Catches violations that type systems and tests miss.</p>
+<p><strong>Stage 5: Human Review Gate</strong> — Only code that passes all four automated stages reaches a human reviewer. Their job: evaluate what automation can't — architectural fit, business logic correctness, whether the approach makes sense.</p>
+
+<h2>Tuning backpressure</h2>
+<p>The target: full iteration cycle (edit → check → fix) in under 2 minutes. Over 5 minutes, you're losing too much to wait time. Under 30 seconds, check that your tests are catching real issues.</p>
+<p><strong>Too little backpressure:</strong> Hallucinations pass through. Add more automated checks. Strengthen test coverage.</p>
+<p><strong>Too much backpressure:</strong> Feedback loop is too slow. Parallelize checks. Run only affected tests. Cache build artifacts.</p>
+
+<h2>The ROI of engineering infrastructure in the agent era</h2>
+<p>A strict TypeScript configuration catches roughly 20 type errors per day in a typical codebase. Before agents, each error would have been caught by a developer during testing — maybe 5 minutes per error, or 100 minutes per day. With agents, each error is caught by the compiler and fed back to the agent, which self-corrects in seconds. The same 100 minutes saved, but now it's saving the developer from reviewing agent output rather than from debugging their own code. The agent era makes engineering infrastructure investments pay off faster.</p>
+<a class="source-link" href="https://agents.siddhantkhare.com/32-backpressure/" target="_blank" rel="noopener">Read full chapter at agents.siddhantkhare.com &nearr;</a>
+</div>
+</details>
+
+<details class="chapter" id="ch33">
+<summary class="chapter-summary">
+  <span class="ch-num">Ch 33</span>
+  <span class="ch-title">The Agent Adoption Playbook</span>
+  <span class="ch-arrow">+</span>
+</summary>
+<div class="chapter-body">
+<h2>Prerequisites</h2>
+<p>Before starting the adoption playbook, verify three prerequisites: (1) <strong>CI/CD pipeline</strong> running in under 5 minutes — agents need fast feedback to self-correct; (2) <strong>Test coverage</strong> of at least 60% for the areas where agents will work — tests are the primary backpressure mechanism; (3) <strong>Type system or linting</strong> — TypeScript strict mode, Rust, Go, or a strict linting configuration. If you don't meet these prerequisites, invest in them first.</p>
+
+<h2>Week-by-week implementation</h2>
+<p><strong>Week 1: Foundation.</strong> Goal: establish automated feedback infrastructure before introducing agents. Audit your feedback loops, write AGENTS.md, enable strict tooling (TypeScript strict mode, ESLint strict rules, pre-commit hooks that run <code>tsc --noEmit && eslint . && npm test</code>).</p>
+<p><strong>Week 2: First agent tasks.</strong> Goal: run agents on low-risk tasks with full backpressure. Start with: writing unit tests for existing code, adding input validation, fixing lint warnings, updating documentation. Do NOT start with database migrations, authentication changes, public API modifications, or infrastructure changes.</p>
+<p><strong>Week 3: Measure and adjust.</strong> Goal: review Week 2 data and adjust backpressure. If acceptance rate is above 70%, expand to more task types. If 50–70%, investigate failures. If below 50%, fix the foundation first before expanding.</p>
+<p><strong>Week 4: Team expansion.</strong> Goal: move from one engineer to the full team. Run a 30-minute team session, set up a shared Slack channel for agent wins and failures, assign each team member one low-risk task to try with an agent.</p>
+<p><strong>Weeks 5–8: Scale.</strong> Expand task types, implement model routing, add multi-agent workflows, formalize the process. Document everything learned. Update AGENTS.md. Write a team playbook.</p>
+
+<h2>Expected outcomes by Week 8</h2>
+<table><tr><th>Metric</th><th>Week 1</th><th>Week 4</th><th>Week 8</th></tr>
+<tr><td>Tasks delegated to agents</td><td>0</td><td>5–10/week</td><td>20–40/week</td></tr>
+<tr><td>Agent acceptance rate</td><td>N/A</td><td>60–70%</td><td>75–85%</td></tr>
+<tr><td>Human review time per PR</td><td>25 min</td><td>15 min</td><td>8–12 min</td></tr>
+<tr><td>Agent cost per task</td><td>N/A</td><td>$1–3</td><td>$0.50–1.50</td></tr>
+<tr><td>Test coverage</td><td>Baseline</td><td>+5%</td><td>+15%</td></tr>
+<tr><td>Engineer satisfaction</td><td>Skeptical</td><td>Cautiously positive</td><td>"Can't go back"</td></tr></table>
+
+<h2>Common adoption failures</h2>
+<ul>
+<li><strong>The Big Bang:</strong> Going all-in overnight with no infrastructure. Fix: follow the week-by-week playbook.</li>
+<li><strong>The Skeptic's Veto:</strong> One senior engineer resists, adoption stalls. Fix: don't require universal adoption; let data speak.</li>
+<li><strong>The Prompt Obsession:</strong> Spending weeks perfecting prompts instead of building infrastructure. Fix: a mediocre prompt with excellent context and strong backpressure outperforms a perfect prompt with no infrastructure.</li>
+<li><strong>The Security Afterthought:</strong> Deploying without security controls, planning to "add security later." Fix: implement the security checklist (Chapter 24) before the first production deployment. It takes a day.</li>
+<li><strong>The Measurement Gap:</strong> Not measuring impact. Fix: set up measurement from day one — log every task, track every cost, measure every outcome.</li>
+</ul>
+<a class="source-link" href="https://agents.siddhantkhare.com/33-adoption-playbook/" target="_blank" rel="noopener">Read full chapter at agents.siddhantkhare.com &nearr;</a>
+</div>
+</details>
+
+<div class="page-footer">
+  <span>Source: <a href="https://agents.siddhantkhare.com/" target="_blank" rel="noopener">agents.siddhantkhare.com</a> &mdash; by Siddhant Khare</span>
+  <span><a href="index.html">&#8592; back to index</a></span>
+</div>
+
+<script>
+  // Open chapter from hash
+  document.addEventListener('DOMContentLoaded', function() {
+    var hash = window.location.hash;
+    if (hash) {
+      var el = document.querySelector(hash);
+      if (el && el.tagName === 'DETAILS') {
+        el.open = true;
+        setTimeout(function() { el.scrollIntoView({behavior: 'smooth', block: 'start'}); }, 100);
+      }
+    }
+  });
+</script>
+</body>
+</html>
