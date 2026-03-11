@@ -1217,7 +1217,8 @@ a {
 .folder-wrapper .thesis-card,
 .folder-wrapper .blog-item,
 .folder-wrapper .knowledge-card,
-.folder-wrapper .topic-list li {
+.folder-wrapper .topic-list li,
+.folder-wrapper .nomad-showcase {
   opacity: 0;
   transform: translateY(10px);
   transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1),
@@ -1229,7 +1230,8 @@ a {
 .folder-wrapper.expanded .thesis-card,
 .folder-wrapper.expanded .blog-item,
 .folder-wrapper.expanded .knowledge-card,
-.folder-wrapper.expanded .topic-list li {
+.folder-wrapper.expanded .topic-list li,
+.folder-wrapper.expanded .nomad-showcase {
   opacity: 1;
   transform: translateY(0);
 }
@@ -1796,4 +1798,143 @@ footer p {
   }
   .chat-header { border-radius: 14px 14px 0 0; }
   .chat-input-row { border-radius: 0 0 14px 14px; }
+}
+
+/* ─── Nomad Design Showcase ─── */
+
+.nomad-showcase {
+  margin-top: 20px;
+}
+
+.nomad-showcase-header {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.nomad-showcase-title {
+  font-family: 'Newsreader', serif;
+  font-size: 22px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+.nomad-showcase-meta {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+}
+
+.nomad-showcase-desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: 24px;
+  max-width: 480px;
+}
+
+.nomad-phone-row {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  padding-bottom: 16px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+  -webkit-overflow-scrolling: touch;
+}
+
+.nomad-phone-row::-webkit-scrollbar {
+  height: 4px;
+}
+
+.nomad-phone-row::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.nomad-phone-row::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 2px;
+}
+
+.nomad-phone-item {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.nomad-phone-frame {
+  position: relative;
+  width: 160px;
+  height: 320px;
+  border-radius: 24px;
+  border: 4px solid var(--text);
+  background: var(--text);
+  overflow: hidden;
+  box-shadow: 0 12px 40px -8px rgba(0, 0, 0, 0.18);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.4s ease;
+}
+
+.nomad-phone-item:hover .nomad-phone-frame {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.24);
+}
+
+.nomad-phone-notch {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 56px;
+  height: 16px;
+  background: var(--text);
+  border-radius: 0 0 10px 10px;
+  z-index: 10;
+}
+
+.nomad-phone-frame iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  border-radius: 20px;
+  pointer-events: none;
+}
+
+.nomad-phone-label {
+  font-family: 'Newsreader', serif;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.nomad-phone-sublabel {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-top: -4px;
+}
+
+@media (max-width: 600px) {
+  .nomad-phone-frame {
+    width: 140px;
+    height: 280px;
+    border-radius: 20px;
+    border-width: 3px;
+  }
+  .nomad-phone-notch {
+    width: 48px;
+    height: 14px;
+  }
+  .nomad-phone-frame iframe {
+    border-radius: 17px;
+  }
+  .nomad-phone-row {
+    gap: 14px;
+  }
 }
