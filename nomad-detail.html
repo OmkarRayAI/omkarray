@@ -234,13 +234,41 @@
     </main>
 
     <footer class="sticky-footer">
-        <button class="btn-save">
+        <button class="btn-save" id="saveBtn">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                 <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
             </svg>
         </button>
-        <button class="btn-book">RESERVE JOURNEY — $4,850</button>
+        <button class="btn-book" id="bookBtn">RESERVE JOURNEY — $4,850</button>
     </footer>
 
+    <script>
+        document.getElementById('saveBtn').addEventListener('click', function() {
+            var svg = this.querySelector('svg');
+            if (svg.getAttribute('fill') === 'none') {
+                svg.setAttribute('fill', 'currentColor');
+                this.style.background = 'var(--pastel-lilac)';
+                this.style.borderColor = 'var(--pastel-lilac)';
+            } else {
+                svg.setAttribute('fill', 'none');
+                this.style.background = 'transparent';
+                this.style.borderColor = '';
+            }
+        });
+
+        document.getElementById('bookBtn').addEventListener('click', function() {
+            this.textContent = 'RESERVED ✓';
+            this.style.background = 'var(--pastel-green)';
+            this.style.color = 'var(--ink)';
+            this.style.border = 'var(--border-style)';
+            var btn = this;
+            setTimeout(function() {
+                btn.textContent = 'RESERVE JOURNEY — $4,850';
+                btn.style.background = 'var(--ink)';
+                btn.style.color = 'white';
+                btn.style.border = 'none';
+            }, 2000);
+        });
+    </script>
 </body>
 </html>

@@ -143,6 +143,28 @@
         .bg-sand { background-color: var(--pastel-sand); }
         .bg-green { background-color: var(--pastel-green); }
         .bg-lilac { background-color: var(--pastel-lilac); }
+
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: var(--bg-color);
+            border-top: var(--border-style);
+            display: flex; justify-content: space-around; align-items: center;
+            padding: 12px 0; padding-bottom: max(12px, env(safe-area-inset-bottom));
+            z-index: 100;
+        }
+        .nav-tab {
+            display: flex; flex-direction: column; align-items: center; gap: 4px;
+            text-decoration: none; color: var(--ink-light); transition: color 0.2s;
+        }
+        .nav-tab.active { color: var(--ink); }
+        .nav-tab svg { width: 22px; height: 22px; }
+        .nav-tab span {
+            font-family: var(--font-mono); font-size: 0.55rem;
+            text-transform: uppercase; letter-spacing: 0.05em;
+        }
+        .itinerary-row { cursor: pointer; transition: transform 0.15s ease; }
+        .itinerary-row:active { transform: scale(0.98); }
+        .empty-state { margin-bottom: 80px; }
     </style>
 </head>
 <body>
@@ -172,16 +194,16 @@
     <main>
         <h1 class="page-title">Journeys</h1>
 
-        <nav class="category-scroll">
+        <nav class="category-scroll" id="catNav">
             <button class="category-pill category-icon-pill">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M12 5v14M5 12h14"></path>
                 </svg>
             </button>
-            <button class="category-pill">All Regions</button>
-            <button class="category-pill active">Off-Grid</button>
-            <button class="category-pill">Culinary</button>
-            <button class="category-pill">Architecture</button>
+            <button class="category-pill" data-cat="all">All Regions</button>
+            <button class="category-pill active" data-cat="off-grid">Off-Grid</button>
+            <button class="category-pill" data-cat="culinary">Culinary</button>
+            <button class="category-pill" data-cat="architecture">Architecture</button>
         </nav>
 
         <section class="empty-state">
@@ -215,5 +237,39 @@
         </section>
     </main>
 
+    <nav class="bottom-nav">
+        <a href="/nomad.html" class="nav-tab active">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
+            <span>Explore</span>
+        </a>
+        <a href="/nomad-wishlist.html" class="nav-tab">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            <span>Wishlist</span>
+        </a>
+        <a href="/nomad-setup.html" class="nav-tab">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            <span>Profile</span>
+        </a>
+    </nav>
+
+    <script>
+        document.getElementById('catNav').addEventListener('click', function(e) {
+            var pill = e.target.closest('.category-pill[data-cat]');
+            if (!pill) return;
+            var cat = pill.dataset.cat;
+            if (cat === 'all' || cat === 'architecture') {
+                window.location = '/nomad.html';
+            } else {
+                document.querySelectorAll('.category-pill[data-cat]').forEach(function(p) { p.classList.remove('active'); });
+                pill.classList.add('active');
+            }
+        });
+
+        document.querySelectorAll('.itinerary-row').forEach(function(row) {
+            row.addEventListener('click', function() {
+                window.location = '/nomad-detail.html';
+            });
+        });
+    </script>
 </body>
 </html>

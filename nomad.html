@@ -187,6 +187,29 @@
         .bg-sand { background-color: var(--pastel-sand); }
         .bg-blue { background-color: var(--pastel-blue); }
         .bg-green { background-color: var(--pastel-green); }
+
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: var(--bg-color);
+            border-top: var(--border-style);
+            display: flex; justify-content: space-around; align-items: center;
+            padding: 12px 0; padding-bottom: max(12px, env(safe-area-inset-bottom));
+            z-index: 100;
+        }
+        .nav-tab {
+            display: flex; flex-direction: column; align-items: center; gap: 4px;
+            text-decoration: none; color: var(--ink-light); transition: color 0.2s;
+        }
+        .nav-tab.active { color: var(--ink); }
+        .nav-tab svg { width: 22px; height: 22px; }
+        .nav-tab span {
+            font-family: var(--font-mono); font-size: 0.55rem;
+            text-transform: uppercase; letter-spacing: 0.05em;
+        }
+
+        .heart-toggled svg { fill: var(--ink); }
+
+        .itineraries-section { margin-bottom: 100px; }
     </style>
 </head>
 <body>
@@ -221,16 +244,16 @@
     <main>
         <h1 class="page-title">Journeys</h1>
 
-        <nav class="category-scroll">
+        <nav class="category-scroll" id="catNav">
             <button class="category-pill category-icon-pill">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M12 5v14M5 12h14"></path>
                 </svg>
             </button>
-            <button class="category-pill active">All Regions</button>
-            <button class="category-pill">Architecture</button>
-            <button class="category-pill">Culinary</button>
-            <button class="category-pill">Off-Grid</button>
+            <button class="category-pill active" data-cat="all">All Regions</button>
+            <button class="category-pill" data-cat="architecture">Architecture</button>
+            <button class="category-pill" data-cat="culinary">Culinary</button>
+            <button class="category-pill" data-cat="off-grid">Off-Grid</button>
         </nav>
 
         <section class="feed">
@@ -253,7 +276,7 @@
                         <h2 class="card-title">Umbrian Stone</h2>
                         <p class="card-desc">Monasteries converted to brutalist retreats. Olive harvests and silent courtyards.</p>
                     </div>
-                    <button class="icon-btn card-action" aria-label="Save">
+                    <button class="icon-btn card-action heart-btn" aria-label="Save" onclick="event.stopPropagation();">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                             <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
                         </svg>
@@ -261,7 +284,7 @@
                 </div>
             </article>
 
-            <article class="card">
+            <article class="card" onclick="window.location='/nomad-detail.html'" style="cursor:pointer;">
                 <div class="card-media">
                     <img src="https://images.pexels.com/photos/3408354/pexels-photo-3408354.jpeg?auto=compress&cs=tinysrgb&w=800&q=80" alt="Minimalist wooden interior in Japan">
                     <div class="badge-cluster">
@@ -280,7 +303,7 @@
                         <h2 class="card-title">Kiso Valley</h2>
                         <p class="card-desc">Following the Nakasendo trail. Cedar wood baths, tatami, and preserved post towns.</p>
                     </div>
-                    <button class="icon-btn card-action" aria-label="Save">
+                    <button class="icon-btn card-action heart-btn" aria-label="Save" onclick="event.stopPropagation();">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                             <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
                         </svg>
@@ -308,5 +331,39 @@
         </section>
     </main>
 
+    <nav class="bottom-nav">
+        <a href="/nomad.html" class="nav-tab active">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
+            <span>Explore</span>
+        </a>
+        <a href="/nomad-wishlist.html" class="nav-tab">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            <span>Wishlist</span>
+        </a>
+        <a href="/nomad-setup.html" class="nav-tab">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            <span>Profile</span>
+        </a>
+    </nav>
+
+    <script>
+        document.querySelectorAll('.heart-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                this.classList.toggle('heart-toggled');
+            });
+        });
+
+        document.getElementById('catNav').addEventListener('click', function(e) {
+            var pill = e.target.closest('.category-pill[data-cat]');
+            if (!pill) return;
+            var cat = pill.dataset.cat;
+            if (cat === 'off-grid' || cat === 'culinary') {
+                window.location = '/nomad-empty.html';
+            } else {
+                document.querySelectorAll('.category-pill[data-cat]').forEach(function(p) { p.classList.remove('active'); });
+                pill.classList.add('active');
+            }
+        });
+    </script>
 </body>
 </html>

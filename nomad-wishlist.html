@@ -138,6 +138,27 @@
         }
 
         .stat-val { font-family: var(--font-mono); font-size: 1.1rem; }
+
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: var(--bg-color);
+            border-top: var(--border-style);
+            display: flex; justify-content: space-around; align-items: center;
+            padding: 12px 0; padding-bottom: max(12px, env(safe-area-inset-bottom));
+            z-index: 100;
+        }
+        .nav-tab {
+            display: flex; flex-direction: column; align-items: center; gap: 4px;
+            text-decoration: none; color: var(--ink-light); transition: color 0.2s;
+        }
+        .nav-tab.active { color: var(--ink); }
+        .nav-tab svg { width: 22px; height: 22px; }
+        .nav-tab span {
+            font-family: var(--font-mono); font-size: 0.55rem;
+            text-transform: uppercase; letter-spacing: 0.05em;
+        }
+        .collection-summary { margin-bottom: 80px; }
+        .mood-item { cursor: pointer; }
     </style>
 </head>
 <body>
@@ -250,5 +271,48 @@
         </section>
     </main>
 
+    <nav class="bottom-nav">
+        <a href="/nomad.html" class="nav-tab">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
+            <span>Explore</span>
+        </a>
+        <a href="/nomad-wishlist.html" class="nav-tab active">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            <span>Wishlist</span>
+        </a>
+        <a href="/nomad-setup.html" class="nav-tab">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            <span>Profile</span>
+        </a>
+    </nav>
+
+    <script>
+        document.querySelectorAll('.toggle-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.toggle-btn').forEach(function(b) { b.classList.remove('active'); });
+                this.classList.add('active');
+            });
+        });
+
+        document.querySelectorAll('.heart-active').forEach(function(btn) {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                var svg = this.querySelector('svg');
+                if (svg.getAttribute('fill') === 'currentColor') {
+                    svg.setAttribute('fill', 'none');
+                    svg.setAttribute('stroke', 'currentColor');
+                } else {
+                    svg.setAttribute('fill', 'currentColor');
+                    svg.removeAttribute('stroke');
+                }
+            });
+        });
+
+        document.querySelectorAll('.mood-item').forEach(function(item) {
+            item.addEventListener('click', function() {
+                window.location = '/nomad-detail.html';
+            });
+        });
+    </script>
 </body>
 </html>
