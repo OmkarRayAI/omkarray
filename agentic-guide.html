@@ -996,63 +996,183 @@ details.chapter[open] .fill-bar{animation:fill-bar .8s cubic-bezier(.4,0,.2,1) f
   <span class="ch-num">Ch&nbsp;04</span>
   <span class="ch-info">
     <span class="ch-title">Context Windows</span>
-    <span class="ch-tldr">The agent's working memory — finite, expensive, critical.</span>
+    <span class="ch-tldr">The fundamental constraint of every agent system — and why bigger doesn't mean better.</span>
   </span>
   <span class="ch-arrow">+</span>
 </summary>
 <div class="chapter-body">
-<div class="tldr"><strong>TL;DR</strong><span>Every token in the context window costs money. Every irrelevant token crowds out useful information. Context engineering is the discipline of maximising signal-to-noise in that finite space.</span></div>
+<div class="tldr"><strong>TL;DR</strong><span>A context window is the total tokens a model can process in one request. Bigger windows create an illusion of abundance that leads teams to skip context curation. The "lost in the middle" problem, quadratic cost growth, and noise dilution all make deliberate context engineering more important than window size. 85% token reduction, 85% cost reduction, and 75% latency improvement are real production results from basic curation.</span></div>
 
-<h2>The window is a resource, not a dump</h2>
-<p>Beginner mistake: shove everything into context and let the model sort it out. The problem is that attention dilutes. A model in a 128k context window still has finite "focus". The quality of output is proportional to the quality of context, not the quantity.</p>
+<h2>Window sizes, February 2026</h2>
 
-<!-- Howard Marks–style bar chart -->
+<!-- FIGURE 4.1: Model window sizes as horizontal bar chart -->
 <div class="diagram">
-<svg viewBox="0 0 440 180" width="440" height="180" xmlns="http://www.w3.org/2000/svg">
+<svg viewBox="0 0 500 170" width="500" height="170" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <marker id="ax4" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+    <marker id="ax4a" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
       <path d="M0,0 L5,3 L0,6 Z" fill="#111"/>
     </marker>
   </defs>
-  <!-- axes -->
-  <line x1="60" y1="20" x2="60" y2="145" stroke="#111" stroke-width="1.5" marker-end="url(#ax4)"/>
-  <line x1="60" y1="145" x2="420" y2="145" stroke="#111" stroke-width="1.5"/>
-  <!-- y-axis label -->
-  <text x="20" y="88" font-family="'JetBrains Mono',monospace" font-size="8" fill="#999" text-anchor="middle" transform="rotate(-90,20,88)">% OF WINDOW</text>
-  <!-- bars — three scenarios -->
-  <!-- BAD: noise heavy -->
-  <rect x="80" y="60" width="60" height="85" fill="#eee" stroke="#ddd" stroke-width="1" class="fill-bar" style="transform-origin:left center;"/>
-  <rect x="80" y="60" width="60" height="30" fill="#111" class="fill-bar" style="transform-origin:left center;"/>
-  <text x="110" y="158" font-family="'JetBrains Mono',monospace" font-size="8" fill="#999" text-anchor="middle">Bad</text>
-  <text x="110" y="50" font-family="'JetBrains Mono',monospace" font-size="8" fill="#c0392b" text-anchor="middle">23%</text>
-  <!-- AVERAGE -->
-  <rect x="190" y="45" width="60" height="100" fill="#eee" stroke="#ddd" stroke-width="1" class="fill-bar" style="transform-origin:left center;"/>
-  <rect x="190" y="45" width="60" height="55" fill="#111" class="fill-bar" style="transform-origin:left center;"/>
-  <text x="220" y="158" font-family="'JetBrains Mono',monospace" font-size="8" fill="#999" text-anchor="middle">Avg</text>
-  <text x="220" y="40" font-family="'JetBrains Mono',monospace" font-size="8" fill="#555" text-anchor="middle">55%</text>
-  <!-- GOOD -->
-  <rect x="300" y="55" width="60" height="90" fill="#eee" stroke="#ddd" stroke-width="1" class="fill-bar" style="transform-origin:left center;"/>
-  <rect x="300" y="55" width="60" height="82" fill="#111" class="fill-bar" style="transform-origin:left center;"/>
-  <text x="330" y="158" font-family="'JetBrains Mono',monospace" font-size="8" fill="#999" text-anchor="middle">Good</text>
-  <text x="330" y="50" font-family="'JetBrains Mono',monospace" font-size="8" fill="#111" text-anchor="middle">91%</text>
-  <!-- legend -->
-  <rect x="70" y="10" width="10" height="8" fill="#111"/>
-  <text x="86" y="18" font-family="'JetBrains Mono',monospace" font-size="8" fill="#555">Signal (relevant tokens)</text>
-  <rect x="200" y="10" width="10" height="8" fill="#eee" stroke="#ddd" stroke-width="1"/>
-  <text x="216" y="18" font-family="'JetBrains Mono',monospace" font-size="8" fill="#555">Noise</text>
+  <!-- x axis -->
+  <line x1="140" y1="148" x2="480" y2="148" stroke="#111" stroke-width="1.5" marker-end="url(#ax4a)"/>
+  <text x="310" y="162" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#999">TOKENS (thousands)</text>
+  <!-- x ticks -->
+  <line x1="190" y1="145" x2="190" y2="151" stroke="#111" stroke-width="1"/>
+  <text x="190" y="160" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="7" fill="#999">200K</text>
+  <line x1="330" y1="145" x2="330" y2="151" stroke="#111" stroke-width="1"/>
+  <text x="330" y="160" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="7" fill="#999">400K</text>
+  <line x1="470" y1="145" x2="470" y2="151" stroke="#111" stroke-width="1"/>
+  <text x="470" y="160" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="7" fill="#999">1M</text>
+  <!-- GPT-5.2: 400K = bar from 140 to 330, width=190 -->
+  <text x="135" y="28" text-anchor="end" font-family="'JetBrains Mono',monospace" font-size="8" fill="#111">GPT-5.2</text>
+  <rect x="140" y="16" width="190" height="16" fill="#555" class="fill-bar"/>
+  <text x="336" y="28" font-family="'JetBrains Mono',monospace" font-size="8" fill="#555">400K (~640 pages)</text>
+  <!-- GPT-5.3-Codex: 400K -->
+  <text x="135" y="50" text-anchor="end" font-family="'JetBrains Mono',monospace" font-size="8" fill="#111">GPT-5.3-Codex</text>
+  <rect x="140" y="38" width="190" height="16" fill="#555" class="fill-bar"/>
+  <text x="336" y="50" font-family="'JetBrains Mono',monospace" font-size="8" fill="#555">400K</text>
+  <!-- Sonnet 4.6: 200K, (1M beta) -->
+  <text x="135" y="72" text-anchor="end" font-family="'JetBrains Mono',monospace" font-size="8" fill="#111">Sonnet 4.6</text>
+  <rect x="140" y="60" width="95" height="16" fill="#777" class="fill-bar"/>
+  <rect x="235" y="60" width="235" height="16" fill="#eee" stroke="#ddd" stroke-width="1" stroke-dasharray="3,2"/>
+  <text x="336" y="72" font-family="'JetBrains Mono',monospace" font-size="8" fill="#999">200K (1M beta)</text>
+  <!-- Opus 4.6: 200K (1M beta) -->
+  <text x="135" y="94" text-anchor="end" font-family="'JetBrains Mono',monospace" font-size="8" fill="#111">Opus 4.6</text>
+  <rect x="140" y="82" width="95" height="16" fill="#333" class="fill-bar"/>
+  <rect x="235" y="82" width="235" height="16" fill="#eee" stroke="#ddd" stroke-width="1" stroke-dasharray="3,2"/>
+  <text x="336" y="94" font-family="'JetBrains Mono',monospace" font-size="8" fill="#555">200K (1M beta)</text>
+  <!-- Gemini 3.1 Pro: 1M = 330 -->
+  <text x="135" y="116" text-anchor="end" font-family="'JetBrains Mono',monospace" font-size="8" fill="#c0392b">Gemini 3.1 Pro</text>
+  <rect x="140" y="104" width="330" height="16" fill="#111" class="fill-bar"/>
+  <text x="476" y="116" font-family="'JetBrains Mono',monospace" font-size="8" fill="#c0392b">1M</text>
+  <!-- note -->
+  <text x="140" y="138" font-family="'JetBrains Mono',monospace" font-size="7" fill="#999">A monorepo has millions of lines. The window fills faster than it looks.</text>
 </svg>
-<figcaption>FIGURE 4.1 — Signal-to-noise ratio across context engineering quality tiers. The goal is not filling the window — it is filling it with signal.</figcaption>
+<figcaption>FIGURE 4.1 — Model context windows, Feb 2026. Gemini 3.1 Pro's 1M token window holds ~1,600 pages. But the "lost in the middle" problem and quadratic cost growth mean window size is necessary but not sufficient.</figcaption>
 </div>
 
-<div class="analogy"><strong>Analogy</strong><span>The context window is a desk. A cluttered desk means you waste time shuffling papers before you can work. A clear desk with only the current task visible means you work faster and make fewer mistakes.</span></div>
+<h2>The "lost in the middle" problem</h2>
+<p>Research (Liu et al., Stanford/UC Berkeley, 2023) demonstrated that language models perform significantly worse on information placed in the middle of long contexts. They attend well to the beginning and end; the middle degrades. This is a consequence of how attention mechanisms work — not a bug that will be fixed.</p>
 
-<h2>Rules of thumb</h2>
-<ul>
-  <li>Trim conversation history — keep the last N turns, not all N.</li>
-  <li>Compress tool results — extract entities, not raw JSON blobs.</li>
-  <li>Use structured prompts — labelled sections are scanned faster than prose.</li>
-  <li>Measure tokens, not words — every provider counts differently.</li>
-</ul>
+<!-- FIGURE 4.2: U-shaped attention curve — Howard Marks style -->
+<div class="diagram">
+<svg viewBox="0 0 480 180" width="480" height="180" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="ax4b" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+      <path d="M0,0 L5,3 L0,6 Z" fill="#111"/>
+    </marker>
+  </defs>
+  <line x1="50" y1="20" x2="50" y2="150" stroke="#111" stroke-width="1.5" marker-end="url(#ax4b)"/>
+  <line x1="50" y1="150" x2="460" y2="150" stroke="#111" stroke-width="1.5" marker-end="url(#ax4b)"/>
+  <text x="28" y="88" font-family="'JetBrains Mono',monospace" font-size="8" fill="#999" text-anchor="middle" transform="rotate(-90,28,88)">ATTENTION</text>
+  <text x="255" y="168" font-family="'JetBrains Mono',monospace" font-size="8" fill="#999" text-anchor="middle">POSITION IN CONTEXT WINDOW</text>
+  <!-- U-shaped curve -->
+  <path d="M55,35 C80,38 120,55 160,100 C200,140 240,152 255,152 C270,152 310,140 360,100 C400,55 440,38 455,35"
+    fill="none" stroke="#111" stroke-width="2"
+    class="draw-on" style="--path-len:900;"/>
+  <!-- red shaded "danger zone" in the middle -->
+  <rect x="140" y="80" width="230" height="72" fill="#c0392b" opacity=".07"/>
+  <text x="255" y="130" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#c0392b">DEGRADED ZONE</text>
+  <text x="255" y="142" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#c0392b">information here is often ignored</text>
+  <!-- labels on strong zones -->
+  <text x="80" y="28" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#111">Strong</text>
+  <text x="80" y="40" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#111">attention</text>
+  <text x="420" y="28" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#111">Strong</text>
+  <text x="420" y="40" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#111">attention</text>
+  <!-- axis labels -->
+  <text x="55" y="162" font-family="'JetBrains Mono',monospace" font-size="8" fill="#999">START</text>
+  <text x="440" y="162" font-family="'JetBrains Mono',monospace" font-size="8" fill="#999">END</text>
+</svg>
+<figcaption>FIGURE 4.2 — The "lost in the middle" attention curve (Liu et al., 2023). Models strongly attend to the start and end of context; the middle degrades. Implication: place your most critical information first and last, never in the centre of a large window.</figcaption>
+</div>
+
+<h2>The cost problem</h2>
+<p>Every token costs money. At scale, context engineering is a financial decision as much as a quality decision.</p>
+
+<!-- FIGURE 4.3: Cost comparison naive vs engineered -->
+<div class="diagram">
+<svg viewBox="0 0 460 140" width="460" height="140" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>.cl{font-family:'JetBrains Mono',monospace;font-size:9px;}</style>
+  </defs>
+  <!-- Row labels -->
+  <text x="10" y="30" class="cl" fill="#555">Tokens sent</text>
+  <text x="10" y="60" class="cl" fill="#555">Cost / request</text>
+  <text x="10" y="90" class="cl" fill="#555">Latency</text>
+  <text x="10" y="120" class="cl" fill="#555">Daily cost (500 tasks)</text>
+  <!-- Naive column -->
+  <rect x="160" y="10" width="120" height="20" fill="#c0392b" opacity=".15"/>
+  <text x="220" y="25" text-anchor="middle" class="cl" fill="#c0392b">100K tokens</text>
+  <rect x="160" y="40" width="120" height="20" fill="#c0392b" opacity=".15"/>
+  <text x="220" y="55" text-anchor="middle" class="cl" fill="#c0392b">$0.30</text>
+  <rect x="160" y="70" width="120" height="20" fill="#c0392b" opacity=".15"/>
+  <text x="220" y="85" text-anchor="middle" class="cl" fill="#c0392b">~8 seconds</text>
+  <rect x="160" y="100" width="120" height="20" fill="#c0392b" opacity=".15"/>
+  <text x="220" y="115" text-anchor="middle" class="cl" fill="#c0392b">$150 / day</text>
+  <!-- header -->
+  <text x="220" y="8" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#c0392b" font-weight="600">NAIVE</text>
+  <!-- Engineered column -->
+  <rect x="295" y="10" width="120" height="20" fill="#111" opacity=".08"/>
+  <text x="355" y="25" text-anchor="middle" class="cl" fill="#111">15K tokens</text>
+  <rect x="295" y="40" width="120" height="20" fill="#111" opacity=".08"/>
+  <text x="355" y="55" text-anchor="middle" class="cl" fill="#111">$0.045</text>
+  <rect x="295" y="70" width="120" height="20" fill="#111" opacity=".08"/>
+  <text x="355" y="85" text-anchor="middle" class="cl" fill="#111">~2 seconds</text>
+  <rect x="295" y="100" width="120" height="20" fill="#111" opacity=".08"/>
+  <text x="355" y="115" text-anchor="middle" class="cl" fill="#111">$22.50 / day</text>
+  <text x="355" y="8" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#111" font-weight="600">ENGINEERED</text>
+  <!-- Savings column -->
+  <rect x="428" y="10" width="26" height="110" fill="#f7f6f2"/>
+  <text x="441" y="25" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#555">85%</text>
+  <text x="441" y="55" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#555">85%</text>
+  <text x="441" y="85" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#555">75%</text>
+  <text x="441" y="115" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#555">85%</text>
+  <text x="441" y="8" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="7" fill="#999">SAVE</text>
+  <!-- border -->
+  <rect x="0" y="0" width="456" height="130" fill="none" stroke="#ddd" stroke-width="1"/>
+  <line x1="158" y1="0" x2="158" y2="130" stroke="#ddd" stroke-width="1"/>
+  <line x1="293" y1="0" x2="293" y2="130" stroke="#ddd" stroke-width="1"/>
+  <line x1="426" y1="0" x2="426" y2="130" stroke="#ddd" stroke-width="1"/>
+</svg>
+<figcaption>FIGURE 4.3 — Naive vs. engineered context, production numbers. At 500 tasks/day, naive context costs $150/day; engineered context costs $22.50/day. Annual delta: $46,500 — from one optimisation. Latency improves by 75% as a side effect.</figcaption>
+</div>
+
+<h2>Token budget: allocating a 200K window</h2>
+<p>A token budget is a deliberate allocation across purposes. Without enforcement, budgets are aspirational — and aspirational budgets don't prevent 3 AM cost alerts.</p>
+
+<!-- FIGURE 4.4: Token budget stacked bar -->
+<div class="diagram">
+<svg viewBox="0 0 480 80" width="480" height="80" xmlns="http://www.w3.org/2000/svg">
+  <!-- Full bar = 200K = 440px wide -->
+  <!-- System: 5K = 11px -->
+  <rect x="20" y="20" width="11" height="32" fill="#111"/>
+  <!-- Tools: 15K = 33px -->
+  <rect x="31" y="20" width="33" height="32" fill="#333"/>
+  <!-- Retrieved: 30K = 66px -->
+  <rect x="64" y="20" width="66" height="32" fill="#555"/>
+  <!-- History: 20K = 44px -->
+  <rect x="130" y="20" width="44" height="32" fill="#888"/>
+  <!-- Headroom: 130K = 286px -->
+  <rect x="174" y="20" width="286" height="32" fill="#ddd" stroke="#ccc" stroke-width="1"/>
+  <!-- Labels below bar -->
+  <text x="26" y="65" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="7" fill="#fff">Sys</text>
+  <text x="26" y="73" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="7" fill="#bbb">5K</text>
+  <text x="47" y="65" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="7" fill="#fff">Tools</text>
+  <text x="47" y="73" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="7" fill="#bbb">15K</text>
+  <text x="97" y="65" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="7" fill="#fff">Retrieved</text>
+  <text x="97" y="73" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="7" fill="#bbb">30K</text>
+  <text x="152" y="65" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="7" fill="#111">Hist</text>
+  <text x="152" y="73" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="7" fill="#888">20K</text>
+  <text x="317" y="65" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="7" fill="#999">HEADROOM (tool results, model reasoning)</text>
+  <text x="317" y="73" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="7" fill="#aaa">130K</text>
+  <!-- axis label -->
+  <text x="20" y="14" font-family="'JetBrains Mono',monospace" font-size="7" fill="#999">200K WINDOW</text>
+  <text x="460" y="14" font-family="'JetBrains Mono',monospace" font-size="7" fill="#999" text-anchor="end">|</text>
+</svg>
+<figcaption>FIGURE 4.4 — A well-designed 200K token budget. Headroom (65%) is not waste — it absorbs unpredictable tool results. Tool definitions alone can consume 15–20K tokens with 60+ MCP tools (see Meta-MCP in Ch. 05).</figcaption>
+</div>
+
+<div class="insight"><p>Context engineering is a team discipline. Platform engineers build the pipelines. Application engineers write good AGENTS.md files. Security engineers ensure sensitive data doesn't leak in. Engineering managers set the budget policies. Context quality is invisible until it fails — and when it fails, the blame lands on the model, not the context.</p></div>
 </div>
 </details>
 
@@ -1061,43 +1181,146 @@ details.chapter[open] .fill-bar{animation:fill-bar .8s cubic-bezier(.4,0,.2,1) f
 <summary class="chapter-summary">
   <span class="ch-num">Ch&nbsp;05</span>
   <span class="ch-info">
-    <span class="ch-title">The Context Stack</span>
-    <span class="ch-tldr">Layering system prompt, task state, retrieved facts, and history into one coherent window.</span>
+    <span class="ch-title">The Context Engineering Stack</span>
+    <span class="ch-tldr">Four layers that transform raw retrieved content into lean, high-signal context.</span>
   </span>
   <span class="ch-arrow">+</span>
 </summary>
 <div class="chapter-body">
-<div class="tldr"><strong>TL;DR</strong><span>Context is not flat. It has layers with different update frequencies and priority levels. Designing the stack explicitly beats shoving everything in as a single blob.</span></div>
+<div class="tldr"><strong>TL;DR</strong><span>Most teams only implement retrieval (get chunks from a vector DB) and skip the three post-retrieval layers that determine whether those chunks actually help. Clustering removes duplicates, Selection picks the best representative, Reranking balances relevance and diversity, Compression cuts tokens without losing signal. Together: 73% token reduction, 27 point output consistency improvement, $0.135 → $0.036 per request.</span></div>
 
-<h2>The four layers</h2>
-<!-- Dieter Rams clean layered stack -->
+<h2>The four-layer pipeline</h2>
+
+<!-- FIGURE 5.1: Animated four-layer pipeline flow -->
 <div class="diagram">
-<svg viewBox="0 0 420 220" width="420" height="220" xmlns="http://www.w3.org/2000/svg">
-  <!-- Layer 1: System prompt (always in, never changes) -->
-  <rect x="30" y="20" width="360" height="40" fill="#111" stroke="#111" stroke-width="1"/>
-  <text x="210" y="37" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="10" fill="white" letter-spacing=".1em">SYSTEM PROMPT</text>
-  <text x="210" y="52" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#888">permanent · never changes</text>
-  <!-- Layer 2: Retrieved context -->
-  <rect x="30" y="70" width="360" height="40" fill="#333" stroke="#333" stroke-width="1"/>
-  <text x="210" y="87" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="10" fill="white" letter-spacing=".1em">RETRIEVED CONTEXT</text>
-  <text x="210" y="102" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#aaa">refreshed per task · from RAG or tools</text>
-  <!-- Layer 3: Task state -->
-  <rect x="30" y="120" width="360" height="40" fill="#777" stroke="#777" stroke-width="1"/>
-  <text x="210" y="137" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="10" fill="white" letter-spacing=".1em">TASK STATE</text>
-  <text x="210" y="152" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#ddd">current step · progress · open questions</text>
-  <!-- Layer 4: History (most volatile) -->
-  <rect x="30" y="170" width="360" height="40" fill="white" stroke="#ddd" stroke-width="1"/>
-  <text x="210" y="187" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="10" fill="#111" letter-spacing=".1em">CONVERSATION HISTORY</text>
-  <text x="210" y="202" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#999">last N turns only · trimmed aggressively</text>
-  <!-- depth arrow -->
-  <text x="18" y="50" font-family="'JetBrains Mono',monospace" font-size="8" fill="#c0392b" transform="rotate(-90,18,110)">PRIORITY</text>
+<svg viewBox="0 0 500 280" width="500" height="280" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="arw5p" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+      <path d="M0,0 L5,3 L0,6 Z" fill="#111"/>
+    </marker>
+    <style>
+    @keyframes flow5{0%{opacity:0;transform:translateY(-4px);}100%{opacity:1;transform:translateY(0);}}
+    details[open] .flow5a{animation:flow5 .4s ease forwards .2s;opacity:0;}
+    details[open] .flow5b{animation:flow5 .4s ease forwards .5s;opacity:0;}
+    details[open] .flow5c{animation:flow5 .4s ease forwards .8s;opacity:0;}
+    details[open] .flow5d{animation:flow5 .4s ease forwards 1.1s;opacity:0;}
+    </style>
+  </defs>
+  <!-- Input -->
+  <rect x="160" y="8" width="180" height="28" fill="white" stroke="#ddd" stroke-width="1"/>
+  <text x="250" y="21" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#999" letter-spacing=".1em">RAW RETRIEVED CHUNKS</text>
+  <text x="250" y="32" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#ccc">vector DB top-K results</text>
+  <line x1="250" y1="36" x2="250" y2="54" stroke="#111" stroke-width="1" marker-end="url(#arw5p)"/>
+  <!-- Layer 1: Clustering -->
+  <rect x="80" y="56" width="340" height="44" fill="#111" stroke="#111" class="flow5a"/>
+  <text x="250" y="75" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="9" fill="white" letter-spacing=".12em" class="flow5a">01 · CLUSTERING</text>
+  <text x="250" y="90" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#888" class="flow5a">Group semantically similar chunks. Merge duplicates. One cluster = one concept.</text>
+  <line x1="250" y1="100" x2="250" y2="118" stroke="#111" stroke-width="1" marker-end="url(#arw5p)"/>
+  <!-- Layer 2: Selection -->
+  <rect x="80" y="120" width="340" height="44" fill="#333" stroke="#333" class="flow5b"/>
+  <text x="250" y="139" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="9" fill="white" letter-spacing=".12em" class="flow5b">02 · SELECTION</text>
+  <text x="250" y="154" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#bbb" class="flow5b">Pick best representative per cluster. Strategy depends on task type.</text>
+  <line x1="250" y1="164" x2="250" y2="182" stroke="#111" stroke-width="1" marker-end="url(#arw5p)"/>
+  <!-- Layer 3: Reranking -->
+  <rect x="80" y="184" width="340" height="44" fill="#666" stroke="#666" class="flow5c"/>
+  <text x="250" y="203" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="9" fill="white" letter-spacing=".12em" class="flow5c">03 · RERANKING  (MMR)</text>
+  <text x="250" y="218" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#ddd" class="flow5c">Balance relevance vs. diversity. Prevents 10 identical chunks topping the list.</text>
+  <line x1="250" y1="228" x2="250" y2="246" stroke="#111" stroke-width="1" marker-end="url(#arw5p)"/>
+  <!-- Layer 4: Compression -->
+  <rect x="80" y="248" width="340" height="28" fill="#999" stroke="#999" class="flow5d"/>
+  <text x="250" y="262" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="9" fill="white" letter-spacing=".12em" class="flow5d">04 · COMPRESSION (deterministic)</text>
+  <text x="250" y="273" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#ddd" class="flow5d">Remove redundancy without changing content. ~12ms, $0.0001/call, reproducible.</text>
+  <!-- right side: most teams stop here annotation -->
+  <text x="432" y="62" font-family="'JetBrains Mono',monospace" font-size="7" fill="#c0392b">most teams</text>
+  <text x="432" y="72" font-family="'JetBrains Mono',monospace" font-size="7" fill="#c0392b">only do</text>
+  <text x="432" y="82" font-family="'JetBrains Mono',monospace" font-size="7" fill="#c0392b">retrieval</text>
+  <text x="432" y="92" font-family="'JetBrains Mono',monospace" font-size="7" fill="#c0392b">then stop</text>
+  <line x1="420" y1="80" x2="422" y2="80" stroke="#c0392b" stroke-width="1"/>
+  <path d="M76,80 C68,80 68,80 65,80" fill="none" stroke="#c0392b" stroke-width="1" stroke-dasharray="3,2" marker-end="url(#arw5p)"/>
 </svg>
-<figcaption>FIGURE 5.1 — The context stack. Darker layers have higher priority and lower update frequency. Build your prompt construction around this hierarchy.</figcaption>
+<figcaption>FIGURE 5.1 — The four-layer context engineering pipeline. Layers animate in sequence when you open the chapter. Most teams skip layers 2–4, leaving significant quality and cost gains on the table.</figcaption>
 </div>
 
-<p>The key principle is that higher-priority layers should be placed earlier in the prompt and compressed more aggressively. History is the cheapest information — it can always be retrieved from a database. System instructions and task state are the most expensive to reconstruct.</p>
+<h2>Selection strategy by task type</h2>
+<table>
+  <tr><th>Task type</th><th>Best representative</th><th>Why</th></tr>
+  <tr><td>Coding</td><td>Most specific (the code itself)</td><td>Agents work better with concrete examples than abstract descriptions</td></tr>
+  <tr><td>Research</td><td>Most authoritative (primary source)</td><td>Primary source over summary; peer-reviewed over preprint</td></tr>
+  <tr><td>Customer-facing</td><td>Most recent</td><td>Latest policy/pricing matters; stale data causes errors</td></tr>
+  <tr><td>Token-constrained</td><td>Shortest</td><td>Budget forces trade-off; pick the densest version</td></tr>
+</table>
 
-<div class="analogy"><strong>Analogy</strong><span>Like a legal brief: the statute (system prompt) never changes; the case facts (retrieved context) are fresh per hearing; the current argument (task state) is live; the court transcripts (history) are only referenced when needed.</span></div>
+<h2>Reranking: the MMR trade-off</h2>
+<p>Maximal Marginal Relevance balances relevance (how similar to the query?) with diversity (how different from already-selected chunks?). The lambda parameter controls this trade-off.</p>
+
+<!-- FIGURE 5.2: MMR lambda trade-off as a clean axis chart -->
+<div class="diagram">
+<svg viewBox="0 0 440 130" width="440" height="130" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="ax5m" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+      <path d="M0,0 L5,3 L0,6 Z" fill="#111"/>
+    </marker>
+  </defs>
+  <line x1="50" y1="20" x2="50" y2="100" stroke="#111" stroke-width="1.5" marker-end="url(#ax5m)"/>
+  <line x1="50" y1="100" x2="420" y2="100" stroke="#111" stroke-width="1.5" marker-end="url(#ax5m)"/>
+  <text x="235" y="118" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#999">λ  (lambda parameter)</text>
+  <!-- relevance line: rises left to right -->
+  <polyline points="55,85 235,55 415,30"
+    fill="none" stroke="#111" stroke-width="1.5"
+    class="draw-on" style="--path-len:400;"/>
+  <!-- diversity line: falls left to right -->
+  <polyline points="55,30 235,55 415,85"
+    fill="none" stroke="#555" stroke-width="1.5" stroke-dasharray="5,3"
+    class="draw-on" style="--path-len:400;"/>
+  <!-- sweet spot marker at λ=0.7 (x≈305) -->
+  <circle cx="305" cy="48" r="5" fill="#c0392b"/>
+  <line x1="305" y1="97" x2="305" y2="103" stroke="#c0392b" stroke-width="1"/>
+  <text x="305" y="112" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#c0392b">λ = 0.7</text>
+  <text x="305" y="35" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#c0392b">sweet spot</text>
+  <!-- λ ticks -->
+  <text x="55" y="112" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="7" fill="#999">0.0</text>
+  <text x="415" y="112" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="7" fill="#999">1.0</text>
+  <!-- line labels -->
+  <text x="420" y="30" font-family="'JetBrains Mono',monospace" font-size="8" fill="#111">Relevance</text>
+  <text x="420" y="88" font-family="'JetBrains Mono',monospace" font-size="8" fill="#555">Diversity</text>
+</svg>
+<figcaption>FIGURE 5.2 — MMR lambda trade-off. At λ=0.0, you get maximum diversity (may include irrelevant chunks). At λ=1.0, you get pure relevance (likely redundant). λ=0.7 is the production default — balances both. Reranking changes chunk order for 30–50% of results.</figcaption>
+</div>
+
+<h2>Distill: production results</h2>
+<p>Distill is an open-source tool that implements all four layers with strict determinism. For a typical monorepo with 45K tokens of relevant context:</p>
+
+<div class="stat-grid">
+  <div class="stat-card"><div class="stat-val">73%</div><div class="stat-label">token reduction: 45K → 12K</div></div>
+  <div class="stat-card"><div class="stat-val">95%</div><div class="stat-label">redundant chunk reduction: 30–40% → &lt;2%</div></div>
+  <div class="stat-card"><div class="stat-val">+27</div><div class="stat-label">percentage points output consistency: 62% → 89%</div></div>
+  <div class="stat-card"><div class="stat-val red">74%</div><div class="stat-label">latency improvement: 8.2s → 2.1s</div></div>
+</div>
+
+<h2>Meta-MCP: compressing tool definitions</h2>
+<p>A pattern from the Japanese developer community (Zenn.dev): instead of sending all 60+ tool definitions in every request (15–20K tokens), use 2 meta-tools — a discovery tool (returns brief list, ~2K) and a load tool (fetches one tool's full definition on demand, ~500 per tool). The agent loads only the tools it actually needs.</p>
+
+<!-- FIGURE 5.3: Meta-MCP compression visualization -->
+<div class="diagram">
+<svg viewBox="0 0 480 90" width="480" height="90" xmlns="http://www.w3.org/2000/svg">
+  <!-- BEFORE: 15-20K bar -->
+  <text x="10" y="22" font-family="'JetBrains Mono',monospace" font-size="8" fill="#555">BEFORE</text>
+  <rect x="70" y="10" width="370" height="22" fill="#c0392b" opacity=".2" stroke="#c0392b" stroke-width="1" class="fill-bar"/>
+  <text x="255" y="25" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="9" fill="#c0392b">60+ tool definitions → 15,000–20,000 tokens per request</text>
+  <!-- AFTER: 2-4K bar + per-tool -->
+  <text x="10" y="58" font-family="'JetBrains Mono',monospace" font-size="8" fill="#111">AFTER</text>
+  <rect x="70" y="46" width="60" height="22" fill="#111" opacity=".15" stroke="#111" stroke-width="1" class="fill-bar"/>
+  <text x="100" y="61" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#111">2K list</text>
+  <rect x="136" y="46" width="20" height="22" fill="#555" opacity=".2" stroke="#555" stroke-width="1" class="fill-bar"/>
+  <text x="146" y="61" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="7" fill="#555">+0.5K</text>
+  <text x="163" y="61" font-family="'JetBrains Mono',monospace" font-size="8" fill="#555">per tool loaded on-demand</text>
+  <!-- savings label -->
+  <text x="10" y="82" font-family="'JetBrains Mono',monospace" font-size="8" fill="#555">Result: 80–88% reduction in tool definition overhead. 15K tokens freed for actual content.</text>
+</svg>
+<figcaption>FIGURE 5.3 — Meta-MCP tool compression. Sending all 60+ tool definitions on every turn is the single largest hidden context cost. The meta-MCP pattern (discover first, load on demand) eliminates it. Trade-off: one extra tool call, ~200–500ms latency. Almost always worth it.</figcaption>
+</div>
+
+<div class="analogy"><strong>Analogy</strong><span>A chef's kitchen has 200 tools stored in a back room. They don't place every knife, spatula, and blowtorch on the counter before starting each dish. They bring out what the recipe actually requires. Meta-MCP is the mise en place principle applied to tool definitions.</span></div>
 </div>
 </details>
 
@@ -1107,39 +1330,133 @@ details.chapter[open] .fill-bar{animation:fill-bar .8s cubic-bezier(.4,0,.2,1) f
   <span class="ch-num">Ch&nbsp;06</span>
   <span class="ch-info">
     <span class="ch-title">RAG vs. Agentic Search</span>
-    <span class="ch-tldr">Static retrieval vs. dynamic, multi-step information gathering.</span>
+    <span class="ch-tldr">A fixed pipeline vs. a reasoning loop — when to use each, and how to route between them.</span>
   </span>
   <span class="ch-arrow">+</span>
 </summary>
 <div class="chapter-body">
-<div class="tldr"><strong>TL;DR</strong><span>RAG is one lookup. Agentic search is a research process — the agent decides what to look for, evaluates what it finds, and keeps looking until it has enough.</span></div>
+<div class="tldr"><strong>TL;DR</strong><span>RAG retrieves. Agentic search reasons about what to retrieve, evaluates the results, and iterates. RAG is fast and cheap; it fails on multi-hop questions. Agentic search handles complex queries but costs 5–20× more. Best production systems route between them based on query complexity. A lightweight classifier can cut total search cost by 60%+ without quality loss.</span></div>
 
-<div class="compare">
-  <div class="compare-panel">
-    <h4>RAG (Retrieval-Augmented Generation)</h4>
-    <ul>
-      <li>Single query per task</li>
-      <li>Fixed retrieval strategy</li>
-      <li>Fast, cheap, predictable</li>
-      <li>Fails on multi-hop questions</li>
-      <li>Good for factual Q&amp;A</li>
-    </ul>
-  </div>
-  <div class="compare-panel">
-    <h4>Agentic Search</h4>
-    <ul>
-      <li>Multi-step, self-directed</li>
-      <li>Adapts based on results</li>
-      <li>Slower, costlier, powerful</li>
-      <li>Handles complex reasoning</li>
-      <li>Good for research tasks</li>
-    </ul>
-  </div>
+<h2>The four RAG limitations</h2>
+
+<div class="concept-row">
+  <div class="concept-card"><div class="cc-num">1</div><div class="cc-title">Static retrieval</div><div class="cc-desc">Query embedded once; top-K returned. No opportunity to reformulate if the initial query misses the intent.</div></div>
+  <div class="concept-card"><div class="cc-num">2</div><div class="cc-title">No reasoning</div><div class="cc-desc">RAG retrieves then generates. If two retrieved chunks contradict each other, RAG passes both to the model and hopes for the best.</div></div>
+  <div class="concept-card"><div class="cc-num">3</div><div class="cc-title">Single-hop only</div><div class="cc-desc">"How does data flow from form to database?" requires multiple retrieval steps with reasoning in between. RAG can't do this.</div></div>
+  <div class="concept-card"><div class="cc-num">4</div><div class="cc-title">Context pollution</div><div class="cc-desc">Top-K by similarity ≠ top-K by relevance. Redundant chunks dilute the signal without Ch.05's post-retrieval processing.</div></div>
 </div>
 
-<div class="analogy"><strong>Analogy</strong><span>RAG is typing a question into Google. Agentic search is a research analyst who searches, reads the source, follows citations, and writes a summary — deciding at each step whether they know enough yet.</span></div>
+<h2>RAG vs. Agentic search: structure comparison</h2>
 
-<div class="insight"><p>Use RAG as the default. Switch to agentic search when the question requires synthesising information from more than one source or when the question itself needs to be refined based on initial results.</p></div>
+<!-- FIGURE 6.1: Side-by-side flow diagrams -->
+<div class="diagram">
+<svg viewBox="0 0 500 200" width="500" height="200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="arw6r" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+      <path d="M0,0 L5,3 L0,6 Z" fill="#555"/>
+    </marker>
+    <marker id="arw6b" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+      <path d="M0,0 L5,3 L0,6 Z" fill="#111"/>
+    </marker>
+    <style>
+    @keyframes blink6{0%,100%{opacity:1;}50%{opacity:.2;}}
+    .blink6{animation:blink6 2s ease-in-out infinite;}
+    </style>
+  </defs>
+  <!-- RAG column (left) -->
+  <text x="115" y="14" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="9" fill="#555" letter-spacing=".1em">RAG (PIPELINE)</text>
+  <!-- boxes -->
+  <rect x="40" y="20" width="150" height="24" fill="white" stroke="#ddd" stroke-width="1"/>
+  <text x="115" y="36" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#555">Query</text>
+  <line x1="115" y1="44" x2="115" y2="58" stroke="#555" stroke-width="1" marker-end="url(#arw6r)"/>
+  <rect x="40" y="60" width="150" height="24" fill="#ddd" stroke="#bbb" stroke-width="1"/>
+  <text x="115" y="76" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#555">Embed + Vector Search</text>
+  <line x1="115" y1="84" x2="115" y2="98" stroke="#555" stroke-width="1" marker-end="url(#arw6r)"/>
+  <rect x="40" y="100" width="150" height="24" fill="#bbb" stroke="#aaa" stroke-width="1"/>
+  <text x="115" y="116" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="white">Top-K results → context</text>
+  <line x1="115" y1="124" x2="115" y2="138" stroke="#555" stroke-width="1" marker-end="url(#arw6r)"/>
+  <rect x="40" y="140" width="150" height="24" fill="#888" stroke="#888" stroke-width="1"/>
+  <text x="115" y="156" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="white">Generate response</text>
+  <!-- RAG label: one-pass -->
+  <text x="115" y="182" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#999">one pass · ~200ms · $0.001</text>
+  <!-- divider -->
+  <line x1="248" y1="10" x2="248" y2="195" stroke="#ddd" stroke-width="1"/>
+  <!-- AGENTIC SEARCH column (right) -->
+  <text x="375" y="14" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="9" fill="#111" letter-spacing=".1em">AGENTIC SEARCH (LOOP)</text>
+  <rect x="300" y="20" width="150" height="24" fill="white" stroke="#ddd" stroke-width="1"/>
+  <text x="375" y="36" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#555">Query</text>
+  <line x1="375" y1="44" x2="375" y2="58" stroke="#111" stroke-width="1" marker-end="url(#arw6b)"/>
+  <rect x="300" y="60" width="150" height="24" fill="#333" stroke="#333" stroke-width="1"/>
+  <text x="375" y="76" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="white">LLM: decide what to search</text>
+  <line x1="375" y1="84" x2="375" y2="98" stroke="#111" stroke-width="1" marker-end="url(#arw6b)"/>
+  <rect x="300" y="100" width="150" height="24" fill="#555" stroke="#555" stroke-width="1"/>
+  <text x="375" y="116" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="white">Search + Evaluate results</text>
+  <line x1="375" y1="124" x2="375" y2="138" stroke="#111" stroke-width="1" marker-end="url(#arw6b)"/>
+  <rect x="300" y="140" width="150" height="24" fill="#333" stroke="#333" stroke-width="1"/>
+  <text x="375" y="156" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="white">Enough info? If not → loop</text>
+  <!-- loop back arrow (animated) -->
+  <path d="M300,152 C275,152 275,70 298,70" fill="none" stroke="#c0392b" stroke-width="1.5" stroke-dasharray="4,2" marker-end="url(#arw6b)" class="blink6"/>
+  <!-- Agentic label -->
+  <text x="375" y="182" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#111">multi-pass · seconds · $0.01–0.10</text>
+</svg>
+<figcaption>FIGURE 6.1 — RAG (left) vs. Agentic Search (right). RAG is a one-pass pipeline; it cannot go back. Agentic search loops (red dashed arrow) until the agent judges it has sufficient information. The loop is both the power and the cost.</figcaption>
+</div>
+
+<h2>When to use which</h2>
+
+<!-- FIGURE 6.2: Decision matrix — cost vs complexity quadrant -->
+<div class="diagram">
+<svg viewBox="0 0 440 220" width="440" height="220" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="ax6q" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+      <path d="M0,0 L5,3 L0,6 Z" fill="#111"/>
+    </marker>
+  </defs>
+  <!-- axes -->
+  <line x1="60" y1="180" x2="420" y2="180" stroke="#111" stroke-width="1.5" marker-end="url(#ax6q)"/>
+  <line x1="60" y1="20" x2="60" y2="185" stroke="#111" stroke-width="1.5" marker-end="url(#ax6q)"/>
+  <text x="240" y="198" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#999">QUERY COMPLEXITY</text>
+  <text x="22" y="100" font-family="'JetBrains Mono',monospace" font-size="8" fill="#999" text-anchor="middle" transform="rotate(-90,22,100)">COST</text>
+  <!-- axis labels -->
+  <text x="65" y="194" font-family="'JetBrains Mono',monospace" font-size="7" fill="#999">Simple</text>
+  <text x="395" y="194" font-family="'JetBrains Mono',monospace" font-size="7" fill="#999">Complex</text>
+  <!-- RAG zone (bottom-left) -->
+  <rect x="65" y="120" width="140" height="56" fill="#f0ede6" stroke="#ddd" stroke-width="1"/>
+  <text x="135" y="143" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="9" fill="#111" font-weight="600">RAG</text>
+  <text x="135" y="157" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#555">Fast · cheap · reliable</text>
+  <text x="135" y="168" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#999">~200ms · $0.001</text>
+  <!-- Hybrid zone (middle) -->
+  <rect x="205" y="80" width="100" height="96" fill="#ddd" stroke="#bbb" stroke-width="1"/>
+  <text x="255" y="110" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#555" font-weight="600">ROUTER</text>
+  <text x="255" y="124" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#777">classify query</text>
+  <text x="255" y="138" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#777">route to</text>
+  <text x="255" y="152" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#777">appropriate</text>
+  <text x="255" y="166" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#777">system</text>
+  <!-- Agentic zone (top-right) -->
+  <rect x="305" y="28" width="108" height="56" fill="#111" stroke="#111"/>
+  <text x="359" y="50" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="9" fill="white" font-weight="600">AGENTIC</text>
+  <text x="359" y="64" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#888">Multi-hop · iterative</text>
+  <text x="359" y="76" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#888">seconds · $0.01–0.10</text>
+  <!-- examples in each zone -->
+  <text x="135" y="130" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="7" fill="#999">"what's the rate limit?"</text>
+  <text x="359" y="40" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="7" fill="#666">"why is login slow?"</text>
+</svg>
+<figcaption>FIGURE 6.2 — Search routing quadrant. Simple factual lookups belong in RAG (bottom-left). Complex multi-hop questions belong in Agentic Search (top-right). A router in the middle classifies and dispatches — routing 70% to RAG cuts total search cost by over 60%.</figcaption>
+</div>
+
+<h2>The codebase knowledge graph</h2>
+<p>The most valuable context source for engineering agents is the codebase itself — not just individual files, but its <em>relationships</em>: call graphs, import trees, git history (who changed what and why), architecture decisions (ADRs, PR descriptions), and naming conventions.</p>
+
+<p>A codebase knowledge graph indexes these relationships and exposes them as an MCP server. Any agent — regardless of framework — can then query it. Build the knowledge infrastructure once; every agent benefits.</p>
+
+<div class="step-flow">
+  <div class="step-item"><div class="s-num">Layer 1</div><div class="s-name">Call Graph</div><div class="s-desc">How functions call each other — understand blast radius of a change</div></div>
+  <div class="step-item"><div class="s-num">Layer 2</div><div class="s-name">Git History</div><div class="s-desc">Why decisions were made — avoid repeating past mistakes</div></div>
+  <div class="step-item"><div class="s-num">Layer 3</div><div class="s-name">ADRs / PRs</div><div class="s-desc">Architecture decisions — understand context, not just code</div></div>
+  <div class="step-item"><div class="s-num">Layer 4</div><div class="s-name">Conventions</div><div class="s-desc">Naming, testing, error handling patterns — follow the codebase style</div></div>
+</div>
+
+<div class="insight"><p>The trajectory is clear: search is becoming agentic by default. Model costs decline each quarter, making extra retrieval steps cheaper. Build search infrastructure that supports multiple query types (semantic, keyword, code, git history) and iterative refinement — this investment compounds as agents grow more sophisticated.</p></div>
 </div>
 </details>
 
