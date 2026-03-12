@@ -443,79 +443,244 @@ details.chapter[open] .fill-bar{animation:fill-bar .8s cubic-bezier(.4,0,.2,1) f
 <summary class="chapter-summary">
   <span class="ch-num">Ch&nbsp;01</span>
   <span class="ch-info">
-    <span class="ch-title">The Agentic Landscape</span>
-    <span class="ch-tldr">AI systems that decide and act, not just answer.</span>
+    <span class="ch-title">The Agentic Engineering Landscape</span>
+    <span class="ch-tldr">What separates an agent from a chatbot, and why the difference is a production-grade engineering problem.</span>
   </span>
   <span class="ch-arrow">+</span>
 </summary>
 <div class="chapter-body">
-<div class="tldr"><strong>TL;DR</strong><span>An agent is a software system that perceives its environment, plans, and then takes actions in a loop — it doesn't stop at generating text.</span></div>
+<div class="tldr"><strong>TL;DR</strong><span>A chatbot is a function: text in, text out. An agent is a loop: it observes, decides, acts, and observes again until a goal is met. That single structural difference — autonomy over time — changes every engineering requirement.</span></div>
 
-<h2>From chatbot to agent</h2>
-<p>A chatbot gives you an answer. An agent does the work. The moment a model can call a tool — search the web, run code, write a file — it crosses from passive to active. That single property changes everything about how you build, monitor, and secure it.</p>
+<h2>The loop is the architecture</h2>
+<p>Strip away the marketing and an AI agent is a program that uses a language model to decide what to do next. It operates in a loop: observe the environment, decide on an action, execute it, observe the result, decide again. The loop continues until the goal is achieved or a termination condition is met.</p>
 
-<!-- Howard Marks–style cycle diagram: animated orbit -->
+<!-- FIGURE 1.1: Agent loop as orbital cycle — animated red dot -->
 <div class="diagram">
-<svg viewBox="0 0 420 260" width="420" height="260" xmlns="http://www.w3.org/2000/svg" style="overflow:visible;">
+<svg viewBox="0 0 500 280" width="500" height="280" xmlns="http://www.w3.org/2000/svg" style="overflow:visible;">
   <defs>
     <marker id="arw1" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto">
       <path d="M0,1 L5,3.5 L0,6 Z" fill="#111"/>
     </marker>
     <style>
-      @keyframes orb01{
-        0%{offset-distance:0%;}100%{offset-distance:100%;}
-      }
-      .orb01{
-        offset-path:path('M210,60 C310,60 360,130 360,160 C360,200 310,240 210,240 C110,240 60,200 60,160 C60,130 110,60 210,60 Z');
+      @keyframes orb01a{0%{offset-distance:0%;}100%{offset-distance:100%;}}
+      .orb01a{
+        offset-path:path('M250,52 C340,52 390,118 390,160 C390,202 340,268 250,268 C160,268 110,202 110,160 C110,118 160,52 250,52 Z');
         offset-distance:0%;
-        animation:orb01 4s linear infinite;
+        animation:orb01a 4s linear infinite;
       }
     </style>
   </defs>
-  <!-- thin ring -->
-  <ellipse cx="210" cy="160" rx="150" ry="100" fill="none" stroke="#ddd" stroke-width="1.5"/>
-  <!-- four nodes -->
-  <!-- OBSERVE -->
-  <circle cx="210" cy="60" r="28" fill="white" stroke="#111" stroke-width="1.5"/>
-  <text x="210" y="55" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" font-weight="600" fill="#111" letter-spacing=".12em" text-transform="uppercase">OBSERVE</text>
-  <text x="210" y="68" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#999">perceive</text>
-  <!-- ACT -->
-  <circle cx="360" cy="160" r="28" fill="white" stroke="#111" stroke-width="1.5"/>
-  <text x="360" y="155" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" font-weight="600" fill="#111" letter-spacing=".12em">ACT</text>
-  <text x="360" y="168" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#999">execute</text>
-  <!-- GOAL -->
-  <circle cx="210" cy="240" r="28" fill="#111" stroke="#111" stroke-width="1.5"/>
-  <text x="210" y="235" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" font-weight="600" fill="white" letter-spacing=".12em">GOAL</text>
-  <text x="210" y="248" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#aaa">done?</text>
-  <!-- PLAN -->
-  <circle cx="60" cy="160" r="28" fill="white" stroke="#111" stroke-width="1.5"/>
-  <text x="60" y="155" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" font-weight="600" fill="#111" letter-spacing=".12em">PLAN</text>
-  <text x="60" y="168" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#999">decide</text>
-  <!-- direction arrows on ring -->
-  <path d="M237,62 C285,70 352,110 358,135" fill="none" stroke="#111" stroke-width="1" marker-end="url(#arw1)" opacity=".4"/>
-  <path d="M358,185 C340,220 280,240 238,240" fill="none" stroke="#111" stroke-width="1" marker-end="url(#arw1)" opacity=".4"/>
-  <path d="M182,240 C120,235 62,200 62,185" fill="none" stroke="#111" stroke-width="1" marker-end="url(#arw1)" opacity=".4"/>
-  <path d="M62,135 C68,100 140,65 183,62" fill="none" stroke="#111" stroke-width="1" marker-end="url(#arw1)" opacity=".4"/>
+  <!-- thin guide ring -->
+  <ellipse cx="250" cy="160" rx="140" ry="108" fill="none" stroke="#e8e5de" stroke-width="1"/>
+  <!-- OBSERVE — top -->
+  <rect x="208" y="22" width="84" height="56" rx="2" fill="white" stroke="#111" stroke-width="1.5"/>
+  <text x="250" y="43" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="9" font-weight="600" fill="#111" letter-spacing=".14em">OBSERVE</text>
+  <text x="250" y="57" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#999">read files</text>
+  <text x="250" y="69" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#999">call APIs</text>
+  <!-- PLAN — left -->
+  <rect x="30" y="132" width="84" height="56" rx="2" fill="white" stroke="#111" stroke-width="1.5"/>
+  <text x="72" y="153" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="9" font-weight="600" fill="#111" letter-spacing=".14em">PLAN</text>
+  <text x="72" y="167" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#999">LLM decides</text>
+  <text x="72" y="179" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#999">next action</text>
+  <!-- ACT — right -->
+  <rect x="386" y="132" width="84" height="56" rx="2" fill="white" stroke="#111" stroke-width="1.5"/>
+  <text x="428" y="153" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="9" font-weight="600" fill="#111" letter-spacing=".14em">ACT</text>
+  <text x="428" y="167" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#999">execute tool</text>
+  <text x="428" y="179" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#999">or write output</text>
+  <!-- GOAL — bottom, filled black -->
+  <rect x="208" y="242" width="84" height="56" rx="2" fill="#111" stroke="#111" stroke-width="1.5"/>
+  <text x="250" y="263" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="9" font-weight="600" fill="white" letter-spacing=".14em">GOAL</text>
+  <text x="250" y="277" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#888">done?</text>
+  <text x="250" y="289" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#888">if not, loop</text>
+  <!-- direction arrows (quarter-arc) -->
+  <path d="M265,78 C310,85 382,120 385,132" fill="none" stroke="#111" stroke-width="1" marker-end="url(#arw1)" opacity=".35"/>
+  <path d="M386,189 C370,236 310,260 265,262" fill="none" stroke="#111" stroke-width="1" marker-end="url(#arw1)" opacity=".35"/>
+  <path d="M208,262 C152,256 112,212 114,189" fill="none" stroke="#111" stroke-width="1" marker-end="url(#arw1)" opacity=".35"/>
+  <path d="M114,132 C120,100 188,82 208,78" fill="none" stroke="#111" stroke-width="1" marker-end="url(#arw1)" opacity=".35"/>
   <!-- animated dot -->
-  <circle class="orb01" r="5" fill="#c0392b"/>
-  <!-- center label -->
-  <text x="210" y="155" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="9" fill="#999" letter-spacing=".08em">AGENT</text>
-  <text x="210" y="168" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="9" fill="#999" letter-spacing=".08em">LOOP</text>
+  <circle class="orb01a" r="5" fill="#c0392b"/>
+  <!-- centre label -->
+  <text x="250" y="155" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="10" fill="#ccc" letter-spacing=".1em">AGENT</text>
+  <text x="250" y="170" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="10" fill="#ccc" letter-spacing=".1em">LOOP</text>
 </svg>
-<figcaption>FIGURE 1.1 — The core agent cycle. The red dot travels Observe → Plan → Act → Goal until the task is complete. Inspired by Howard Marks's cycle diagrams.</figcaption>
+<figcaption>FIGURE 1.1 — The agent loop. A red dot travels the cycle continuously until the GOAL node registers completion. Every production agent — simple or complex — runs this structure.</figcaption>
 </div>
 
-<p>What makes agents powerful is the <em>loop</em>. After each action, the agent observes the result and decides what to do next. This closed feedback cycle is identical in structure to how a portfolio manager adjusts positions as new information arrives — the system never stops learning from its own output.</p>
+<h2>Chatbot vs. Agent: the full dimension table</h2>
+<p>The autonomy gap changes every engineering requirement. This is not a shallow distinction — it cascades through authorization, observability, failure modes, and cost.</p>
 
+<!-- FIGURE 1.2: Comparison table rendered as visual grid -->
+<div class="diagram">
+<svg viewBox="0 0 500 260" width="500" height="260" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .thl{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;}
+      .tdl{font-family:'JetBrains Mono',monospace;font-size:9px;}
+      .dim{font-family:'JetBrains Mono',monospace;font-size:8px;fill:#999;}
+    </style>
+  </defs>
+  <!-- header row -->
+  <rect x="0" y="0" width="160" height="26" fill="#f0ede6"/>
+  <rect x="161" y="0" width="164" height="26" fill="#222"/>
+  <rect x="326" y="0" width="174" height="26" fill="#111"/>
+  <text x="80" y="17" text-anchor="middle" class="thl" fill="#999">DIMENSION</text>
+  <text x="243" y="17" text-anchor="middle" class="thl" fill="#ccc">CHATBOT</text>
+  <text x="413" y="17" text-anchor="middle" class="thl" fill="white">AGENT</text>
+  <!-- rows -->
+  <!-- row data: [y, dim, chatbot_val, agent_val, agent_is_red] -->
+  <!-- Actions -->
+  <rect x="0" y="27" width="160" height="26" fill="#f8f7f4"/>
+  <rect x="161" y="27" width="164" height="26" fill="white" stroke="#eee" stroke-width=".5"/>
+  <rect x="326" y="27" width="174" height="26" fill="white" stroke="#eee" stroke-width=".5"/>
+  <text x="8" y="44" class="dim">Actions</text>
+  <text x="169" y="44" class="tdl" fill="#555">Generates text</text>
+  <text x="334" y="44" class="tdl" fill="#c0392b">Executes code, calls APIs</text>
+  <!-- Autonomy -->
+  <rect x="0" y="54" width="160" height="26" fill="#f0ede6"/>
+  <rect x="161" y="54" width="164" height="26" fill="white" stroke="#eee" stroke-width=".5"/>
+  <rect x="326" y="54" width="174" height="26" fill="white" stroke="#eee" stroke-width=".5"/>
+  <text x="8" y="71" class="dim">Autonomy</text>
+  <text x="169" y="71" class="tdl" fill="#555">Responds to prompts</text>
+  <text x="334" y="71" class="tdl" fill="#111">Decides what to do next</text>
+  <!-- Duration -->
+  <rect x="0" y="81" width="160" height="26" fill="#f8f7f4"/>
+  <rect x="161" y="81" width="164" height="26" fill="white" stroke="#eee" stroke-width=".5"/>
+  <rect x="326" y="81" width="174" height="26" fill="white" stroke="#eee" stroke-width=".5"/>
+  <text x="8" y="98" class="dim">Duration</text>
+  <text x="169" y="98" class="tdl" fill="#555">Single turn</text>
+  <text x="334" y="98" class="tdl" fill="#111">Minutes to hours</text>
+  <!-- Risk -->
+  <rect x="0" y="108" width="160" height="26" fill="#f0ede6"/>
+  <rect x="161" y="108" width="164" height="26" fill="white" stroke="#eee" stroke-width=".5"/>
+  <rect x="326" y="108" width="174" height="26" fill="white" stroke="#eee" stroke-width=".5"/>
+  <text x="8" y="125" class="dim">Risk</text>
+  <text x="169" y="125" class="tdl" fill="#555">Wrong answer</text>
+  <text x="334" y="125" class="tdl" fill="#c0392b">Wrong action: data loss</text>
+  <!-- Auth -->
+  <rect x="0" y="135" width="160" height="26" fill="#f8f7f4"/>
+  <rect x="161" y="135" width="164" height="26" fill="white" stroke="#eee" stroke-width=".5"/>
+  <rect x="326" y="135" width="174" height="26" fill="white" stroke="#eee" stroke-width=".5"/>
+  <text x="8" y="152" class="dim">Authorization</text>
+  <text x="169" y="152" class="tdl" fill="#555">User's permissions</text>
+  <text x="334" y="152" class="tdl" fill="#111">Needs its own model</text>
+  <!-- Observability -->
+  <rect x="0" y="162" width="160" height="26" fill="#f0ede6"/>
+  <rect x="161" y="162" width="164" height="26" fill="white" stroke="#eee" stroke-width=".5"/>
+  <rect x="326" y="162" width="174" height="26" fill="white" stroke="#eee" stroke-width=".5"/>
+  <text x="8" y="179" class="dim">Observability</text>
+  <text x="169" y="179" class="tdl" fill="#555">Log the response</text>
+  <text x="334" y="179" class="tdl" fill="#111">Trace every decision</text>
+  <!-- Failure mode -->
+  <rect x="0" y="189" width="160" height="26" fill="#f8f7f4"/>
+  <rect x="161" y="189" width="164" height="26" fill="white" stroke="#eee" stroke-width=".5"/>
+  <rect x="326" y="189" width="174" height="26" fill="white" stroke="#eee" stroke-width=".5"/>
+  <text x="8" y="206" class="dim">Failure mode</text>
+  <text x="169" y="206" class="tdl" fill="#555">Bad text</text>
+  <text x="334" y="206" class="tdl" fill="#c0392b">Production incident</text>
+  <!-- border -->
+  <rect x="0" y="0" width="500" height="215" fill="none" stroke="#ddd" stroke-width="1"/>
+  <line x1="160" y1="0" x2="160" y2="215" stroke="#ddd" stroke-width="1"/>
+  <line x1="325" y1="0" x2="325" y2="215" stroke="#ddd" stroke-width="1"/>
+</svg>
+<figcaption>FIGURE 1.2 — Chatbot vs. agent across seven engineering dimensions. Red cells mark dimensions where agents introduce qualitatively new requirements — not just more of the same.</figcaption>
+</div>
+
+<h2>The four capability levels</h2>
+<p>Not all agents are equal. The capability spectrum determines the engineering requirements — and where most teams in February 2026 actually are.</p>
+
+<!-- FIGURE 1.3: Capability spectrum as ascending horizontal axis chart -->
+<div class="diagram">
+<svg viewBox="0 0 500 160" width="500" height="160" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="ax1s" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+      <path d="M0,0 L5,3 L0,6 Z" fill="#111"/>
+    </marker>
+  </defs>
+  <!-- baseline axis -->
+  <line x1="30" y1="100" x2="480" y2="100" stroke="#111" stroke-width="1.5" marker-end="url(#ax1s)"/>
+  <text x="255" y="148" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#999" letter-spacing=".08em">ENGINEERING REQUIREMENT</text>
+  <!-- L1 -->
+  <rect x="35" y="72" width="90" height="28" fill="#f0ede6" stroke="#ddd" stroke-width="1"/>
+  <text x="80" y="88" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="9" fill="#999" letter-spacing=".1em">L1  COMPLETE</text>
+  <text x="80" y="55" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" fill="#aaa">Copilot inline</text>
+  <text x="80" y="67" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" fill="#aaa">suggestions</text>
+  <!-- L2 -->
+  <rect x="140" y="56" width="90" height="44" fill="#ddd" stroke="#bbb" stroke-width="1"/>
+  <text x="185" y="76" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="9" fill="#777" letter-spacing=".1em">L2  CHAT</text>
+  <text x="185" y="40" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" fill="#777">Cursor chat,</text>
+  <text x="185" y="52" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" fill="#777">Claude.ai</text>
+  <!-- L3 - most teams here -->
+  <rect x="245" y="36" width="90" height="64" fill="#555" stroke="#333" stroke-width="1"/>
+  <text x="290" y="56" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="9" fill="white" letter-spacing=".1em">L3  COMMAND</text>
+  <text x="290" y="22" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" fill="#c0392b">← most teams</text>
+  <text x="290" y="34" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" fill="#555">Claude Code,</text>
+  <!-- L4 -->
+  <rect x="350" y="16" width="90" height="84" fill="#111" stroke="#111" stroke-width="1"/>
+  <text x="395" y="36" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="9" fill="white" letter-spacing=".1em">L4  BACKGROUND</text>
+  <text x="395" y="10" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" fill="#888">GH Agentic</text>
+  <!-- tick labels on axis -->
+  <text x="80" y="115" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#ccc">Minimal</text>
+  <text x="185" y="115" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#999">Moderate</text>
+  <text x="290" y="115" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#555">Significant</text>
+  <text x="395" y="115" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#111">Critical</text>
+</svg>
+<figcaption>FIGURE 1.3 — Agent capability spectrum. Bar height represents engineering requirement complexity. Most teams in Feb 2026 are at L2–L3; the transition from L3 to L4 is where this guide is essential.</figcaption>
+</div>
+
+<div class="level-strip">
+  <div class="level-item"><div class="level-num">L1</div><div class="level-name">Completion</div><div class="level-desc">Inline suggestions only. No tools, no external access. Developer reviews every character.</div></div>
+  <div class="level-item"><div class="level-num">L2</div><div class="level-name">Chat</div><div class="level-desc">Natural language requests. Generates multi-line code. Output is manually copied into the codebase.</div></div>
+  <div class="level-item"><div class="level-num">L3</div><div class="level-name">Command</div><div class="level-desc">Reads/writes files, runs commands, opens PRs. Operates autonomously within a session.</div></div>
+  <div class="level-item"><div class="level-num">L4</div><div class="level-name">Background</div><div class="level-desc">Runs without supervision. Monitors repos, fixes bugs, creates PRs on schedule — no human trigger.</div></div>
+</div>
+
+<h2>The agentic stack: six layers</h2>
+<p>The engineering discipline of this guide is organised by these six layers. Teams that succeed start at the bottom and work up. Teams that fail start at the top (pick a tool, start using it) and hit every layer as a surprise.</p>
+
+<!-- FIGURE 1.4: Six-layer stack -->
+<div class="diagram">
+<svg viewBox="0 0 500 220" width="500" height="220" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>.slabel{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.12em;font-weight:600;}
+    .sdesc{font-family:'JetBrains Mono',monospace;font-size:8px;fill:#aaa;}</style>
+  </defs>
+  <!-- Layer 6: Human (top) -->
+  <rect x="10" y="10" width="480" height="28" fill="white" stroke="#ddd" stroke-width="1"/>
+  <text x="20" y="28" class="slabel" fill="#888">06 · HUMAN LAYER</text>
+  <text x="210" y="28" class="sdesc">team practices · review processes · org patterns</text>
+  <!-- Layer 5: Security (spans full stack) — indicated by right bracket -->
+  <rect x="10" y="44" width="480" height="28" fill="#fff0ee" stroke="#c0392b" stroke-width="1"/>
+  <text x="20" y="62" class="slabel" fill="#c0392b">05 · SECURITY (spans all layers)</text>
+  <text x="240" y="62" class="sdesc" style="fill:#c0392b;opacity:.7;">auth · sandbox · injection · audit</text>
+  <!-- Layer 4: Orchestration -->
+  <rect x="10" y="78" width="480" height="28" fill="#f7f6f2" stroke="#ddd" stroke-width="1"/>
+  <text x="20" y="96" class="slabel" fill="#555">04 · ORCHESTRATION</text>
+  <text x="210" y="96" class="sdesc">agent loop · multi-agent · memory</text>
+  <!-- Layer 3: Protocol -->
+  <rect x="10" y="112" width="480" height="28" fill="#f0ede6" stroke="#ddd" stroke-width="1"/>
+  <text x="20" y="130" class="slabel" fill="#444">03 · PROTOCOL</text>
+  <text x="210" y="130" class="sdesc">MCP · A2A · AGENTS.md</text>
+  <!-- Layer 2: Context -->
+  <rect x="10" y="146" width="480" height="28" fill="#e8e5de" stroke="#ddd" stroke-width="1"/>
+  <text x="20" y="164" class="slabel" fill="#333">02 · CONTEXT</text>
+  <text x="210" y="164" class="sdesc">retrieval · compression · token budget</text>
+  <!-- Layer 1: Model (bottom, darkest) -->
+  <rect x="10" y="180" width="480" height="28" fill="#111" stroke="#111"/>
+  <text x="20" y="198" class="slabel" fill="white">01 · MODEL LAYER</text>
+  <text x="210" y="198" class="sdesc" style="fill:#666;">frontier LLMs · inference · routing</text>
+</svg>
+<figcaption>FIGURE 1.4 — The agentic engineering stack. Security (Layer 5, red) spans every layer. Most teams start at Layer 6 and encounter the lower layers as production incidents.</figcaption>
+</div>
+
+<h2>The numbers, February 2026</h2>
 <div class="stat-grid">
-  <div class="stat-card"><div class="stat-val">1</div><div class="stat-label">decide-act cycle per step</div></div>
-  <div class="stat-card"><div class="stat-val red">N</div><div class="stat-label">steps until goal is met</div></div>
-  <div class="stat-card"><div class="stat-val">&infin;</div><div class="stat-label">possible tool combinations</div></div>
+  <div class="stat-card"><div class="stat-val">80%</div><div class="stat-label">of Fortune 500 using AI agents actively (Microsoft Security, Feb 2026)</div></div>
+  <div class="stat-card"><div class="stat-val">60%</div><div class="stat-label">of coding tasks are AI-assisted (Anthropic, Feb 2026)</div></div>
+  <div class="stat-card"><div class="stat-val">65%</div><div class="stat-label">of enterprises already deploying agents (CrewAI State of Agentic AI)</div></div>
+  <div class="stat-card"><div class="stat-val red">20%</div><div class="stat-label">of those enterprises have meaningful security controls around agents</div></div>
 </div>
 
-<h2>Why it matters</h2>
-<p>Chatbots scale your advice. Agents scale your actions. The difference is the same as telling an intern what to do versus giving them a computer and letting them execute.</p>
-<div class="insight"><p>The key insight: agents are not smarter LLMs. They are LLMs embedded in a control loop with access to tools.</p></div>
+<div class="insight"><p>"You cannot prompt your way out of garbage context." The model you choose matters. The prompt matters. But what you put in the context window matters more than both combined. That gap between 80% adoption and 20% security coverage is the crisis this guide addresses.</p></div>
 </div>
 </details>
 
@@ -525,60 +690,156 @@ details.chapter[open] .fill-bar{animation:fill-bar .8s cubic-bezier(.4,0,.2,1) f
   <span class="ch-num">Ch&nbsp;02</span>
   <span class="ch-info">
     <span class="ch-title">The Capability Jump</span>
-    <span class="ch-tldr">Why AI got dramatically more useful between 2022 and 2024.</span>
+    <span class="ch-tldr">What actually changed in late 2025, and why "year of engineering work in one hour" isn't hype.</span>
   </span>
   <span class="ch-arrow">+</span>
 </summary>
 <div class="chapter-body">
-<div class="tldr"><strong>TL;DR</strong><span>Tool use, longer context, and better reasoning compounded to produce a step-change in what agents can do. Understanding each factor helps you predict where the next jump will land.</span></div>
+<div class="tldr"><strong>TL;DR</strong><span>In late 2025, Claude Opus 4.5 and GPT-5.2 crossed an invisible threshold. Engineers who'd been sceptical started saying "it built in one hour what we built last year." By February 2026, four frontier models from three labs landed in fourteen days, ending the "pick one best model" era. Model routing is now a production requirement.</span></div>
 
-<h2>Three compounding forces</h2>
-<p>The agentic capability jump was not a single breakthrough. Three forces compounded inside of roughly 24 months.</p>
+<h2>The inflection point</h2>
+<p>Simon Willison, whose observations carry more weight than most benchmarks: <em>"It genuinely feels like GPT-5.2 and Opus 4.5 represent an inflection point — one of those moments where models get incrementally better in a way that tips across an invisible capability line where suddenly a whole bunch of much harder coding problems open up."</em></p>
 
-<!-- Howard Marks–style compound curve chart -->
+<blockquote>Jaana Dogan, Principal Engineer at Google: "I gave Claude Code a description of the problem, it generated what we built last year in an hour."</blockquote>
+
+<!-- FIGURE 2.1: Timeline with annotated jumps — Howard Marks style -->
 <div class="diagram">
-<svg viewBox="0 0 460 200" width="460" height="200" xmlns="http://www.w3.org/2000/svg">
+<svg viewBox="0 0 500 180" width="500" height="180" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <marker id="ax2" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+    <marker id="ax2t" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+      <path d="M0,0 L5,3 L0,6 Z" fill="#111"/>
+    </marker>
+  </defs>
+  <!-- axis -->
+  <line x1="40" y1="120" x2="480" y2="120" stroke="#111" stroke-width="1.5" marker-end="url(#ax2t)"/>
+  <line x1="40" y1="30" x2="40" y2="125" stroke="#111" stroke-width="1.5" marker-end="url(#ax2t)"/>
+  <text x="22" y="78" font-family="'JetBrains Mono',monospace" font-size="8" fill="#999" text-anchor="middle" transform="rotate(-90,22,78)">CAPABILITY</text>
+  <!-- baseline capability curve -->
+  <path d="M45,115 C80,113 130,108 180,100 C230,92 270,88 290,115 C310,87 340,60 380,40 C400,32 430,28 470,25"
+    fill="none" stroke="#111" stroke-width="2"
+    class="draw-on" style="--path-len:700;"/>
+  <!-- Step jump vertical line at ~x=290 -->
+  <line x1="290" y1="35" x2="290" y2="118" stroke="#c0392b" stroke-width="1.5" stroke-dasharray="4,3"
+    class="draw-on" style="--path-len:200;"/>
+  <!-- tick dates -->
+  <line x1="100" y1="117" x2="100" y2="124" stroke="#111" stroke-width="1"/>
+  <text x="100" y="136" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#999">2023</text>
+  <line x1="185" y1="117" x2="185" y2="124" stroke="#111" stroke-width="1"/>
+  <text x="185" y="136" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#999">2024</text>
+  <line x1="290" y1="117" x2="290" y2="124" stroke="#c0392b" stroke-width="1"/>
+  <text x="290" y="136" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#c0392b">Nov 2025</text>
+  <text x="290" y="148" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#c0392b">Opus 4.5 · GPT-5.2</text>
+  <line x1="385" y1="117" x2="385" y2="124" stroke="#111" stroke-width="1"/>
+  <text x="385" y="136" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#999">Feb 2026</text>
+  <text x="385" y="148" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#999">4 models, 14 days</text>
+  <!-- annotation for "invisible line" -->
+  <text x="310" y="58" font-family="'JetBrains Mono',monospace" font-size="8" fill="#c0392b">capability</text>
+  <text x="310" y="70" font-family="'JetBrains Mono',monospace" font-size="8" fill="#c0392b">threshold</text>
+  <text x="310" y="82" font-family="'JetBrains Mono',monospace" font-size="8" fill="#c0392b">crossed</text>
+  <text x="455" y="23" font-family="'JetBrains Mono',monospace" font-size="8" fill="#555">now</text>
+</svg>
+<figcaption>FIGURE 2.1 — The capability jump timeline. Gradual improvement (2023–2024), then a threshold crossing at Nov 2025 with Opus 4.5 + GPT-5.2. The February 2026 cluster made model routing a necessity, not an optimisation.</figcaption>
+</div>
+
+<h2>Five implications for engineering teams</h2>
+
+<h3>1 — Agents are management problems</h3>
+<p>The skills that make someone effective with agents are management skills: clear communication of goals, providing necessary context, breaking down complex tasks, giving actionable feedback. The engineer who writes the clearest task descriptions outperforms the engineer who writes the best code by hand.</p>
+
+<h3>2 — Output scales faster than review capacity</h3>
+<p>A team of five engineers produces roughly 25 PRs per week. Each PR takes 30–60 minutes to review. Now add agents. The same team might produce 75–100 PRs per week. Review time triples or quadruples; team size doesn't change.</p>
+
+<!-- FIGURE 2.2: Review burden chart — Howard Marks bar comparison -->
+<div class="diagram">
+<svg viewBox="0 0 440 160" width="440" height="160" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="ax2r" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
       <path d="M0,0 L5,3 L0,6 Z" fill="#111"/>
     </marker>
   </defs>
   <!-- axes -->
-  <line x1="50" y1="20" x2="50" y2="165" stroke="#111" stroke-width="1.5" marker-end="url(#ax2)"/>
-  <line x1="50" y1="165" x2="430" y2="165" stroke="#111" stroke-width="1.5" marker-end="url(#ax2)"/>
-  <!-- axis labels -->
-  <text x="30" y="95" font-family="'JetBrains Mono',monospace" font-size="8" fill="#999" text-anchor="middle" transform="rotate(-90,30,95)">CAPABILITY</text>
-  <text x="240" y="185" font-family="'JetBrains Mono',monospace" font-size="8" fill="#999" text-anchor="middle">TIME (2020 → 2024)</text>
-  <!-- tool use curve: accelerates mid-way -->
-  <polyline points="60,155 120,152 200,140 280,100 360,55 420,32"
-    fill="none" stroke="#111" stroke-width="2"
-    class="draw-on" style="--path-len:600;"/>
-  <!-- step line: big jump at ~280 -->
-  <polyline points="60,155 270,155 270,90 420,90"
-    fill="none" stroke="#c0392b" stroke-width="1.5" stroke-dasharray="4,3"
-    class="draw-on" style="--path-len:500;"/>
-  <!-- labels -->
-  <text x="425" y="30" font-family="Inter,sans-serif" font-size="10" fill="#111">Compound</text>
-  <text x="245" y="86" font-family="Inter,sans-serif" font-size="10" fill="#c0392b">Jump</text>
-  <text x="275" y="100" font-family="'JetBrains Mono',monospace" font-size="8" fill="#c0392b">GPT-4 + tools</text>
-  <!-- tick marks -->
-  <line x1="270" y1="162" x2="270" y2="168" stroke="#111" stroke-width="1"/>
-  <text x="270" y="178" font-family="'JetBrains Mono',monospace" font-size="8" fill="#999" text-anchor="middle">2023</text>
-  <line x1="160" y1="162" x2="160" y2="168" stroke="#111" stroke-width="1"/>
-  <text x="160" y="178" font-family="'JetBrains Mono',monospace" font-size="8" fill="#999" text-anchor="middle">2022</text>
-  <line x1="380" y1="162" x2="380" y2="168" stroke="#111" stroke-width="1"/>
-  <text x="380" y="178" font-family="'JetBrains Mono',monospace" font-size="8" fill="#999" text-anchor="middle">2024</text>
+  <line x1="50" y1="20" x2="50" y2="120" stroke="#111" stroke-width="1.5" marker-end="url(#ax2r)"/>
+  <line x1="50" y1="120" x2="420" y2="120" stroke="#111" stroke-width="1.5"/>
+  <text x="28" y="72" font-family="'JetBrains Mono',monospace" font-size="8" fill="#999" text-anchor="middle" transform="rotate(-90,28,72)">PRs / WEEK</text>
+  <!-- Before: 25 PRs -->
+  <rect x="70" y="97" width="60" height="23" fill="#ddd" stroke="#bbb" stroke-width="1" class="fill-bar"/>
+  <text x="100" y="90" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="10" fill="#555">25</text>
+  <text x="100" y="134" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#999">Before</text>
+  <text x="100" y="145" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#999">agents</text>
+  <!-- After: 75-100 PRs -->
+  <rect x="175" y="46" width="60" height="74" fill="#555" stroke="#444" stroke-width="1" class="fill-bar"/>
+  <text x="205" y="39" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="10" fill="#111">75–100</text>
+  <text x="205" y="134" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#111">After agents</text>
+  <text x="205" y="145" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#111">(same team)</text>
+  <!-- Review hours -->
+  <!-- Before: 12-25 hrs -->
+  <rect x="285" y="90" width="60" height="30" fill="#ddd" stroke="#bbb" stroke-width="1" class="fill-bar"/>
+  <text x="315" y="82" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="10" fill="#555">12–25h</text>
+  <text x="315" y="134" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#999">Review hrs</text>
+  <text x="315" y="145" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#999">before</text>
+  <!-- After: 40-80 hrs -->
+  <rect x="360" y="30" width="60" height="90" fill="#c0392b" stroke="#c0392b" stroke-width="1" class="fill-bar"/>
+  <text x="390" y="22" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="10" fill="#c0392b">40–80h</text>
+  <text x="390" y="134" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#c0392b">Review hrs</text>
+  <text x="390" y="145" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#c0392b">after</text>
 </svg>
-<figcaption>FIGURE 2.1 — Compound capability growth 2020–2024. Capability grew gradually, then jumped at the tool-use threshold (red dashed line). The curve, not the jump, is what you build on.</figcaption>
+<figcaption>FIGURE 2.2 — The review burden problem. PR volume can 4× with agents; review hours follow if no automated gates exist. The solution is a two-layer review process (automated + human judgment) covered in Ch. 24.</figcaption>
 </div>
 
-<div class="concept-row">
-  <div class="concept-card"><div class="cc-num">01</div><div class="cc-title">Tool Use</div><div class="cc-desc">Models learned to call external functions. Text generation became action execution.</div></div>
-  <div class="concept-card"><div class="cc-num">02</div><div class="cc-title">Context</div><div class="cc-desc">Windows grew from 4k to 128k+ tokens. Agents could hold an entire conversation in memory.</div></div>
-  <div class="concept-card"><div class="cc-num">03</div><div class="cc-title">Reasoning</div><div class="cc-desc">Chain-of-thought prompting let models decompose complex tasks step by step.</div></div>
+<h3>3 — The documentation business is disrupted</h3>
+<p>Tailwind Labs (Jan 2026): documentation traffic down 40%, revenue down 80% — not because Tailwind is less popular, but because AI generates Tailwind code directly. Any business model built on people reading docs faces the same dynamic.</p>
+
+<h3>4 — The junior engineer pipeline is disrupted</h3>
+<p>Tasks agents handle well are exactly the tasks traditionally assigned to juniors: boilerplate, simple bugs, test coverage, documentation. The emerging pattern: juniors shift from writing code to reviewing agent-generated code — which is actually a faster path to engineering judgment if mentored correctly.</p>
+
+<h3>5 — Model routing replaces model selection</h3>
+<p>No single model dominates all tasks. GPT-5.3-Codex leads Terminal-Bench (75.1%). Opus 4.6 leads SWE-bench Verified (80.8%). Gemini 3.1 Pro leads long-context tasks (1M token window). The "pick one model" era is over.</p>
+
+<!-- FIGURE 2.3: Model pricing bar chart -->
+<div class="diagram">
+<svg viewBox="0 0 500 180" width="500" height="180" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="ax2p" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+      <path d="M0,0 L5,3 L0,6 Z" fill="#111"/>
+    </marker>
+  </defs>
+  <!-- x axis -->
+  <line x1="140" y1="150" x2="480" y2="150" stroke="#111" stroke-width="1.5" marker-end="url(#ax2p)"/>
+  <text x="310" y="168" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#999">COST per 100K input + 10K output (USD)</text>
+  <!-- model rows, y pos 22, 42, 62, 82, 102, 122 -->
+  <!-- Opus 4.6: $0.750 → full bar at ~340px wide (0.75 / 0.75 * 330) = 330 -->
+  <text x="135" y="30" text-anchor="end" font-family="'JetBrains Mono',monospace" font-size="8" fill="#111">Opus 4.6</text>
+  <rect x="140" y="20" width="330" height="16" fill="#111" class="fill-bar"/>
+  <text x="476" y="32" font-family="'JetBrains Mono',monospace" font-size="8" fill="#111">$0.75</text>
+  <!-- Sonnet 4.6: $0.450 → 198 -->
+  <text x="135" y="52" text-anchor="end" font-family="'JetBrains Mono',monospace" font-size="8" fill="#555">Sonnet 4.6</text>
+  <rect x="140" y="42" width="198" height="16" fill="#444" class="fill-bar"/>
+  <text x="344" y="54" font-family="'JetBrains Mono',monospace" font-size="8" fill="#444">$0.45</text>
+  <!-- GPT-5.2: $0.315 → 138 -->
+  <text x="135" y="72" text-anchor="end" font-family="'JetBrains Mono',monospace" font-size="8" fill="#555">GPT-5.2</text>
+  <rect x="140" y="62" width="138" height="16" fill="#666" class="fill-bar"/>
+  <text x="284" y="74" font-family="'JetBrains Mono',monospace" font-size="8" fill="#666">$0.315</text>
+  <!-- Gemini 3.1 Pro: $0.320 → 141 -->
+  <text x="135" y="92" text-anchor="end" font-family="'JetBrains Mono',monospace" font-size="8" fill="#555">Gemini 3.1 Pro</text>
+  <rect x="140" y="82" width="141" height="16" fill="#777" class="fill-bar"/>
+  <text x="287" y="94" font-family="'JetBrains Mono',monospace" font-size="8" fill="#777">$0.32</text>
+  <!-- Haiku 4: $0.150 → 66 -->
+  <text x="135" y="112" text-anchor="end" font-family="'JetBrains Mono',monospace" font-size="8" fill="#888">Haiku 4</text>
+  <rect x="140" y="102" width="66" height="16" fill="#aaa" class="fill-bar"/>
+  <text x="212" y="114" font-family="'JetBrains Mono',monospace" font-size="8" fill="#888">$0.15</text>
+  <!-- GPT-5.2-mini: $0.021 → 9 -->
+  <text x="135" y="132" text-anchor="end" font-family="'JetBrains Mono',monospace" font-size="8" fill="#aaa">GPT-5.2 mini</text>
+  <rect x="140" y="122" width="9" height="16" fill="#ccc" class="fill-bar"/>
+  <text x="155" y="134" font-family="'JetBrains Mono',monospace" font-size="8" fill="#aaa">$0.021</text>
+  <!-- Gemini Flash: $0.011 → 4 -->
+  <text x="135" y="152" text-anchor="end" font-family="'JetBrains Mono',monospace" font-size="8" fill="#c0392b">Gemini Flash</text>
+  <rect x="140" y="142" width="4" height="6" fill="#c0392b" class="fill-bar"/>
+  <text x="150" y="152" font-family="'JetBrains Mono',monospace" font-size="8" fill="#c0392b">$0.011 ← 35× cheaper than Opus</text>
+</svg>
+<figcaption>FIGURE 2.3 — Model cost comparison for 100K input + 10K output tokens. The 35× cost gap between Opus 4.6 and Gemini Flash makes model routing a financial imperative. Routing 70% of tasks to small models cuts total LLM spend by 60–70%.</figcaption>
 </div>
 
-<div class="analogy"><strong>Analogy</strong><span>Think of it like a car: the engine (reasoning) improved, the fuel tank (context) got bigger, and the gear system (tool use) was added. Each upgrade is useful alone; together they compound.</span></div>
+<div class="analogy"><strong>Analogy</strong><span>No logistics company uses a jumbo jet to deliver a single letter. Frontier models are the jumbo jet — reserved for the tasks that genuinely need that capacity. Routing is the dispatch system that assigns the right vehicle to each delivery.</span></div>
 </div>
 </details>
 
@@ -587,25 +848,138 @@ details.chapter[open] .fill-bar{animation:fill-bar .8s cubic-bezier(.4,0,.2,1) f
 <summary class="chapter-summary">
   <span class="ch-num">Ch&nbsp;03</span>
   <span class="ch-info">
-    <span class="ch-title">The AAIF Standards</span>
-    <span class="ch-tldr">The emerging governance standards for agentic AI systems.</span>
+    <span class="ch-title">The Agentic AI Foundation &amp; Standards</span>
+    <span class="ch-tldr">On Dec 9 2025, Anthropic, OpenAI, and Block announced the AAIF under the Linux Foundation. Here is what it means.</span>
   </span>
   <span class="ch-arrow">+</span>
 </summary>
 <div class="chapter-body">
-<div class="tldr"><strong>TL;DR</strong><span>The Agentic AI Infrastructure Framework sets out the building blocks every production agent system must have: security, observability, memory, and orchestration standards.</span></div>
+<div class="tldr"><strong>TL;DR</strong><span>The AAIF mirrors the pattern of Linux (OS), Kubernetes (container orchestration), and OpenTelemetry (observability): competitors collaborate on infrastructure standards so differentiation happens at higher layers. Three founding projects — MCP, Goose, AGENTS.md — standardise tool integration, agent architecture, and codebase onboarding respectively. Three critical gaps remain: security auth, authorization models, and observability semantics.</span></div>
 
-<h2>Why standards matter</h2>
-<p>Every major infrastructure technology — TCP/IP, HTTP, OAuth — eventually got standardised. Agents are following the same path. The AAIF defines the minimum viable architecture for a trustworthy agent deployment.</p>
+<h2>Why competitors standardise infrastructure</h2>
+<p>On December 9, 2025, Anthropic, OpenAI, and Block announced the Agentic AI Foundation under the Linux Foundation, with Google, Microsoft, AWS, Cloudflare, and Bloomberg as supporters. These companies compete fiercely on models. Yet they're collaborating on infrastructure standards.</p>
 
-<div class="step-flow">
-  <div class="step-item"><div class="s-num">Layer 01</div><div class="s-name">Security</div><div class="s-desc">Auth, sandboxing, injection defence</div></div>
-  <div class="step-item"><div class="s-num">Layer 02</div><div class="s-name">Observability</div><div class="s-desc">Traces, logs, cost dashboards</div></div>
-  <div class="step-item"><div class="s-num">Layer 03</div><div class="s-name">Memory</div><div class="s-desc">Short-term, long-term, semantic</div></div>
-  <div class="step-item"><div class="s-num">Layer 04</div><div class="s-name">Orchestration</div><div class="s-desc">Loop design, multi-agent routing</div></div>
+<div class="analogy"><strong>Pattern recognition</strong><span>Linux standardised operating systems. Kubernetes standardised container orchestration. OpenTelemetry standardised observability. In each case, vendors realised that standardising the infrastructure layer accelerated adoption for everyone, while differentiation happened at higher layers. AAIF is the same play.</span></div>
+
+<!-- FIGURE 3.1: The three AAIF founding projects as a side-by-side comparison -->
+<div class="diagram">
+<svg viewBox="0 0 500 200" width="500" height="200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .phead{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.14em;}
+      .pbody{font-family:'JetBrains Mono',monospace;font-size:8px;fill:#555;}
+      .ptag{font-family:'JetBrains Mono',monospace;font-size:7px;fill:#999;}
+    </style>
+  </defs>
+  <!-- MCP column -->
+  <rect x="10" y="10" width="150" height="175" fill="white" stroke="#111" stroke-width="1.5"/>
+  <rect x="10" y="10" width="150" height="24" fill="#111"/>
+  <text x="85" y="27" text-anchor="middle" class="phead" fill="white">MCP</text>
+  <text x="85" y="50" text-anchor="middle" class="ptag">donated by Anthropic</text>
+  <text x="85" y="68" text-anchor="middle" class="pbody">Universal protocol</text>
+  <text x="85" y="82" text-anchor="middle" class="pbody">for tool integration.</text>
+  <text x="85" y="96" text-anchor="middle" class="pbody">Agent discovers +</text>
+  <text x="85" y="110" text-anchor="middle" class="pbody">calls any tool via</text>
+  <text x="85" y="124" text-anchor="middle" class="pbody">one standard API.</text>
+  <line x1="25" y1="140" x2="145" y2="140" stroke="#eee" stroke-width="1"/>
+  <text x="85" y="155" text-anchor="middle" class="pbody" style="fill:#c0392b;">10k+ active servers</text>
+  <text x="85" y="168" text-anchor="middle" class="pbody" style="fill:#c0392b;">97M monthly downloads</text>
+  <!-- Goose column -->
+  <rect x="175" y="10" width="150" height="175" fill="white" stroke="#555" stroke-width="1"/>
+  <rect x="175" y="10" width="150" height="24" fill="#555"/>
+  <text x="250" y="27" text-anchor="middle" class="phead" fill="white">GOOSE</text>
+  <text x="250" y="50" text-anchor="middle" class="ptag">donated by Block</text>
+  <text x="250" y="68" text-anchor="middle" class="pbody">Open-source agent</text>
+  <text x="250" y="82" text-anchor="middle" class="pbody">reference impl.</text>
+  <text x="250" y="96" text-anchor="middle" class="pbody">MCP-native, cost-</text>
+  <text x="250" y="110" text-anchor="middle" class="pbody">tracked, killable.</text>
+  <text x="250" y="124" text-anchor="middle" class="pbody">Study its patterns</text>
+  <text x="250" y="138" text-anchor="middle" class="pbody">even if you don&apos;t</text>
+  <text x="250" y="152" text-anchor="middle" class="pbody">use it directly.</text>
+  <text x="250" y="168" text-anchor="middle" class="ptag">github.com/block/goose</text>
+  <!-- AGENTS.md column -->
+  <rect x="340" y="10" width="150" height="175" fill="white" stroke="#ddd" stroke-width="1"/>
+  <rect x="340" y="10" width="150" height="24" fill="#888"/>
+  <text x="415" y="27" text-anchor="middle" class="phead" fill="white">AGENTS.md</text>
+  <text x="415" y="50" text-anchor="middle" class="ptag">donated by OpenAI</text>
+  <text x="415" y="68" text-anchor="middle" class="pbody">Standard format for</text>
+  <text x="415" y="82" text-anchor="middle" class="pbody">AI coding agent</text>
+  <text x="415" y="96" text-anchor="middle" class="pbody">instructions. Think</text>
+  <text x="415" y="110" text-anchor="middle" class="pbody">README.md but for</text>
+  <text x="415" y="124" text-anchor="middle" class="pbody">machine consumers.</text>
+  <line x1="355" y1="140" x2="475" y2="140" stroke="#eee" stroke-width="1"/>
+  <text x="415" y="155" text-anchor="middle" class="pbody" style="fill:#c0392b;">60k+ repos have one</text>
+  <text x="415" y="168" text-anchor="middle" class="ptag">10 min to write. Write it now.</text>
+</svg>
+<figcaption>FIGURE 3.1 — The three AAIF founding projects. MCP handles tool integration (any agent, any tool). Goose is the reference production architecture. AGENTS.md is the machine-readable project onboarding file. All three are live and in widespread adoption.</figcaption>
 </div>
 
-<div class="insight"><p>Standards don't constrain you — they free you. Every framework that chooses AAIF-aligned interfaces can swap vendors, models, and tools without rewiring.</p></div>
+<h2>The three standards beyond AAIF</h2>
+
+<!-- FIGURE 3.2: Standards ecosystem connection diagram -->
+<div class="diagram">
+<svg viewBox="0 0 500 200" width="500" height="200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="arw3e" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+      <path d="M0,0 L5,3 L0,6 Z" fill="#555"/>
+    </marker>
+    <style>
+      @keyframes blink3{0%,100%{opacity:1;}50%{opacity:.3;}}
+      .blink3{animation:blink3 2s ease-in-out infinite;}
+    </style>
+  </defs>
+  <!-- Centre: Agent -->
+  <rect x="195" y="75" width="110" height="50" fill="#111" stroke="#111"/>
+  <text x="250" y="97" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="10" fill="white" letter-spacing=".1em">AGENT</text>
+  <text x="250" y="113" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#888">production system</text>
+  <!-- MCP — left (tools) -->
+  <rect x="20" y="20" width="120" height="44" fill="white" stroke="#111" stroke-width="1.5"/>
+  <text x="80" y="38" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="9" fill="#111" font-weight="600">MCP</text>
+  <text x="80" y="52" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#555">tool integration</text>
+  <line x1="142" y1="42" x2="193" y2="90" stroke="#555" stroke-width="1" marker-end="url(#arw3e)"/>
+  <!-- A2A — top right (agent comm) -->
+  <rect x="360" y="20" width="120" height="44" fill="white" stroke="#555" stroke-width="1"/>
+  <text x="420" y="38" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="9" fill="#555" font-weight="600">A2A (Google)</text>
+  <text x="420" y="52" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#999">agent ↔ agent</text>
+  <line x1="358" y1="42" x2="307" y2="90" stroke="#555" stroke-width="1" marker-end="url(#arw3e)"/>
+  <!-- OpenFGA — bottom left (auth) -->
+  <rect x="20" y="140" width="120" height="44" fill="white" stroke="#555" stroke-width="1"/>
+  <text x="80" y="158" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="9" fill="#555" font-weight="600">OpenFGA</text>
+  <text x="80" y="172" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#999">authorization (Zanzibar)</text>
+  <line x1="142" y1="162" x2="193" y2="118" stroke="#555" stroke-width="1" marker-end="url(#arw3e)"/>
+  <!-- OTel — bottom right (observability) -->
+  <rect x="360" y="140" width="120" height="44" fill="white" stroke="#555" stroke-width="1"/>
+  <text x="420" y="158" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="9" fill="#555" font-weight="600">OpenTelemetry</text>
+  <text x="420" y="172" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#999">traces &amp; spans</text>
+  <line x1="358" y1="162" x2="307" y2="118" stroke="#555" stroke-width="1" marker-end="url(#arw3e)"/>
+  <!-- pulse on agent box to show data flow -->
+  <rect x="195" y="75" width="110" height="50" fill="none" stroke="#c0392b" stroke-width="1.5" class="blink3"/>
+</svg>
+<figcaption>FIGURE 3.2 — Standards ecosystem around a production agent. MCP handles tool calls, A2A handles agent-to-agent delegation, OpenFGA handles fine-grained authorisation, OpenTelemetry handles traces. All four use open standards; all four are in active production use.</figcaption>
+</div>
+
+<h2>The three critical gaps</h2>
+<p>AAIF is a foundation, not a complete solution. Three significant gaps remain — and they represent the most important unsolved problems in agent infrastructure today.</p>
+
+<div class="concept-row">
+  <div class="concept-card"><div class="cc-num" style="color:#c0392b">1</div><div class="cc-title">Security Auth</div><div class="cc-desc">MCP defines how agents call tools, not how they authenticate. Over 8,000 public MCP servers have no authentication at all. Every implementation rolls its own — every implementation has its own vulnerabilities.</div></div>
+  <div class="concept-card"><div class="cc-num" style="color:#c0392b">2</div><div class="cc-title">Authorization</div><div class="cc-desc">Agents need fine-grained, context-dependent permissions that RBAC can't express. "Can read source code but not production secrets" requires Zanzibar-style relationship models. No standard yet.</div></div>
+  <div class="concept-card"><div class="cc-num" style="color:#c0392b">3</div><div class="cc-title">Observability Semantics</div><div class="cc-desc">OpenTelemetry is extending to agents, but span semantics for LLM calls and tool chains are still being defined. Every team inventing its own schema now faces a migration later.</div></div>
+</div>
+
+<h2>The open source stack</h2>
+<table>
+  <tr><th>Layer</th><th>Tool</th><th>What it does</th></tr>
+  <tr><td>Model abstraction</td><td><code>LiteLLM</code></td><td>Unified API for 100+ LLM providers. Swap models with one config change.</td></tr>
+  <tr><td>Authorization</td><td><code>OpenFGA</code></td><td>Zanzibar-style relationship-based access control (CNCF Incubating).</td></tr>
+  <tr><td>Observability</td><td><code>Langfuse</code></td><td>AI-specific traces, cost attribution, prompt tracking, eval integration.</td></tr>
+  <tr><td>Sandboxing</td><td><code>gVisor</code></td><td>Application-level kernel isolation for agent execution environments.</td></tr>
+  <tr><td>Evaluation</td><td><code>Promptfoo</code></td><td>Config-driven evals for prompts and agents. Open source.</td></tr>
+  <tr><td>Vector DB</td><td><code>Qdrant / Chroma</code></td><td>Embedding-based retrieval for long-term agent memory.</td></tr>
+  <tr><td>Context</td><td><code>Distill</code></td><td>Context deduplication and compression — cut window size by 40%+.</td></tr>
+</table>
+
+<div class="insight"><p>The strategic decision: use MCP and AGENTS.md today (both mature). Build lightweight abstractions around auth and observability where standards are still forming — migration from non-standard infrastructure compounds over time.</p></div>
 </div>
 </details>
 
