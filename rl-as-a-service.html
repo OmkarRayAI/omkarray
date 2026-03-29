@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-62YF7Y81BS"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-62YF7Y81BS');
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RL-as-a-Service — The Next Great Platform Opportunity</title>
+<meta name="description" content="Why reinforcement learning infrastructure is the next great platform opportunity. The AWS moment for RL is unfolding in real time.">
+<meta property="og:title" content="RL-as-a-Service — The Next Great Platform Opportunity">
+<meta property="og:description" content="Pre-training is plateauing. The next frontier isn't bigger models — it's better models through RL. $7.5B today, $21B+ by 2032.">
+<meta property="og:url" content="https://omkarray.com/rl-as-a-service.html">
+<meta property="og:type" content="article">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F8F6F1;
+    --paper: #FFFFFF;
+    --cream: #F2EDE4;
+    --ink: #1B1916;
+    --ink-soft: #4A4540;
+    --ink-muted: #8A8478;
+    --rust: #BF5630;
+    --rust-light: #F4DDD2;
+    --rust-faint: #FBF0EA;
+    --teal: #1A6B5A;
+    --teal-light: #DFF0EB;
+    --navy: #2C3E6B;
+    --navy-light: #E2E7F2;
+    --plum: #6B4078;
+    --plum-light: #F0E4F4;
+    --gold: #A68B2B;
+    --gold-light: #F7F2DD;
+    --danger: #A83232;
+    --danger-light: #FCE8E8;
+    --line: #E4DFD6;
+    --line-heavy: #C8C1B5;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  ::selection { background: var(--rust-light); color: var(--ink); }
+  body {
+    font-family: 'DM Sans', 'Helvetica Neue', sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.6;
+  }
+
+  .hero {
+    background: var(--ink);
+    color: #FFF;
+    padding: 80px 0 72px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-grid {
+    position: absolute;
+    inset: 0;
+    opacity: 0.04;
+    background-image:
+      repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(255,255,255,0.5) 39px, rgba(255,255,255,0.5) 40px),
+      repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(255,255,255,0.5) 39px, rgba(255,255,255,0.5) 40px);
+  }
+  .hero-inner {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 0 40px;
+    position: relative;
+  }
+  .hero-tag {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 40px;
+  }
+  .hero-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--rust); }
+  .hero-tag span {
+    font-size: 11px;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 3px;
+    color: rgba(255,255,255,0.5);
+    text-transform: uppercase;
+  }
+  .hero h1 {
+    font-size: 58px;
+    font-family: 'Playfair Display', Georgia, serif;
+    font-weight: 700;
+    line-height: 1.05;
+    margin-bottom: 20px;
+    letter-spacing: -1px;
+  }
+  .hero .subtitle {
+    font-size: 22px;
+    font-family: 'Playfair Display', Georgia, serif;
+    font-weight: 400;
+    color: rgba(255,255,255,0.6);
+    font-style: italic;
+    margin-bottom: 40px;
+    line-height: 1.4;
+  }
+  .hero-meta {
+    display: flex;
+    gap: 32px;
+    align-items: center;
+    padding-top: 24px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+  }
+  .hero-meta span { font-size: 13px; color: rgba(255,255,255,0.45); }
+  .hero-meta .sep { color: rgba(255,255,255,0.25); }
+  .back-link {
+    display: inline-flex; align-items: center; gap: 8px;
+    color: rgba(255,255,255,0.5); text-decoration: none;
+    font-size: 12px; font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 1px; text-transform: uppercase;
+    margin-bottom: 32px; transition: color 0.2s;
+  }
+  .back-link:hover { color: #fff; }
+
+  .content { max-width: 780px; margin: 0 auto; padding: 56px 40px 80px; }
+
+  .opening-quote {
+    font-size: 22px;
+    font-family: 'Playfair Display', Georgia, serif;
+    font-style: italic;
+    color: var(--ink-soft);
+    line-height: 1.7;
+    margin-bottom: 40px;
+    border-left: 3px solid var(--rust);
+    padding-left: 24px;
+  }
+
+  .prose { font-size: 17px; line-height: 1.85; color: var(--ink-soft); margin-bottom: 24px; }
+  .prose strong { color: var(--rust); font-weight: 600; }
+
+  .exhibit-label { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+  .exhibit-label .bar { width: 40px; height: 1px; }
+  .exhibit-label span {
+    font-size: 11px; font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 3px; font-weight: 600; text-transform: uppercase;
+  }
+  .exhibit-label .tail { flex: 1; height: 1px; background: var(--line); }
+
+  .exhibit-title {
+    font-size: 36px; font-family: 'Playfair Display', Georgia, serif;
+    font-weight: 600; line-height: 1.2; margin-bottom: 12px;
+  }
+  .exhibit-desc { font-size: 15px; color: var(--ink-muted); margin-bottom: 36px; }
+
+  .divider { display: flex; align-items: center; justify-content: center; gap: 12px; margin: 56px 0; }
+  .divider .line { flex: 1; height: 1px; background: var(--line); }
+  .divider .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--rust); }
+
+  .stat-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 1px; background: var(--line); border-radius: 12px; overflow: hidden; margin-bottom: 32px;
+  }
+  .stat-cell { background: var(--paper); padding: 28px 16px; text-align: center; }
+  .stat-cell .val {
+    font-size: 28px; font-weight: 700;
+    font-family: 'Playfair Display', Georgia, serif; line-height: 1; margin-bottom: 6px;
+  }
+  .stat-cell .lbl {
+    font-size: 10px; font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 1.5px; color: var(--ink-muted); text-transform: uppercase; margin-bottom: 4px;
+  }
+  .stat-cell .sub { font-size: 12px; color: var(--ink-muted); }
+
+  .callout {
+    padding: 20px 24px; border-radius: 0 8px 8px 0;
+    margin: 32px 0; border-left: 3px solid;
+  }
+  .callout p { font-size: 15px; color: var(--ink); line-height: 1.7; }
+  .callout-rust { border-color: var(--rust); background: var(--rust-faint); }
+  .callout-teal { border-color: var(--teal); background: var(--teal-light); }
+  .callout-navy { border-color: var(--navy); background: var(--navy-light); }
+  .callout-plum { border-color: var(--plum); background: var(--plum-light); }
+  .callout-gold { border-color: var(--gold); background: var(--gold-light); }
+
+  .code-block {
+    background: var(--ink); color: #E0DED8; border-radius: 10px;
+    padding: 24px 28px; margin: 24px 0 32px;
+    font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 1.8;
+    overflow-x: auto;
+  }
+  .code-block .comment { color: #6A6A5A; }
+  .code-block .highlight { color: var(--rust); font-weight: 500; }
+
+  .section-head {
+    font-size: 20px; font-weight: 600; margin: 40px 0 16px;
+    color: var(--ink); letter-spacing: -0.01em;
+  }
+
+  .card { background: var(--paper); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+
+  .table-wrap { border-radius: 12px; overflow: hidden; border: 1px solid var(--line); margin: 24px 0 32px; }
+  .table-wrap table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .table-wrap th {
+    background: var(--ink); color: rgba(255,255,255,0.7); text-align: left;
+    padding: 14px 18px; font-size: 10px; font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 1.5px; text-transform: uppercase; font-weight: 600;
+  }
+  .table-wrap td { padding: 14px 18px; border-bottom: 1px solid var(--line); }
+  .table-wrap tr:nth-child(even) td { background: var(--cream); }
+  .table-wrap tr:nth-child(odd) td { background: var(--paper); }
+  .table-wrap td:first-child { font-weight: 600; }
+
+  .tier-card {
+    background: var(--paper); border: 1px solid var(--line); border-radius: 14px;
+    padding: 28px; margin-bottom: 20px; border-left: 4px solid;
+  }
+  .tier-card h4 {
+    font-size: 22px; font-family: 'Playfair Display', Georgia, serif;
+    font-weight: 600; margin-bottom: 8px;
+  }
+  .tier-card .tier-tag {
+    font-size: 10px; font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 2px; text-transform: uppercase; font-weight: 600;
+    margin-bottom: 12px; display: inline-block;
+  }
+  .tier-card p { font-size: 15px; color: var(--ink-soft); line-height: 1.7; margin-bottom: 8px; }
+  .tier-card .signal { font-size: 13px; color: var(--ink-muted); line-height: 1.6; margin-top: 12px; }
+
+  .risk-item {
+    background: var(--paper); border: 1px solid var(--line); border-radius: 10px;
+    padding: 24px; margin-bottom: 16px;
+  }
+  .risk-item h4 { font-size: 17px; font-weight: 600; margin-bottom: 6px; }
+  .risk-item .prob {
+    font-size: 10px; font-family: 'JetBrains Mono', monospace;
+    color: var(--danger); letter-spacing: 1px; text-transform: uppercase;
+    font-weight: 600; margin-bottom: 10px; display: inline-block;
+  }
+  .risk-item p { font-size: 15px; color: var(--ink-soft); line-height: 1.7; }
+
+  .checklist { list-style: none; margin: 20px 0 32px; }
+  .checklist li {
+    font-size: 15px; color: var(--ink-soft); line-height: 1.7;
+    padding: 8px 0 8px 32px; position: relative; border-bottom: 1px solid var(--line);
+  }
+  .checklist li::before {
+    content: ''; position: absolute; left: 0; top: 12px;
+    width: 16px; height: 16px; border: 1.5px solid var(--line-heavy); border-radius: 3px;
+  }
+  .checklist.confirm li::before { border-color: var(--teal); }
+  .checklist.invalidate li::before { border-color: var(--danger); }
+
+  .bottom-line {
+    background: var(--ink); color: #FFF; border-radius: 16px;
+    padding: 48px 40px; margin-top: 48px;
+  }
+  .bottom-line h3 {
+    font-size: 32px; font-family: 'Playfair Display', Georgia, serif;
+    font-weight: 600; margin-bottom: 20px; line-height: 1.2;
+  }
+  .bottom-line p { font-size: 17px; color: rgba(255,255,255,0.7); line-height: 1.8; margin-bottom: 16px; }
+  .bottom-line strong { color: var(--rust); font-weight: 600; }
+
+  .sources {
+    margin-top: 48px; padding-top: 32px; border-top: 1px solid var(--line);
+    font-size: 12px; color: var(--ink-muted); line-height: 1.8;
+  }
+  .sources strong { color: var(--ink-soft); }
+
+  @media (max-width: 600px) {
+    .hero h1 { font-size: 36px; }
+    .hero .subtitle { font-size: 18px; }
+    .hero-inner, .content { padding-left: 20px; padding-right: 20px; }
+    .stat-grid { grid-template-columns: repeat(2, 1fr); }
+    .exhibit-title { font-size: 28px; }
+    .hero-meta { flex-wrap: wrap; gap: 16px; }
+    .table-wrap { overflow-x: auto; }
+    .table-wrap table { min-width: 600px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-inner">
+    <a href="/" class="back-link">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      Home
+    </a>
+    <div class="hero-tag">
+      <span class="hero-dot"></span>
+      <span>Deep Dive · Reinforcement Learning</span>
+    </div>
+    <h1>RL-as-a-Service</h1>
+    <p class="subtitle">Why Reinforcement Learning Infrastructure Is the Next Great Platform Opportunity</p>
+    <div class="hero-meta">
+      <span>Omkar Ray</span>
+      <span class="sep">·</span>
+      <span>March 2026</span>
+      <span class="sep">·</span>
+      <span>22 min read</span>
+    </div>
+  </div>
+</div>
+
+<div class="content">
+
+  <p class="opening-quote">
+    Pre-training is plateauing. The next frontier of AI isn't making models bigger — it's making them <em>better</em> after training, through reinforcement learning. We're watching the "AWS moment" for reinforcement learning unfold in real time.
+  </p>
+
+  <p class="prose">
+    Every frontier lab — OpenAI, Anthropic, DeepMind, Meta, DeepSeek, Mistral, xAI — is now a buyer of RL infrastructure. The market is <strong>$7.5B today</strong>, growing to <strong>$21B+ by 2032</strong>. But only ~5 labs are buying today. When RL goes enterprise — and with agentic AI projected to hit $90B in 2026, it will — the TAM expands 100x.
+  </p>
+
+  <div class="stat-grid">
+    <div class="stat-cell">
+      <div class="val" style="color:var(--rust);">$7.5B</div>
+      <div class="lbl">RLHF Market</div>
+      <div class="sub">2025</div>
+    </div>
+    <div class="stat-cell">
+      <div class="val" style="color:var(--teal);">$21.2B</div>
+      <div class="lbl">RLHF Market</div>
+      <div class="sub">2032 projected</div>
+    </div>
+    <div class="stat-cell">
+      <div class="val" style="color:var(--navy);">$90B</div>
+      <div class="lbl">Agentic AI</div>
+      <div class="sub">2026 projected</div>
+    </div>
+    <div class="stat-cell">
+      <div class="val" style="color:var(--plum);">100×</div>
+      <div class="lbl">TAM Expansion</div>
+      <div class="sub">Labs → Enterprise</div>
+    </div>
+  </div>
+
+  <!-- ═══ EXHIBIT 01 ═══ -->
+  <div class="divider"><span class="line"></span><span class="dot"></span><span class="line"></span></div>
+
+  <div class="exhibit-label">
+    <div class="bar" style="background:var(--rust);"></div>
+    <span style="color:var(--rust);">Exhibit 01</span>
+    <div class="tail"></div>
+  </div>
+  <h2 class="exhibit-title">The Structural Shift</h2>
+  <p class="exhibit-desc">Pre-training hit the wall. Post-training is the new game.</p>
+
+  <p class="prose">
+    For five years (2020–2025), the AI industry operated under one belief: <strong>scale is all you need.</strong> More data, more compute, more parameters, better models. This was the pre-training era. That era is over.
+  </p>
+
+  <p class="prose">
+    Ilya Sutskever — the person most responsible for the scaling hypothesis — declared in late 2025 that "the age of scaling has ended." His reasoning:
+  </p>
+
+  <div class="callout callout-rust">
+    <p><strong>1.</strong> High-quality internet text is finite. We've consumed most of it. Synthetic data helps, but has diminishing returns.</p>
+    <p><strong>2.</strong> Compute scaling has flattening curves. Doubling GPUs no longer doubles capability. The gains are logarithmic, the costs are linear.</p>
+    <p><strong>3.</strong> Benchmarks ≠ intelligence. Models ace tests but fail at genuine generalization. More scale won't fix architectural limitations.</p>
+  </div>
+
+  <p class="prose">
+    So where does improvement come from now? <strong>Reinforcement learning.</strong> Specifically, post-training RL — where you take a pre-trained model and teach it to <em>reason</em>, <em>plan</em>, and <em>act</em> through trial-and-error in interactive environments.
+  </p>
+
+  <p class="prose">
+    This is how ChatGPT was made useful (RLHF). This is how DeepSeek R1 learned to reason. This is how every future agent will learn to operate in the real world.
+  </p>
+
+  <div class="code-block">
+    <span class="comment">// The paradigm shift</span><br>
+    <span class="highlight">Era 1</span> (2020–2024): Pre-training → "Make the model bigger"<br>
+    <span class="highlight">Era 2</span> (2025–????): Post-training → "Make the model better with RL"
+  </div>
+
+  <p class="prose">
+    This isn't a trend. It's a paradigm change. And it creates an entirely new infrastructure layer that doesn't exist yet.
+  </p>
+
+  <!-- ═══ EXHIBIT 02 ═══ -->
+  <div class="divider"><span class="line"></span><span class="dot"></span><span class="line"></span></div>
+
+  <div class="exhibit-label">
+    <div class="bar" style="background:var(--teal);"></div>
+    <span style="color:var(--teal);">Exhibit 02</span>
+    <div class="tail"></div>
+  </div>
+  <h2 class="exhibit-title">Why Now</h2>
+  <p class="exhibit-desc">Five forces converging to make RL infrastructure investable right now.</p>
+
+  <h3 class="section-head">1. The ChatGPT Proof Point (2022)</h3>
+  <p class="prose">
+    ChatGPT wasn't just a larger model. It was GPT-3.5 + RLHF. The technique that made it <em>useful</em> — that turned a text predictor into something that could follow instructions, refuse harmful requests, and have coherent conversations — was reinforcement learning from human feedback. This was the first proof that <strong>RL post-training was the difference between a toy and a product.</strong>
+  </p>
+
+  <h3 class="section-head">2. DeepSeek R1 Democratizes RL (2024)</h3>
+  <p class="prose">
+    When DeepSeek open-sourced R1 and showed you could achieve near-frontier reasoning with GRPO (a cheaper RL algorithm) on open models, the floodgates opened. Suddenly every AI lab and enterprise could do RL post-training — they just needed the tools.
+  </p>
+  <div class="callout callout-teal">
+    <p>This is the <strong>"Linux moment"</strong> for RL. The technique is open. The infrastructure to use it at scale is not.</p>
+  </div>
+
+  <h3 class="section-head">3. Agentic AI Creates Unbounded Demand (2025–2026)</h3>
+  <p class="prose">
+    Agentic AI — autonomous systems that take actions, not just generate text — is projected to be a <strong>$90B market in 2026</strong> (215% growth YoY). 78% of Fortune 500 companies will deploy agents this year. Every agent needs to be trained through RL. Static supervised learning can't teach an agent to navigate a browser, negotiate a price, or recover from errors.
+  </p>
+  <div class="callout callout-navy">
+    <p><strong>Agentic AI is the demand engine. RL infrastructure is the supply.</strong></p>
+  </div>
+
+  <h3 class="section-head">4. NVIDIA Enters (March 2026)</h3>
+  <p class="prose">
+    When NVIDIA launches a product in a category, the category is real. NVIDIA ProRL Agent — "Rollout-as-a-Service" — decouples rollout generation from model training. This is NVIDIA saying: <strong>RL infrastructure is a platform, and we're building the picks-and-shovels layer.</strong>
+  </p>
+
+  <h3 class="section-head">5. Cost of Human Data Is Exploding</h3>
+  <p class="prose">
+    Training datasets now cost <strong>10× to 1,000× more than the compute</strong> to train models. GPT-4's dataset cost an estimated 300× its training compute. Scale AI's revenue is projected to double to $2B in 2025. The RL supply chain — data labeling, reward modeling, evaluation, environments — is the new bottleneck. And bottlenecks create platform opportunities.
+  </p>
+
+  <!-- ═══ EXHIBIT 03 ═══ -->
+  <div class="divider"><span class="line"></span><span class="dot"></span><span class="line"></span></div>
+
+  <div class="exhibit-label">
+    <div class="bar" style="background:var(--navy);"></div>
+    <span style="color:var(--navy);">Exhibit 03</span>
+    <div class="tail"></div>
+  </div>
+  <h2 class="exhibit-title">The Market</h2>
+  <p class="exhibit-desc">Size, growth, and the 7 verticals forming the RL infrastructure stack.</p>
+
+  <div class="stat-grid">
+    <div class="stat-cell">
+      <div class="val" style="color:var(--rust);">16.2%</div>
+      <div class="lbl">RLHF Services</div>
+      <div class="sub">CAGR to 2032</div>
+    </div>
+    <div class="stat-cell">
+      <div class="val" style="color:var(--teal);">28.7%</div>
+      <div class="lbl">RLHF Platforms</div>
+      <div class="sub">CAGR to 2033</div>
+    </div>
+    <div class="stat-cell">
+      <div class="val" style="color:var(--navy);">~900%</div>
+      <div class="lbl">Agentic AI</div>
+      <div class="sub">YoY growth '26</div>
+    </div>
+    <div class="stat-cell">
+      <div class="val" style="color:var(--plum);">65.6%</div>
+      <div class="lbl">RL Broad</div>
+      <div class="sub">CAGR to 2026</div>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Vertical</th>
+          <th>What it does</th>
+          <th>Key players</th>
+          <th>Moat type</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Environments</td>
+          <td>Where agents practice</td>
+          <td>Chakra, Datacurve, Hud.so, Plato</td>
+          <td>Data + realism</td>
+        </tr>
+        <tr>
+          <td>RLaaS Platforms</td>
+          <td>Managed training APIs</td>
+          <td>RunRL, AgileRL, NexaStack</td>
+          <td>Workflow lock-in</td>
+        </tr>
+        <tr>
+          <td>Data &amp; RLHF</td>
+          <td>Human feedback at scale</td>
+          <td>Scale AI, Mercor, Surge AI</td>
+          <td>Network + relationships</td>
+        </tr>
+        <tr>
+          <td>RLHF Tooling</td>
+          <td>Annotation pipelines</td>
+          <td>SuperAnnotate, Label Studio, Encord</td>
+          <td>OSS community</td>
+        </tr>
+        <tr>
+          <td>Infrastructure</td>
+          <td>Orchestration layer</td>
+          <td>NVIDIA ProRL, Laminar</td>
+          <td>Ecosystem + compute</td>
+        </tr>
+        <tr>
+          <td>Multi-Agent RL</td>
+          <td>Cooperative agent training</td>
+          <td>Verita, General Intuition</td>
+          <td>Research IP</td>
+        </tr>
+        <tr>
+          <td>Physical RL</td>
+          <td>Robotics + industrial</td>
+          <td>Covariant, NexaStack</td>
+          <td>Hardware integration</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p class="prose">
+    <strong>Today:</strong> ~5–7 frontier labs buying RL infrastructure. <strong>Tomorrow:</strong> Thousands of enterprises. Gartner projects <strong>40% of enterprise applications will embed task-specific agents by end of 2026</strong> (up from &lt;5% in 2025). Each of those agents needs RL training infrastructure.
+  </p>
+
+  <!-- ═══ EXHIBIT 04 ═══ -->
+  <div class="divider"><span class="line"></span><span class="dot"></span><span class="line"></span></div>
+
+  <div class="exhibit-label">
+    <div class="bar" style="background:var(--plum);"></div>
+    <span style="color:var(--plum);">Exhibit 04</span>
+    <div class="tail"></div>
+  </div>
+  <h2 class="exhibit-title">The Investment Framework</h2>
+  <p class="exhibit-desc">Where value accrues — not all layers are created equal.</p>
+
+  <div class="tier-card" style="border-color:var(--rust);">
+    <span class="tier-tag" style="color:var(--rust);">Tier 1 — Highest Conviction</span>
+    <h4>Environments</h4>
+    <p>If you control where agents practice, you control what they learn. Environments are the "training data" of the RL era — without them, nothing works. Realistic environment creation is <em>hard</em>. You need domain expertise, real-world fidelity, and constant updating. This isn't commoditizable.</p>
+    <p class="signal"><strong>Signal:</strong> Chakra Labs building pixel-perfect browser clones. Datacurve raising $17.7M for code RL environments. Halluminate (YC S25) entering the space.</p>
+    <p class="signal"><strong>Analogy:</strong> Environments are to RL what training data was to supervised learning — the single biggest leverage point.</p>
+  </div>
+
+  <div class="tier-card" style="border-color:var(--teal);">
+    <span class="tier-tag" style="color:var(--teal);">Tier 2 — Strong Conviction</span>
+    <h4>RLaaS Platforms</h4>
+    <p>"Stripe for RL." Abstract away the complexity of reward function design, training orchestration, and evaluation. Make it an API call. Workflow lock-in creates enormous switching costs.</p>
+    <p class="signal"><strong>Signal:</strong> RunRL (YC S25) — usage-based pricing, $80/node-hour. AgileRL raising $7.5M with "10× faster training" claim.</p>
+    <p class="signal"><strong>Risk:</strong> NVIDIA ProRL could commoditize this layer. But platforms that own the developer experience will survive, just as Vercel survived despite AWS.</p>
+  </div>
+
+  <div class="tier-card" style="border-color:var(--navy);">
+    <span class="tier-tag" style="color:var(--navy);">Tier 3 — Solid Fundamentals</span>
+    <h4>Data &amp; RLHF Services</h4>
+    <p>Picks and shovels. Every model needs human feedback. The market is growing because AI is growing. Scale AI at $14B valuation, $2B projected revenue. RLHF data costs 10–1,000× compute costs.</p>
+    <p class="signal"><strong>Risk:</strong> Synthetic self-play could reduce demand for human feedback. But we're at least 3–5 years away from this being viable at scale.</p>
+  </div>
+
+  <div class="tier-card" style="border-color:var(--plum);">
+    <span class="tier-tag" style="color:var(--plum);">Tier 4 — Emerging</span>
+    <h4>Multi-Agent + Physical RL</h4>
+    <p>Cooperative agents and real-world robotics represent the long-term vision of RL. Massive TAM, but earlier stage. Deep technical IP and hardware integration required.</p>
+    <p class="signal"><strong>Signal:</strong> NVIDIA entering physical RL. Covariant proving robotic RL works.</p>
+  </div>
+
+  <div class="callout callout-gold">
+    <p><strong>The "Stripe for Evals" Gap:</strong> The single biggest opportunity in this market is the company that builds the horizontal RL training platform — the one that makes it as easy to run an RL training loop as it is to process a payment. This company doesn't exist yet. Whoever nails the developer experience will own this market.</p>
+  </div>
+
+  <!-- ═══ EXHIBIT 05 ═══ -->
+  <div class="divider"><span class="line"></span><span class="dot"></span><span class="line"></span></div>
+
+  <div class="exhibit-label">
+    <div class="bar" style="background:var(--danger);"></div>
+    <span style="color:var(--danger);">Exhibit 05</span>
+    <div class="tail"></div>
+  </div>
+  <h2 class="exhibit-title">The Risks</h2>
+  <p class="exhibit-desc">Four scenarios that could slow or break the thesis.</p>
+
+  <div class="risk-item">
+    <h4>Lab Oligopoly</h4>
+    <span class="prob">Probability: 25%</span>
+    <p>OpenAI, Anthropic, and DeepMind build everything in-house. RL infrastructure becomes a feature, not a product. The startup layer gets squeezed.</p>
+    <p style="margin-top:10px;"><strong>Why it's unlikely to play out fully:</strong> Labs are talent-constrained and time-constrained. They'll build core training internally but outsource environments, data, and tooling — exactly what happened with cloud.</p>
+  </div>
+
+  <div class="risk-item">
+    <h4>Synthetic Self-Play</h4>
+    <span class="prob">Probability: 15% by 2028</span>
+    <p>Agents learn to train other agents. Human feedback becomes unnecessary. The entire RLHF services layer collapses.</p>
+    <p style="margin-top:10px;"><strong>Why it's a distant risk:</strong> Current research shows synthetic data degrades after a few generations. Human-in-the-loop feedback is still necessary for alignment, safety, and domain-specific accuracy. This is a 5–10 year risk.</p>
+  </div>
+
+  <div class="risk-item">
+    <h4>Fragmentation</h4>
+    <span class="prob">Probability: 30%</span>
+    <p>Dozens of niche RL shops. No platform winner emerges. Thin margins everywhere. The market looks more like "AI consulting" than "AI infrastructure."</p>
+    <p style="margin-top:10px;"><strong>Why it's manageable:</strong> Platform effects naturally consolidate. The developer experience winner will pull away, just as Stripe did in payments and Twilio did in communications.</p>
+  </div>
+
+  <div class="risk-item">
+    <h4>Regulatory Intervention</h4>
+    <span class="prob">Probability: Variable</span>
+    <p>Governments regulate RL training (especially for autonomous agents) in ways that slow adoption.</p>
+    <p style="margin-top:10px;"><strong>Why it's manageable:</strong> Regulation typically creates moats for compliant platforms. The companies that build compliance into their infrastructure will benefit.</p>
+  </div>
+
+  <!-- ═══ EXHIBIT 06 ═══ -->
+  <div class="divider"><span class="line"></span><span class="dot"></span><span class="line"></span></div>
+
+  <div class="exhibit-label">
+    <div class="bar" style="background:var(--gold);"></div>
+    <span style="color:var(--gold);">Exhibit 06</span>
+    <div class="tail"></div>
+  </div>
+  <h2 class="exhibit-title">The Analogy</h2>
+  <p class="exhibit-desc">We're in 2008 for RL infrastructure.</p>
+
+  <div class="code-block">
+    <span class="highlight">Cloud Computing (2006)</span>           →  <span class="highlight">RL Infrastructure (2026)</span><br>
+    ──────────────────────────────      ───────────────────────────<br>
+    AWS launches S3 + EC2            →  NVIDIA launches ProRL<br>
+    Only tech companies use cloud    →  Only AI labs use RL infra<br>
+    "Why would I rent servers?"      →  "Why would I outsource training?"<br>
+    $16B market (2008)               →  $10B market (2026)<br>
+    $600B market (2023)              →  $???<br>
+    Heroku, Vercel, Stripe emerge    →  RunRL, AgileRL, Chakra emerge<br>
+    Every company becomes a tech co. →  Every company will train agents.
+  </div>
+
+  <p class="prose">
+    The primitives exist. The developer tools are emerging. The platform winners haven't been crowned yet. But the trajectory is unmistakable.
+  </p>
+
+  <!-- ═══ EXHIBIT 07 ═══ -->
+  <div class="divider"><span class="line"></span><span class="dot"></span><span class="line"></span></div>
+
+  <div class="exhibit-label">
+    <div class="bar" style="background:var(--teal);"></div>
+    <span style="color:var(--teal);">Exhibit 07</span>
+    <div class="tail"></div>
+  </div>
+  <h2 class="exhibit-title">What I'm Watching</h2>
+  <p class="exhibit-desc">Signals that confirm or invalidate the thesis.</p>
+
+  <h3 class="section-head" style="color:var(--teal);">Signals that confirm:</h3>
+  <ul class="checklist confirm">
+    <li>Enterprise (non-lab) RL training volume crosses $500M ARR (2027)</li>
+    <li>YC batch has 10+ pure RL infra companies in a single cohort</li>
+    <li>One RLaaS platform hits $50M ARR</li>
+    <li>NVIDIA expands ProRL to enterprise tier</li>
+    <li>Major cloud provider (AWS/Azure/GCP) launches managed RL training service</li>
+  </ul>
+
+  <h3 class="section-head" style="color:var(--danger);">Signals that invalidate:</h3>
+  <ul class="checklist invalidate">
+    <li>Synthetic self-play matches human RLHF quality across domains</li>
+    <li>Labs build all infra in-house and stop outsourcing</li>
+    <li>Agentic AI adoption stalls (enterprise deployment &lt;20% by 2027)</li>
+    <li>RL post-training proves less effective than alternative techniques (e.g., pure inference-time compute scaling)</li>
+  </ul>
+
+  <!-- ═══ BOTTOM LINE ═══ -->
+  <div class="divider"><span class="line"></span><span class="dot"></span><span class="line"></span></div>
+
+  <div class="bottom-line">
+    <h3>The Bottom Line</h3>
+    <p>
+      RL-as-a-Service is where cloud infrastructure was in 2006–2008. The technique has been proven (ChatGPT, DeepSeek R1). The demand is exploding (agentic AI). The platform layer is forming (7 distinct verticals, 50+ companies). NVIDIA has entered. The labs are all buyers.
+    </p>
+    <p>
+      The question isn't whether RL infrastructure will be a massive market. It's <strong>who will build the platforms that own it.</strong>
+    </p>
+    <p>
+      The companies to watch: <strong>RunRL, AgileRL, Chakra Labs, Datacurve, Scale AI.</strong>
+    </p>
+    <p>
+      The gap to fill: <strong>The "Stripe for RL" — a horizontal platform that makes RL training an API call.</strong>
+    </p>
+    <p>
+      The timing: <strong>Now.</strong>
+    </p>
+  </div>
+
+  <div class="sources">
+    <strong>Sources:</strong> Cornell Venture Capital ("Reward Is All You Need"), Semi Analysis, QY Research, Dataintelo, Research Nester, Tracxn, Y Combinator, ICLR 2026, company disclosures, Crunchbase, Gartner, McKinsey.
+  </div>
+
+</div>
+
+</body>
+</html>
