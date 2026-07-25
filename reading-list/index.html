@@ -1,0 +1,441 @@
+<meta charset="utf-8">
+<title>The Reading Machine</title>
+<style>
+  :root {
+    --paper: #FBFAF7;
+    --ink: #1B1A18;
+    --muted: #9A968E;
+    --faint: #C7C3BA;
+    --rule: #ECE9E2;
+    --serif: "Charter", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --paper:#121110; --ink:#E9E6DF; --muted:#817D74; --faint:#57544D; --rule:#26241F; }
+  }
+  :root[data-theme="light"] { --paper:#FBFAF7; --ink:#1B1A18; --muted:#9A968E; --faint:#C7C3BA; --rule:#ECE9E2; }
+  :root[data-theme="dark"]  { --paper:#121110; --ink:#E9E6DF; --muted:#817D74; --faint:#57544D; --rule:#26241F; }
+
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  .page {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--serif);
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    padding: clamp(40px, 9vh, 96px) 24px 120px;
+  }
+  .col { max-width: 640px; margin: 0 auto; }
+
+  header { margin-bottom: 54px; }
+  h1 {
+    font-weight: 600;
+    font-size: clamp(30px, 6vw, 40px);
+    letter-spacing: -.02em;
+    margin: 0;
+    line-height: 1.05;
+  }
+  .sub {
+    font-family: var(--sans);
+    font-size: 13.5px;
+    color: var(--muted);
+    margin-top: 12px;
+    letter-spacing: .01em;
+  }
+  .meta {
+    font-family: var(--sans);
+    font-size: 12.5px;
+    color: var(--muted);
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px solid var(--rule);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 18px;
+  }
+  .meta b { color: var(--ink); font-weight: 600; }
+  .meta .streak { color: var(--muted); }
+
+  section { margin-bottom: 44px; }
+  .topic {
+    font-family: var(--sans);
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 0 0 15px;
+    padding-bottom: 9px;
+    border-bottom: 1px solid var(--rule);
+  }
+  ul { list-style: none; margin: 0; padding: 0; }
+  li {
+    padding: 7px 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px 10px;
+    line-height: 1.4;
+  }
+  a.t {
+    font-size: 17px;
+    color: var(--ink);
+    text-decoration: none;
+    border-bottom: 1px solid var(--faint);
+    transition: border-color .15s ease, color .15s ease;
+  }
+  a.t:hover { border-bottom-color: var(--ink); }
+  .src {
+    font-family: var(--sans);
+    font-size: 12.5px;
+    color: var(--muted);
+  }
+  .src::before { content: "· "; color: var(--faint); }
+
+  .gap {
+    font-family: var(--sans);
+    font-size: 13px;
+    color: var(--muted);
+    font-style: italic;
+  }
+
+  footer {
+    margin-top: 68px;
+    font-family: var(--sans);
+    font-size: 12px;
+    color: var(--faint);
+    line-height: 1.6;
+  }
+
+  @media (prefers-reduced-motion: reduce) { a.t { transition: none; } }
+
+  /* ---- capture buttons + forms ---- */
+  .capture { display: flex; gap: 10px; margin: 0 0 26px; }
+  .btn {
+    font-family: var(--sans); font-size: 13px; font-weight: 500;
+    color: var(--ink); background: transparent;
+    border: 1px solid var(--faint); border-radius: 8px;
+    padding: 7px 13px; cursor: pointer;
+    transition: border-color .15s ease, background .15s ease, color .15s ease;
+  }
+  .btn:hover { border-color: var(--ink); }
+  .btn-go { border-color: var(--ink); }
+  .btn-x { border-color: transparent; color: var(--muted); padding-left: 8px; padding-right: 8px; }
+  .btn-x:hover { color: var(--ink); }
+  .cform { display: flex; flex-direction: column; gap: 9px; margin: 0 0 26px;
+    padding: 15px; border: 1px solid var(--rule); border-radius: 11px; }
+  .cform[hidden] { display: none; }
+  .cform input, .cform select {
+    font-family: var(--sans); font-size: 14px; color: var(--ink);
+    background: transparent; border: 1px solid var(--rule); border-radius: 7px; padding: 9px 11px;
+  }
+  .cform input:focus, .cform select:focus { outline: none; border-color: var(--ink); }
+  .cform-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+  /* ---- heatmap ---- */
+  :root { --cell: 11px; --gap: 3px;
+    --hm0: #ECE9E2; --hm1: #9BE9A8; --hm2: #40C463; --hm3: #30A14E; --hm4: #216E39; }
+  @media (prefers-color-scheme: dark) {
+    :root { --hm0: #26241F; --hm1: #0E4429; --hm2: #006D32; --hm3: #26A641; --hm4: #39D353; }
+  }
+  :root[data-theme="light"] { --hm0:#ECE9E2; --hm1:#9BE9A8; --hm2:#40C463; --hm3:#30A14E; --hm4:#216E39; }
+  :root[data-theme="dark"]  { --hm0:#26241F; --hm1:#0E4429; --hm2:#006D32; --hm3:#26A641; --hm4:#39D353; }
+  .hm-wrap { margin: 0 0 44px; }
+  .hm-cap { font-family: var(--sans); font-size: 12.5px; color: var(--muted); margin-bottom: 12px; }
+  .hm-cap b { color: var(--ink); font-weight: 600; }
+  .hm-scroll { overflow-x: auto; padding-bottom: 4px; }
+  .hm-months { display: grid; grid-template-columns: repeat(53, var(--cell)); column-gap: var(--gap);
+    height: 14px; margin-bottom: 4px; font-family: var(--sans); font-size: 10px; color: var(--muted); }
+  .hm-months span { grid-row: 1; white-space: nowrap; }
+  #heatmap { display: grid; grid-template-columns: repeat(53, var(--cell)); grid-template-rows: repeat(7, var(--cell));
+    grid-auto-flow: column; gap: var(--gap); width: max-content; }
+  .hm-cell { border-radius: 2px; background: var(--hm0); }
+  .hm-cell[data-l="1"] { background: var(--hm1); }
+  .hm-cell[data-l="2"] { background: var(--hm2); }
+  .hm-cell[data-l="3"] { background: var(--hm3); }
+  .hm-cell[data-l="4"] { background: var(--hm4); }
+  .hm-cell.future { background: transparent; }
+  .hm-legend { display: flex; align-items: center; gap: 4px; justify-content: flex-end;
+    font-family: var(--sans); font-size: 11px; color: var(--muted); margin-top: 8px; }
+  .hm-legend i { width: var(--cell); height: var(--cell); border-radius: 2px; display: inline-block; }
+  .hm-legend .l0 { background: var(--hm0); } .hm-legend .l1 { background: var(--hm1); }
+  .hm-legend .l2 { background: var(--hm2); } .hm-legend .l3 { background: var(--hm3); }
+  .hm-legend .l4 { background: var(--hm4); }
+
+  /* ---- dynamic lists (to-read / recently logged) ---- */
+  #toread:empty, #recent:empty { display: none; }
+  .dyn-h { font-family: var(--sans); font-size: 11.5px; font-weight: 600; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--muted); margin: 0 0 15px; padding-bottom: 9px; border-bottom: 1px solid var(--rule); }
+  .dyn-item { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; padding: 7px 0; line-height: 1.4; }
+  .dyn-item .meta2 { font-family: var(--sans); font-size: 12.5px; color: var(--muted); }
+  .mini { font-family: var(--sans); font-size: 11.5px; color: var(--muted); background: transparent;
+    border: 1px solid var(--faint); border-radius: 6px; padding: 2px 8px; cursor: pointer; margin-left: 2px; }
+  .mini:hover { border-color: var(--ink); color: var(--ink); }
+</style>
+
+<div class="page">
+  <div class="col">
+
+    <header>
+      <h1>The Reading Machine</h1>
+    </header>
+
+    <div class="capture">
+      <button id="btn-add" class="btn" type="button">+ Add to read</button>
+      <button id="btn-log" class="btn" type="button">✓ Log a read</button>
+    </div>
+
+    <form id="form-add" class="cform" hidden>
+      <input type="url" id="add-url" placeholder="Paste a link…" required>
+      <input type="text" id="add-title" placeholder="Title (optional)">
+      <div class="cform-row">
+        <button type="submit" class="btn btn-go">Add to read</button>
+        <button type="button" class="btn btn-x" data-close="form-add">Cancel</button>
+      </div>
+    </form>
+
+    <form id="form-log" class="cform" hidden>
+      <input type="text" id="log-title" placeholder="What did you read? (title or link)" required>
+      <div class="cform-row">
+        <input type="date" id="log-date" aria-label="Date read">
+        <select id="log-rating" aria-label="Rating">
+          <option value="">☆ rate</option>
+          <option value="1">★</option>
+          <option value="2">★★</option>
+          <option value="3">★★★</option>
+          <option value="4">★★★★</option>
+          <option value="5">★★★★★</option>
+        </select>
+        <button type="submit" class="btn btn-go">Log read</button>
+        <button type="button" class="btn btn-x" data-close="form-log">Cancel</button>
+      </div>
+    </form>
+
+    <section class="hm-wrap">
+      <div class="hm-cap"><b id="hm-total">0</b> reads logged in the last year</div>
+      <div class="hm-scroll">
+        <div class="hm-months" id="hm-months"></div>
+        <div id="heatmap"></div>
+      </div>
+      <div class="hm-legend"><span>Less</span><i class="l0"></i><i class="l1"></i><i class="l2"></i><i class="l3"></i><i class="l4"></i><span>More</span></div>
+    </section>
+
+    <div id="toread"></div>
+    <div id="recent"></div>
+
+    <section>
+      <p class="topic">AI Frontier &amp; Futures</p>
+      <ul>
+        <li><a class="t" href="https://thinkingmachines.ai/blog/the-future-worth-building-is-human/" target="_blank" rel="noopener">The Future Worth Building Is Human</a><span class="src">Thinking Machines Lab</span></li>
+        <li><a class="t" href="https://a16z.com/the-most-human-technology-ever-made/" target="_blank" rel="noopener">The Most Human Technology Ever Made</a><span class="src">Anish Acharya · a16z</span></li>
+        <li><a class="t" href="https://www.theguardian.com/news/ng-interactive/2026/jun/30/theres-this-deep-mystery-of-what-actually-is-this-thing-the-philosopher-inside-google-deepmind" target="_blank" rel="noopener">'There's this deep mystery of what, actually, is this thing?'</a><span class="src">the Guardian</span></li>
+        <li><a class="t" href="https://newsletter.semianalysis.com/p/the-future-of-meta-superintelligence" target="_blank" rel="noopener">The Future of Meta Superintelligence: A 1-Year Update</a><span class="src">Max Kan · SemiAnalysis</span></li>
+        <li><a class="t" href="https://technologik.substack.com/p/musings-on-recursive-self-improvement" target="_blank" rel="noopener">Musings on Recursive Self-Improvement</a><span class="src">Séb Krier</span></li>
+        <li><a class="t" href="https://www.humanityslastmachine.com/" target="_blank" rel="noopener">Humanity's Last Machine</a><span class="src">RoboStrategy</span></li>
+        <li><a class="t" href="https://ai-2040.com/" target="_blank" rel="noopener">AI 2040: Plan A</a><span class="src">AI Futures Project</span></li>
+        <li><a class="t" href="https://www.forethought.org/research/preparing-for-the-intelligence-explosion" target="_blank" rel="noopener">Preparing for the Intelligence Explosion</a><span class="src">Forethought</span></li>
+        <li><a class="t" href="https://www.mechanize.work/blog/technological-determinism/" target="_blank" rel="noopener">The future of AI is already written</a><span class="src">Mechanize</span></li>
+        <li><a class="t" href="https://thezvi.substack.com/p/demis-hassabis-on-the-new-coming" target="_blank" rel="noopener">Demis Hassabis on the New Coming Age</a><span class="src">Zvi Mowshowitz</span></li>
+        <li><a class="t" href="https://demishassabis.substack.com/p/a-framework-for-frontier-ai-and-the-dawning-of-a-new-age" target="_blank" rel="noopener">A Framework for Frontier AI and the Dawning of a New Age</a><span class="src">Demis Hassabis</span></li>
+      </ul>
+    </section>
+
+    <section>
+      <p class="topic">AI, Work &amp; Economy</p>
+      <ul>
+        <li><a class="t" href="https://aleximas.substack.com/p/the-cyborg-era-what-ai-means-for" target="_blank" rel="noopener">The Cyborg Era: What AI means for jobs</a><span class="src">Séb Krier</span></li>
+        <li><a class="t" href="https://thewakeupcallnewsletter.substack.com/p/if-the-old-systems-are-breaking-what" target="_blank" rel="noopener">If the old systems are breaking, what comes next?</a><span class="src">Scott Barker</span></li>
+        <li><a class="t" href="https://thewakeupcallnewsletter.substack.com/p/how-to-prepare-for-the-next-decade" target="_blank" rel="noopener">How to prepare for the next decade</a><span class="src">Scott Barker</span></li>
+        <li><a class="t" href="https://thewakeupcallnewsletter.substack.com/p/you-dont-need-a-job-in-the-future" target="_blank" rel="noopener">You don't need a job in the future</a><span class="src">Scott Barker</span></li>
+        <li><a class="t" href="https://thestillwandering.substack.com/p/the-death-of-the-corporate-job" target="_blank" rel="noopener">The death of the corporate job</a><span class="src">Alex McCann</span></li>
+        <li><a class="t" href="https://www.mechanize.work/blog/life-after-work/" target="_blank" rel="noopener">Life after work</a><span class="src">Mechanize</span></li>
+        <li><a class="t" href="https://www.mechanize.work/blog/medical-ai-isnt-the-bottleneck-to-medical-progress/" target="_blank" rel="noopener">Medical AI isn't the bottleneck to medical progress</a><span class="src">Mechanize</span></li>
+      </ul>
+    </section>
+
+    <section>
+      <p class="topic">AI Geopolitics &amp; Hardware</p>
+      <ul>
+        <li><a class="t" href="https://stratechery.com/2026/whos-afraid-of-chinese-models/" target="_blank" rel="noopener">Who's Afraid of Chinese Models?</a><span class="src">Stratechery · Ben Thompson</span></li>
+        <li><a class="t" href="https://brief.bismarckanalysis.com/p/ai-2026-chinas-moonshot-ai-contends" target="_blank" rel="noopener">AI 2026: China's Moonshot Contends for Technical Leadership</a><span class="src">Samo Burja</span></li>
+        <li><a class="t" href="https://newsletter.semianalysis.com/p/chinas-unitree-will-dominate-global" target="_blank" rel="noopener">How China's Unitree Will Dominate Global Robotics</a><span class="src">SemiAnalysis · Reyk Knuhtsen</span></li>
+        <li><a class="t" href="https://crosscurrents28.substack.com/p/ndfeb-magnets-the-material-bottleneck" target="_blank" rel="noopener">NdFeB Magnets: The Material Bottleneck Behind Humanoid Robots</a><span class="src">CrossCurrents</span></li>
+        <li><a class="t" href="https://www.dwarkesh.com/p/chinas-economy" target="_blank" rel="noopener">Review of 2 books: China's Economy (Arthur Kroeber)</a><span class="src">Dwarkesh Patel</span></li>
+        <li><a class="t" href="https://www.globaltimes.cn/page/202606/1363363.shtml" target="_blank" rel="noopener">China's data annotation industry</a><span class="src">Global Times</span></li>
+        <li><a class="t" href="https://huggingface.co/blog/security-incident-july-2026" target="_blank" rel="noopener">Security incident disclosure — July 2026</a><span class="src">Hugging Face</span></li>
+      </ul>
+    </section>
+
+    <section>
+      <p class="topic">AI Foundations &amp; Research</p>
+      <ul>
+        <li><a class="t" href="https://www.worldlabs.ai/blog/taxonomy-of-world-models" target="_blank" rel="noopener">A Functional Taxonomy of World Models</a><span class="src">Fei-Fei Li · World Labs</span></li>
+        <li><a class="t" href="https://si.inc/posts/fdm1/" target="_blank" rel="noopener">The First Fully General Computer Action Model</a><span class="src">Standard Intelligence</span></li>
+        <li><a class="t" href="https://arxiv.org/abs/2607.15495" target="_blank" rel="noopener">Verbalizable Representations Form a Global Workspace in LLMs</a><span class="src">arXiv</span></li>
+        <li><a class="t" href="https://pmc.ncbi.nlm.nih.gov/articles/PMC10826467/" target="_blank" rel="noopener">A high-performance neuroprosthesis for speech decoding</a><span class="src">PubMed Central</span></li>
+        <li><a class="t" href="https://www.asimov.press/p/brains" target="_blank" rel="noopener">Building Brains on a Computer</a><span class="src">Asimov Press</span></li>
+        <li><a class="t" href="https://arxiv.org/abs/2606.24530" target="_blank" rel="noopener">NatureBench: Can Coding Agents Match the Published SOTA?</a><span class="src">arXiv</span></li>
+        <li><a class="t" href="https://newsletter.semianalysis.com/p/ai-dark-output-the-visible-cost-of" target="_blank" rel="noopener">AI Dark Output: The Visible Cost of Invisible Output</a><span class="src">SemiAnalysis</span></li>
+      </ul>
+    </section>
+
+    <section>
+      <p class="topic">Thinking, Judgment &amp; Great Work</p>
+      <ul>
+        <li><a class="t" href="https://paulgraham.com/greatwork.html" target="_blank" rel="noopener">How to Do Great Work</a><span class="src">Paul Graham</span></li>
+        <li><a class="t" href="https://paulgraham.com/selfindulgence.html" target="_blank" rel="noopener">How to Lose Time and Money</a><span class="src">Paul Graham</span></li>
+        <li><a class="t" href="https://nabeelqu.substack.com/p/understanding" target="_blank" rel="noopener">How To Understand Things</a><span class="src">Nabeel S. Qureshi</span></li>
+        <li><a class="t" href="https://usefulfictions.substack.com/p/maybe-youre-not-actually-trying" target="_blank" rel="noopener">Maybe You're Not Actually Trying</a><span class="src">Cate Hall</span></li>
+        <li><a class="t" href="https://conquer1.substack.com/p/having-no-choice-makes-you-disciplined" target="_blank" rel="noopener">Discipline Comes from Having No Choice</a><span class="src">Conquer</span></li>
+        <li><a class="t" href="https://www.henrikkarlsson.xyz/p/hacker-mindset" target="_blank" rel="noopener">How to walk through walls</a><span class="src">Henrik Karlsson</span></li>
+        <li><a class="t" href="https://velvetnoise.substack.com/p/how-to-enter-side-doors" target="_blank" rel="noopener">How to enter side doors</a><span class="src">maja</span></li>
+        <li><a class="t" href="https://www.workingtheorys.com/p/make-something-heavy" target="_blank" rel="noopener">Make Something Heavy</a><span class="src">Anu</span></li>
+      </ul>
+    </section>
+
+    <section>
+      <p class="topic">Writing &amp; Connection</p>
+      <ul>
+        <li><a class="t" href="https://velvetnoise.substack.com/p/the-more-you-write-the-more-you-begin" target="_blank" rel="noopener">The more you write, the more there is to find</a><span class="src">maja</span></li>
+        <li><a class="t" href="https://velvetnoise.substack.com/p/why-some-conversations-rearrange" target="_blank" rel="noopener">Why some conversations rearrange your brain</a><span class="src">maja</span></li>
+        <li><a class="t" href="https://carinas.substack.com/p/the-art-of-keeping-in-touch" target="_blank" rel="noopener">The art of keeping in touch</a><span class="src">Carina</span></li>
+        <li><a class="t" href="https://www.henrikkarlsson.xyz/p/hypomnemata" target="_blank" rel="noopener">How not to forget what matters</a><span class="src">Henrik Karlsson</span></li>
+      </ul>
+    </section>
+
+    <section>
+      <p class="topic">Inner Life &amp; Growth</p>
+      <ul>
+        <li><a class="t" href="https://sashachapin.substack.com/p/should-you-be-in-charge-of-your-life" target="_blank" rel="noopener">Surrender as a non-stupid life strategy</a><span class="src">Sasha Chapin</span></li>
+        <li><a class="t" href="https://fortherecordink.substack.com/p/the-power-of-knowing-what-you-like" target="_blank" rel="noopener">The power of knowing what you like</a><span class="src">sydney rheeder</span></li>
+        <li><a class="t" href="https://nabeelqu.substack.com/p/what-makes-art-great" target="_blank" rel="noopener">What Makes Art Great?</a><span class="src">Nabeel S. Qureshi</span></li>
+        <li><a class="t" href="https://timdenning.substack.com/p/once-you-understand-neuroplasticity" target="_blank" rel="noopener">Once you understand neuroplasticity, your life will never be the same</a><span class="src">Tim Denning</span></li>
+        <li><a class="t" href="https://www.aipolicyperspectives.com/p/maintaining-agency-and-control-in" target="_blank" rel="noopener">Maintaining agency in an age of accelerated intelligence</a><span class="src">Séb Krier</span></li>
+        <li><a class="t" href="https://yearlyblues.substack.com/p/everything-is-a-win-when-the-goal" target="_blank" rel="noopener">Everything is a win when the goal is to experience</a><span class="src">sentimental being</span></li>
+        <li><a class="t" href="https://www.innerpathing.com/p/shaking-the-bones-for-joy" target="_blank" rel="noopener">Shaking the bones for joy</a><span class="src">Inner Pathing</span></li>
+      </ul>
+    </section>
+
+    <footer>
+      <a href="https://github.com/OmkarRayAI/omkarray" target="_blank" rel="noopener" style="color:var(--muted);text-decoration:none;border-bottom:1px solid var(--faint)">github.com/OmkarRayAI/omkarray</a>
+    </footer>
+
+  </div>
+</div>
+
+<script>
+(function () {
+  var LS = window.localStorage;
+  function get(k) { try { return JSON.parse(LS.getItem(k)) || []; } catch (e) { return []; } }
+  function set(k, v) { try { LS.setItem(k, JSON.stringify(v)); } catch (e) {} }
+  function ds(d) { return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+  function isUrl(s) { return /^https?:\/\//i.test(s); }
+  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  var MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var DOW = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  function reads() { return get('rm_reads'); }
+  function toread() { return get('rm_toread'); }
+
+  function renderHeatmap() {
+    var hm = document.getElementById('heatmap'), mo = document.getElementById('hm-months');
+    if (!hm) return;
+    hm.innerHTML = ''; mo.innerHTML = '';
+    var counts = {}, total = 0;
+    reads().forEach(function (r) { if (r.date) counts[r.date] = (counts[r.date] || 0) + 1; });
+    var today = new Date(); today.setHours(0, 0, 0, 0);
+    var start = new Date(today); start.setDate(today.getDate() - today.getDay() - 52 * 7);
+    var prevMonth = -1;
+    for (var w = 0; w < 53; w++) {
+      var weekFirst = new Date(start); weekFirst.setDate(start.getDate() + w * 7);
+      var m = weekFirst.getMonth();
+      if (m !== prevMonth) {
+        var span = document.createElement('span');
+        span.textContent = MON[m]; span.style.gridColumnStart = (w + 1);
+        mo.appendChild(span); prevMonth = m;
+      }
+      for (var d = 0; d < 7; d++) {
+        var cur = new Date(start); cur.setDate(start.getDate() + w * 7 + d);
+        var cell = document.createElement('div'); cell.className = 'hm-cell';
+        if (cur > today) { cell.className += ' future'; }
+        else {
+          var key = ds(cur), c = counts[key] || 0;
+          if (c > 0) total += c;
+          cell.setAttribute('data-l', c === 0 ? 0 : (c >= 4 ? 4 : c));
+          cell.title = (c === 0 ? 'No reads' : (c + ' read' + (c === 1 ? '' : 's'))) + ' · ' + DOW[cur.getDay()] + ', ' + MON[cur.getMonth()] + ' ' + cur.getDate() + ' ' + cur.getFullYear();
+        }
+        hm.appendChild(cell);
+      }
+    }
+    var tot = document.getElementById('hm-total'); if (tot) tot.textContent = total;
+  }
+
+  function stars(n) { n = parseInt(n, 10); return n ? '★'.repeat(n) : ''; }
+  function titleHTML(title, url) {
+    if (url && isUrl(url)) return '<a class="t" href="' + esc(url) + '" target="_blank" rel="noopener">' + esc(title) + '</a>';
+    if (isUrl(title)) return '<a class="t" href="' + esc(title) + '" target="_blank" rel="noopener">' + esc(title) + '</a>';
+    return '<span class="t">' + esc(title) + '</span>';
+  }
+
+  function renderToRead() {
+    var box = document.getElementById('toread'); if (!box) return;
+    var items = toread();
+    if (!items.length) { box.innerHTML = ''; return; }
+    var h = '<section><p class="dyn-h">To read · ' + items.length + '</p>';
+    items.forEach(function (it, i) {
+      h += '<div class="dyn-item">' + titleHTML(it.title, it.url) +
+        (it.source ? '<span class="meta2">· ' + esc(it.source) + '</span>' : '') +
+        '<button class="mini" data-read="' + i + '">✓ read</button></div>';
+    });
+    box.innerHTML = h + '</section>';
+    box.querySelectorAll('[data-read]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var idx = +b.getAttribute('data-read'), arr = toread(), it = arr[idx];
+        if (it) {
+          var r = reads(); r.push({ title: it.title, url: it.url, date: ds(new Date()), rating: '' }); set('rm_reads', r);
+          arr.splice(idx, 1); set('rm_toread', arr); renderAll();
+        }
+      });
+    });
+  }
+
+  function renderRecent() {
+    var box = document.getElementById('recent'); if (!box) return;
+    var items = reads().slice().sort(function (a, b) { return (b.date || '').localeCompare(a.date || ''); });
+    if (!items.length) { box.innerHTML = ''; return; }
+    var h = '<section><p class="dyn-h">Recently logged · ' + items.length + '</p>';
+    items.slice(0, 30).forEach(function (it) {
+      h += '<div class="dyn-item">' + titleHTML(it.title, it.url) +
+        '<span class="meta2">· ' + esc(it.date || '') + (it.rating ? ' · ' + stars(it.rating) : '') + '</span></div>';
+    });
+    box.innerHTML = h + '</section>';
+  }
+
+  function renderAll() { renderHeatmap(); renderToRead(); renderRecent(); }
+
+  function show(id, on) { var el = document.getElementById(id); if (el) el.hidden = !on; }
+  document.getElementById('btn-add').addEventListener('click', function () { show('form-add', true); show('form-log', false); document.getElementById('add-url').focus(); });
+  document.getElementById('btn-log').addEventListener('click', function () { show('form-log', true); show('form-add', false); document.getElementById('log-date').value = ds(new Date()); document.getElementById('log-title').focus(); });
+  document.querySelectorAll('[data-close]').forEach(function (b) { b.addEventListener('click', function () { show(b.getAttribute('data-close'), false); }); });
+
+  document.getElementById('form-add').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var url = document.getElementById('add-url').value.trim();
+    var title = document.getElementById('add-title').value.trim() || url;
+    if (!url) return;
+    var arr = toread(); arr.push({ title: title, url: url }); set('rm_toread', arr);
+    this.reset(); show('form-add', false); renderAll();
+  });
+  document.getElementById('form-log').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var title = document.getElementById('log-title').value.trim();
+    if (!title) return;
+    var date = document.getElementById('log-date').value || ds(new Date());
+    var rating = document.getElementById('log-rating').value;
+    var arr = reads(); arr.push({ title: title, url: isUrl(title) ? title : '', date: date, rating: rating }); set('rm_reads', arr);
+    this.reset(); show('form-log', false); renderAll();
+  });
+
+  renderAll();
+})();
+</script>
