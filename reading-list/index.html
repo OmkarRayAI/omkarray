@@ -172,6 +172,9 @@
   .mini { font-family: var(--sans); font-size: 11.5px; color: var(--muted); background: transparent;
     border: 1px solid var(--faint); border-radius: 6px; padding: 2px 8px; cursor: pointer; margin-left: 2px; }
   .mini:hover { border-color: var(--ink); color: var(--ink); }
+  .dyn-item .acts { display: inline-flex; gap: 6px; }
+  .mini-del { color: var(--muted); }
+  .mini-del:hover { border-color: #C0432E; color: #C0432E; }
 </style>
 
 <div class="page">
@@ -336,6 +339,14 @@
   var DOW = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
   function reads() { return get('rm_reads'); }
   function toread() { return get('rm_toread'); }
+  function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+  function ensureIds() {
+    ['rm_reads', 'rm_toread'].forEach(function (k) {
+      var a = get(k), changed = false;
+      a.forEach(function (it) { if (!it.id) { it.id = uid(); changed = true; } });
+      if (changed) set(k, a);
+    });
+  }
 
   function renderHeatmap() {
     var hm = document.getElementById('heatmap'), mo = document.getElementById('hm-months');
@@ -382,19 +393,27 @@
     var items = toread();
     if (!items.length) { box.innerHTML = ''; return; }
     var h = '<section><p class="dyn-h">To read · ' + items.length + '</p>';
-    items.forEach(function (it, i) {
+    items.forEach(function (it) {
       h += '<div class="dyn-item">' + titleHTML(it.title, it.url) +
         (it.source ? '<span class="meta2">· ' + esc(it.source) + '</span>' : '') +
-        '<button class="mini" data-read="' + i + '">✓ read</button></div>';
+        '<span class="acts"><button class="mini" data-read="' + it.id + '">✓ read</button>' +
+        '<button class="mini mini-del" data-del-toread="' + it.id + '" title="Remove">✕</button></span></div>';
     });
     box.innerHTML = h + '</section>';
     box.querySelectorAll('[data-read]').forEach(function (b) {
       b.addEventListener('click', function () {
-        var idx = +b.getAttribute('data-read'), arr = toread(), it = arr[idx];
+        var id = b.getAttribute('data-read'), it = null, rest = [];
+        toread().forEach(function (x) { if (x.id === id) it = x; else rest.push(x); });
         if (it) {
-          var r = reads(); r.push({ title: it.title, url: it.url, date: ds(new Date()), rating: '' }); set('rm_reads', r);
-          arr.splice(idx, 1); set('rm_toread', arr); renderAll();
+          var r = reads(); r.push({ id: uid(), title: it.title, url: it.url, date: ds(new Date()), rating: '' }); set('rm_reads', r);
+          set('rm_toread', rest); renderAll();
         }
+      });
+    });
+    box.querySelectorAll('[data-del-toread]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var id = b.getAttribute('data-del-toread');
+        set('rm_toread', toread().filter(function (x) { return x.id !== id; })); renderAll();
       });
     });
   }
@@ -404,11 +423,18 @@
     var items = reads().slice().sort(function (a, b) { return (b.date || '').localeCompare(a.date || ''); });
     if (!items.length) { box.innerHTML = ''; return; }
     var h = '<section><p class="dyn-h">Recently logged · ' + items.length + '</p>';
-    items.slice(0, 30).forEach(function (it) {
+    items.slice(0, 60).forEach(function (it) {
       h += '<div class="dyn-item">' + titleHTML(it.title, it.url) +
-        '<span class="meta2">· ' + esc(it.date || '') + (it.rating ? ' · ' + stars(it.rating) : '') + '</span></div>';
+        '<span class="meta2">· ' + esc(it.date || '') + (it.rating ? ' · ' + stars(it.rating) : '') + '</span>' +
+        '<button class="mini mini-del" data-del="' + it.id + '" title="Remove">✕</button></div>';
     });
     box.innerHTML = h + '</section>';
+    box.querySelectorAll('[data-del]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var id = b.getAttribute('data-del');
+        set('rm_reads', reads().filter(function (x) { return x.id !== id; })); renderAll();
+      });
+    });
   }
 
   function renderAll() { renderHeatmap(); renderToRead(); renderRecent(); }
@@ -423,7 +449,7 @@
     var url = document.getElementById('add-url').value.trim();
     var title = document.getElementById('add-title').value.trim() || url;
     if (!url) return;
-    var arr = toread(); arr.push({ title: title, url: url }); set('rm_toread', arr);
+    var arr = toread(); arr.push({ id: uid(), title: title, url: url }); set('rm_toread', arr);
     this.reset(); show('form-add', false); renderAll();
   });
   document.getElementById('form-log').addEventListener('submit', function (e) {
@@ -432,10 +458,11 @@
     if (!title) return;
     var date = document.getElementById('log-date').value || ds(new Date());
     var rating = document.getElementById('log-rating').value;
-    var arr = reads(); arr.push({ title: title, url: isUrl(title) ? title : '', date: date, rating: rating }); set('rm_reads', arr);
+    var arr = reads(); arr.push({ id: uid(), title: title, url: isUrl(title) ? title : '', date: date, rating: rating }); set('rm_reads', arr);
     this.reset(); show('form-log', false); renderAll();
   });
 
+  ensureIds();
   renderAll();
 })();
 </script>
