@@ -191,6 +191,12 @@
             <p>Distribution-first no-code voice platform: wrapper risk, GTM moat, and path forward.</p>
             <span class="card-date">Feb 2026</span>
           </a>
+          <a href="voice-ai-commoditization.html" class="card" data-cat="voice-ai">
+            <span class="card-tag">Voice AI</span>
+            <h3>The Voice AI Stack</h3>
+            <p>What's commoditized and what isn't — 15 layers scored against verified vendor pricing. The inference floor is $0.021/min; the market clears at $0.10.</p>
+            <span class="card-date">Jul 2026</span>
+          </a>
         </div>
       </div>
     </div>
@@ -1010,6 +1016,9 @@
       { text: "\"You can A/B test a landing page in an afternoon. A/B testing a voice agent prompt takes weeks of manual transcript review.\"", src: "Mixpanel for Voice AI", href: "mixpanel-voice-ai.html" },
       { text: "\"The companies that own the observability layer tend to outlast the platforms they sit on top of.\"", src: "Mixpanel for Voice AI", href: "mixpanel-voice-ai.html" },
       { text: "Ringg.ai: 3M+ lead gen calls, 150K+ loan collection calls. 10K+ concurrent call capacity at <330ms latency.", src: "Ringg.ai", href: "ringg-deepdive.html" },
+      { text: "A voice minute costs $0.021 to build and sells for ~$0.10. Roughly 80-90% of what you pay isn't inference at all.", src: "The Voice AI Stack", href: "voice-ai-commoditization.html" },
+      { text: "Evaluating an AI call is priced at $0.10/min — 4.8x the cost of actually running it. Testing is the expensive part now.", src: "The Voice AI Stack", href: "voice-ai-commoditization.html" },
+      { text: "Layers commoditize in the order their quality becomes measurable. ASR had word error rate, so it fell first. \"Was this call good?\" still has no number.", src: "The Voice AI Stack", href: "voice-ai-commoditization.html" },
       { text: "India's home services TAM: ₹5,100-5,210 Bn (~$60B). Online penetration is <1%. 90.5% is unorganised.", src: "Pronto-fication", href: "prontofication.html" },
       { text: "$95M+ raised by Urban Company unbundlers. Combined daily bookings hit 69K+ in 9 months from zero.", src: "Pronto-fication", href: "prontofication.html" },
       { text: "Snabbit's median walking distance between jobs: 250m. Win micromarkets (1.5-2km radius), not cities.", src: "Pronto-fication", href: "prontofication.html" },
@@ -1113,11 +1122,12 @@
   (function() {
     var kb = [
       {
-        tags: ['voice ai','voice','bolna','tts','asr','speech','call','calls','voice agent','voice bot','telephony','ivr','conversational'],
-        synonyms: { 'speak': 'voice', 'talk': 'voice', 'audio': 'voice', 'phone': 'call', 'sound': 'voice', 'eleven labs': 'tts', 'elevenlabs': 'tts' },
+        tags: ['voice ai','voice','bolna','tts','asr','speech','call','calls','voice agent','voice bot','telephony','ivr','conversational','commoditized','commoditization','pricing','cost per minute','stack'],
+        synonyms: { 'speak': 'voice', 'talk': 'voice', 'audio': 'voice', 'phone': 'call', 'sound': 'voice', 'eleven labs': 'tts', 'elevenlabs': 'tts', 'commodity': 'commoditization', 'price': 'pricing' },
         title: 'Voice AI',
-        answer: 'Omkar has written extensively about Voice AI in India. Three deep dives cover the space:',
+        answer: 'Omkar has written extensively about Voice AI in India. Four deep dives cover the space:',
         links: [
+          { name: 'The Voice AI Stack', href: 'voice-ai-commoditization.html', desc: 'What\'s commoditized and what isn\'t — 15 layers scored, $0.021/min inference floor vs a $0.10 market price' },
           { name: 'Bolna AI', href: 'bolna-deepdive.html', desc: '200K calls/day, YC W25, sub-600ms ASR→LLM→TTS pipeline' },
           { name: 'Smallest.ai', href: 'smallest-deepdive.html', desc: 'Proprietary TTS/LLM/ASR stack, 20x cost reduction to $0.01/min' },
           { name: 'Ringg.ai', href: 'ringg-deepdive.html', desc: '3M+ lead gen calls, no-code distribution-first platform' }
@@ -1421,11 +1431,11 @@
         ]};
       }
       if (/recommend|suggest|best|start|first|favorite|favourite|should i read/.test(ql)) {
-        return { text: 'If you\'re into AI, start with <strong>Agent Design Patterns</strong> — it\'s the most popular. For fintech, <strong>Visa\'s Product Ecosystem</strong> is a favourite. For something unique, the <strong>Voice AI trilogy</strong> (Bolna, Smallest, Ringg) is one-of-a-kind analysis.' +
+        return { text: 'If you\'re into AI, start with <strong>Agent Design Patterns</strong> — it\'s the most popular. For fintech, <strong>Visa\'s Product Ecosystem</strong> is a favourite. For something unique, the <strong>Voice AI series</strong> (Bolna, Smallest, Ringg, and the stack-wide commoditization teardown) is one-of-a-kind analysis.' +
           buildLinkCards([
             { name: 'Agent Design Patterns', href: 'agent-design-deepdive.html', desc: 'Most popular — 7 patterns from Claude Code & Manus' },
             { name: 'Visa Product Ecosystem', href: 'visa-deepdive.html', desc: '$200T opportunity, concentric expansion' },
-            { name: 'Bolna AI', href: 'bolna-deepdive.html', desc: 'Start of the Voice AI trilogy' }
+            { name: 'The Voice AI Stack', href: 'voice-ai-commoditization.html', desc: 'What\'s commoditized and what isn\'t — start of the Voice AI series' }
           ]) };
       }
       if (/india|indian/.test(ql) && !/ecomm|flipkart|swiggy|meesho|amazon/.test(ql)) {

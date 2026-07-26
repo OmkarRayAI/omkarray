@@ -1,0 +1,1495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-62YF7Y81BS"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-62YF7Y81BS');
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Voice AI Stack — What's Commoditized and What Isn't</title>
+<meta name="description" content="A layer-by-layer teardown of the voice AI stack using verified July 2026 vendor pricing. The inference floor is $0.021/min. The market clears at $0.10. Where the other 80% goes, and which layers commoditize next.">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Space+Mono:wght@400;700&family=Nunito+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f8f8f5;
+    --surface: #f0efea;
+    --surface2: #e8e7e1;
+    --border: #d5d2ca;
+    --accent: #2563a8;
+    --accent2: #1a7a3a;
+    --gold: #a06d08;
+    --red: #c0392b;
+    --rust: #a63a1e;
+    --muted: #6b6e73;
+    --text: #1a1c20;
+    --text2: #3a3d42;
+    --white: #111214;
+    /* validated chart ramp — ordinal blue, light end clears surface at 2.13:1 */
+    --c1: #86a9cb;
+    --c2: #5e8cba;
+    --c3: #3a6a9e;
+    --c4: #1d4d7f;
+    --cneutral: #9a9691;
+    --cwarm: #cf8a5f;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Nunito Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 48px 32px;
+    line-height: 1.7;
+    font-size: 15px;
+  }
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    text-decoration: none;
+    margin-bottom: 20px;
+  }
+  .back-link:hover { color: var(--text); }
+
+  /* MASTHEAD */
+  .masthead {
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 32px;
+    margin-bottom: 32px;
+  }
+  .eyebrow {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 16px;
+  }
+  .masthead h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 60px;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--white);
+  }
+  .masthead h1 em { font-style: italic; color: var(--accent); font-weight: 400; }
+  .masthead-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-top: 20px;
+    gap: 24px;
+  }
+  .masthead-sub {
+    font-size: 15px;
+    color: var(--muted);
+    font-weight: 300;
+    max-width: 560px;
+    line-height: 1.7;
+  }
+  .badges { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+  .badge {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 20px;
+    border: 1px solid;
+    white-space: nowrap;
+  }
+  .badge-blue { border-color: var(--accent); color: var(--accent); }
+  .badge-yellow { border-color: var(--gold); color: var(--gold); }
+  .badge-green { border-color: var(--accent2); color: var(--accent2); }
+
+  /* EVIDENCE BAR */
+  .evidence {
+    border: 1px solid var(--border);
+    background: var(--surface);
+    padding: 16px 22px;
+    margin-bottom: 36px;
+    font-size: 13px;
+    color: var(--muted);
+    font-weight: 300;
+    line-height: 1.8;
+  }
+  .evidence strong { color: var(--text2); font-weight: 600; }
+  .tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 1px 5px;
+    border-radius: 2px;
+    border: 1px solid;
+    white-space: nowrap;
+  }
+  .tag-p { border-color: var(--accent); color: var(--accent); background: rgba(37,99,168,0.06); }
+  .tag-m { border-color: var(--gold); color: var(--gold); background: rgba(160,109,8,0.06); }
+  .tag-o { border-color: var(--accent2); color: var(--accent2); background: rgba(26,122,58,0.06); }
+
+  /* STATS ROW */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    margin-bottom: 8px;
+  }
+  .stat-cell { background: var(--surface); padding: 18px 14px; text-align: center; }
+  .stat-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 30px;
+    font-weight: 700;
+    color: var(--white);
+    line-height: 1;
+    display: block;
+  }
+  .stat-num.blue { color: var(--accent); }
+  .stat-num.rust { color: var(--rust); }
+  .stat-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+    color: var(--muted);
+    margin-top: 6px;
+    display: block;
+    line-height: 1.5;
+  }
+
+  /* SECTIONS */
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin: 60px 0 24px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 12px;
+  }
+  .section-num { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--accent); letter-spacing: 0.1em; }
+  .section-title { font-family: 'Cormorant Garamond', serif; font-size: 26px; font-weight: 600; color: var(--white); }
+  .section-desc {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-left: auto;
+    text-align: right;
+  }
+
+  p.body {
+    font-size: 15px;
+    color: var(--text2);
+    margin-bottom: 18px;
+    max-width: 760px;
+    font-weight: 300;
+    line-height: 1.8;
+  }
+  p.body strong { color: var(--text); font-weight: 600; }
+  p.body a, .footnote a, .srcs a { color: var(--accent); text-decoration: none; border-bottom: 1px solid rgba(37,99,168,0.3); }
+  p.body a:hover, .footnote a:hover, .srcs a:hover { border-bottom-color: var(--accent); }
+
+  .lede {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 21px;
+    line-height: 1.6;
+    color: var(--text2);
+    max-width: 760px;
+    margin-bottom: 22px;
+  }
+  .lede strong { color: var(--white); font-weight: 600; }
+
+  /* DIAGRAM SHELL */
+  .diagram {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 26px 28px;
+    margin: 24px 0;
+    position: relative;
+  }
+  .diagram-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    margin-bottom: 6px;
+  }
+  .diagram-sub {
+    font-size: 12.5px;
+    color: var(--muted);
+    font-weight: 300;
+    margin-bottom: 18px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+    line-height: 1.6;
+  }
+  .footnote {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    border-top: 1px solid var(--border);
+    padding-top: 10px;
+    margin-top: 16px;
+    line-height: 1.8;
+  }
+  .footnote strong { color: var(--text2); }
+
+  /* WATERLINE LADDER */
+  .ladder { display: flex; flex-direction: column-reverse; }
+  .rung {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 7px 12px;
+    border: 1px solid var(--border);
+    margin-top: -1px;
+    background: var(--bg);
+    position: relative;
+  }
+  .rung-c {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    width: 30px;
+    min-width: 30px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 2px;
+    color: #fff;
+    font-weight: 700;
+  }
+  .rung-name { font-size: 13px; font-weight: 600; color: var(--text); flex: 1; }
+  .rung-name span { font-weight: 300; color: var(--muted); font-size: 12px; }
+  .rung-note {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    color: var(--muted);
+    text-align: right;
+    white-space: nowrap;
+  }
+  .waterline {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 10px 0;
+    padding: 0 4px;
+  }
+  .waterline-rule { flex: 1; height: 0; border-top: 2px solid var(--accent); }
+  .waterline-text {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--accent);
+    white-space: nowrap;
+  }
+  .zone-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 8.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    margin: 4px 0 8px;
+  }
+
+  /* CHART SHELLS */
+  .chart-wrap { position: relative; }
+  .chart-wrap svg { display: block; width: 100%; height: auto; overflow: visible; }
+  .tip {
+    position: absolute;
+    pointer-events: none;
+    background: var(--white);
+    color: #f4f3ef;
+    font-family: 'Space Mono', monospace;
+    font-size: 10.5px;
+    line-height: 1.6;
+    padding: 7px 10px;
+    border-radius: 3px;
+    opacity: 0;
+    transition: opacity 0.12s;
+    z-index: 20;
+    white-space: nowrap;
+    transform: translate(-50%, -100%);
+    box-shadow: 0 4px 14px rgba(0,0,0,0.18);
+  }
+  .tip b { color: #fff; font-weight: 700; }
+  .tip i { color: #b8c7d8; font-style: normal; }
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+    margin-top: 16px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+    font-family: 'Space Mono', monospace;
+    font-size: 9.5px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .swatch { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+
+  /* TABLES */
+  .tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .tbl th {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 9px 12px;
+    background: var(--surface2);
+    color: var(--muted);
+    text-align: left;
+    font-weight: 500;
+    border: 1px solid var(--border);
+  }
+  .tbl td {
+    padding: 9px 12px;
+    border: 1px solid var(--border);
+    vertical-align: top;
+    line-height: 1.6;
+    color: var(--muted);
+  }
+  .tbl td strong { color: var(--text); font-weight: 600; }
+  .tbl td.num { font-family: 'Space Mono', monospace; font-size: 12px; white-space: nowrap; }
+  .tbl tr.hl td { background: rgba(37,99,168,0.05); }
+  .tbl tr.hl-warm td { background: rgba(166,58,30,0.05); }
+
+  .pill {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 9px;
+    font-family: 'Space Mono', monospace;
+    font-weight: 600;
+    border: 1px solid;
+    white-space: nowrap;
+  }
+  .pill-c5 { border-color: var(--c4); color: var(--c4); background: rgba(29,77,127,0.07); }
+  .pill-c4 { border-color: var(--c2); color: var(--c3); background: rgba(94,140,186,0.09); }
+  .pill-c3 { border-color: var(--cneutral); color: #6f6b66; background: rgba(154,150,145,0.12); }
+  .pill-c2 { border-color: var(--cwarm); color: #a2653a; background: rgba(207,138,95,0.1); }
+  .pill-c1 { border-color: var(--rust); color: var(--rust); background: rgba(166,58,30,0.07); }
+
+  /* CALLOUT / INSIGHT */
+  .callout {
+    border-left: 2px solid var(--accent);
+    padding: 16px 22px;
+    background: rgba(37,99,168,0.04);
+    margin: 22px 0;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+    font-style: italic;
+    color: var(--text2);
+    line-height: 1.6;
+    max-width: 780px;
+  }
+  .callout strong { font-style: normal; font-weight: 600; color: var(--white); }
+  .callout-warm { border-left-color: var(--rust); background: rgba(166,58,30,0.04); }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+  .insight { background: var(--surface); border: 1px solid var(--border); padding: 18px 20px; }
+  .insight h4 { font-family: 'Cormorant Garamond', serif; font-size: 18px; color: var(--white); margin-bottom: 8px; }
+  .insight p { font-size: 13px; color: var(--muted); line-height: 1.75; font-weight: 300; }
+  .insight p strong { color: var(--text2); font-weight: 600; }
+  .insight .kicker {
+    font-family: 'Space Mono', monospace;
+    font-size: 8.5px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    display: block;
+    margin-bottom: 8px;
+  }
+  .insight.warm .kicker { color: var(--rust); }
+
+  hr.rule { border: none; border-top: 1px solid var(--border); margin: 36px 0; }
+
+  .srcs { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--muted); line-height: 2; }
+
+  @media (max-width: 720px) {
+    body { padding: 28px 18px; }
+    .masthead h1 { font-size: 38px; }
+    .masthead-row { flex-direction: column; align-items: flex-start; }
+    .badges { flex-direction: row; flex-wrap: wrap; align-items: flex-start; }
+    .stats-row { grid-template-columns: repeat(2, 1fr); }
+    .two-col { grid-template-columns: 1fr; }
+    .section-desc { display: none; }
+    .tbl-scroll { overflow-x: auto; }
+    .tbl { min-width: 620px; }
+    .rung-note { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<a href="index.html" class="back-link">&larr; Back to omkarray.com</a>
+
+<div class="masthead">
+  <div class="eyebrow">PM Analysis · Voice AI Infrastructure · July 2026</div>
+  <h1>The Voice AI Stack:<br>what's <em>commoditized</em>,<br>and what isn't</h1>
+  <div class="masthead-row">
+    <div class="masthead-sub">Everything that turns audio into text into audio now costs about two cents a minute. The market sells that minute for ten. This is a layer-by-layer teardown of where the other eight cents goes — built from vendor list prices fetched on a single day, so the comparison is honest.</div>
+    <div class="badges">
+      <span class="badge badge-blue">15 layers scored</span>
+      <span class="badge badge-yellow">$0.021 inference floor</span>
+      <span class="badge badge-green">Prices fetched 26 Jul 2026</span>
+    </div>
+  </div>
+</div>
+
+<div class="evidence">
+  <strong>How to read the evidence tags.</strong>
+  <span class="tag tag-p">P</span> published vendor price, fetched 26 July 2026 — every one is linked in the sources at the bottom.
+  <span class="tag tag-m">M</span> modelled by me from assumptions that are stated in the open, so you can attack them.
+  <span class="tag tag-o">O</span> observed hands-on while building and testing on the platform itself.
+  INR converted at ₹87/USD. Where a modelled number disagrees with a vendor's own per-minute price, I show both and say which one I trust.
+</div>
+
+<div class="stats-row">
+  <div class="stat-cell">
+    <span class="stat-num blue">$0.021</span>
+    <span class="stat-label">Commodity cost of<br>one voice minute</span>
+  </div>
+  <div class="stat-cell">
+    <span class="stat-num">$0.10</span>
+    <span class="stat-label">Market clearing<br>price per minute</span>
+  </div>
+  <div class="stat-cell">
+    <span class="stat-num rust">80–90%</span>
+    <span class="stat-label">Of a retail minute<br>that isn't inference</span>
+  </div>
+  <div class="stat-cell">
+    <span class="stat-num">1–3%</span>
+    <span class="stat-label">Share of that minute<br>spent on the LLM</span>
+  </div>
+  <div class="stat-cell">
+    <span class="stat-num rust">4.8×</span>
+    <span class="stat-label">Cost to evaluate a call<br>vs. cost to run it</span>
+  </div>
+</div>
+<div class="footnote" style="border-top:none;margin-top:6px;padding-top:6px;">
+  Commodity cost = cheapest credible vendor at each layer, self-hosted orchestration. Market clearing price = the midpoint of five platforms' all-inclusive connected-minute rates. Both derived in <a href="#anatomy" style="color:var(--accent);text-decoration:none;border-bottom:1px solid rgba(37,99,168,0.3);">§04</a>.
+</div>
+
+<!-- ============ 01 ============ -->
+<div class="section-header" id="thesis">
+  <span class="section-num">01 ——</span>
+  <span class="section-title">The waterline</span>
+  <span class="section-desc">Where commoditization has reached</span>
+</div>
+
+<p class="lede">Every layer of the voice stack is being commoditized from the bottom up. The question worth asking is not <em>whether</em> a layer will fall, but <strong>how far the water has already risen</strong> — because that line tells you exactly where it is still rational to spend engineering effort, and where you are paying rent on something that has already become a dropdown.</p>
+
+<p class="body">As of July 2026 the waterline sits precisely on <strong>turn-taking</strong>. Below it — carriage, transport, speech recognition, the good-enough language model, orchestration, baseline speech synthesis — you find three or more credible vendors priced within a whisker of each other, an open-source floor underneath them, and switching costs measured in dropdown clicks. Above it — expressive voice, evaluation harnesses, production ops, regulated telephony, domain depth — you find price set by value rather than cost, and switching measured in quarters.</p>
+
+<div class="diagram">
+  <div class="diagram-label">Exhibit A — The commoditization waterline, July 2026</div>
+  <div class="diagram-sub">Fifteen layers ordered by how commoditized they are, not by where they sit in the call path. C = commoditization score (5 = many interchangeable vendors at near-marginal cost, switching is a config change; 1 = few substitutes, price set by value, switching means re-engineering or is legally gated).</div>
+
+  <div class="zone-label">↑ Above the line — value still accrues here</div>
+  <div class="ladder">
+    <!-- rendered bottom-up because of column-reverse: list most-commoditized first -->
+    <div class="rung"><span class="rung-c" style="background:var(--c4)">5</span><span class="rung-name">PSTN carriage — US &amp; global English <span>· resold minutes</span></span><span class="rung-note">buy on price</span></div>
+    <div class="rung"><span class="rung-c" style="background:var(--c4)">5</span><span class="rung-name">Media transport <span>· WebRTC / SIP</span></span><span class="rung-note">open source is the default</span></div>
+    <div class="rung"><span class="rung-c" style="background:var(--c4)">5</span><span class="rung-name">Streaming speech recognition — English</span><span class="rung-note">platforms now auto-select for you</span></div>
+    <div class="rung"><span class="rung-c" style="background:var(--c4)">5</span><span class="rung-name">The "good-enough" LLM brain</span><span class="rung-note">~1–3% of the bill</span></div>
+    <div class="rung"><span class="rung-c" style="background:var(--c4)">5</span><span class="rung-name">Orchestration engine <span>· cascaded pipeline</span></span><span class="rung-note">genuinely $0 to self-host</span></div>
+    <div class="rung"><span class="rung-c" style="background:var(--c3)">4</span><span class="rung-name">Baseline TTS <span>· clear and pleasant</span></span><span class="rung-note">one flat price for five vendors</span></div>
+    <div class="rung" style="border-color:var(--accent);border-width:1px 1px 1px 2px;"><span class="rung-c" style="background:var(--cneutral)">3</span><span class="rung-name">Turn-taking, endpointing, barge-in</span><span class="rung-note">← the frontier</span></div>
+    <div class="waterline">
+      <div class="waterline-rule"></div>
+      <div class="waterline-text">waterline · July 2026</div>
+      <div class="waterline-rule"></div>
+    </div>
+    <div class="rung"><span class="rung-c" style="background:var(--cneutral)">3</span><span class="rung-name">Native speech-to-speech <span>· realtime audio</span></span><span class="rung-note">2–3 players, priced competitively</span></div>
+    <div class="rung"><span class="rung-c" style="background:var(--cwarm)">2</span><span class="rung-name">Premium TTS <span>· expressive, cloned, Indic-natural</span></span><span class="rung-note">buyers still pay 11×</span></div>
+    <div class="rung"><span class="rung-c" style="background:var(--cwarm)">2</span><span class="rung-name">Eval &amp; simulation harness</span><span class="rung-note">commoditizing next</span></div>
+    <div class="rung"><span class="rung-c" style="background:var(--cwarm)">2</span><span class="rung-name">Production ops &amp; the iterate loop</span><span class="rung-note">underserved by everyone</span></div>
+    <div class="rung"><span class="rung-c" style="background:var(--cwarm)">2</span><span class="rung-name">Indic STT/TTS at 8 kHz <span>· with code-switching</span></span><span class="rung-note">price is commodity, quality is not</span></div>
+    <div class="rung"><span class="rung-c" style="background:var(--rust)">1</span><span class="rung-name">Compliance &amp; trust <span>· SOC 2, HIPAA, PCI</span></span><span class="rung-note">sold as flat rent</span></div>
+    <div class="rung"><span class="rung-c" style="background:var(--rust)">1</span><span class="rung-name">PSTN carriage — India &amp; regulated markets</span><span class="rung-note">months + a legal entity</span></div>
+    <div class="rung"><span class="rung-c" style="background:var(--rust)">1</span><span class="rung-name">Domain SOPs &amp; system-of-record depth</span><span class="rung-note">least commoditized layer in the stack</span></div>
+  </div>
+  <div class="zone-label" style="margin-top:10px;">↓ Below the line — a config change, not a strategy</div>
+
+  <div class="footnote">
+    <strong>Note the one inversion.</strong> Regulated telephony sits at the physical bottom of the call path — the same layer that scores a 5 in the United States — yet scores a 1 in India. Same technology, opposite market. That is the tell that its scarcity is <strong>legal, not technical</strong>, and therefore that no model release will dissolve it.
+  </div>
+</div>
+
+<p class="body">Two things follow immediately. First, the layers below the line are where a buyer should be ruthless about price and a builder should refuse to spend a single sprint. Second, and less obvious: <strong>the line is moving upward at a knowable rate</strong>, which means a moat you are building today at layer <em>n</em> has a shelf life you can estimate. <a href="#next">§10</a> puts dates on it.</p>
+
+<!-- ============ 02 ============ -->
+<div class="section-header" id="rule">
+  <span class="section-num">02 ——</span>
+  <span class="section-title">Why layers fall in this order</span>
+  <span class="section-desc">A rule that predicts the sequence</span>
+</div>
+
+<p class="body">The ordering above is not arbitrary and it is not simply "cheap things first." Look at what the fallen layers have in common and a single property does most of the explanatory work:</p>
+
+<div class="callout">
+  <strong>The measurement rule.</strong> A layer commoditizes in the order its quality becomes <em>measurable by a number that buyers agree on</em>. Once quality is a scalar, vendors compete on it, converge on it, and are left competing on price. Until quality is a scalar, taste survives — and taste carries margin.
+</div>
+
+<p class="body">Run the stack against it. <strong>Speech recognition</strong> has word error rate: a single number, publicly leaderboarded, reproducible on shared audio. It commoditized hardest and fastest. <strong>Text-to-speech</strong> has mean opinion score, which is a survey, not a measurement — so TTS split cleanly in two: a commodity floor where "clear and intelligible" is effectively binary, and a durable premium tier for expressiveness, where the metric is still a human shrug. <strong>Turn-taking</strong> only recently acquired numbers — false-barge-in rate, endpoint latency, semantic end-of-turn accuracy — and it is commoditizing right now, in public, at exactly the pace the rule predicts. <strong>Evaluation</strong> has no agreed scalar at all: nobody can hand you a number for "was this call good" that a second vendor would reproduce. It is the most expensive add-on on any price list. And <strong>compliance</strong> is not measured, it is <em>attested</em> — audits and contracts, not benchmarks — which is why it never rides a cost curve at all.</p>
+
+<p class="body">This is my framework rather than a vendor's, so treat it as a hypothesis with a prediction attached. The prediction is uncomfortably specific and appears in <a href="#next">§10</a>: <strong>the eval layer's price collapses within months of the first credible public benchmark for conversational quality</strong>, not gradually before it. If you want to know when your eval moat expires, watch for the leaderboard, not the competitors.</p>
+
+<div class="diagram">
+  <div class="diagram-label">Exhibit B — The full gradient, with evidence</div>
+  <div class="diagram-sub">Sorted most → least commoditized. "Vendors inside 2× on price" is the operational test: if three or more credible suppliers sit within a factor of two of each other for the same job, the layer has cleared.</div>
+  <div class="tbl-scroll">
+  <table class="tbl">
+    <thead>
+      <tr>
+        <th style="width:34px;">C</th>
+        <th style="width:210px;">Layer</th>
+        <th>Vendors inside 2× on price</th>
+        <th style="width:110px;">Switching cost</th>
+        <th style="width:180px;">Verdict</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="hl"><td><span class="pill pill-c5">5</span></td><td><strong>PSTN carriage</strong><br>US &amp; global English</td><td>Twilio $0.0085/min inbound · LiveKit $0.01 · resold at $0.015</td><td class="num">config</td><td>Buy on price. There is no strategy here.</td></tr>
+      <tr class="hl"><td><span class="pill pill-c5">5</span></td><td><strong>Media transport</strong><br>WebRTC / SIP</td><td>LiveKit OSS ($0) · Daily · Agora · LiveKit Cloud $0.01/min</td><td class="num">days</td><td>Solved. WebSocket-only is now a defect, not a design choice.</td></tr>
+      <tr class="hl"><td><span class="pill pill-c5">5</span></td><td><strong>Streaming STT</strong><br>English</td><td>$0.0025 · $0.003 · $0.0048 · $0.0065 — five vendors in a 2.6× band</td><td class="num">dropdown</td><td>Over. At least one platform doesn't even let you choose — it auto-selects on latency. <span class="tag tag-o">O</span></td></tr>
+      <tr class="hl"><td><span class="pill pill-c5">5</span></td><td><strong>"Good-enough" LLM</strong><br>the brain</td><td>Gemini 2.5 Flash-Lite $0.10/1M · GPT-5.4-nano $0.20/1M · Sarvam-30B ₹2.5/1M</td><td class="num">dropdown</td><td>Free in practice. Compete on tool-calling reliability and p95, never on price.</td></tr>
+      <tr class="hl"><td><span class="pill pill-c5">5</span></td><td><strong>Orchestration</strong><br>cascaded engine</td><td>LiveKit Agents · Pipecat · Bolna's MIT-licensed engine — all open source</td><td class="num">weeks</td><td>Genuinely $0. Anyone charging $0.05/min here is exposed.</td></tr>
+      <tr><td><span class="pill pill-c4">4</span></td><td><strong>Baseline TTS</strong><br>clear &amp; pleasant</td><td>Aura-1 $15/1M chars · Bulbul v2 ~$17 · Aura-2 $30 — plus five vendors sold at one identical platform price</td><td class="num">dropdown</td><td>Commodity at "good enough". Premium is a different product, not a better one.</td></tr>
+      <tr><td><span class="pill pill-c3">3</span></td><td><strong>Turn-taking</strong><br>endpointing, barge-in</td><td>Krisp · Deepgram Flux · AssemblyAI native · LiveKit — offered as a menu inside the major platforms <span class="tag tag-o">O</span></td><td class="num">dropdown to pick,<br>weeks to tune</td><td><strong>The frontier.</strong> Vendor choice commoditized inside a year; correct tuning is still craft.</td></tr>
+      <tr><td><span class="pill pill-c3">3</span></td><td><strong>Native speech-to-speech</strong><br>realtime audio</td><td>~$0.018/min vs ~$0.128/min — a 7× gap between two suppliers</td><td class="num">re-architecture</td><td>Price competition has arrived, but two or three players is a market, not a commodity.</td></tr>
+      <tr class="hl-warm"><td><span class="pill pill-c2">2</span></td><td><strong>Premium TTS</strong><br>expressive / cloned</td><td>ElevenLabs at $165/1M chars holds a 5.5–11× premium over the commodity tier</td><td class="num">voice = brand</td><td>Buyers still pay 11×. Real differentiation survives here.</td></tr>
+      <tr class="hl-warm"><td><span class="pill pill-c2">2</span></td><td><strong>Eval &amp; simulation</strong><br>the test harness</td><td>Best-in-class ships AI-persona multi-turn simulation and batch regression; a direct competitor ships manual review only <span class="tag tag-o">O</span></td><td class="num">rebuild suites</td><td>Priced as the most expensive add-on on the sheet. <strong>Commoditizing next.</strong></td></tr>
+      <tr class="hl-warm"><td><span class="pill pill-c2">2</span></td><td><strong>Production ops</strong><br>the iterate loop</td><td>Nobody has closed the loop well — the gap is industry-wide <span class="tag tag-o">O</span></td><td class="num">high</td><td>Underserved across every platform tested.</td></tr>
+      <tr class="hl-warm"><td><span class="pill pill-c2">2</span></td><td><strong>Indic STT/TTS</strong><br>8 kHz + code-switch</td><td>Sarvam · in-house Indian stacks · AI4Bharat lineage</td><td class="num">quality-gated,<br>not price-gated</td><td>Price is already commodity at ₹30/hr. Quality at 8 kHz is not.</td></tr>
+      <tr class="hl-warm"><td><span class="pill pill-c1">1</span></td><td><strong>Compliance &amp; trust</strong><br>SOC 2 · HIPAA · PCI</td><td>Sold as flat rent: $1,000–2,000/mo add-ons, or a $30,000/yr floor</td><td class="num">re-audit,<br>re-contract</td><td>Not a technology. Does not commoditize on a model curve.</td></tr>
+      <tr class="hl-warm"><td><span class="pill pill-c1">1</span></td><td><strong>PSTN carriage</strong><br>India &amp; regulated markets</td><td>DLT registration, 140/160-series numbering, KYC documents <span class="tag tag-o">O</span></td><td class="num">months +<br>legal entity</td><td><strong>Hard moat.</strong> Where Indian players structurally beat US platforms.</td></tr>
+      <tr class="hl-warm"><td><span class="pill pill-c1">1</span></td><td><strong>Domain SOPs</strong><br>system-of-record depth</td><td>Native helpdesk/CRM integration is simply missing at three otherwise-strong platforms <span class="tag tag-o">O</span></td><td class="num">rebuild logic</td><td>The least commoditized layer in the entire stack.</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="footnote">Layers are chosen to be mutually exclusive: a vendor's price is counted against exactly one of them, so no cost is double-attributed when the layers are summed into a minute in <a href="#anatomy">§04</a>.</div>
+</div>
+
+<!-- ============ 03 ============ -->
+<div class="section-header" id="dispersion">
+  <span class="section-num">03 ——</span>
+  <span class="section-title">Dispersion is the measurement</span>
+  <span class="section-desc">One unit, one axis, six layers</span>
+</div>
+
+<p class="body">"Commoditized" is usually asserted. It can be measured. If a layer has truly cleared, the credible suppliers will have converged: <strong>the ratio between the cheapest and dearest vendor doing the same job collapses toward one.</strong> If a layer hasn't cleared, that ratio stays wide, because buyers are still paying for something price alone doesn't capture.</p>
+
+<p class="body">The obstacle is that these layers are quoted in incompatible units — per minute, per hour, per million characters, per million tokens. So everything below is normalized to <strong>one dollar figure per minute of live conversation</strong> <span class="tag tag-m">M</span>, using a single consistent model of what a minute contains: four assistant turns, roughly 2,000 input tokens and 60 output tokens per turn, and about 265 characters of synthesized speech (an agent that holds roughly a third of a 150-words-per-minute conversation). Those assumptions are stated so you can break them; <a href="#reconcile">§06</a> shows where they bend.</p>
+
+<div class="diagram">
+  <div class="diagram-label">Exhibit C — Price dispersion by layer, all normalized to $/minute</div>
+  <div class="diagram-sub">Each dot is one shipping vendor model at its published rate. Log scale — equal distances are equal <em>ratios</em>, which is the point. The shaded band on each row marks the quality-equivalent tier where vendors are genuinely substitutable; the ratio at right is the spread inside that band. Hover any dot for the vendor and price.</div>
+  <div class="chart-wrap" id="wrap-disp">
+    <div class="tip" id="tip-disp"></div>
+    <svg id="chart-disp" viewBox="0 0 920 372" role="img" aria-label="Price dispersion per layer, normalized to dollars per minute, log scale"></svg>
+  </div>
+  <div class="legend">
+    <span><i class="swatch" style="background:#3a6a9e"></i> inside the substitutable tier</span>
+    <span><i class="swatch" style="background:#a63a1e"></i> priced above it — a different product</span>
+    <span><i class="swatch" style="background:rgba(37,99,168,0.13);border:1px solid #86a9cb"></i> quality-equivalent band</span>
+  </div>
+  <div class="footnote">
+    Speech-synthesis and language-model rows are converted from per-character and per-token list prices <span class="tag tag-m">M</span>; telephony, transport and speech-recognition rows are published per-minute or per-hour rates <span class="tag tag-p">P</span>. The open-source orchestration floor is a true <strong>$0</strong> and cannot be drawn on a log axis — it is marked to the left of the scale break. Full price tables, unconverted, are in <a href="#sheet">§05</a>.
+  </div>
+</div>
+
+<p class="body">The chart makes the argument better than the prose can. <strong>The three tightest bands — telephony at 1.8×, baseline speech synthesis at 2.3×, English speech recognition at 3.0× — are exactly the layers below the waterline.</strong> The three widest — orchestration at 5.5× above a free floor, speech-to-speech at 7.1×, and the full range of speech synthesis at 11× — are exactly the layers where the argument about value is still live.</p>
+
+<div class="two-col">
+  <div class="insight">
+    <span class="kicker">The clearest single signal on the page</span>
+    <h4>One price for five suppliers</h4>
+    <p>A major platform prices five different speech-synthesis vendors at <strong>one identical $0.015/min</strong>, and a sixth — the premium one — at $0.040. When a reseller stops distinguishing between suppliers in its own price list, it is telling you those suppliers are fungible. That is commoditization stated by someone with every incentive to deny it.</p>
+  </div>
+  <div class="insight warm">
+    <span class="kicker">The inversion nobody expects</span>
+    <h4>Platforms take their voice margin on the cheap tier</h4>
+    <p>Work the same numbers backwards <span class="tag tag-m">M</span>. That flat $0.015/min sits about <strong>3.7× above</strong> the underlying commodity rate of ~$0.004/min. The $0.040/min premium line sits at roughly <strong>0.9× — essentially at cost</strong>. The expensive voice is the honest one; the margin is hidden in the cheap tier, where you assume there is none.</p>
+  </div>
+</div>
+
+<p class="body">That inversion is worth sitting with, because it generalizes. Platform margin does not live where prices look high. It lives where a buyer has stopped comparing — and buyers stop comparing precisely once a layer feels commoditized. <strong>The moment you accept that a layer is a commodity is the moment you stop auditing its price.</strong></p>
+
+<!-- ============ 04 ============ -->
+<div class="section-header" id="anatomy">
+  <span class="section-num">04 ——</span>
+  <span class="section-title">The anatomy of a voice minute</span>
+  <span class="section-desc">Where ten cents actually goes</span>
+</div>
+
+<p class="body">One minute of inbound support, built three ways, every figure drawn from list prices fetched on the same day. The first column is what the components cost. The second and third are what you can buy the same minute for.</p>
+
+<div class="diagram">
+  <div class="diagram-label">Exhibit D — One inbound minute, three ways</div>
+  <div class="diagram-sub">Stacked to the same linear scale. The vertical rule marks the inference floor — the total cost of every component needed to actually conduct the conversation. Hover any segment for its rate.</div>
+  <div class="chart-wrap" id="wrap-min">
+    <div class="tip" id="tip-min"></div>
+    <svg id="chart-min" viewBox="0 0 920 260" role="img" aria-label="Cost of one voice minute compared across a self-hosted commodity build, a cheap retail stack, and a premium retail stack"></svg>
+  </div>
+  <div class="legend">
+    <span><i class="swatch" style="background:#86a9cb"></i> telephony</span>
+    <span><i class="swatch" style="background:#5e8cba"></i> speech recognition</span>
+    <span><i class="swatch" style="background:#3a6a9e"></i> language model</span>
+    <span><i class="swatch" style="background:#1d4d7f"></i> speech synthesis</span>
+    <span><i class="swatch" style="background:#a63a1e"></i> orchestration &amp; platform fee</span>
+  </div>
+  <div class="footnote">
+    Commodity build: cheapest credible vendor per layer, open-source orchestration self-hosted, with a nominal allowance for the compute it runs on. Retail stacks are one platform's own published component rates, where speech recognition is folded into the engine fee and therefore not separately visible <span class="tag tag-p">P</span>.
+  </div>
+</div>
+
+<p class="body">Cross-check the middle bar against what the market actually charges for a whole bundled minute and it holds: an Indian platform sells an all-inclusive connected minute at <strong>₹6 (about $0.10)</strong>, another lands between $0.07 and $0.15, a third publishes a headline band of $0.07–0.31, and an enterprise contract bottoms out around $0.07 at volume <span class="tag tag-o">O</span>. <strong>The market clears at roughly ten cents against a two-cent component floor.</strong></p>
+
+<div class="callout callout-warm">
+  Any business plan whose savings thesis is <strong>"we'll switch to a cheaper model"</strong> is optimizing the smallest line on the bill. In a commodity-built minute the language model is one to three percent of the cost. You could make the brain <em>free</em> and the minute would barely move.
+</div>
+
+<p class="body">There is a second reading of the same chart that matters more for anyone selling minutes. Notice that a whole bundled retail minute at $0.10 costs <em>less than two and a half times</em> the premium voice line alone in the third bar. Platform pricing is a packaging decision far more than it is a cost floor — which is exactly why it is vulnerable.</p>
+
+<!-- ============ 05 ============ -->
+<div class="section-header" id="sheet">
+  <span class="section-num">05 ——</span>
+  <span class="section-title">The verified price sheet</span>
+  <span class="section-desc">Fetched 26 July 2026</span>
+</div>
+
+<p class="body">Everything above rests on these numbers, so here they are unconverted, in the units the vendors publish them in. Every row is a list price from the vendor's own pricing page on a single day.</p>
+
+<div class="diagram">
+  <div class="diagram-label">Exhibit E.1 — Streaming speech recognition</div>
+  <div class="diagram-sub">Five credible vendors inside a 2.6× band. This layer is finished.</div>
+  <div class="tbl-scroll">
+  <table class="tbl">
+    <thead><tr><th>Vendor / model</th><th style="width:120px;">Published</th><th style="width:110px;">Per minute</th><th style="width:220px;">Note</th></tr></thead>
+    <tbody>
+      <tr class="hl"><td><strong>AssemblyAI</strong> Universal-Streaming</td><td class="num">$0.15/hr</td><td class="num"><strong>$0.0025</strong></td><td>Cheapest credible streaming ASR</td></tr>
+      <tr><td><strong>OpenAI</strong> gpt-4o-mini-transcribe</td><td class="num">—</td><td class="num">$0.0030</td><td></td></tr>
+      <tr><td><strong>Deepgram</strong> Nova-3 mono</td><td class="num">—</td><td class="num">$0.0048</td><td>$0.0042 on the Growth tier</td></tr>
+      <tr><td><strong>Deepgram</strong> Nova-3 multilingual</td><td class="num">—</td><td class="num">$0.0058</td><td></td></tr>
+      <tr><td><strong>Sarvam</strong> STT (Indic)</td><td class="num">₹30/hr</td><td class="num">~$0.0060</td><td>At parity with English ASR</td></tr>
+      <tr class="hl-warm"><td><strong>Deepgram</strong> Flux — turn-aware</td><td class="num">—</td><td class="num">$0.0065</td><td><strong>+35% over Nova-3</strong> — the premium is for endpointing, not transcription</td></tr>
+      <tr><td><strong>AssemblyAI</strong> Universal-3.5 Pro Realtime</td><td class="num">$0.45/hr</td><td class="num">$0.0075</td><td></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="footnote">
+    <strong>The 35% Flux premium is the most informative number in this table.</strong> The market has unbundled "hearing the words" from "knowing when the human stopped talking," and only the second one still carries margin. Transcription is done as a business.<br>
+    <strong>Watch-out:</strong> at least one vendor bills WebSocket <em>session</em> duration rather than audio duration — idle connections bill. For bursty inbound traffic the real cost runs above the headline.
+  </div>
+</div>
+
+<div class="diagram">
+  <div class="diagram-label">Exhibit E.2 — Speech synthesis</div>
+  <div class="diagram-sub">Not one market. A commodity floor and a premium tier that has never had to discount.</div>
+  <div class="tbl-scroll">
+  <table class="tbl">
+    <thead><tr><th>Vendor / model</th><th style="width:130px;">Per 1M chars</th><th style="width:110px;">vs cheapest</th><th style="width:120px;">≈ per minute <span class="tag tag-m">M</span></th></tr></thead>
+    <tbody>
+      <tr class="hl"><td><strong>Deepgram</strong> Aura-1</td><td class="num">$15</td><td class="num">1.0×</td><td class="num">$0.004</td></tr>
+      <tr class="hl"><td><strong>Sarvam</strong> Bulbul v2</td><td class="num">₹15/10k ≈ $17</td><td class="num">1.1×</td><td class="num">$0.005</td></tr>
+      <tr class="hl"><td><strong>Deepgram</strong> Aura-2</td><td class="num">$30</td><td class="num">2.0×</td><td class="num">$0.008</td></tr>
+      <tr class="hl"><td><strong>Sarvam</strong> Bulbul v3 (beta)</td><td class="num">₹30/10k ≈ $34</td><td class="num">2.3×</td><td class="num">$0.009</td></tr>
+      <tr><td><strong>ElevenLabs</strong> — Creator</td><td class="num">$91</td><td class="num">6.1×</td><td class="num">$0.024</td></tr>
+      <tr class="hl-warm"><td><strong>ElevenLabs</strong> — Pro / Scale / Business</td><td class="num"><strong>$165</strong></td><td class="num"><strong>11.0×</strong></td><td class="num">$0.044</td></tr>
+      <tr class="hl-warm"><td><strong>ElevenLabs</strong> — Starter</td><td class="num">$200</td><td class="num">13.3×</td><td class="num">$0.053</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="footnote"><strong>The pricing stops improving with volume.</strong> Above the entry Creator tier, Pro, Scale and Business all land at roughly the same $165/1M. A vendor that does not need to discount at scale is a vendor that does not feel commodity pressure — and that, not the headline rate, is the evidence that this tier hasn't fallen.</div>
+</div>
+
+<div class="diagram">
+  <div class="diagram-label">Exhibit E.3 — The language model</div>
+  <div class="diagram-sub">Priced per million tokens; converted at 8,000 input and 240 output tokens per minute of conversation <span class="tag tag-m">M</span>.</div>
+  <div class="tbl-scroll">
+  <table class="tbl">
+    <thead><tr><th>Model</th><th style="width:130px;">$/1M in</th><th style="width:130px;">$/1M out</th><th style="width:150px;">≈ per minute <span class="tag tag-m">M</span></th></tr></thead>
+    <tbody>
+      <tr class="hl"><td>Sarvam-30B</td><td class="num">₹2.5 ≈ $0.029</td><td class="num">₹10 ≈ $0.115</td><td class="num">~$0.0003</td></tr>
+      <tr class="hl"><td><strong>Gemini 2.5 Flash-Lite</strong></td><td class="num">$0.10</td><td class="num">$0.40</td><td class="num"><strong>~$0.0009</strong></td></tr>
+      <tr class="hl"><td>GPT-5.4-nano</td><td class="num">$0.20</td><td class="num">$1.25</td><td class="num">~$0.002</td></tr>
+      <tr class="hl"><td>Gemini 3.5 Flash-Lite</td><td class="num">$0.30</td><td class="num">$2.50</td><td class="num">~$0.003</td></tr>
+      <tr><td>GPT-5.4-mini</td><td class="num">$0.75</td><td class="num">$4.50</td><td class="num">~$0.007</td></tr>
+      <tr><td>Gemini 3.6 Flash</td><td class="num">$1.50</td><td class="num">$7.50</td><td class="num">~$0.014</td></tr>
+      <tr><td>GPT-5.6-terra / GPT-5.4</td><td class="num">$2.50</td><td class="num">$15.00</td><td class="num">~$0.024</td></tr>
+      <tr><td>GPT-5.5</td><td class="num">$5.00</td><td class="num">$30.00</td><td class="num">~$0.047</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="footnote">Shaded rows are the "good-enough" band — models that reliably hold a support conversation and call tools. Inside that band the spread is about 3.3×, and the whole band costs less than a third of a cent a minute.</div>
+</div>
+
+<div class="diagram">
+  <div class="diagram-label">Exhibit E.4 — Telephony, transport and platform fees</div>
+  <div class="tbl-scroll">
+  <table class="tbl">
+    <thead><tr><th>Item</th><th style="width:150px;">Price</th><th>What it tells you</th></tr></thead>
+    <tbody>
+      <tr><td>Twilio — US inbound local</td><td class="num"><strong>$0.0085/min</strong></td><td>The true carriage floor</td></tr>
+      <tr><td>Twilio — US outbound local</td><td class="num">$0.0140/min</td><td></td></tr>
+      <tr><td>Twilio — US toll-free inbound</td><td class="num">$0.0220/min</td><td></td></tr>
+      <tr><td>Twilio — US local number</td><td class="num">$1.15/mo</td><td></td></tr>
+      <tr><td>LiveKit Cloud — telephony inbound</td><td class="num">$0.01/min</td><td>Resold carriage, near cost</td></tr>
+      <tr class="hl"><td>LiveKit Cloud — agent session</td><td class="num"><strong>$0.01/min</strong></td><td>Managed orchestration, priced at a fifth of the platforms</td></tr>
+      <tr class="hl"><td>LiveKit media server + Agents framework</td><td class="num"><strong>$0 — open source</strong></td><td>The floor under the entire orchestration layer</td></tr>
+      <tr class="hl-warm"><td>Retell — voice engine</td><td class="num">$0.055/min</td><td rowspan="3" style="vertical-align:middle;"><strong>Three independent vendors converging on ~$0.05 for a layer with a $0 floor is not a cost floor. It is a price umbrella.</strong></td></tr>
+      <tr class="hl-warm"><td>Vapi — platform fee</td><td class="num">$0.05/min</td></tr>
+      <tr class="hl-warm"><td>Bolna — platform fee</td><td class="num">~$0.05–0.06/min</td></tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<!-- ============ 06 ============ -->
+<div class="section-header" id="reconcile">
+  <span class="section-num">06 ——</span>
+  <span class="section-title">Two structural taxes</span>
+  <span class="section-desc">Why the cheap paths stay expensive</span>
+</div>
+
+<p class="body">Two forces keep the commodity layers from collapsing all the way to zero. Both are structural rather than commercial, which means no amount of vendor competition removes them.</p>
+
+<h3 style="font-family:'Cormorant Garamond',serif;font-size:20px;color:var(--white);margin:28px 0 10px;">The context tax — and an honest disagreement with my own model</h3>
+
+<p class="body">My model puts a good-enough brain at roughly $0.0009 per minute. One platform's own price list puts the same class of model at <strong>$0.081 per minute</strong> — about six times higher <span class="tag tag-p">P</span>. I am not going to paper over that gap, because both readings are actionable and I cannot yet distinguish them from public data.</p>
+
+<p class="body">Either platforms mark the commodity brain up several-fold, <strong>or</strong> a real production voice context is three to six times heavier than a naive estimate — long system prompts, retrieved knowledge-base chunks, and a full transcript re-sent on every single turn. My instinct is that the truth is mostly the second: a voice agent re-uploads its entire conversation with each reply, so token consumption grows quadratically with call length while the conversation only grows linearly. Either way the lesson is identical and it is the single most useful operational takeaway in this piece:</p>
+
+<div class="callout">
+  <strong>Context size, not model choice, is your language-model cost lever.</strong> Trimming a system prompt or capping transcript history moves the bill by multiples. Switching from one good-enough model to another moves it by fractions of a cent.
+</div>
+
+<h3 style="font-family:'Cormorant Garamond',serif;font-size:20px;color:var(--white);margin:32px 0 10px;">The audio tax — visible in the vendors' own price lists</h3>
+
+<p class="body">Speech-to-speech models promise to delete the pipeline: no separate recognition, no separate synthesis, no seam. The reason they cannot simply undercut a cascaded stack is printed in the price list of the company that makes both.</p>
+
+<div class="diagram">
+  <div class="diagram-label">Exhibit F — The same model, charged differently for text and audio</div>
+  <div class="diagram-sub">Input token price, one vendor, two modalities, same model family. Audio costs more per token by construction — an audio second carries far more tokens than a second of reading.</div>
+  <div class="chart-wrap" id="wrap-tax">
+    <div class="tip" id="tip-tax"></div>
+    <svg id="chart-tax" viewBox="0 0 920 168" role="img" aria-label="Text versus audio input token prices for two model tiers, showing a two to three times audio premium"></svg>
+  </div>
+  <div class="footnote">Prices per million input tokens <span class="tag tag-p">P</span>. The multiple, not the absolute level, is the durable fact: it survives every generation of price cut because it reflects how much information a second of audio actually is.</div>
+</div>
+
+<p class="body">Stack that tax on top of the fact that a speech-to-speech model re-sends accumulating audio history and the economics resolve cleanly. The cheapest realtime audio model lands at about <strong>$0.018/min</strong> — genuine parity with a cascaded pipeline. The most expensive lands at about <strong>$0.128/min</strong>, roughly ten times a cascaded build and a seven-fold gap between two suppliers of the same capability <span class="tag tag-m">M</span>. One vendor has collapsed speech-to-speech pricing sevenfold below the other; that is price competition arriving, not a commodity forming.</p>
+
+<p class="body">So the prediction here is narrow and, I think, safe: <strong>speech-to-speech wins on naturalness well before it wins on cost</strong>, and cascaded pipelines stay the production default for anything touching money or compliance — because a cascaded stack hands you an inspectable transcript at every hop, and a native audio model does not. Expect blended architectures, not a switchover.</p>
+
+<!-- ============ 07 ============ -->
+<div class="section-header" id="margin">
+  <span class="section-num">07 ——</span>
+  <span class="section-title">The margin confession</span>
+  <span class="section-desc">Priced by the people who know</span>
+</div>
+
+<p class="body">Here is the most useful thing on any voice platform's pricing page: the add-ons. Each one is a line item the vendor believes it can charge for separately, which makes the price list a direct readout of <strong>what the market still treats as scarce</strong>. Measured against the two-cent commodity minute, the readout is stark.</p>
+
+<div class="diagram">
+  <div class="diagram-label">Exhibit G — Per-minute add-ons, priced as multiples of a whole commodity minute</div>
+  <div class="diagram-sub">The reference line is 1.0× — the entire cost of conducting the call. Anything to the right of it costs more than the conversation itself.</div>
+  <div class="chart-wrap" id="wrap-addon">
+    <div class="tip" id="tip-addon"></div>
+    <svg id="chart-addon" viewBox="0 0 920 210" role="img" aria-label="Per-minute platform add-ons as multiples of a commodity voice minute"></svg>
+  </div>
+  <div class="footnote">All add-on rates are published per-minute prices from one platform's pricing page <span class="tag tag-p">P</span>, divided by the $0.021 commodity minute derived in <a href="#anatomy">§04</a>.</div>
+</div>
+
+<p class="body">Read the top bar again. <strong>Evaluating a call is priced at nearly five times the cost of running it</strong>, and roughly twice the platform's own voice-engine fee. In almost every other part of software, testing is the cheap part — you run the test suite a thousand times because each run costs nothing. In voice AI the relationship is inverted, and that inversion is the single clearest statement anyone in this industry has made about where the scarcity is.</p>
+
+<p class="body">The rest of the margin is sold as rent rather than usage, which tells you it is access being priced, not compute:</p>
+
+<div class="diagram">
+  <div class="diagram-label">Exhibit H — Margin sold as flat rent</div>
+  <div class="tbl-scroll">
+  <table class="tbl">
+    <thead><tr><th>Add-on</th><th style="width:140px;">Price</th><th>What the pricing model reveals</th></tr></thead>
+    <tbody>
+      <tr class="hl-warm"><td>HIPAA mode</td><td class="num"><strong>$2,000/mo</strong></td><td>Compliance is sold as access, not usage — the marginal cost of a compliant minute is the same as a non-compliant one</td></tr>
+      <tr><td>Zero Data Retention</td><td class="num">$1,000/mo</td><td>Mutually exclusive with HIPAA mode on the same account <span class="tag tag-o">O</span> — a packaging decision, not a technical constraint</td></tr>
+      <tr><td>HIPAA (different vendor, very different scale)</td><td class="num">$1,000/mo</td><td>The same pattern reappears at a company an order of magnitude smaller</td></tr>
+      <tr><td>Concurrency above 20 channels</td><td class="num">$8/mo per slot</td><td>Capacity guarantees still command rent</td></tr>
+      <tr class="hl-warm"><td>"Stable server cluster"</td><td class="num">+$0.02/min</td><td><strong>Reliability itself is a paid upgrade</strong> — priced at roughly one entire commodity minute</td></tr>
+      <tr class="hl-warm"><td>Enterprise floor at one vendor</td><td class="num"><strong>$30,000/yr</strong></td><td>Compliance, no-code tooling and owned telephony bundled as a single access fee <span class="tag tag-o">O</span></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="footnote">Read as a portfolio: <strong>inference sold at cost, margin taken on evaluation, compliance, reliability and capacity.</strong> That is a precise map of the un-commoditized surface of this industry — and the vendors drew it themselves, in public, on their own pricing pages.</div>
+</div>
+
+<!-- ============ 08 ============ -->
+<div class="section-header" id="moats">
+  <span class="section-num">08 ——</span>
+  <span class="section-title">The four things that aren't commoditized</span>
+  <span class="section-desc">And why each one holds</span>
+</div>
+
+<p class="body">Strip out everything the price sheet has settled, and four things are left standing. None of them is a model. Two of them are not even technology.</p>
+
+<div class="two-col">
+  <div class="insight warm">
+    <span class="kicker">Moat 01 · geographic</span>
+    <h4>Regulated telephony and local-language quality</h4>
+    <p>India requires DLT registration, 140/160-series numbering and KYC documentation before you can originate a call at all. Onboarding runs into it immediately: one platform demanded Truecaller verification, another a legal business name and registration certificate before it would provision anything <span class="tag tag-o">O</span>. Meanwhile one major US platform provisions numbers <strong>in the US and Canada only</strong>, and another's free numbers are US-only <span class="tag tag-o">O</span>. No model release changes this. It is the structural reason Indian platforms win Indian deployments that US platforms cannot serve at any price.</p>
+    <p style="margin-top:10px;"><strong>The nuance the price sheet forces:</strong> Indic is no longer expensive, merely uneven. Indic speech recognition at ₹30/hr is at parity with English, and Indic synthesis undercuts the mid-tier English vendors. <strong>The moat migrated from price to paperwork — and to quality at 8 kHz with Hinglish code-switching.</strong> Anyone still pricing Indic as a premium is charging for a moat that already eroded.</p>
+  </div>
+  <div class="insight warm">
+    <span class="kicker">Moat 02 · legal</span>
+    <h4>Compliance and trust</h4>
+    <p>SOC 2, HIPAA, PCI DSS, GDPR and ISO 27001 are audits and contracts, not capabilities. They do not ride a model cost curve because there is no model involved — which is precisely why they are the most durable line on any price list.</p>
+    <p style="margin-top:10px;">The split this produces is sharp and visible. One platform holds the full certification set and charges a $30,000/yr floor for access to it. A technically comparable competitor asserts no certifications it publicly holds, answering the question with "contact support" <span class="tag tag-o">O</span>. <strong>Near-identical technical stacks, opposite market access.</strong> Every regulated buyer is filtered by a document, not a benchmark.</p>
+  </div>
+</div>
+<div class="two-col" style="margin-top:12px;">
+  <div class="insight warm">
+    <span class="kicker">Moat 03 · measurement</span>
+    <h4>The eval harness and the iterate loop</h4>
+    <p>This is the widest capability spread anywhere in the space. At the top: AI-persona multi-turn simulation, batch regression through an API, A/B traffic splitting, and production quality assurance that reports resolution rate and flags hallucinations. At the bottom, among otherwise credible competitors: manual transcript review, no batch simulation, no A/B, no regression suite at all <span class="tag tag-o">O</span>.</p>
+    <p style="margin-top:10px;"><strong>When one dimension ranges from best-in-class to nonexistent across platforms that are otherwise near-identical, that dimension is where the real product work is.</strong> The $0.10/min quality-assurance line confirms it commercially. By the measurement rule in <a href="#rule">§02</a>, this moat holds only until someone publishes a benchmark everybody accepts.</p>
+  </div>
+  <div class="insight warm">
+    <span class="kicker">Moat 04 · integration</span>
+    <h4>Domain SOPs and system-of-record depth</h4>
+    <p>The most telling gap in the entire landscape: <strong>native helpdesk and CRM integration is missing at three otherwise strong platforms</strong> <span class="tag tag-o">O</span> — all of them pushing customers toward webhooks and Zapier for the one thing an inbound support desk cannot function without.</p>
+    <p style="margin-top:10px;">Meanwhile the platforms that do ship it ship it deeply: help-centre knowledge-base import at one, two-way Salesforce and HubSpot sync at another. Nobody's model quality decides these deals. Their integration surface does. This is the least commoditized layer in the stack and the one where a specialist can still beat a better-funded generalist outright.</p>
+  </div>
+</div>
+
+<p class="body" style="margin-top:24px;">Notice what these four have in common: <strong>not one of them gets cheaper when inference gets cheaper.</strong> Three of them get <em>more</em> valuable, because a world of cheap capable agents is a world with more calls to evaluate, more regulations to satisfy, and more systems of record to write into.</p>
+
+<!-- ============ 09 ============ -->
+<div class="section-header" id="inhouse">
+  <span class="section-num">09 ——</span>
+  <span class="section-title">The in-house builder's trap</span>
+  <span class="section-desc">A pattern, not a company</span>
+</div>
+
+<p class="body">There is a failure mode I keep running into when large product organizations build voice agents internally, and it is the exact inverse of what you would expect. In-house teams are usually accused of reinventing infrastructure. What they actually do is subtler and more expensive: <strong>they build the un-commoditized layers rather well, and then dramatically under-buy the commodity ones.</strong></p>
+
+<p class="body">The archetype looks like this. The team has invested real effort in a scenario harness — synthetic test audio, an adversarial test model, generated conversation scenarios — and in an operations cockpit that beats commercial platforms outright on the parts that matter after launch: product insights, repeat-caller detection, per-line-of-business summarization. Those are precisely the layers above the waterline. That is money spent correctly.</p>
+
+<p class="body">And then the commodity layers sit frozen at whatever was wired in during the first sprint:</p>
+
+<div class="diagram">
+  <div class="diagram-label">Exhibit I — The under-buying pattern</div>
+  <div class="diagram-sub">Each row is a commodity layer left at its first-sprint default, against what the market now offers for it.</div>
+  <div class="tbl-scroll">
+  <table class="tbl">
+    <thead><tr><th style="width:210px;">Typical in-house state</th><th>What the commodity market offers today</th><th style="width:230px;">The move</th></tr></thead>
+    <tbody>
+      <tr><td><strong>One inference provider, two models</strong></td><td>Eight or more providers; the good-enough brain at ~$0.001/min</td><td>Add a cheap-fast tier and a fallback. Pure latency and cost win, no lock-in incurred.</td></tr>
+      <tr><td><strong>One fixed premium voice</strong></td><td>Commodity synthesis at $15–17/1M chars against $165/1M for the premium tier — roughly <strong>10×</strong></td><td>Keep the premium voice where brand actually matters; move high-volume lines of business to the commodity tier.</td></tr>
+      <tr><td><strong>No language selection</strong> — often an empty dropdown</td><td>Indic speech recognition at ₹30/hr, at price parity with English</td><td>Populate it. This is a configuration gap, not a cost problem — and in India the caller base is multilingual by default.</td></tr>
+      <tr><td><strong>No turn-taking or barge-in controls</strong></td><td>Now an off-the-shelf dropdown across every major orchestration framework</td><td>Buy it; do not engineer it. This layer is commoditizing underneath you as you read this.</td></tr>
+      <tr class="hl"><td><strong>One fixed telephony provider, outbound only</strong></td><td>Regulated-India telephony is a moat you already sit inside</td><td>The one place a fixed choice is defensible — but shipping outbound-only forfeits the moat's actual value, which is inbound.</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="footnote">Composite drawn from hands-on evaluation of in-house and commercial platforms <span class="tag tag-o">O</span>. The pattern is consistent enough to be worth stating as a rule.</div>
+</div>
+
+<div class="callout">
+  The strategic picture this produces is unusually clean, and it is good news: <strong>the weak dimensions are all cheap commodity fixes, and the strong ones are already the right places to be spending.</strong> An in-house team in this position should aggressively buy down its commodity layers and keep investing in scenarios and operations.
+</div>
+
+<p class="body">The trap, stated plainly: a fixed default at a commodity layer feels like a decision that was made. It usually isn't — it is a decision that was <em>never revisited</em> after the layer beneath it collapsed in price. The audit is worth running annually, and it takes an afternoon.</p>
+
+<!-- ============ 10 ============ -->
+<div class="section-header" id="next">
+  <span class="section-num">10 ——</span>
+  <span class="section-title">What commoditizes next</span>
+  <span class="section-desc">Four predictions, each falsifiable</span>
+</div>
+
+<p class="body">A commoditization map is only worth writing if it makes claims that can later be checked and found wrong. So here is the waterline as a moving object, with dates attached and — more importantly — with the specific observation that would prove each prediction false.</p>
+
+<div class="diagram">
+  <div class="diagram-label">Exhibit J — The waterline over time</div>
+  <div class="diagram-sub">The height of the line is the highest layer that has cleared. Solid to the left of today, dashed and hollow to the right — those are forecasts, not observations.</div>
+  <div class="chart-wrap" id="wrap-time">
+    <div class="tip" id="tip-time"></div>
+    <svg id="chart-time" viewBox="0 0 920 320" role="img" aria-label="Timeline of the commoditization waterline rising through the voice AI stack from 2024 to 2028"></svg>
+  </div>
+  <div class="footnote">Dates for cleared layers are when three or more credible vendors first sat inside a 2× price band with an open-source floor beneath them. Forecast dates are mine <span class="tag tag-m">M</span>.</div>
+</div>
+
+<div class="diagram">
+  <div class="diagram-label">Exhibit K — The prediction ledger</div>
+  <div class="diagram-sub">Written down so they can be checked, which is the only kind of prediction worth making.</div>
+  <div class="tbl-scroll">
+  <table class="tbl">
+    <thead><tr><th style="width:74px;">Horizon</th><th style="width:250px;">Prediction</th><th>Why I believe it</th><th style="width:230px;">What would falsify it</th></tr></thead>
+    <tbody>
+      <tr class="hl">
+        <td class="num"><strong>≤ 12 mo</strong><br><span style="color:var(--muted);">by mid-2027</span></td>
+        <td><strong>Semantic endpointing is bundled free into every speech-recognition vendor</strong> and stops being a differentiator.</td>
+        <td>It is already a vendor dropdown inside the major platforms <span class="tag tag-o">O</span>, and one vendor is currently selling it as a 35%-premium SKU. Premium SKUs for a feature four competitors also ship do not survive a year.</td>
+        <td>The endpointing premium still exists at mid-2027, or turn-taking quality visibly diverges between vendors on a shared benchmark.</td>
+      </tr>
+      <tr class="hl">
+        <td class="num"><strong>12–24 mo</strong><br><span style="color:var(--muted);">by mid-2028</span></td>
+        <td><strong>Simulation and batch regression become table stakes, and the $0.10/min quality-assurance price collapses toward $0.01–0.02.</strong></td>
+        <td>Three platforms shipped multi-turn simulation within about a year of each other, and one already meters evaluation at ₹2/min <span class="tag tag-o">O</span>. Convergent shipping at that pace is what a layer looks like just before it clears.</td>
+        <td>AI quality assurance still prices above $0.05/min in mid-2028 — which would mean conversational quality resisted measurement longer than the measurement rule predicts.</td>
+      </tr>
+      <tr class="hl">
+        <td class="num"><strong>12–24 mo</strong></td>
+        <td><strong>Platform orchestration fees compress from ~$0.05/min toward $0.02–0.03.</strong></td>
+        <td>A managed vendor already clears the same function at $0.01/min and open source clears it at $0. Three independent vendors landing on exactly $0.05 is a price umbrella, and umbrellas break.</td>
+        <td>Fees hold at $0.05+ through 2028, which would mean the bundled reliability and support around orchestration is worth more than I think.</td>
+      </tr>
+      <tr>
+        <td class="num"><strong>ongoing</strong></td>
+        <td><strong>Speech-to-speech wins naturalness before it wins cost;</strong> cascaded stays the default for regulated and money-touching flows.</td>
+        <td>The cheapest realtime audio model already reaches cascaded parity at ~$0.018/min, but the 2–3× audio-token tax is structural and transcript inspectability is weak.</td>
+        <td>A native audio model ships per-turn inspectable transcripts <em>and</em> undercuts a cascaded stack on price. Both, not either.</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="footnote">The meta-prediction, from <a href="#rule">§02</a>: <strong>the eval layer's price will not decay smoothly — it will fall off a cliff within a couple of quarters of the first public benchmark for conversational quality that buyers accept.</strong> If you are betting on an evaluation moat, the leaderboard is the thing to watch, not your competitors.</div>
+</div>
+
+<!-- ============ 11 ============ -->
+<div class="section-header" id="sowhat">
+  <span class="section-num">11 ——</span>
+  <span class="section-title">So what</span>
+  <span class="section-desc">Three readers, three conclusions</span>
+</div>
+
+<div class="two-col">
+  <div class="insight">
+    <span class="kicker">If you're buying a platform</span>
+    <h4>Stop diligencing model menus</h4>
+    <p>Every serious platform now offers the same recognition, synthesis and language models, and the caller cannot tell which one you picked. Treat a vendor differentiating on <em>"we support 20+ models"</em> as differentiating on a commodity.</p>
+    <p style="margin-top:10px;">Spend the diligence where the spread is real: <strong>the eval harness, the production ops loop, compliance posture, and telephony for your specific geography.</strong> Those four are where otherwise-similar platforms range from best-in-class to nonexistent.</p>
+  </div>
+  <div class="insight">
+    <span class="kicker">If you're pricing a platform</span>
+    <h4>Your minute is your exposure</h4>
+    <p>The ~$0.05/min orchestration fee is the most exposed revenue line in the industry — a five-times markup on a layer with a genuine $0 floor and two credible substitutes. The add-ons are the opposite: defensible, and priced by scarcity you did not manufacture.</p>
+    <p style="margin-top:10px;"><strong>Margin is migrating from the minute to the outcome</strong> — to evaluation, compliance, reliability guarantees and vertical integration. Price accordingly, before the umbrella breaks and you have to.</p>
+  </div>
+</div>
+<div class="insight" style="margin-top:12px;">
+  <span class="kicker">If you're building in-house</span>
+  <h4>Buy the bottom of the stack with both hands</h4>
+  <p>Everything below the waterline should be a purchase decision revisited annually, not an architecture decision made once. Everything above it is where your team's time converts into something a vendor cannot sell you: your evaluation suite, your operations loop, your domain SOPs, and your integration into the system of record that actually resolves the customer's problem. <strong>The failure mode is not building too much — it is building the right things while quietly overpaying for the wrong ones.</strong></p>
+</div>
+
+<!-- ============ 12 ============ -->
+<div class="section-header" id="gaps">
+  <span class="section-num">12 ——</span>
+  <span class="section-title">What I couldn't verify</span>
+  <span class="section-desc">Read this before quoting anything above</span>
+</div>
+
+<p class="body">A price sheet dated to a single day is only useful if it is equally explicit about what isn't on it. The following was <strong>not verified in this pass</strong> and is deliberately absent rather than guessed at. Several of these are load-bearing.</p>
+
+<div class="diagram">
+  <div class="tbl-scroll">
+  <table class="tbl">
+    <thead><tr><th style="width:250px;">Gap</th><th>Why it matters</th></tr></thead>
+    <tbody>
+      <tr class="hl-warm"><td><strong>Indic quality benchmarks</strong></td><td>No word-error-rate or opinion-score evidence for Hinglish code-switching at 8 kHz. The claim "Indic price is commodity, Indic quality is not" rests on pricing plus hands-on impressions, <em>not</em> on a measured comparison. <strong>This is the highest-value gap on the list</strong> — it is the one that decides real deployment choices in India.</td></tr>
+      <tr><td><strong>Open-weight speech models</strong></td><td>Open recognition and synthesis models, and their standings on public leaderboards, were not checked. The open-source floor beneath the recognition and baseline-synthesis layers is therefore asserted from <em>price</em> evidence only, not from measured quality.</td></tr>
+      <tr><td><strong>Contact-centre incumbents</strong></td><td>The established CCaaS vendors bundling voice agents into existing seats — and outcome-based pricing models — are unassessed. That is commoditization arriving <em>from above</em>, and this analysis only looks upward from the infrastructure.</td></tr>
+      <tr><td><strong>Funding, M&amp;A and consolidation</strong></td><td>No coverage. Any claim here about who outlasts whom would be unsupported.</td></tr>
+      <tr><td><strong>Two vendors' per-minute rates</strong></td><td>One synthesis vendor publishes only credit bundles, no per-character rate and no latency claim — it appears in this analysis solely as filtered through a reseller's price. Another publishes synthesis credits but no conversational per-minute rate.</td></tr>
+      <tr><td><strong>India regulatory change in 2026</strong></td><td>Current rules on automated and AI-originated calls, and caller-name presentation rollout, were not re-checked. The telephony moat claim rests on hands-on onboarding friction <span class="tag tag-o">O</span> — good evidence the moat exists, weaker evidence of its present legal detail.</td></tr>
+      <tr class="hl-warm"><td><strong>Every <span class="tag tag-m">M</span> figure is mine, not a vendor's</strong></td><td>The token and character assumptions are stated in <a href="#dispersion">§03</a> precisely so they can be attacked. The six-fold disagreement documented in <a href="#reconcile">§06</a> is the weakest link in the arithmetic, and I have flagged it rather than smoothed it.</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="footnote">Prices move. Everything here is a snapshot of <strong>26 July 2026</strong> and should be re-fetched before any of it is used in a decision. The <em>structure</em> of the argument — dispersion as measurement, the measurement rule, margin migrating to the outcome — should outlast the specific numbers.</div>
+</div>
+
+<hr class="rule">
+
+<!-- READ NEXT -->
+<div class="diagram" style="background:var(--surface2);">
+  <div class="diagram-label">Read next — the rest of the Voice AI series</div>
+  <div class="diagram-sub">This piece is the market-level view. The three below are the platform-level teardowns it generalizes from, and the thesis is the argument for the layer this analysis says is scarcest.</div>
+  <div class="tbl-scroll">
+  <table class="tbl">
+    <tbody>
+      <tr><td style="width:170px;"><strong><a href="bolna-deepdive.html" style="color:var(--accent);text-decoration:none;">Bolna AI &rarr;</a></strong></td><td>200K calls/day, sub-600ms pipeline, and an MIT-licensed orchestration engine — the open-source floor under layer five, shipped by a company that sells the layer above it.</td></tr>
+      <tr><td><strong><a href="smallest-deepdive.html" style="color:var(--accent);text-decoration:none;">Smallest.ai &rarr;</a></strong></td><td>The full-stack counter-argument: own the models and the commodity curve works <em>for</em> you. 20× cost reduction to $0.01/min.</td></tr>
+      <tr><td><strong><a href="ringg-deepdive.html" style="color:var(--accent);text-decoration:none;">Ringg.ai &rarr;</a></strong></td><td>Distribution-first, ~85% assembled from vendor APIs — the purest test of whether a GTM moat outlasts the commodity curve.</td></tr>
+      <tr><td><strong><a href="mixpanel-voice-ai.html" style="color:var(--accent);text-decoration:none;">Mixpanel for Voice AI &rarr;</a></strong></td><td>The thesis this analysis keeps arriving at from the pricing side: the observability and evaluation layer is the scarce one, and nobody has built it properly.</td></tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<hr class="rule">
+
+<div class="srcs">
+  <strong style="color:var(--text2);font-family:'Space Mono',monospace;">Sources</strong> — all list prices fetched 26 July 2026:
+  <a href="https://deepgram.com/pricing" target="_blank" rel="noopener">deepgram.com/pricing</a> ·
+  <a href="https://www.assemblyai.com/pricing" target="_blank" rel="noopener">assemblyai.com/pricing</a> ·
+  <a href="https://elevenlabs.io/pricing" target="_blank" rel="noopener">elevenlabs.io/pricing</a> ·
+  <a href="https://cartesia.ai/pricing" target="_blank" rel="noopener">cartesia.ai/pricing</a> ·
+  <a href="https://www.twilio.com/en-us/voice/pricing/us" target="_blank" rel="noopener">twilio.com/voice/pricing/us</a> ·
+  <a href="https://ai.google.dev/gemini-api/docs/pricing" target="_blank" rel="noopener">ai.google.dev/gemini-api/docs/pricing</a> ·
+  <a href="https://developers.openai.com/api/docs/pricing" target="_blank" rel="noopener">developers.openai.com/api/docs/pricing</a> ·
+  <a href="https://livekit.io/pricing" target="_blank" rel="noopener">livekit.io/pricing</a> ·
+  <a href="https://docs.sarvam.ai/api-reference-docs/pricing" target="_blank" rel="noopener">docs.sarvam.ai — pricing</a> ·
+  <a href="https://www.retellai.com/pricing" target="_blank" rel="noopener">retellai.com/pricing</a> ·
+  <a href="https://vapi.ai/pricing" target="_blank" rel="noopener">vapi.ai/pricing</a>.
+  <br>
+  Open-source orchestration floor: <a href="https://github.com/livekit/agents" target="_blank" rel="noopener">livekit/agents</a> ·
+  <a href="https://github.com/pipecat-ai/pipecat" target="_blank" rel="noopener">pipecat-ai/pipecat</a> ·
+  <a href="https://github.com/bolna-ai/bolna" target="_blank" rel="noopener">bolna-ai/bolna</a>.
+  <br><br>
+  Hands-on observations <span class="tag tag-o">O</span> come from building and testing on these platforms directly, July 2026. Modelled figures <span class="tag tag-m">M</span> use the token and character assumptions stated in §03. Colour scales on every chart were validated for colour-vision deficiency separation before publication. Bengaluru, July 2026.
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  var C = {
+    c1: '#86a9cb', c2: '#5e8cba', c3: '#3a6a9e', c4: '#1d4d7f',
+    rust: '#a63a1e', warm: '#cf8a5f', neutral: '#9a9691',
+    surface: '#f0efea', border: '#d5d2ca', muted: '#6b6e73',
+    text: '#1a1c20', text2: '#3a3d42', accent: '#2563a8'
+  };
+  var MONO = "'Space Mono', monospace";
+
+  function esc(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+  function el(tag, attrs, text) {
+    var n = document.createElementNS('http://www.w3.org/2000/svg', tag);
+    for (var k in attrs) { if (attrs[k] !== null && attrs[k] !== undefined) n.setAttribute(k, attrs[k]); }
+    if (text !== undefined) n.textContent = text;
+    return n;
+  }
+  function label(x, y, str, opts) {
+    opts = opts || {};
+    return el('text', {
+      x: x, y: y,
+      'font-family': opts.font || MONO,
+      'font-size': opts.size || 10,
+      'font-weight': opts.weight || 400,
+      fill: opts.fill || C.muted,
+      'text-anchor': opts.anchor || 'start',
+      'letter-spacing': opts.ls || 0
+    }, str);
+  }
+  // hover plumbing: every element carrying data-tip gets the shared tooltip
+  function wireTips(wrapId, tipId) {
+    var wrap = document.getElementById(wrapId);
+    var tip = document.getElementById(tipId);
+    if (!wrap || !tip) return;
+    wrap.addEventListener('mouseover', function (e) {
+      var t = e.target.closest('[data-tip]');
+      if (!t) return;
+      var r = t.getBoundingClientRect(), w = wrap.getBoundingClientRect();
+      tip.innerHTML = t.getAttribute('data-tip');
+      tip.style.left = (r.left + r.width / 2 - w.left) + 'px';
+      tip.style.top = (r.top - w.top - 6) + 'px';
+      tip.style.opacity = '1';
+    });
+    wrap.addEventListener('mouseout', function (e) {
+      if (e.target.closest('[data-tip]')) tip.style.opacity = '0';
+    });
+  }
+  function money(v) {
+    if (v >= 0.1) return '$' + v.toFixed(3);
+    if (v >= 0.01) return '$' + v.toFixed(3);
+    return '$' + v.toFixed(4);
+  }
+
+  /* ---------------- Exhibit C — dispersion strip plot ---------------- */
+  function dispersion() {
+    var svg = document.getElementById('chart-disp');
+    if (!svg) return;
+    var W = 920, padL = 172, padR = 116, top = 34, rowH = 47;
+    var lo = 0.0002, hi = 0.32;
+    var lmin = Math.log(lo) / Math.LN10, lmax = Math.log(hi) / Math.LN10;
+    var plotW = W - padL - padR;
+    var x = function (v) { return padL + (Math.log(v) / Math.LN10 - lmin) / (lmax - lmin) * plotW; };
+
+    var rows = [
+      { name: 'Telephony', unit: 'inbound carriage', band: [0.0085, 0.015], spread: '1.8×',
+        pts: [
+          { v: 0.0085, n: 'Twilio US inbound local', t: 1 },
+          { v: 0.0100, n: 'LiveKit Cloud inbound', t: 1 },
+          { v: 0.0140, n: 'Twilio US outbound local', t: 1 },
+          { v: 0.0150, n: 'Resold by platform', t: 1 },
+          { v: 0.0220, n: 'Twilio US toll-free inbound', t: 0 }
+        ], mark: 0.0085 },
+      { name: 'Speech recognition', unit: 'streaming, English', band: [0.0025, 0.0075], spread: '3.0×',
+        pts: [
+          { v: 0.0025, n: 'AssemblyAI Universal-Streaming', t: 1 },
+          { v: 0.0030, n: 'OpenAI gpt-4o-mini-transcribe', t: 1 },
+          { v: 0.0048, n: 'Deepgram Nova-3 mono', t: 1 },
+          { v: 0.0058, n: 'Deepgram Nova-3 multilingual', t: 1 },
+          { v: 0.0060, n: 'Sarvam STT — Indic', t: 1 },
+          { v: 0.0065, n: 'Deepgram Flux — turn-aware', t: 1 },
+          { v: 0.0075, n: 'AssemblyAI Universal-3.5 Pro', t: 1 }
+        ], mark: 0.0025 },
+      { name: 'Language model', unit: 'the brain', band: [0.0009, 0.003], spread: '3.3×',
+        pts: [
+          { v: 0.0003, n: 'Sarvam-30B', t: 1 },
+          { v: 0.0009, n: 'Gemini 2.5 Flash-Lite', t: 1 },
+          { v: 0.0020, n: 'GPT-5.4-nano', t: 1 },
+          { v: 0.0030, n: 'Gemini 3.5 Flash-Lite', t: 1 },
+          { v: 0.0070, n: 'GPT-5.4-mini', t: 0 },
+          { v: 0.0140, n: 'Gemini 3.6 Flash', t: 0 },
+          { v: 0.0240, n: 'GPT-5.4', t: 0 },
+          { v: 0.0470, n: 'GPT-5.5', t: 0 }
+        ], mark: 0.0009 },
+      { name: 'Speech synthesis', unit: 'per minute spoken', band: [0.004, 0.009], spread: '2.3× · 11× full',
+        pts: [
+          { v: 0.0040, n: 'Deepgram Aura-1', t: 1 },
+          { v: 0.0045, n: 'Sarvam Bulbul v2', t: 1 },
+          { v: 0.0080, n: 'Deepgram Aura-2', t: 1 },
+          { v: 0.0090, n: 'Sarvam Bulbul v3', t: 1 },
+          { v: 0.0240, n: 'ElevenLabs Creator', t: 0 },
+          { v: 0.0440, n: 'ElevenLabs Pro / Scale', t: 0 }
+        ], mark: 0.044, markSide: 'r' },
+      { name: 'Speech-to-speech', unit: 'native realtime audio', band: null, spread: '7.1×',
+        pts: [
+          { v: 0.0180, n: 'Gemini 3.1 Flash Live', t: 0 },
+          { v: 0.0400, n: 'gpt-realtime-2.1-mini', t: 0 },
+          { v: 0.1280, n: 'gpt-realtime-2.1', t: 0 }
+        ], mark: 0.128, markSide: 'r' },
+      { name: 'Orchestration', unit: 'engine + transport', band: null, spread: '5.5× over $0',
+        zero: true,
+        pts: [
+          { v: 0.0100, n: 'LiveKit Cloud agent session', t: 1 },
+          { v: 0.0500, n: 'Vapi platform fee', t: 0 },
+          { v: 0.0550, n: 'Retell voice engine', t: 0 }
+        ], mark: 0.055, markSide: 'r' }
+    ];
+
+    var H = top + rows.length * rowH + 26;
+    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+
+    // gridlines at decades + soft minors
+    [0.0005, 0.001, 0.002, 0.005, 0.01, 0.02, 0.05, 0.1, 0.2].forEach(function (t) {
+      var major = (t === 0.001 || t === 0.01 || t === 0.1);
+      svg.appendChild(el('line', {
+        x1: x(t), x2: x(t), y1: top - 14, y2: top + rows.length * rowH - 12,
+        stroke: major ? C.border : '#e4e2dc', 'stroke-width': 1
+      }));
+      if (major) {
+        svg.appendChild(label(x(t), top - 20, '$' + (t < 0.01 ? t.toFixed(3) : t.toFixed(2)), { size: 9.5, anchor: 'middle' }));
+      }
+    });
+    svg.appendChild(label(padL, top - 20, 'per minute →', { size: 9, anchor: 'start', fill: '#a9a59f' }));
+
+    rows.forEach(function (r, i) {
+      var y = top + i * rowH + 14;
+      var cy = y + 12;
+
+      svg.appendChild(label(0, cy - 3, r.name, { size: 11.5, font: "'Nunito Sans', sans-serif", weight: 600, fill: C.text }));
+      svg.appendChild(label(0, cy + 10, r.unit, { size: 9, fill: C.muted }));
+
+      if (r.band) {
+        svg.appendChild(el('rect', {
+          x: x(r.band[0]) - 11, y: cy - 13, width: x(r.band[1]) - x(r.band[0]) + 22, height: 26,
+          rx: 4, fill: 'rgba(37,99,168,0.10)', stroke: C.c1, 'stroke-width': 1
+        }));
+      }
+      if (r.zero) {
+        svg.appendChild(el('rect', { x: padL - 46, y: cy - 6, width: 13, height: 13, rx: 2, fill: C.c4 }));
+        svg.appendChild(label(padL - 39, cy - 12, '$0', { size: 9, anchor: 'middle', fill: C.c4, weight: 700 }));
+        svg.appendChild(el('path', {
+          d: 'M' + (padL - 20) + ',' + (cy + 7) + ' l5,-14 M' + (padL - 14) + ',' + (cy + 7) + ' l5,-14',
+          stroke: '#b9b5ae', 'stroke-width': 1.4, fill: 'none'
+        }));
+      }
+
+      r.pts.forEach(function (p) {
+        var col = p.t ? C.c3 : C.rust;
+        svg.appendChild(el('circle', { cx: x(p.v), cy: cy, r: 5.5, fill: col, stroke: C.surface, 'stroke-width': 2 }));
+        var hit = el('circle', { cx: x(p.v), cy: cy, r: 10, fill: 'transparent' });
+        hit.setAttribute('data-tip', '<b>' + esc(p.n) + '</b><br><i>' + money(p.v) + ' / min</i>');
+        hit.style.cursor = 'crosshair';
+        svg.appendChild(hit);
+      });
+
+      // one selective direct label per row — the value that carries the story
+      var m = r.pts.filter(function (p) { return Math.abs(p.v - r.mark) < 1e-9; })[0];
+      if (m) {
+        var side = r.markSide === 'r';
+        svg.appendChild(label(x(m.v) + (side ? 13 : -13), cy - 12, money(m.v), {
+          size: 10, weight: 700, anchor: side ? 'start' : 'end', fill: m.t ? C.c4 : C.rust
+        }));
+      }
+
+      svg.appendChild(label(W, cy + 4, r.spread, { size: 10.5, weight: 700, anchor: 'end', fill: C.text2 }));
+    });
+
+    svg.appendChild(label(W, top - 20, 'spread in band', { size: 9, anchor: 'end', fill: '#a9a59f' }));
+    wireTips('wrap-disp', 'tip-disp');
+  }
+
+  /* ---------------- Exhibit D — anatomy of a minute ---------------- */
+  function minute() {
+    var svg = document.getElementById('chart-min');
+    if (!svg) return;
+    var W = 920, padL = 200, padR = 92, top = 30, rowH = 66, barH = 26;
+    var max = 0.285;
+    var plotW = W - padL - padR;
+    var x = function (v) { return padL + v / max * plotW; };
+
+    var segs = [
+      { k: 'tel', n: 'Telephony', c: C.c1 },
+      { k: 'stt', n: 'Speech recognition', c: C.c2 },
+      { k: 'llm', n: 'Language model', c: C.c3 },
+      { k: 'tts', n: 'Speech synthesis', c: C.c4 },
+      { k: 'orc', n: 'Orchestration / platform fee', c: C.rust }
+    ];
+    var bars = [
+      { name: 'Commodity build', sub: 'self-hosted, cheapest per layer', total: 0.021,
+        v: { tel: 0.0085, stt: 0.0025, llm: 0.001, tts: 0.008, orc: 0.001 },
+        d: { tel: 'Twilio US inbound', stt: 'AssemblyAI Universal-Streaming', llm: 'Gemini 2.5 Flash-Lite', tts: 'Deepgram Aura-2', orc: 'Open source — $0 licence, nominal compute' } },
+      { name: 'Retail — cheap stack', sub: 'one platform, cheapest options', total: 0.110,
+        v: { tel: 0.015, stt: 0, llm: 0.025, tts: 0.015, orc: 0.055 },
+        d: { tel: 'Platform-resold number', llm: 'Claude 4.5 Haiku', tts: 'Commodity voice tier', orc: 'Voice engine fee — recognition folded in' } },
+      { name: 'Retail — premium stack', sub: 'same platform, premium options', total: 0.270,
+        v: { tel: 0.015, stt: 0, llm: 0.160, tts: 0.040, orc: 0.055 },
+        d: { tel: 'Platform-resold number', llm: 'GPT-5.5', tts: 'ElevenLabs', orc: 'Voice engine fee — recognition folded in' } }
+    ];
+
+    var H = top + bars.length * rowH + 30;
+    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+
+    [0, 0.05, 0.10, 0.15, 0.20, 0.25].forEach(function (t) {
+      svg.appendChild(el('line', { x1: x(t), x2: x(t), y1: top - 12, y2: top + bars.length * rowH - 22, stroke: '#e4e2dc', 'stroke-width': 1 }));
+      svg.appendChild(label(x(t), top - 18, '$' + t.toFixed(2), { size: 9.5, anchor: 'middle' }));
+    });
+
+    bars.forEach(function (b, i) {
+      var y = top + i * rowH;
+      svg.appendChild(label(0, y + 14, b.name, { size: 12.5, font: "'Nunito Sans', sans-serif", weight: 600, fill: C.text }));
+      svg.appendChild(label(0, y + 28, b.sub, { size: 8.5, fill: C.muted }));
+
+      var cursor = 0;
+      segs.forEach(function (s) {
+        var val = b.v[s.k] || 0;
+        if (val <= 0) return;
+        var x0 = x(cursor), x1 = x(cursor + val);
+        var w = Math.max(x1 - x0 - 2, 1.5); // 2px surface gap between segments
+        var rect = el('rect', { x: x0, y: y + 4, width: w, height: barH, fill: s.c, rx: 0 });
+        rect.setAttribute('data-tip', '<b>' + esc(s.n) + '</b><br><i>' + money(val) + ' / min — ' + esc(b.d[s.k] || '') + '</i>');
+        rect.style.cursor = 'crosshair';
+        svg.appendChild(rect);
+        cursor += val;
+      });
+
+      svg.appendChild(label(x(b.total) + 12, y + 22, '$' + b.total.toFixed(3), {
+        size: 13, weight: 700, fill: i === 0 ? C.c4 : C.text, font: MONO
+      }));
+      if (i > 0) {
+        svg.appendChild(label(x(b.total) + 12, y + 35, (b.total / 0.021).toFixed(1) + '× the floor', { size: 8.5, fill: C.rust }));
+      }
+    });
+
+    // inference floor reference rule
+    var fy0 = top - 6, fy1 = top + bars.length * rowH - 22;
+    svg.appendChild(el('line', { x1: x(0.021), x2: x(0.021), y1: fy0, y2: fy1, stroke: C.c4, 'stroke-width': 1.5 }));
+    svg.appendChild(label(x(0.021) + 5, fy1 + 16, 'the inference floor — $0.021', { size: 9.5, weight: 700, fill: C.c4 }));
+
+    wireTips('wrap-min', 'tip-min');
+  }
+
+  /* ---------------- Exhibit F — the audio tax ---------------- */
+  function audioTax() {
+    var svg = document.getElementById('chart-tax');
+    if (!svg) return;
+    var W = 920, padL = 210, padR = 150, top = 26, rowH = 56, barH = 17;
+    var max = 0.55;
+    var plotW = W - padL - padR;
+    var x = function (v) { return padL + v / max * plotW; };
+
+    var rows = [
+      { n: 'Gemini 2.5 Flash-Lite', text: 0.10, audio: 0.30, mult: '3.0×' },
+      { n: 'Gemini 3.1 Flash-Lite', text: 0.25, audio: 0.50, mult: '2.0×' }
+    ];
+    var H = top + rows.length * rowH + 28;
+    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+
+    [0, 0.1, 0.2, 0.3, 0.4, 0.5].forEach(function (t) {
+      svg.appendChild(el('line', { x1: x(t), x2: x(t), y1: top - 10, y2: top + rows.length * rowH - 14, stroke: '#e4e2dc', 'stroke-width': 1 }));
+      svg.appendChild(label(x(t), top - 16, '$' + t.toFixed(2), { size: 9.5, anchor: 'middle' }));
+    });
+
+    rows.forEach(function (r, i) {
+      var y = top + i * rowH;
+      svg.appendChild(label(0, y + 20, r.n, { size: 12, font: "'Nunito Sans', sans-serif", weight: 600, fill: C.text }));
+
+      [['text', C.c1, r.text, 'text input'], ['audio', C.c4, r.audio, 'audio input']].forEach(function (p, j) {
+        var by = y + 2 + j * (barH + 4);
+        var rect = el('rect', { x: padL, y: by, width: Math.max(x(p[2]) - padL, 2), height: barH, fill: p[1] });
+        rect.setAttribute('data-tip', '<b>' + esc(r.n) + ' — ' + p[3] + '</b><br><i>$' + p[2].toFixed(2) + ' per 1M tokens</i>');
+        rect.style.cursor = 'crosshair';
+        svg.appendChild(rect);
+        svg.appendChild(label(x(p[2]) + 8, by + 13, p[3], { size: 9, fill: C.muted }));
+      });
+
+      svg.appendChild(label(W, y + 26, r.mult + ' audio', { size: 13, weight: 700, anchor: 'end', fill: C.rust }));
+    });
+    svg.appendChild(label(W, top - 16, 'per 1M input tokens', { size: 9, anchor: 'end', fill: '#a9a59f' }));
+    wireTips('wrap-tax', 'tip-tax');
+  }
+
+  /* ---------------- Exhibit G — add-ons as multiples ---------------- */
+  function addons() {
+    var svg = document.getElementById('chart-addon');
+    if (!svg) return;
+    var W = 920, padL = 262, padR = 130, top = 26, rowH = 34, barH = 19;
+    var max = 5.2;
+    var plotW = W - padL - padR;
+    var x = function (v) { return padL + v / max * plotW; };
+
+    var rows = [
+      { n: 'AI quality assurance', p: '$0.10/min', m: 4.76, note: 'Evaluating the call costs ~2× the platform\'s own voice-engine fee' },
+      { n: '"Stable server cluster"', p: '+$0.02/min', m: 0.95, note: 'Reliability itself, sold as an upgrade' },
+      { n: 'PII removal', p: '$0.01/min', m: 0.48, note: 'Compliance plumbing ≈ half a call' },
+      { n: 'Knowledge base', p: '$0.005/min', m: 0.24, note: '≈ 5 good-enough language models' },
+      { n: 'Background denoising', p: '$0.005/min', m: 0.24, note: '≈ 5 good-enough language models' },
+      { n: 'Guardrails', p: '$0.005/min', m: 0.24, note: '≈ 5 good-enough language models' }
+    ];
+    var H = top + rows.length * rowH + 30;
+    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+
+    [0, 1, 2, 3, 4, 5].forEach(function (t) {
+      svg.appendChild(el('line', { x1: x(t), x2: x(t), y1: top - 10, y2: top + rows.length * rowH - 8, stroke: t === 1 ? C.c4 : '#e4e2dc', 'stroke-width': t === 1 ? 1.5 : 1 }));
+      svg.appendChild(label(x(t), top - 16, t + '×', { size: 9.5, anchor: 'middle', fill: t === 1 ? C.c4 : C.muted, weight: t === 1 ? 700 : 400 }));
+    });
+    svg.appendChild(label(x(1) + 6, top + rows.length * rowH + 6, 'one whole commodity minute — $0.021', { size: 9.5, weight: 700, fill: C.c4 }));
+
+    rows.forEach(function (r, i) {
+      var y = top + i * rowH;
+      svg.appendChild(label(0, y + 15, r.n, { size: 12, font: "'Nunito Sans', sans-serif", weight: 600, fill: C.text }));
+      svg.appendChild(label(padL - 12, y + 15, r.p, { size: 10, anchor: 'end', fill: C.muted }));
+      var rect = el('rect', { x: padL, y: y + 2, width: Math.max(x(r.m) - padL, 2), height: barH, fill: r.m >= 1 ? C.rust : C.warm });
+      rect.setAttribute('data-tip', '<b>' + esc(r.n) + ' — ' + r.p + '</b><br><i>' + r.m.toFixed(2) + '× a commodity minute · ' + esc(r.note) + '</i>');
+      rect.style.cursor = 'crosshair';
+      svg.appendChild(rect);
+      svg.appendChild(label(x(r.m) + 9, y + 16, r.m.toFixed(2) + '×', { size: 11, weight: 700, fill: r.m >= 1 ? C.rust : C.text2 }));
+    });
+    wireTips('wrap-addon', 'tip-addon');
+  }
+
+  /* ---------------- Exhibit J — the waterline over time ---------------- */
+  function timeline() {
+    var svg = document.getElementById('chart-time');
+    if (!svg) return;
+    var W = 920, padL = 226, padR = 40, top = 26, botPad = 46;
+    var t0 = 2024.0, t1 = 2028.2;
+    var layers = [
+      'Media transport',
+      'Speech recognition — English',
+      'Baseline speech synthesis',
+      'Orchestration engine',
+      'Turn-taking & endpointing',
+      'Eval & simulation harness'
+    ];
+    var rowH = 40;
+    var H = top + layers.length * rowH + botPad;
+    var plotW = W - padL - padR;
+    var x = function (t) { return padL + (t - t0) / (t1 - t0) * plotW; };
+    var y = function (i) { return top + (layers.length - 1 - i) * rowH + 16; };
+
+    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+
+    // year gridlines
+    [2024, 2025, 2026, 2027, 2028].forEach(function (yr) {
+      svg.appendChild(el('line', { x1: x(yr), x2: x(yr), y1: top - 8, y2: y(0) + 18, stroke: '#e4e2dc', 'stroke-width': 1 }));
+      svg.appendChild(label(x(yr), y(0) + 34, String(yr), { size: 10, anchor: 'middle' }));
+    });
+
+    // layer rows
+    layers.forEach(function (n, i) {
+      svg.appendChild(label(padL - 16, y(i) + 4, n, { size: 11, anchor: 'end', font: "'Nunito Sans', sans-serif", weight: 600, fill: i >= 4 ? C.muted : C.text }));
+      svg.appendChild(el('line', { x1: padL, x2: W - padR, y1: y(i), y2: y(i), stroke: '#eae8e2', 'stroke-width': 1 }));
+    });
+
+    var events = [
+      { i: 0, t: 2024.25, n: 'Media transport', d: 'Open-source WebRTC/SIP stacks reach production parity; three managed vendors within 2×.', f: 1 },
+      { i: 1, t: 2024.85, n: 'Speech recognition — English', d: 'Five vendors inside a 2.6× band. Platforms begin auto-selecting the vendor for you.', f: 1 },
+      { i: 2, t: 2025.40, n: 'Baseline speech synthesis', d: 'A reseller prices five suppliers at one identical per-minute rate.', f: 1 },
+      { i: 3, t: 2025.95, n: 'Orchestration engine', d: 'Multiple production-grade open-source agent frameworks; managed equivalent at $0.01/min.', f: 1 },
+      { i: 4, t: 2026.56, n: 'Turn-taking & endpointing', d: 'TODAY — a vendor dropdown, but semantic endpointing still sells at a 35% premium.', f: 0 },
+      { i: 5, t: 2027.60, n: 'Eval & simulation harness', d: 'FORECAST — simulation becomes table stakes; AI-QA collapses toward $0.01–0.02/min.', f: 0 }
+    ];
+
+    // step path
+    function stepPath(from, to) {
+      var d = '';
+      for (var k = from; k <= to; k++) {
+        var e = events[k];
+        if (k === from) { d += 'M' + x(e.t) + ',' + y(e.i); }
+        else { d += ' L' + x(e.t) + ',' + y(events[k - 1].i) + ' L' + x(e.t) + ',' + y(e.i); }
+      }
+      return d;
+    }
+    svg.appendChild(el('path', { d: stepPath(0, 4), fill: 'none', stroke: C.c4, 'stroke-width': 2, 'stroke-linejoin': 'round', 'stroke-linecap': 'round' }));
+    svg.appendChild(el('path', {
+      d: 'M' + x(events[4].t) + ',' + y(4) + ' L' + x(events[5].t) + ',' + y(4) + ' L' + x(events[5].t) + ',' + y(5),
+      fill: 'none', stroke: C.warm, 'stroke-width': 2, 'stroke-dasharray': '5 5', 'stroke-linecap': 'round'
+    }));
+
+    // today rule
+    svg.appendChild(el('line', { x1: x(2026.56), x2: x(2026.56), y1: top - 8, y2: y(0) + 18, stroke: C.accent, 'stroke-width': 1.5 }));
+    svg.appendChild(label(x(2026.56), top - 14, 'JULY 2026', { size: 9, anchor: 'middle', fill: C.accent, weight: 700, ls: '0.1em' }));
+
+    events.forEach(function (e) {
+      var solid = e.f === 1;
+      svg.appendChild(el('circle', {
+        cx: x(e.t), cy: y(e.i), r: 6,
+        fill: solid ? C.c4 : (e.i === 5 ? C.surface : C.accent),
+        stroke: e.i === 5 ? C.warm : C.surface, 'stroke-width': 2
+      }));
+      var hit = el('circle', { cx: x(e.t), cy: y(e.i), r: 14, fill: 'transparent' });
+      hit.setAttribute('data-tip', '<b>' + esc(e.n) + '</b><br><i>' + esc(e.d) + '</i>');
+      hit.style.cursor = 'crosshair';
+      svg.appendChild(hit);
+    });
+
+    svg.appendChild(label(x(2027.60), y(5) - 16, 'forecast', { size: 9, anchor: 'middle', fill: C.warm, weight: 700 }));
+    wireTips('wrap-time', 'tip-time');
+  }
+
+  function boot() { dispersion(); minute(); audioTax(); addons(); timeline(); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+})();
+</script>
+
+</body>
+</html>
