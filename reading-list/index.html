@@ -27,15 +27,20 @@
     -webkit-font-smoothing: antialiased; min-height: 100vh; padding: clamp(40px, 9vh, 96px) 24px 120px; }
   .col { max-width: 640px; margin: 0 auto; }
 
-  header { margin-bottom: 26px; }
+  header { margin-bottom: 22px; }
   h1 { font-weight: 600; font-size: clamp(30px, 6vw, 40px); letter-spacing: -.02em; margin: 0; line-height: 1.05; }
 
-  /* add-a-link */
+  /* auth bar (always visible) */
+  .authbar { font-family: var(--sans); font-size: 13px; margin: 0 0 26px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .authbar .who { color: var(--muted); }
+
+  /* add-a-link + magic-link forms */
   .capture-form { display: flex; gap: 8px; flex-wrap: wrap; margin: 0 0 12px; }
+  .capture-form[hidden] { display: none; }
   .capture-form input { font-family: var(--sans); font-size: 14px; color: var(--ink); background: transparent;
     border: 1px solid var(--rule); border-radius: 8px; padding: 9px 11px; }
   .capture-form input:focus { outline: none; border-color: var(--ink); }
-  .capture-form #add-url { flex: 1 1 260px; }
+  .capture-form #add-url, .capture-form #email { flex: 1 1 240px; }
   .btn { font-family: var(--sans); font-size: 13px; font-weight: 500; color: var(--ink); background: transparent;
     border: 1px solid var(--faint); border-radius: 8px; padding: 8px 14px; cursor: pointer;
     transition: border-color .15s ease, color .15s ease; }
@@ -80,7 +85,6 @@
   .src, .meta2 { font-family: var(--sans); font-size: 12.5px; color: var(--muted); }
   .src::before { content: "· "; color: var(--faint); }
 
-  /* dynamic section headers */
   .dyn-h { font-family: var(--sans); font-size: 11.5px; font-weight: 600; letter-spacing: .14em;
     text-transform: uppercase; color: var(--muted); margin: 0 0 15px; padding-bottom: 9px; border-bottom: 1px solid var(--rule); }
   #wishlist:empty, #recent:empty { display: none; }
@@ -99,6 +103,10 @@
   @media (hover: none) { .arch-acts { opacity: 1; } }
   @media (prefers-reduced-motion: reduce) { .arch-acts, .mini, a.t { transition: none; } }
 
+  /* access gating: editor-only bits hidden until signed in */
+  html:not(.editor) .editor-only { display: none !important; }
+  html:not(.editor) .arch-acts { display: none !important; }
+
   footer { margin-top: 60px; font-family: var(--sans); font-size: 12px; }
 </style>
 
@@ -109,14 +117,16 @@
       <h1>The Reading Machine</h1>
     </header>
 
-    <form id="form-add" class="capture-form">
+    <div id="authbar" class="authbar"></div>
+
+    <form id="form-add" class="capture-form editor-only">
       <input type="url" id="add-url" placeholder="Paste a link to add to your wishlist…" required>
       <input type="text" id="add-title" placeholder="Title (optional)">
       <button type="submit" class="btn btn-go">+ Add</button>
     </form>
-    <p class="hint">Every item below has three actions — <b>Log</b> (read it; lights the heatmap for today), <b>Wish</b> (save for later), and <b>✕</b> (remove).</p>
+    <p class="hint editor-only">Every item below has three actions — <b>Log</b> (read it; lights the heatmap for today), <b>Wish</b> (save for later), and <b>✕</b> (remove). Your reads sync across your devices.</p>
 
-    <section class="hm-wrap">
+    <section class="hm-wrap editor-only">
       <div class="hm-cap"><b id="hm-total">0</b> reads logged in the last year</div>
       <div class="hm-scroll">
         <div class="hm-months" id="hm-months"></div>
@@ -125,8 +135,8 @@
       <div class="hm-legend"><span>Less</span><i class="l0"></i><i class="l1"></i><i class="l2"></i><i class="l3"></i><i class="l4"></i><span>More</span></div>
     </section>
 
-    <div id="wishlist"></div>
-    <div id="recent"></div>
+    <div id="wishlist" class="editor-only"></div>
+    <div id="recent" class="editor-only"></div>
 
     <section>
       <p class="topic">AI Frontier &amp; Futures</p>
@@ -228,63 +238,32 @@
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 (function () {
-  var LS = window.localStorage;
-  function get(k){ try{ return JSON.parse(LS.getItem(k)) || []; }catch(e){ return []; } }
-  function set(k,v){ try{ LS.setItem(k, JSON.stringify(v)); }catch(e){} }
+  var SB_URL = 'https://qomylaugmpvmfuscrfsj.supabase.co';
+  var SB_KEY = 'sb_publishable_INu4zlmqNDMMKFdyisC5Dg_KoWYObFo';
+
   function ds(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
   function today(){ var d=new Date(); d.setHours(0,0,0,0); return d; }
   function isUrl(s){ return /^https?:\/\//i.test(s); }
-  function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
   function esc(s){ return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
   var MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   var DOW=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 
-  function logs(){ return get('rm_logs'); }
-  function wish(){ return get('rm_wish'); }
-  function hidden(){ return get('rm_hidden'); }
-  function isLogged(u){ return !!u && logs().some(function(l){ return l.url===u; }); }
-  function isWished(u){ return !!u && wish().some(function(w){ return w.url===u; }); }
-  function isHidden(u){ return hidden().indexOf(u)>=0; }
+  var state = { user:null, logs:[], wish:[], hidden:[] };
+  var sb = null;
 
-  function migrateOld(){
-    if(LS.getItem('rm_logs')===null && LS.getItem('rm_reads')!==null){
-      set('rm_logs', get('rm_reads').map(function(r){ return {id:r.id||uid(), title:r.title, url:r.url||'', date:r.date}; }));
-    }
-    if(LS.getItem('rm_wish')===null && LS.getItem('rm_toread')!==null){
-      set('rm_wish', get('rm_toread').map(function(w){ return {id:w.id||uid(), title:w.title, url:w.url||''}; }));
-    }
-  }
+  function isLogged(u){ return !!u && state.logs.some(function(l){ return l.url===u; }); }
+  function isWished(u){ return !!u && state.wish.some(function(w){ return w.url===u; }); }
+  function isHidden(u){ return state.hidden.indexOf(u)>=0; }
 
-  function toggleLog(title,url){
-    var L=logs();
-    if(url && L.some(function(l){return l.url===url;})){
-      set('rm_logs', L.filter(function(l){ return l.url!==url; }));
-    } else {
-      L.push({ id:uid(), title:title, url:url||'', date:ds(today()) }); set('rm_logs', L);
-      if(url) set('rm_wish', wish().filter(function(w){ return w.url!==url; }));
-    }
-    renderAll();
-  }
-  function toggleWish(title,url){
-    var W=wish();
-    if(url && W.some(function(w){return w.url===url;})){
-      set('rm_wish', W.filter(function(w){ return w.url!==url; }));
-    } else {
-      W.push({ id:uid(), title:title, url:url||'' }); set('rm_wish', W);
-    }
-    renderAll();
-  }
-  function removeLogById(id){ set('rm_logs', logs().filter(function(l){return l.id!==id;})); renderAll(); }
-  function removeWishByUrl(url){ set('rm_wish', wish().filter(function(w){return w.url!==url;})); renderAll(); }
-  function hideUrl(url){ var h=hidden(); if(h.indexOf(url)<0){ h.push(url); set('rm_hidden',h);} renderAll(); }
-
+  // ---------- rendering ----------
   function renderHeatmap(){
     var hm=document.getElementById('heatmap'), mo=document.getElementById('hm-months');
     if(!hm) return; hm.innerHTML=''; mo.innerHTML='';
     var counts={}, total=0;
-    logs().forEach(function(l){ if(l.date){ counts[l.date]=(counts[l.date]||0)+1; } });
+    state.logs.forEach(function(l){ if(l.read_date){ counts[l.read_date]=(counts[l.read_date]||0)+1; } });
     var t=today(), start=new Date(t); start.setDate(t.getDate()-t.getDay()-52*7);
     var prev=-1;
     for(var w=0; w<53; w++){
@@ -302,7 +281,7 @@
       }
     }
     var tot=document.getElementById('hm-total'); if(tot) tot.textContent=total;
-    var sc=document.querySelector('.hm-scroll'); if(sc) sc.scrollLeft=sc.scrollWidth; // keep recent weeks (today) in view
+    var sc=document.querySelector('.hm-scroll'); if(sc) sc.scrollLeft=sc.scrollWidth;
   }
 
   function titleHTML(title,url){
@@ -312,9 +291,9 @@
 
   function renderWishlist(){
     var box=document.getElementById('wishlist'); if(!box) return;
-    var items=wish(); if(!items.length){ box.innerHTML=''; return; }
-    var h='<section><p class="dyn-h">Wishlist · '+items.length+'</p>';
-    items.forEach(function(it){
+    if(!state.wish.length){ box.innerHTML=''; return; }
+    var h='<section><p class="dyn-h">Wishlist · '+state.wish.length+'</p>';
+    state.wish.forEach(function(it){
       h+='<div class="dyn-item">'+titleHTML(it.title,it.url)+
          '<span class="li-acts"><button class="mini" data-wlog="'+esc(it.url)+'" data-t="'+esc(it.title)+'">Log</button>'+
          '<button class="mini mini-del" data-wdel="'+esc(it.url)+'" title="Remove">✕</button></span></div>';
@@ -326,12 +305,12 @@
 
   function renderLogged(){
     var box=document.getElementById('recent'); if(!box) return;
-    var items=logs().slice().sort(function(a,b){ return (b.date||'').localeCompare(a.date||''); });
+    var items=state.logs.slice().sort(function(a,b){ return (b.read_date||'').localeCompare(a.read_date||''); });
     if(!items.length){ box.innerHTML=''; return; }
     var h='<section><p class="dyn-h">Recently logged · '+items.length+'</p>';
-    items.slice(0,60).forEach(function(it){
+    items.slice(0,80).forEach(function(it){
       h+='<div class="dyn-item">'+titleHTML(it.title,it.url)+
-         '<span class="meta2">· '+esc(it.date||'')+'</span>'+
+         '<span class="meta2">· '+esc(it.read_date||'')+'</span>'+
          '<span class="li-acts"><button class="mini mini-del" data-ldel="'+esc(it.id)+'" title="Remove">✕</button></span></div>';
     });
     box.innerHTML=h+'</section>';
@@ -340,6 +319,7 @@
 
   var archiveItems=[];
   function collectArchive(){
+    if(archiveItems.length) return;
     Array.prototype.forEach.call(document.querySelectorAll('li'), function(li){
       if(li.closest('#wishlist')||li.closest('#recent')) return;
       var a=li.querySelector('a.t') || li.querySelector('.t'); if(!a) return;
@@ -365,25 +345,108 @@
       if(lg||ws) it.li.classList.add('has-state'); else it.li.classList.remove('has-state');
     });
   }
-
   function renderAll(){ renderHeatmap(); renderWishlist(); renderLogged(); updateArchive(); }
 
-  function prettify(u){
-    try{ var p=new URL(u); var seg=(p.pathname.split('/').filter(Boolean).pop()||p.hostname);
-      seg=seg.replace(/\.[a-z]+$/i,'').replace(/[-_]+/g,' ').trim();
-      return seg ? seg.charAt(0).toUpperCase()+seg.slice(1) : p.hostname; }catch(e){ return u; }
+  // ---------- data (Supabase) ----------
+  async function loadAll(){
+    if(!sb || !state.user){ state.logs=[]; state.wish=[]; state.hidden=[]; renderAll(); return; }
+    try {
+      var r = await Promise.all([
+        sb.from('reading_logs').select('*'),
+        sb.from('reading_wishlist').select('*'),
+        sb.from('reading_hidden').select('url')
+      ]);
+      state.logs = r[0].data || [];
+      state.wish = r[1].data || [];
+      state.hidden = (r[2].data || []).map(function(h){ return h.url; });
+    } catch(e){ /* keep last known */ }
+    renderAll();
   }
-  var fadd=document.getElementById('form-add');
-  if(fadd) fadd.addEventListener('submit', function(e){
-    e.preventDefault();
-    var url=document.getElementById('add-url').value.trim(); if(!url) return;
-    var title=document.getElementById('add-title').value.trim() || prettify(url);
-    var W=wish(); if(!W.some(function(w){return w.url===url;})){ W.push({ id:uid(), title:title, url:url }); set('rm_wish', W); }
-    this.reset(); renderAll();
-  });
+  async function toggleLog(title,url){
+    if(!state.user) return;
+    if(url && state.logs.some(function(l){return l.url===url;})){
+      await sb.from('reading_logs').delete().eq('url', url);
+    } else {
+      await sb.from('reading_logs').insert({ title:title, url:url||'', read_date: ds(today()) });
+      if(url) await sb.from('reading_wishlist').delete().eq('url', url);
+    }
+    await loadAll();
+  }
+  async function toggleWish(title,url){
+    if(!state.user) return;
+    if(url && state.wish.some(function(w){return w.url===url;})){
+      await sb.from('reading_wishlist').delete().eq('url', url);
+    } else {
+      await sb.from('reading_wishlist').insert({ title:title, url:url||'' });
+    }
+    await loadAll();
+  }
+  async function removeLogById(id){ if(!state.user) return; await sb.from('reading_logs').delete().eq('id', id); await loadAll(); }
+  async function removeWishByUrl(url){ if(!state.user) return; await sb.from('reading_wishlist').delete().eq('url', url); await loadAll(); }
+  async function hideUrl(url){ if(!state.user) return; await sb.from('reading_hidden').insert({ url:url }); await loadAll(); }
 
-  migrateOld();
-  collectArchive();
-  renderAll();
+  // ---------- auth UI ----------
+  function applyAuth(){
+    var el=document.documentElement, bar=document.getElementById('authbar');
+    if(state.user){
+      el.classList.add('editor');
+      bar.innerHTML='<span class="who">Signed in as '+esc(state.user.email||'you')+' — synced across your devices.</span> <button class="mini" id="signout">Sign out</button>';
+      document.getElementById('signout').addEventListener('click', async function(){ await sb.auth.signOut(); });
+    } else {
+      el.classList.remove('editor');
+      bar.innerHTML=''
+        + '<button class="btn" id="signin">🔒 Sign in to edit</button>'
+        + '<form id="magicform" class="capture-form" hidden style="margin:0"><input type="email" id="email" placeholder="your email" required autocomplete="email">'
+        + '<button class="btn btn-go" type="submit">Send magic link</button></form>'
+        + '<span id="magicmsg" class="who"></span>';
+      document.getElementById('signin').addEventListener('click', function(){ var f=document.getElementById('magicform'); f.hidden=false; document.getElementById('email').focus(); });
+      document.getElementById('magicform').addEventListener('submit', async function(e){
+        e.preventDefault();
+        var email=document.getElementById('email').value.trim(); if(!email) return;
+        var msg=document.getElementById('magicmsg'); msg.textContent='Sending…';
+        var res = await sb.auth.signInWithOtp({ email:email, options:{ emailRedirectTo: location.origin+location.pathname } });
+        msg.textContent = res.error ? ('Error: '+res.error.message) : 'Check your email for the sign-in link.';
+      });
+    }
+  }
+
+  // ---------- init ----------
+  async function init(){
+    collectArchive();
+    if(!window.supabase){
+      // e.g. offline / CSP-restricted preview: show read-only list only
+      var bar=document.getElementById('authbar');
+      if(bar) bar.innerHTML='<span class="who">Read-only preview. The private, synced version lives at omkarray.com/reading-list.</span>';
+      renderAll(); return;
+    }
+    sb = window.supabase.createClient(SB_URL, SB_KEY);
+    var s = await sb.auth.getSession();
+    state.user = (s.data && s.data.session) ? s.data.session.user : null;
+    // strip magic-link tokens from the address bar after sign-in
+    if(location.hash.indexOf('access_token')>=0 || /[?&]code=/.test(location.search)){
+      history.replaceState(null, '', location.pathname);
+    }
+    applyAuth();
+    await loadAll();
+    sb.auth.onAuthStateChange(function(_e, session){
+      state.user = session ? session.user : null;
+      applyAuth(); loadAll();
+    });
+    // add-a-link
+    var fadd=document.getElementById('form-add');
+    if(fadd) fadd.addEventListener('submit', async function(e){
+      e.preventDefault();
+      if(!state.user) return;
+      var url=document.getElementById('add-url').value.trim(); if(!url) return;
+      var title=document.getElementById('add-title').value.trim() || url;
+      if(!state.wish.some(function(w){return w.url===url;})){ await sb.from('reading_wishlist').insert({ title:title, url:url }); }
+      this.reset(); await loadAll();
+    });
+    // refetch when returning to the tab (cheap cross-device sync)
+    document.addEventListener('visibilitychange', function(){ if(!document.hidden && state.user) loadAll(); });
+    window.addEventListener('focus', function(){ if(state.user) loadAll(); });
+  }
+
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', init); else init();
 })();
 </script>
