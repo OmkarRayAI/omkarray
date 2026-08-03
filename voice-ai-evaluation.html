@@ -11,8 +11,8 @@
 </script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Was This Call Good? — The Voice AI Evaluation Layer</title>
-<meta name="description" content="The one question in the voice stack with no number — and the category racing to build it. A visual map: the commoditization order, what a transcript can't see, the four product shapes, the convergence heatmap, the calibration problem, and where the value actually is.">
+<title>Was This Call Good? The Voice AI Evaluation Layer</title>
+<meta name="description" content="The one question in the voice stack with no number, and the category being built to score it. A visual map: the order things get cheap, what a transcript misses, the four types of companies, where they overlap, the calibration problem, and where the durable value is.">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Space+Mono:wght@400;700&family=Nunito+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -457,7 +457,7 @@
   <div class="eyebrow">Category Analysis · Voice AI Evaluation · August 2026</div>
   <h1>Was this call<br><em>good</em>?</h1>
   <div class="masthead-row">
-    <div class="masthead-sub">It's the only question left in the voice stack without a number. Transcription has word error rate. Latency has milliseconds. The minute has a price. <b>&ldquo;Good&rdquo; has nothing</b> — so a new category is racing to build it. This is the map.</div>
+    <div class="masthead-sub">It is the only question in the voice stack without a number. Transcription has word error rate. Latency has milliseconds. The minute has a price. <b>&ldquo;Good&rdquo; has none.</b> So a new set of tools is being built to score it. This page maps them.</div>
   </div>
 </div>
 
@@ -468,15 +468,15 @@
   </div>
   <div class="stat-cell">
     <span class="stat-num blue">3</span>
-    <span class="stat-label">Layers every serious<br>tool now ships</span>
+    <span class="stat-label">Parts every serious<br>tool now has</span>
   </div>
   <div class="stat-cell">
     <span class="stat-num">4</span>
-    <span class="stat-label">Product shapes<br>converging here</span>
+    <span class="stat-label">Types of companies<br>competing here</span>
   </div>
   <div class="stat-cell">
     <span class="stat-num">8+</span>
-    <span class="stat-label">Failure axes voice<br>adds over text</span>
+    <span class="stat-label">Ways voice fails<br>that text does not</span>
   </div>
   <div class="stat-cell">
     <span class="stat-num rust">0</span>
@@ -486,90 +486,90 @@
 
 <!-- ============ 01 ============ -->
 <div class="section-header" id="order">
-  <span class="section-num">01 ——</span>
-  <span class="section-title">The order layers fall</span>
+  <span class="section-num">01</span>
+  <span class="section-title">Why evaluation stays expensive</span>
   <span class="section-desc">Countable first, priced last</span>
 </div>
 
-<p class="lede">A layer commoditizes the moment its quality becomes <em>countable</em>. Transcription had word error rate, so it fell first. Evaluation is last in line — because &ldquo;did the call work?&rdquo; still has no agreed unit.</p>
+<p class="lede">A part of the voice stack gets cheap once you can <em>measure</em> its quality. Transcription had word error rate, so its price dropped first. Evaluation has no shared number yet. So it stays expensive.</p>
 
 <div class="diagram">
-  <div class="diagram-label">Exhibit 1 — Layers commoditize in the order they became measurable</div>
-  <div class="diagram-sub">Each rung of the voice stack got a number, and the number is what let three vendors undercut each other on it. Evaluation is the one rung still waiting for its metric — which is exactly why it still sets price by value, not cost.</div>
+  <div class="diagram-label">Exhibit 1. Layers get cheap in the order they became measurable</div>
+  <div class="diagram-sub">Each layer got a number. Once it had one, vendors could undercut each other on it. Evaluation still has no number. That is why it still sells on value, not cost.</div>
   <div class="chart-wrap">
     <svg id="chart-seq" role="img" aria-label="Sequence of voice-stack layers and the metric that commoditized each, with evaluation last and unmeasured"></svg>
     <div class="tip" id="tip-seq"></div>
   </div>
-  <div class="footnote"><strong>The tell:</strong> you can't run a price war over a quantity nobody can compute. Give &ldquo;good&rdquo; a trusted number and the eval layer commoditizes too — the whole category is a race to supply that number first.</div>
+  <div class="footnote"><strong>The point:</strong> you cannot start a price war over something nobody can measure. Give &ldquo;good&rdquo; a trusted number and evaluation gets cheap too. The whole category is a race to build that number first.</div>
 </div>
 
 <!-- ============ 02 ============ -->
 <div class="section-header" id="blind">
-  <span class="section-num">02 ——</span>
+  <span class="section-num">02</span>
   <span class="section-title">What a transcript can't see</span>
   <span class="section-desc">Text scores the words; voice fails elsewhere</span>
 </div>
 
-<p class="body">Text evaluation scores a final answer. A call isn't one — it's a <strong>real-time duplex process</strong> where timing, audio and tool-state each fail on their own axis, none of it visible in the words. Transcribe-and-score passes agents that felt broken to the human on the line.</p>
+<p class="body">Text evaluation scores a final answer. A call is not a final answer. It is a live conversation where timing, audio, and tool actions can each go wrong on their own. None of that shows up in the words. So scoring the transcript passes agents that felt broken to the person on the call.</p>
 
 <div class="diagram">
-  <div class="diagram-label">Exhibit 2 — Eight ways a call fails, by how much a transcript catches</div>
-  <div class="diagram-sub">Ranked by roughly how much of each failure mode text-only scoring captures. The transcript owns the top and almost none of the bottom. Everything in rust is a way a call breaks that words can't show. Hover any bar.</div>
+  <div class="diagram-label">Exhibit 2. Eight ways a call fails, and how much of each a transcript catches</div>
+  <div class="diagram-sub">Ranked by how much of each failure a text-only score can see. The transcript covers the top of the list and almost none of the bottom. Everything in red is a failure the words do not show. Hover any bar.</div>
   <div class="chart-wrap">
     <svg id="chart-blind" role="img" aria-label="Bar chart of voice failure modes ranked by transcript coverage"></svg>
     <div class="tip" id="tip-blind"></div>
   </div>
-  <div class="footnote"><strong>Read it as:</strong> a voice-eval product is, at heart, a claim to measure the rust — latency, barge-in, endpointing, tool-state. The transcript is the easy 10%.</div>
+  <div class="footnote"><strong>In short:</strong> a voice evaluation tool is a promise to measure the hard parts: latency, interruptions, silence, and tool actions. The transcript is the easy ten percent.</div>
 </div>
 
 <!-- ============ 03 ============ -->
 <div class="section-header" id="shape">
-  <span class="section-num">03 ——</span>
-  <span class="section-title">The shape everyone converged on</span>
+  <span class="section-num">03</span>
+  <span class="section-title">The three parts every tool has</span>
   <span class="section-desc">Simulate · observe · review</span>
 </div>
 
-<p class="body">Independently, every credible entrant landed on the same three moves — which means the three moves no longer differentiate anyone. They're table stakes now. The differentiation moved to the one edge the loop doesn't cover.</p>
+<p class="body">Every serious tool ended up with the same three parts. So the three parts no longer set anyone apart. They are the baseline. The real difference is in the one step the loop does not cover yet.</p>
 
 <div class="diagram">
-  <div class="diagram-label">Exhibit 3 — The three-layer lifecycle, and the seam</div>
-  <div class="diagram-sub">The loop every serious tool now claims. The three boxes have converged. The dashed return — turning a real production failure back into a durable test — is still assembled by hand, in tickets and spreadsheets.</div>
+  <div class="diagram-label">Exhibit 3. The three parts, and the gap between them</div>
+  <div class="diagram-sub">The loop every tool now runs. The three boxes are settled. The dashed step, turning a real failure into a lasting test, is still done by hand in tickets and spreadsheets.</div>
   <div class="loop">
     <div class="loop-node">
       <span class="ln-k">Before launch</span>
       <h4>Simulate</h4>
-      <p>Synthetic callers stress the agent across accents, noise, interruptions, IVR trees and tool paths — before a real customer hears it.</p>
+      <p>Test callers push the agent through accents, noise, interruptions, phone menus, and tool steps before a real customer hears it.</p>
     </div>
     <div class="loop-arrow">&rarr;</div>
     <div class="loop-node">
       <span class="ln-k">In production</span>
       <h4>Observe</h4>
-      <p>Live calls scored on the same axes — latency, task completion, policy — with traces and audio kept as evidence.</p>
+      <p>Real calls scored on the same things: latency, task done, policy followed. Traces and audio are kept as proof.</p>
     </div>
     <div class="loop-arrow">&rarr;</div>
     <div class="loop-node">
       <span class="ln-k">With humans</span>
       <h4>Review</h4>
-      <p>People label the riskiest calls, which becomes the ground truth that says whether the automated scores can be trusted.</p>
+      <p>People review the riskiest calls. Their labels tell you whether the automatic scores can be trusted.</p>
     </div>
   </div>
   <div class="loop-return">
-    <b>&#8629; the seam:</b>&nbsp; reviewed failure &rarr; versioned regression test &rarr; proof the fix holds — the part that compounds, and the part no one has made a first-class object.
+    <b>&#8629; the gap:</b>&nbsp; reviewed failure &rarr; saved test &rarr; proof the fix holds. This is the step that pays off over time, and the step no tool has made simple.
   </div>
 </div>
 
 <!-- ============ 04 ============ -->
 <div class="section-header" id="landscape">
-  <span class="section-num">04 ——</span>
-  <span class="section-title">Four shapes, one prize</span>
-  <span class="section-desc">Cut by where the entrant came from</span>
+  <span class="section-num">04</span>
+  <span class="section-title">Four types of companies</span>
+  <span class="section-desc">Grouped by where they started</span>
 </div>
 
-<p class="body">The companies chasing voice evaluation don't start from the same place, and the starting line tells you each one's edge and blind spot. Cut the market by <strong>origin</strong> — not by feature, since features are converging — and it falls cleanly into four.</p>
+<p class="body">These companies did not start from the same place, and where they started tells you their edge and their blind spot. Group them by where they came from, not by feature, since the features are converging. You get four types.</p>
 
 <div class="diagram">
-  <div class="diagram-label">Exhibit 4 — The four shapes</div>
-  <div class="diagram-sub">Positioning lines are each company's own; the risk line under each column is mine. Names place the market — this is not a ranking.</div>
+  <div class="diagram-label">Exhibit 4. The four types</div>
+  <div class="diagram-sub">The description under each name is the company's own. The risk line is mine. Names are here to place the market, not to rank it.</div>
   <div class="map-scroll">
   <div class="map-grid">
     <div class="map-col">
@@ -580,7 +580,7 @@
         <div class="map-co"><b>Hamming</b><span>One-click production-call replay; high-concurrency test calls; 50+ metrics (self-reported).</span></div>
         <div class="map-co"><b>Roark</b><span>Production issue &rarr; drafted fix &rarr; simulation &rarr; verified deploy; audio-native metrics (self-reported).</span></div>
       </div>
-      <div class="map-risk"><b>Risk:</b> convergence with each other — replay, audio metrics and regression are now claimed by all three.</div>
+      <div class="map-risk"><b>Risk:</b> they overlap with each other. Replay, audio metrics, and regression are now claimed by all three.</div>
     </div>
     <div class="map-col">
       <div class="map-head"><span class="mh-k">Shape 2</span><h4>Enterprise CX assurance</h4></div>
@@ -593,13 +593,13 @@
     </div>
     <div class="map-col">
       <div class="map-head"><span class="mh-k">Shape 3</span><h4>General eval &amp; observability</h4></div>
-      <div class="map-thesis">Horizontal LLM eval and tracing platforms with developer adoption, adding voice as an input type.</div>
+      <div class="map-thesis">General LLM evaluation and tracing tools with developer adoption, adding voice as an input.</div>
       <div class="map-cos">
         <div class="map-co"><b>Braintrust</b><span>Datasets, scorers and experiment tracking for LLM apps; strong developer workflow.</span></div>
         <div class="map-co"><b>LangSmith</b><span>Tracing + eval tied to a widely-used orchestration ecosystem.</span></div>
         <div class="map-co"><b>Arize Phoenix</b><span>Open-source-rooted LLM observability and evaluation.</span></div>
       </div>
-      <div class="map-risk"><b>Risk to pure-plays:</b> own the broader AI stack and add voice downward — buyer may not want a separate tool.</div>
+      <div class="map-risk"><b>Risk to pure-plays:</b> they own the wider AI stack and can add voice. The buyer may not want a separate tool.</div>
     </div>
     <div class="map-col">
       <div class="map-head"><span class="mh-k">Shape 4</span><h4>Voice-agent platforms</h4></div>
@@ -612,21 +612,21 @@
     </div>
   </div>
   </div>
-  <div class="footnote"><strong>The axis is origin, not quality.</strong> The pure-plays' whole bet: voice reliability is hard enough that a general tool or a bundled feature won't be trusted for a go-live call. Whether that holds is the category's central question.</div>
+  <div class="footnote"><strong>Grouped by origin, not quality.</strong> The pure-plays are betting that voice is hard enough that a general tool or a built-in feature will not be trusted for a go-live decision. Whether that holds is the main question in this market.</div>
 </div>
 
 <!-- ============ 05 ============ -->
 <div class="section-header" id="convergence">
-  <span class="section-num">05 ——</span>
-  <span class="section-title">Everyone is converging</span>
+  <span class="section-num">05</span>
+  <span class="section-title">Where they overlap</span>
   <span class="section-desc">The capability heatmap</span>
 </div>
 
-<p class="body">Line the four shapes up against what matters and the white space is obvious. The top rows are dense; the bottom two are a field of half-circles and blanks. That's not an accident — those two are the hard ones.</p>
+<p class="body">Put the four types against the capabilities that matter and the gaps are clear. The top rows are full. The bottom two are mostly half-circles and blanks. That is not a coincidence. Those two are the hard ones.</p>
 
 <div class="diagram">
-  <div class="diagram-label">Exhibit 5 — Capability convergence across the four shapes</div>
-  <div class="diagram-sub">&#9679; core to the shape &nbsp; &#9682; partial / emerging &nbsp; &#9675; largely absent. Cells reflect public positioning, self-reported. The highlighted rows are where the category is still unwon.</div>
+  <div class="diagram-label">Exhibit 5. Which type has which capability</div>
+  <div class="diagram-sub">&#9679; core to the type &nbsp; &#9682; partial or emerging &nbsp; &#9675; mostly absent. Based on public positioning, self-reported. The highlighted rows are where the market is still open.</div>
   <div class="tbl-scroll">
   <table class="tbl">
     <thead>
@@ -669,44 +669,44 @@
 </div>
 
 <div class="callout callout-warm">
-  A capability everyone marks &ldquo;core&rdquo; is no longer a differentiator. The signal is in the empty cells: <strong>calibration and lineage are where the category is still unwon.</strong>
+  A capability everyone calls &ldquo;core&rdquo; no longer sets anyone apart. Look at the empty cells instead. <strong>Calibration and lineage are where the market is still open.</strong>
 </div>
 
 <!-- ============ 06 ============ -->
 <div class="section-header" id="calibration">
-  <span class="section-num">06 ——</span>
-  <span class="section-title">Who grades the graders?</span>
-  <span class="section-desc">An eval score is a model output too</span>
+  <span class="section-num">06</span>
+  <span class="section-title">The scores come from a model too</span>
+  <span class="section-desc">And a model can be wrong</span>
 </div>
 
-<p class="body">Most of these tools score calls with a model. But an eval score is <strong>itself an uncertain model output</strong> — the judge can be wrong exactly the way the agent it grades can be. More metrics don't fix that; they multiply the number of confident numbers you're now trusting blind.</p>
+<p class="body">Most of these tools score calls with a model. But a score is also a model output, and it can be wrong. The scoring model can miss things the same way the agent it grades misses things. Adding more metrics does not fix this. It just gives you more numbers to trust without checking.</p>
 
 <div class="diagram">
-  <div class="diagram-label">Exhibit 6 — The judge vs. the human</div>
-  <div class="diagram-sub">Illustrative. Each dot is a call: horizontal = automated judge score, vertical = human score. On the diagonal the judge is trustworthy. The shaded corner — judge says pass, human says fail — is false confidence, the most dangerous output an eval tool can produce. Hover a dot.</div>
+  <div class="diagram-label">Exhibit 6. The model score vs. the human score</div>
+  <div class="diagram-sub">Illustrative. Each dot is a call. Left to right is the model score. Bottom to top is the human score. On the diagonal the model agrees with the human. The shaded corner is where the model says pass and the human says fail. That is the worst case: a false pass. Hover a dot.</div>
   <div class="chart-wrap">
     <svg id="chart-calib" role="img" aria-label="Scatter plot of automated judge scores against human scores"></svg>
     <div class="tip" id="tip-calib"></div>
   </div>
-  <div class="footnote"><strong>The product consequence:</strong> a release-blocking metric needs a measured agreement rate and the humility to abstain when unsure — not a bigger dashboard.</div>
+  <div class="footnote"><strong>What this means:</strong> a metric that blocks a release needs a known agreement rate with humans, and it should say &ldquo;not sure&rdquo; when it is not sure. Not a bigger dashboard.</div>
 </div>
 
 <div class="callout">
-  &ldquo;More metrics&rdquo; is a marketing axis. <strong>&ldquo;Calibrated metrics&rdquo; is a trust axis</strong> — and only the second one survives a compliance review.
+  More metrics is a marketing claim. <strong>Calibrated metrics is a trust claim.</strong> Only the second one holds up in a compliance review.
 </div>
 
 <!-- ============ 07 ============ -->
 <div class="section-header" id="value">
-  <span class="section-num">07 ——</span>
-  <span class="section-title">Where the value actually is</span>
-  <span class="section-desc">The evaluation waterline</span>
+  <span class="section-num">07</span>
+  <span class="section-title">Where the durable value is</span>
+  <span class="section-desc">Easy to copy vs. hard to copy</span>
 </div>
 
-<p class="body">Grading a call already costs more than making it — so the money in voice is drifting toward eval. But not evenly. Metric counts and call volumes are countable, copyable, and heading for a price war. What compounds is the stuff earned per customer over time.</p>
+<p class="body">Grading a call already costs more than running it, so the money in voice is moving toward evaluation. But not evenly. Metric counts and call volumes are easy to copy and are headed for a price war. The value that lasts is the value you earn with each customer over time.</p>
 
 <div class="diagram">
-  <div class="diagram-label">Exhibit 7 — The grader costs more than the call</div>
-  <div class="diagram-sub">Per connected minute: what it costs to run the agent versus what the market charges to evaluate it. Carried from <a href="voice-ai-commoditization.html">The Voice AI Stack</a>. Testing is now the expensive part.</div>
+  <div class="diagram-label">Exhibit 7. Grading a call costs more than running it</div>
+  <div class="diagram-sub">Per minute: what it costs to run the agent versus what the market charges to evaluate it. From <a href="voice-ai-commoditization.html">The Voice AI Stack</a>. Testing is now the expensive part.</div>
   <div class="chart-wrap">
     <svg id="chart-cost" role="img" aria-label="Two bars comparing the cost to run a voice minute versus grade it"></svg>
     <div class="tip" id="tip-cost"></div>
@@ -714,90 +714,90 @@
 </div>
 
 <div class="diagram">
-  <div class="diagram-label">Exhibit 8 — The evaluation waterline</div>
-  <div class="diagram-sub">The rungs of a voice-eval product by how defensible each is. Below the line: replicable, trending to a feature race. Above it: earned per customer, hard to copy. Same logic as the stack teardown, one layer up.</div>
-  <div class="zone-label">&uarr; Above the line — value compounds here</div>
+  <div class="diagram-label">Exhibit 8. What is easy to copy, and what is not</div>
+  <div class="diagram-sub">The parts of a voice evaluation product, ranked by how hard each is to copy. Below the line: easy to copy, headed for a feature race. Above the line: earned per customer, hard to copy.</div>
+  <div class="zone-label">&uarr; Above the line: value builds up here</div>
   <div class="ladder">
     <div class="rung"><span class="rung-c" style="background:var(--c4)">5</span><span class="rung-name">Raw metric count <span>· &ldquo;50+ scores&rdquo;</span></span><span class="rung-note">anyone can add one</span></div>
     <div class="rung"><span class="rung-c" style="background:var(--c4)">5</span><span class="rung-name">Simulated-call volume <span>· &ldquo;50K concurrent&rdquo;</span></span><span class="rung-note">capacity, not insight</span></div>
-    <div class="rung"><span class="rung-c" style="background:var(--c4)">5</span><span class="rung-name">Protocol / channel coverage <span>· SIP, WebRTC, DTMF</span></span><span class="rung-note">table stakes in a year</span></div>
+    <div class="rung"><span class="rung-c" style="background:var(--c4)">5</span><span class="rung-name">Protocol / channel coverage <span>· SIP, WebRTC, DTMF</span></span><span class="rung-note">standard within a year</span></div>
     <div class="rung"><span class="rung-c" style="background:var(--c3)">4</span><span class="rung-name">Trace &amp; audio inspection</span><span class="rung-note">converging fast</span></div>
-    <div class="rung" style="border-color:var(--accent);border-width:1px 1px 1px 2px;"><span class="rung-c" style="background:var(--cneutral)">3</span><span class="rung-name">Calibrated, human-anchored judgment</span><span class="rung-note">&larr; the frontier</span></div>
-    <div class="waterline"><div class="waterline-rule"></div><div class="waterline-text">the line — copyable below, earned above</div></div>
+    <div class="rung" style="border-color:var(--accent);border-width:1px 1px 1px 2px;"><span class="rung-c" style="background:var(--cneutral)">3</span><span class="rung-name">Calibrated, human-checked scoring</span><span class="rung-note">&larr; the hard part</span></div>
+    <div class="waterline"><div class="waterline-rule"></div><div class="waterline-text">the line: easy below, earned above</div></div>
     <div class="rung" style="border-color:var(--rust);border-width:1px 1px 1px 2px;"><span class="rung-c" style="background:var(--rust)">2</span><span class="rung-name">Evidence lineage <span>· failure &rarr; test &rarr; release, one object</span></span><span class="rung-note">mostly unbuilt</span></div>
     <div class="rung" style="border-color:var(--rust);border-width:1px 1px 1px 2px;"><span class="rung-c" style="background:var(--rust)">1</span><span class="rung-name">Quality policy as code <span>· the go/no-go gate, versioned</span></span><span class="rung-note">nobody owns it cleanly</span></div>
   </div>
-  <div class="zone-label" style="margin-top:8px;">&darr; Below the line — countable, copyable, price-war-bound</div>
-  <div class="footnote"><strong>C = defensibility, not quality.</strong> 5 = anyone can replicate it, so it commoditizes; 1 = it accrues per customer and resists copying. The bottom two rungs — bind a production failure to the test that proves it won't recur, versioned — are the category's obvious next primitive, and they're the emptiest cells on the map above.</div>
+  <div class="zone-label" style="margin-top:8px;">&darr; Below the line: easy to copy, headed for a price war</div>
+  <div class="footnote"><strong>The number is how hard it is to copy, not how good it is.</strong> 5 means anyone can copy it, so it gets cheap. 1 means it builds up per customer and resists copying. The bottom two rungs, linking a real failure to the test that proves it will not happen again, are the obvious next thing to build. They are also the emptiest cells on the map above.</div>
 </div>
 
 <div class="callout">
-  The features that demo best — metric counts, call volumes, protocol lists — are the ones heading for a price war. The unglamorous middle, <strong>calibrated judgment and evidence lineage</strong>, is what compounds per customer and what almost no one has built.
+  The features that demo best, like metric counts and call volumes, are the ones headed for a price war. The plain middle, <strong>calibrated scoring and evidence lineage</strong>, is what builds up per customer, and almost no one has built it.
 </div>
 
 <!-- ============ 08 ============ -->
 <div class="section-header" id="evidence">
-  <span class="section-num">08 ——</span>
-  <span class="section-title">Is the problem even real?</span>
+  <span class="section-num">08</span>
+  <span class="section-title">The problem is real</span>
   <span class="section-desc">What the benchmarks say</span>
 </div>
 
-<p class="body">A fair objection: maybe agents are fine and this is anxiety being sold. The benchmarks say otherwise. Agents that ace a task in text lose a large share of that ability the moment it runs over audio — and more under realistic conditions.</p>
+<p class="body">A fair question: maybe agents are fine and this is fear being sold. The benchmarks say otherwise. An agent that does a task well in text loses a lot of that ability once the task runs over audio, and more when the audio is noisy.</p>
 
 <div class="diagram">
-  <div class="diagram-label">Exhibit 9 — The capability cliff</div>
-  <div class="diagram-sub">Direction, not measured values — the shape is the finding. The same task, moved from text to clean audio to noisy real-world audio, sheds capability at each step. Hover a bar.</div>
+  <div class="diagram-label">Exhibit 9. Ability drops from text to audio</div>
+  <div class="diagram-sub">Direction, not exact values. The same task, moved from text to clean audio to noisy audio, loses ability at each step. Hover a bar.</div>
   <div class="chart-wrap">
     <svg id="chart-cliff" role="img" aria-label="Schematic bars showing capability dropping from text to clean audio to realistic audio"></svg>
     <div class="tip" id="tip-cliff"></div>
   </div>
-  <div class="footnote"><strong>Directional read</strong> across recent voice benchmarks (&tau;-Voice, EVA-Bench, and — on the evaluators themselves — Testing the Testers). Exact figures vary by setup; the robust finding is that the text-to-voice gap is large and traces mostly to agent behavior under audio.</div>
+  <div class="footnote"><strong>Directional read</strong> across recent voice benchmarks: &tau;-Voice, EVA-Bench, and Testing the Testers (which tests the evaluators). Exact numbers vary by setup. The steady finding is that the text-to-voice gap is large and comes mostly from how the agent behaves over audio.</div>
 </div>
 
 <div class="callout callout-warm">
-  The problem is real, specific to the audio-and-timing layer transcripts ignore, and recursive: <strong>even the graders need grading.</strong> That's a category with a reason to exist — the open question was never demand, only which shape and which rung ends up owning it.
+  The problem is real. It lives in the audio and timing that transcripts ignore, and the scoring models need checking too. So the demand is clear. The open question is which type of company, and which part of the stack, ends up owning it.
 </div>
 
 <!-- ============ 09 ============ -->
 <div class="section-header" id="questions">
-  <span class="section-num">09 ——</span>
-  <span class="section-title">The four questions that decide it</span>
-  <span class="section-desc">Unanswerable from public materials today</span>
+  <span class="section-num">09</span>
+  <span class="section-title">Four open questions</span>
+  <span class="section-desc">Not answerable from public info today</span>
 </div>
 
 <div class="two-col">
   <div class="qcard">
     <span class="kicker">Open question</span>
     <h4>Does calibration actually gate releases?</h4>
-    <p>Everyone can compute judge-vs-human agreement. Do buyers block a go-live on it — or is it a dashboard no one acts on? Decides whether §06 is a moat or a slide.</p>
+    <p>Everyone can measure how often the model agrees with a human. Do buyers actually block a launch on it, or is it just a chart no one acts on? This decides whether calibration is a real moat.</p>
   </div>
   <div class="qcard">
     <span class="kicker">Open question</span>
     <h4>Can real audio be legally replayed?</h4>
-    <p>&ldquo;Replay production calls&rdquo; assumes you may. Consent, PII and residency rules may quietly cap how much of that headline capability is usable in regulated verticals.</p>
+    <p>&ldquo;Replay production calls&rdquo; assumes you are allowed to. Consent, privacy, and data-residency rules may limit how much of that is usable in regulated industries.</p>
   </div>
   <div class="qcard">
     <span class="kicker">Open question</span>
-    <h4>Which artifact is canonical?</h4>
-    <p>Call, ticket, test case, metric result, or release? Whoever's object becomes the unit of record shapes the category — and it's genuinely unsettled.</p>
+    <h4>Which record becomes the source of truth?</h4>
+    <p>The call, the ticket, the test, the metric, or the release? Whichever one becomes the record of truth shapes the market. It is still unsettled.</p>
   </div>
   <div class="qcard">
     <span class="kicker">Open question</span>
     <h4>Do bundled platform evals win by default?</h4>
-    <p>If a runtime's built-in evals satisfy most buyers, the voice-native pure-plays get compressed into regulated, high-consequence work. The whole bull/bear axis.</p>
+    <p>If the built-in evals in a platform are good enough for most buyers, the voice-native tools get pushed into regulated, high-stakes work only. That is the whole bull and bear case.</p>
   </div>
 </div>
 
 <hr class="rule">
 
 <div class="section-header" style="margin-top:20px;">
-  <span class="section-num">——</span>
+  <span class="section-num"></span>
   <span class="section-title">Sources &amp; method</span>
   <span class="section-desc">Public pages &amp; research</span>
 </div>
 
 <p class="srcs">
-  <b>Prior teardown in this series</b> · <a href="voice-ai-commoditization.html">The Voice AI Stack — What's Commoditized and What Isn't</a> — source of the 4.8&times; grade-vs-run figure and the waterline framing.<br><br>
+  <b>Prior piece in this series</b> &middot; <a href="voice-ai-commoditization.html">The Voice AI Stack</a>. Source of the 4.8&times; grade-vs-run figure.<br><br>
   <b>Voice-native QA loop</b> · <a href="https://www.coval.ai/" target="_blank" rel="noopener">Coval</a> · <a href="https://hamming.ai/" target="_blank" rel="noopener">Hamming</a> · <a href="https://roark.ai/" target="_blank" rel="noopener">Roark</a><br>
   <b>Adjacent shapes</b> · Cyara &amp; CCaaS QA suites · Braintrust, LangSmith, Arize Phoenix · Retell, Vapi, ElevenLabs<br>
   <b>Research anchors</b> · <a href="https://arxiv.org/abs/2603.13686" target="_blank" rel="noopener">&tau;-Voice</a> · <a href="https://arxiv.org/abs/2605.13841" target="_blank" rel="noopener">EVA-Bench</a> · <a href="https://arxiv.org/abs/2511.04133" target="_blank" rel="noopener">Testing the Testers</a><br><br>
@@ -862,18 +862,18 @@
     return C.rust;
   }
 
-  /* ---------------- Exhibit 1 — commoditization sequence ---------------- */
+  /* Exhibit 1: commoditization sequence */
   function sequence() {
     var svg = document.getElementById('chart-seq');
     if (!svg) return;
     var W = 920, H = 150;
     svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
     var nodes = [
-      { n: 'Transcription', m: 'word error rate', done: true, tip: 'A number since the 1990s. Many interchangeable vendors — the layer that fell first.' },
+      { n: 'Transcription', m: 'word error rate', done: true, tip: 'A number since the 1990s. Many vendors, so it dropped in price first.' },
       { n: 'Synthesis', m: 'MOS + latency', done: true, tip: 'Mean-opinion-score and time-to-first-byte made voices comparable. Baseline TTS is now near-flat priced.' },
       { n: 'Turn-taking', m: 'milliseconds', done: true, tip: 'Endpointing and barge-in became a latency number. Commoditizing now.' },
       { n: 'The minute', m: '$ per minute', done: true, tip: 'The whole connected minute is a published price. ~$0.021 commodity floor.' },
-      { n: 'Evaluation', m: 'no number yet', done: false, tip: 'Was the call good? No agreed unit — so it still sets price by value, not cost. The last rung standing.' }
+      { n: 'Evaluation', m: 'no number yet', done: false, tip: 'Was the call good? No agreed number yet, so it still sells on value, not cost.' }
     ];
     var nW = 152, gap = (W - nodes.length * nW) / (nodes.length - 1);
     var top = 42, nH = 52;
@@ -905,7 +905,7 @@
     wireTips('chart-seq', 'tip-seq');
   }
 
-  /* ---------------- Exhibit 2 — what a transcript can't see ---------------- */
+  /* Exhibit 2: what a transcript can not see */
   function blind() {
     var svg = document.getElementById('chart-blind');
     if (!svg) return;
@@ -913,13 +913,13 @@
     var plotW = W - padL - padR;
     var rows = [
       { n: 'Words / final answer', cov: 95, ex: 'Did it say the correct thing? The one axis a transcript owns.' },
-      { n: 'Policy sequence', cov: 55, ex: 'Auth, disclosure, escalation in the right order — partly visible, timing-dependent.' },
-      { n: 'ASR error under accent / noise', cov: 42, ex: 'The transcript IS the error — you cannot grade what was mis-heard using the mis-hearing.' },
+      { n: 'Policy sequence', cov: 55, ex: 'Auth, disclosure, and escalation in the right order. Partly visible, depends on timing.' },
+      { n: 'ASR error under accent / noise', cov: 42, ex: 'The transcript is the error. You cannot grade a mis-hearing using the mis-hearing.' },
       { n: 'Tool state ("said done, did nothing")', cov: 30, ex: 'Agent claims the booking succeeded; the API call never completed. Text shows the claim, not the truth.' },
       { n: 'Prosody / emotion / repetition', cov: 12, ex: 'Robotic, flat, or looping delivery. Invisible to text.' },
       { n: 'Endpointing / silence', cov: 8, ex: 'Awkward pauses, cutting the caller off, dead air. No transcript trace.' },
       { n: 'Barge-in / interruption handling', cov: 6, ex: 'Talking over the caller, or failing to yield. A timing event, not a word.' },
-      { n: 'End-to-end latency', cov: 2, ex: 'The single biggest driver of "felt broken" — and completely absent from a transcript.' }
+      { n: 'End-to-end latency', cov: 2, ex: 'The biggest driver of a call feeling broken, and absent from a transcript.' }
     ];
     var H = top + rows.length * rowH + 16;
     svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
@@ -943,7 +943,7 @@
     wireTips('chart-blind', 'tip-blind');
   }
 
-  /* ---------------- Exhibit 6 — judge vs human scatter ---------------- */
+  /* Exhibit 6: model vs human scatter */
   function calib() {
     var svg = document.getElementById('chart-calib');
     if (!svg) return;
@@ -966,30 +966,30 @@
       svg.appendChild(label(sx(0) - 8, sy(t) + 3, t.toFixed(2), { size: 8, anchor: 'end', fill: C.muted }));
     });
     svg.appendChild(el('line', { x1: sx(0), y1: sy(0), x2: sx(1), y2: sy(1), stroke: C.accent, 'stroke-width': 1.5, 'stroke-dasharray': '5 4' }));
-    svg.appendChild(label(sx(0.5) + 6, sy(0.5) - 8, 'perfectly calibrated', { size: 8, fill: C.accent, anchor: 'start' }));
-    svg.appendChild(label(sx(0.5), sy(0) + 40, 'AUTOMATED JUDGE SCORE  →', { size: 9, anchor: 'middle', fill: C.text2, ls: 0.5 }));
+    svg.appendChild(label(sx(0.5) + 6, sy(0.5) - 8, 'model agrees with human', { size: 8, fill: C.accent, anchor: 'start' }));
+    svg.appendChild(label(sx(0.5), sy(0) + 40, 'MODEL SCORE  →', { size: 9, anchor: 'middle', fill: C.text2, ls: 0.5 }));
     var yt = el('text', { x: x0 - 44, y: sy(0.5), 'font-family': MONO, 'font-size': 9, fill: C.text2, 'text-anchor': 'middle', 'letter-spacing': 0.5, transform: 'rotate(-90 ' + (x0 - 44) + ' ' + sy(0.5) + ')' }, '↑  HUMAN SCORE');
     svg.appendChild(yt);
     var pts = [
-      [0.95, 0.92, 'clean pass — agree'], [0.88, 0.85, 'good call — agree'], [0.80, 0.78, 'minor slip — agree'],
-      [0.72, 0.68, 'acceptable — agree'], [0.60, 0.62, 'borderline — agree'], [0.35, 0.30, 'clear fail — agree'],
-      [0.20, 0.15, 'broken — agree'], [0.10, 0.12, 'dead air — agree'],
+      [0.95, 0.92, 'clean pass (agree)'], [0.88, 0.85, 'good call (agree)'], [0.80, 0.78, 'minor slip (agree)'],
+      [0.72, 0.68, 'acceptable (agree)'], [0.60, 0.62, 'borderline (agree)'], [0.35, 0.30, 'clear fail (agree)'],
+      [0.20, 0.15, 'broken (agree)'], [0.10, 0.12, 'dead air (agree)'],
       [0.90, 0.30, 'said "done", booking failed'], [0.82, 0.25, 'talked over caller, judge missed it'],
-      [0.78, 0.18, 'policy breach, transcript looked clean'], [0.30, 0.75, 'judge too harsh — human ok'],
-      [0.45, 0.80, 'penalized accent, call was fine'], [0.55, 0.52, 'noisy line — agree']
+      [0.78, 0.18, 'policy breach, transcript looked clean'], [0.30, 0.75, 'model too harsh, human ok'],
+      [0.45, 0.80, 'penalized accent, call was fine'], [0.55, 0.52, 'noisy line (agree)']
     ];
     pts.forEach(function (p) {
       var bad = (p[0] >= 0.6 && p[1] < 0.4);
       var harsh = (p[0] < 0.5 && p[1] >= 0.7);
       var col = bad ? C.rust : (harsh ? C.warm : C.c3);
       var dot = el('circle', { cx: sx(p[0]), cy: sy(p[1]), r: bad ? 6 : 5, fill: col, 'fill-opacity': 0.85, stroke: '#fff', 'stroke-width': 1 });
-      dot.setAttribute('data-tip', '<b>judge ' + p[0].toFixed(2) + ' / human ' + p[1].toFixed(2) + '</b><br><i>' + esc(p[2]) + '</i>');
+      dot.setAttribute('data-tip', '<b>model ' + p[0].toFixed(2) + ' / human ' + p[1].toFixed(2) + '</b><br><i>' + esc(p[2]) + '</i>');
       svg.appendChild(dot);
     });
     wireTips('chart-calib', 'tip-calib');
   }
 
-  /* ---------------- Exhibit 7 — grade vs run cost ---------------- */
+  /* Exhibit 7: grade vs run cost */
   function cost() {
     var svg = document.getElementById('chart-cost');
     if (!svg) return;
@@ -998,7 +998,7 @@
     var max = 0.11;
     var x = function (v) { return padL + v / max * plotW; };
     var rows = [
-      { n: 'Run the minute', v: 0.021, col: C.neutral, d: 'Commodity cost to operate the agent — carriage, ASR, LLM, TTS, orchestration.' },
+      { n: 'Run the minute', v: 0.021, col: C.neutral, d: 'What it costs to run the agent: carriage, ASR, LLM, TTS, orchestration.' },
       { n: 'Grade the minute', v: 0.10, col: C.rust, d: 'Market price to evaluate that same minute. 4.8× the cost of running it.' }
     ];
     var H = top + rows.length * rowH + 16;
@@ -1022,7 +1022,7 @@
     wireTips('chart-cost', 'tip-cost');
   }
 
-  /* ---------------- Exhibit 9 — capability cliff ---------------- */
+  /* Exhibit 9: capability cliff */
   function cliff() {
     var svg = document.getElementById('chart-cliff');
     if (!svg) return;
@@ -1033,8 +1033,8 @@
     var y0 = top + plot;
     var bars = [
       { n: 'Text only', v: 100, col: C.c4, note: 'Baseline: the agent does the task well when it reads and writes.' },
-      { n: 'Clean audio', v: 58, col: C.c2, note: 'Same task spoken over a clean line — a large share of capability already lost.' },
-      { n: 'Realistic audio', v: 34, col: C.rust, note: 'Add noise, accents, interruptions — the gap widens further.' }
+      { n: 'Clean audio', v: 58, col: C.c2, note: 'Same task over a clean line. A large part of the ability is already gone.' },
+      { n: 'Realistic audio', v: 34, col: C.rust, note: 'Add noise, accents, and interruptions. The gap grows.' }
     ];
     var bw = (W - padL - padR - gap * (bars.length - 1)) / bars.length;
     [0, 25, 50, 75, 100].forEach(function (t) {
@@ -1047,7 +1047,7 @@
       var x = padL + i * (bw + gap);
       var h = b.v / 100 * plot;
       var rect = el('rect', { x: x, y: y0 - h, width: bw, height: h, fill: b.col, rx: 2 });
-      rect.setAttribute('data-tip', '<b>' + esc(b.n) + '</b><br><i>direction only — not a measured value</i><br>' + esc(b.note));
+      rect.setAttribute('data-tip', '<b>' + esc(b.n) + '</b><br><i>direction only, not a measured value</i><br>' + esc(b.note));
       svg.appendChild(rect);
       svg.appendChild(label(x + bw / 2, y0 - h - 10, '~' + b.v, { size: 13, anchor: 'middle', fill: b.col, weight: 700, font: SERIF }));
       svg.appendChild(label(x + bw / 2, y0 + 20, b.n, { size: 10, anchor: 'middle', fill: C.text2, weight: 600 }));
