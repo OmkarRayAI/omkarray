@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-62YF7Y81BS"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-62YF7Y81BS');
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Was This Call Good? — The Voice AI Evaluation Layer</title>
+<meta name="description" content="The one question in the voice stack with no number — and the category racing to build it. A visual map: the commoditization order, what a transcript can't see, the four product shapes, the convergence heatmap, the calibration problem, and where the value actually is.">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Space+Mono:wght@400;700&family=Nunito+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f8f8f5;
+    --surface: #f0efea;
+    --surface2: #e8e7e1;
+    --border: #d5d2ca;
+    --accent: #2563a8;
+    --accent2: #1a7a3a;
+    --gold: #a06d08;
+    --red: #c0392b;
+    --rust: #a63a1e;
+    --muted: #6b6e73;
+    --text: #1a1c20;
+    --text2: #3a3d42;
+    --white: #111214;
+    --c1: #86a9cb;
+    --c2: #5e8cba;
+    --c3: #3a6a9e;
+    --c4: #1d4d7f;
+    --cneutral: #9a9691;
+    --cwarm: #cf8a5f;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Nunito Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 48px 32px;
+    line-height: 1.7;
+    font-size: 15px;
+  }
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    text-decoration: none;
+    margin-bottom: 20px;
+  }
+  .back-link:hover { color: var(--text); }
+
+  /* MASTHEAD */
+  .masthead {
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 32px;
+    margin-bottom: 28px;
+  }
+  .eyebrow {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 16px;
+  }
+  .masthead h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 60px;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--white);
+  }
+  .masthead h1 em { font-style: italic; color: var(--accent); font-weight: 400; }
+  .masthead-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-top: 20px;
+    gap: 24px;
+  }
+  .masthead-sub {
+    font-size: 15px;
+    color: var(--muted);
+    font-weight: 300;
+    max-width: 580px;
+    line-height: 1.7;
+  }
+  .masthead-sub b { color: var(--text2); font-weight: 600; }
+  .badges { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+  .badge {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 20px;
+    border: 1px solid;
+    white-space: nowrap;
+  }
+  .badge-blue { border-color: var(--accent); color: var(--accent); }
+  .badge-yellow { border-color: var(--gold); color: var(--gold); }
+  .badge-green { border-color: var(--accent2); color: var(--accent2); }
+
+  /* STATS ROW */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    margin-bottom: 8px;
+  }
+  .stat-cell { background: var(--surface); padding: 18px 14px; text-align: center; }
+  .stat-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 30px;
+    font-weight: 700;
+    color: var(--white);
+    line-height: 1;
+    display: block;
+  }
+  .stat-num.blue { color: var(--accent); }
+  .stat-num.rust { color: var(--rust); }
+  .stat-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+    color: var(--muted);
+    margin-top: 6px;
+    display: block;
+    line-height: 1.5;
+  }
+
+  /* SECTIONS */
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin: 56px 0 20px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 12px;
+  }
+  .section-num { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--accent); letter-spacing: 0.1em; }
+  .section-title { font-family: 'Cormorant Garamond', serif; font-size: 26px; font-weight: 600; color: var(--white); }
+  .section-desc {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-left: auto;
+    text-align: right;
+  }
+
+  p.body {
+    font-size: 15px;
+    color: var(--text2);
+    margin-bottom: 16px;
+    max-width: 760px;
+    font-weight: 300;
+    line-height: 1.75;
+  }
+  p.body strong { color: var(--text); font-weight: 600; }
+  p.body a, .footnote a, .srcs a { color: var(--accent); text-decoration: none; border-bottom: 1px solid rgba(37,99,168,0.3); }
+  p.body a:hover, .footnote a:hover, .srcs a:hover { border-bottom-color: var(--accent); }
+
+  .lede {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 21px;
+    line-height: 1.55;
+    color: var(--text2);
+    max-width: 780px;
+    margin-bottom: 6px;
+  }
+  .lede strong { color: var(--white); font-weight: 600; }
+  .lede em { color: var(--accent); font-style: italic; }
+
+  /* DIAGRAM SHELL */
+  .diagram {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 24px 26px;
+    margin: 22px 0;
+    position: relative;
+  }
+  .diagram-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    margin-bottom: 6px;
+  }
+  .diagram-sub {
+    font-size: 12.5px;
+    color: var(--muted);
+    font-weight: 300;
+    margin-bottom: 18px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+    line-height: 1.6;
+  }
+  .footnote {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    border-top: 1px solid var(--border);
+    padding-top: 10px;
+    margin-top: 16px;
+    line-height: 1.8;
+  }
+  .footnote strong { color: var(--text2); }
+
+  /* CHART SHELLS */
+  .chart-wrap { position: relative; }
+  .chart-wrap svg { display: block; width: 100%; height: auto; overflow: visible; }
+  .tip {
+    position: absolute;
+    pointer-events: none;
+    background: var(--white);
+    color: #f4f3ef;
+    font-family: 'Space Mono', monospace;
+    font-size: 10.5px;
+    line-height: 1.6;
+    padding: 7px 10px;
+    border-radius: 3px;
+    opacity: 0;
+    transition: opacity 0.12s;
+    z-index: 20;
+    white-space: nowrap;
+    transform: translate(-50%, -100%);
+    box-shadow: 0 4px 14px rgba(0,0,0,0.18);
+  }
+  .tip b { color: #fff; font-weight: 700; }
+  .tip i { color: #b8c7d8; font-style: normal; }
+
+  /* LADDER */
+  .ladder { display: flex; flex-direction: column-reverse; }
+  .rung {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    margin-top: -1px;
+    background: var(--bg);
+    position: relative;
+  }
+  .rung-c {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    width: 30px;
+    min-width: 30px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 2px;
+    color: #fff;
+    font-weight: 700;
+  }
+  .rung-name { font-size: 13px; font-weight: 600; color: var(--text); flex: 1; }
+  .rung-name span { font-weight: 300; color: var(--muted); font-size: 12px; }
+  .rung-note {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    color: var(--muted);
+    text-align: right;
+    white-space: nowrap;
+  }
+  .waterline {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 10px 0;
+    padding: 0 4px;
+  }
+  .waterline-rule { flex: 1; height: 0; border-top: 2px solid var(--accent); }
+  .waterline-text {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--accent);
+    white-space: nowrap;
+  }
+  .zone-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 8.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    margin: 4px 0 8px;
+  }
+
+  /* LOOP TRIPTYCH */
+  .loop {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr auto 1fr;
+    align-items: stretch;
+    gap: 0;
+    margin: 6px 0 4px;
+  }
+  .loop-node {
+    border: 1px solid var(--border);
+    background: var(--bg);
+    padding: 16px 16px;
+    text-align: center;
+  }
+  .loop-node .ln-k {
+    font-family: 'Space Mono', monospace;
+    font-size: 8.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    display: block;
+    margin-bottom: 8px;
+  }
+  .loop-node h4 { font-family: 'Cormorant Garamond', serif; font-size: 20px; color: var(--white); margin-bottom: 6px; }
+  .loop-node p { font-size: 12px; color: var(--muted); font-weight: 300; line-height: 1.55; }
+  .loop-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 16px;
+    color: var(--accent);
+    width: 34px;
+  }
+  .loop-return {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 12px;
+    padding: 8px 14px;
+    border: 1px dashed var(--rust);
+    background: rgba(166,58,30,0.04);
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--rust);
+    letter-spacing: 0.02em;
+    line-height: 1.6;
+  }
+  .loop-return b { color: var(--rust); }
+
+  /* MARKET MAP */
+  .map-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); }
+  .map-col { background: var(--bg); padding: 0; display: flex; flex-direction: column; }
+  .map-head { padding: 12px 14px 10px; border-bottom: 1px solid var(--border); background: var(--surface2); }
+  .map-head .mh-k { font-family: 'Space Mono', monospace; font-size: 8px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 5px; }
+  .map-head h4 { font-family: 'Cormorant Garamond', serif; font-size: 17px; line-height: 1.15; color: var(--white); }
+  .map-thesis { font-size: 11px; color: var(--muted); font-weight: 300; line-height: 1.5; padding: 10px 14px; border-bottom: 1px solid var(--border); }
+  .map-cos { padding: 8px 14px; flex: 1; }
+  .map-co { padding: 7px 0; border-bottom: 1px dotted var(--border); }
+  .map-co:last-child { border-bottom: none; }
+  .map-co b { font-size: 12.5px; color: var(--text); font-weight: 700; display: block; }
+  .map-co span { font-size: 10.5px; color: var(--muted); font-weight: 300; line-height: 1.45; }
+  .map-risk { padding: 10px 14px; border-top: 1px solid var(--border); background: rgba(166,58,30,0.035); font-family: 'Space Mono', monospace; font-size: 9px; color: var(--rust); line-height: 1.55; letter-spacing: 0.02em; }
+  .map-risk b { color: var(--rust); font-weight: 700; }
+
+  /* HEATMAP TABLE */
+  .tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .tbl th {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 9px 10px;
+    background: var(--surface2);
+    color: var(--muted);
+    text-align: left;
+    font-weight: 500;
+    border: 1px solid var(--border);
+    vertical-align: bottom;
+  }
+  .tbl th.c { text-align: center; }
+  .tbl td {
+    padding: 9px 10px;
+    border: 1px solid var(--border);
+    vertical-align: middle;
+    line-height: 1.5;
+    color: var(--muted);
+  }
+  .tbl td.rowh { color: var(--text); font-weight: 600; font-size: 12.5px; }
+  .tbl td.rowh span { display: block; font-weight: 300; color: var(--muted); font-size: 10.5px; font-family: 'Space Mono', monospace; letter-spacing: 0.02em; }
+  .tbl td.c { text-align: center; font-family: 'Space Mono', monospace; font-size: 15px; }
+  .tbl tr.frontier td { background: rgba(166,58,30,0.05); }
+  .sym-core { color: var(--c4); }
+  .sym-part { color: var(--cwarm); }
+  .sym-none { color: #c3bfb6; }
+
+  /* CALLOUT */
+  .callout {
+    border-left: 2px solid var(--accent);
+    padding: 15px 22px;
+    background: rgba(37,99,168,0.04);
+    margin: 20px 0;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 19px;
+    font-style: italic;
+    color: var(--text2);
+    line-height: 1.5;
+    max-width: 820px;
+  }
+  .callout strong { font-style: normal; font-weight: 600; color: var(--white); }
+  .callout-warm { border-left-color: var(--rust); background: rgba(166,58,30,0.04); }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 18px 0; }
+  .qcard { background: var(--surface); border: 1px solid var(--border); padding: 14px 18px; }
+  .qcard .kicker { font-family: 'Space Mono', monospace; font-size: 8.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); display: block; margin-bottom: 6px; }
+  .qcard h4 { font-family: 'Cormorant Garamond', serif; font-size: 18px; color: var(--white); margin-bottom: 5px; line-height: 1.15; }
+  .qcard p { font-size: 12px; color: var(--muted); line-height: 1.6; font-weight: 300; }
+
+  hr.rule { border: none; border-top: 1px solid var(--border); margin: 34px 0; }
+
+  .srcs { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--muted); line-height: 2; }
+  .srcs b { color: var(--text2); }
+
+  @media (max-width: 720px) {
+    body { padding: 28px 18px; }
+    .masthead h1 { font-size: 38px; }
+    .masthead-row { flex-direction: column; align-items: flex-start; }
+    .badges { flex-direction: row; flex-wrap: wrap; align-items: flex-start; }
+    .stats-row { grid-template-columns: repeat(2, 1fr); }
+    .two-col { grid-template-columns: 1fr; }
+    .section-desc { display: none; }
+    .loop { grid-template-columns: 1fr; }
+    .loop-arrow { transform: rotate(90deg); width: auto; padding: 4px 0; }
+    .map-scroll { overflow-x: auto; }
+    .map-grid { min-width: 720px; }
+    .tbl-scroll { overflow-x: auto; }
+    .tbl { min-width: 680px; }
+    .rung-note { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<a href="index.html" class="back-link">&larr; Back to omkarray.com</a>
+
+<div class="masthead">
+  <div class="eyebrow">Category Analysis · Voice AI Evaluation · August 2026</div>
+  <h1>Was this call<br><em>good</em>?</h1>
+  <div class="masthead-row">
+    <div class="masthead-sub">It's the only question left in the voice stack without a number. Transcription has word error rate. Latency has milliseconds. The minute has a price. <b>&ldquo;Good&rdquo; has nothing</b> — so a new category is racing to build it. This is the map.</div>
+    <div class="badges">
+      <span class="badge badge-blue">4 product shapes</span>
+      <span class="badge badge-yellow">3-layer lifecycle</span>
+      <span class="badge badge-green">9 exhibits</span>
+    </div>
+  </div>
+</div>
+
+<div class="stats-row">
+  <div class="stat-cell">
+    <span class="stat-num rust">4.8&times;</span>
+    <span class="stat-label">Cost to grade a<br>call vs. run it</span>
+  </div>
+  <div class="stat-cell">
+    <span class="stat-num blue">3</span>
+    <span class="stat-label">Layers every serious<br>tool now ships</span>
+  </div>
+  <div class="stat-cell">
+    <span class="stat-num">4</span>
+    <span class="stat-label">Product shapes<br>converging here</span>
+  </div>
+  <div class="stat-cell">
+    <span class="stat-num">8+</span>
+    <span class="stat-label">Failure axes voice<br>adds over text</span>
+  </div>
+  <div class="stat-cell">
+    <span class="stat-num rust">0</span>
+    <span class="stat-label">Standard scores for<br>&ldquo;was it good?&rdquo;</span>
+  </div>
+</div>
+
+<!-- ============ 01 ============ -->
+<div class="section-header" id="order">
+  <span class="section-num">01 ——</span>
+  <span class="section-title">The order layers fall</span>
+  <span class="section-desc">Countable first, priced last</span>
+</div>
+
+<p class="lede">A layer commoditizes the moment its quality becomes <em>countable</em>. Transcription had word error rate, so it fell first. Evaluation is last in line — because &ldquo;did the call work?&rdquo; still has no agreed unit.</p>
+
+<div class="diagram">
+  <div class="diagram-label">Exhibit 1 — Layers commoditize in the order they became measurable</div>
+  <div class="diagram-sub">Each rung of the voice stack got a number, and the number is what let three vendors undercut each other on it. Evaluation is the one rung still waiting for its metric — which is exactly why it still sets price by value, not cost.</div>
+  <div class="chart-wrap">
+    <svg id="chart-seq" role="img" aria-label="Sequence of voice-stack layers and the metric that commoditized each, with evaluation last and unmeasured"></svg>
+    <div class="tip" id="tip-seq"></div>
+  </div>
+  <div class="footnote"><strong>The tell:</strong> you can't run a price war over a quantity nobody can compute. Give &ldquo;good&rdquo; a trusted number and the eval layer commoditizes too — the whole category is a race to supply that number first.</div>
+</div>
+
+<!-- ============ 02 ============ -->
+<div class="section-header" id="blind">
+  <span class="section-num">02 ——</span>
+  <span class="section-title">What a transcript can't see</span>
+  <span class="section-desc">Text scores the words; voice fails elsewhere</span>
+</div>
+
+<p class="body">Text evaluation scores a final answer. A call isn't one — it's a <strong>real-time duplex process</strong> where timing, audio and tool-state each fail on their own axis, none of it visible in the words. Transcribe-and-score passes agents that felt broken to the human on the line.</p>
+
+<div class="diagram">
+  <div class="diagram-label">Exhibit 2 — Eight ways a call fails, by how much a transcript catches</div>
+  <div class="diagram-sub">Ranked by roughly how much of each failure mode text-only scoring captures. The transcript owns the top and almost none of the bottom. Everything in rust is a way a call breaks that words can't show. Hover any bar.</div>
+  <div class="chart-wrap">
+    <svg id="chart-blind" role="img" aria-label="Bar chart of voice failure modes ranked by transcript coverage"></svg>
+    <div class="tip" id="tip-blind"></div>
+  </div>
+  <div class="footnote"><strong>Read it as:</strong> a voice-eval product is, at heart, a claim to measure the rust — latency, barge-in, endpointing, tool-state. The transcript is the easy 10%.</div>
+</div>
+
+<!-- ============ 03 ============ -->
+<div class="section-header" id="shape">
+  <span class="section-num">03 ——</span>
+  <span class="section-title">The shape everyone converged on</span>
+  <span class="section-desc">Simulate · observe · review</span>
+</div>
+
+<p class="body">Independently, every credible entrant landed on the same three moves — which means the three moves no longer differentiate anyone. They're table stakes now. The differentiation moved to the one edge the loop doesn't cover.</p>
+
+<div class="diagram">
+  <div class="diagram-label">Exhibit 3 — The three-layer lifecycle, and the seam</div>
+  <div class="diagram-sub">The loop every serious tool now claims. The three boxes have converged. The dashed return — turning a real production failure back into a durable test — is still assembled by hand, in tickets and spreadsheets.</div>
+  <div class="loop">
+    <div class="loop-node">
+      <span class="ln-k">Before launch</span>
+      <h4>Simulate</h4>
+      <p>Synthetic callers stress the agent across accents, noise, interruptions, IVR trees and tool paths — before a real customer hears it.</p>
+    </div>
+    <div class="loop-arrow">&rarr;</div>
+    <div class="loop-node">
+      <span class="ln-k">In production</span>
+      <h4>Observe</h4>
+      <p>Live calls scored on the same axes — latency, task completion, policy — with traces and audio kept as evidence.</p>
+    </div>
+    <div class="loop-arrow">&rarr;</div>
+    <div class="loop-node">
+      <span class="ln-k">With humans</span>
+      <h4>Review</h4>
+      <p>People label the riskiest calls, which becomes the ground truth that says whether the automated scores can be trusted.</p>
+    </div>
+  </div>
+  <div class="loop-return">
+    <b>&#8629; the seam:</b>&nbsp; reviewed failure &rarr; versioned regression test &rarr; proof the fix holds — the part that compounds, and the part no one has made a first-class object.
+  </div>
+</div>
+
+<!-- ============ 04 ============ -->
+<div class="section-header" id="landscape">
+  <span class="section-num">04 ——</span>
+  <span class="section-title">Four shapes, one prize</span>
+  <span class="section-desc">Cut by where the entrant came from</span>
+</div>
+
+<p class="body">The companies chasing voice evaluation don't start from the same place, and the starting line tells you each one's edge and blind spot. Cut the market by <strong>origin</strong> — not by feature, since features are converging — and it falls cleanly into four.</p>
+
+<div class="diagram">
+  <div class="diagram-label">Exhibit 4 — The four shapes</div>
+  <div class="diagram-sub">Positioning lines are each company's own; the risk line under each column is mine. Names place the market — this is not a ranking.</div>
+  <div class="map-scroll">
+  <div class="map-grid">
+    <div class="map-col">
+      <div class="map-head"><span class="mh-k">Shape 1</span><h4>Voice-native QA loop</h4></div>
+      <div class="map-thesis">Purpose-built for voice: realistic call simulation, audio-native metrics, production monitoring, regression tests.</div>
+      <div class="map-cos">
+        <div class="map-co"><b>Coval</b><span>Simulate / observe / review across voice + chat; metric versioning + human-review calibration; pricing published.</span></div>
+        <div class="map-co"><b>Hamming</b><span>One-click production-call replay; high-concurrency test calls; 50+ metrics (self-reported).</span></div>
+        <div class="map-co"><b>Roark</b><span>Production issue &rarr; drafted fix &rarr; simulation &rarr; verified deploy; audio-native metrics (self-reported).</span></div>
+      </div>
+      <div class="map-risk"><b>Risk:</b> convergence with each other — replay, audio metrics and regression are now claimed by all three.</div>
+    </div>
+    <div class="map-col">
+      <div class="map-head"><span class="mh-k">Shape 2</span><h4>Enterprise CX assurance</h4></div>
+      <div class="map-thesis">Incumbents in contact-center and IVR testing, extending existing suites toward AI agents.</div>
+      <div class="map-cos">
+        <div class="map-co"><b>Cyara</b><span>Established CX / telephony assurance; deep IVR and load testing; enterprise procurement in place.</span></div>
+        <div class="map-co"><b>CCaaS QA suites</b><span>Incumbent quality-management vendors adding generative-agent coverage to installed footprints.</span></div>
+      </div>
+      <div class="map-risk"><b>Risk to pure-plays:</b> can bundle agent testing into a contract the buyer already signed. Distribution, not product.</div>
+    </div>
+    <div class="map-col">
+      <div class="map-head"><span class="mh-k">Shape 3</span><h4>General eval &amp; observability</h4></div>
+      <div class="map-thesis">Horizontal LLM eval and tracing platforms with developer adoption, adding voice as an input type.</div>
+      <div class="map-cos">
+        <div class="map-co"><b>Braintrust</b><span>Datasets, scorers and experiment tracking for LLM apps; strong developer workflow.</span></div>
+        <div class="map-co"><b>LangSmith</b><span>Tracing + eval tied to a widely-used orchestration ecosystem.</span></div>
+        <div class="map-co"><b>Arize Phoenix</b><span>Open-source-rooted LLM observability and evaluation.</span></div>
+      </div>
+      <div class="map-risk"><b>Risk to pure-plays:</b> own the broader AI stack and add voice downward — buyer may not want a separate tool.</div>
+    </div>
+    <div class="map-col">
+      <div class="map-head"><span class="mh-k">Shape 4</span><h4>Voice-agent platforms</h4></div>
+      <div class="map-thesis">Runtimes that already hold the call data and config, adding &ldquo;good-enough&rdquo; evals inside the platform.</div>
+      <div class="map-cos">
+        <div class="map-co"><b>Retell / Vapi</b><span>Voice-agent build-and-run platforms with native access to call logs and configuration.</span></div>
+        <div class="map-co"><b>ElevenLabs &amp; runtimes</b><span>Model / platform players expanding upward into testing and monitoring.</span></div>
+      </div>
+      <div class="map-risk"><b>Risk to pure-plays:</b> own the runtime. Adequate bundled evals may remove the reason to buy a standalone tool.</div>
+    </div>
+  </div>
+  </div>
+  <div class="footnote"><strong>The axis is origin, not quality.</strong> The pure-plays' whole bet: voice reliability is hard enough that a general tool or a bundled feature won't be trusted for a go-live call. Whether that holds is the category's central question.</div>
+</div>
+
+<!-- ============ 05 ============ -->
+<div class="section-header" id="convergence">
+  <span class="section-num">05 ——</span>
+  <span class="section-title">Everyone is converging</span>
+  <span class="section-desc">The capability heatmap</span>
+</div>
+
+<p class="body">Line the four shapes up against what matters and the white space is obvious. The top rows are dense; the bottom two are a field of half-circles and blanks. That's not an accident — those two are the hard ones.</p>
+
+<div class="diagram">
+  <div class="diagram-label">Exhibit 5 — Capability convergence across the four shapes</div>
+  <div class="diagram-sub">&#9679; core to the shape &nbsp; &#9682; partial / emerging &nbsp; &#9675; largely absent. Cells reflect public positioning, self-reported. The highlighted rows are where the category is still unwon.</div>
+  <div class="tbl-scroll">
+  <table class="tbl">
+    <thead>
+      <tr>
+        <th>Capability</th>
+        <th class="c">Voice-native<br>QA loop</th>
+        <th class="c">Enterprise<br>CX assurance</th>
+        <th class="c">General eval<br>/ observability</th>
+        <th class="c">Voice-agent<br>platforms</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="rowh">Simulated calls <span>synthetic callers pre-launch</span></td>
+        <td class="c sym-core">&#9679;</td><td class="c sym-core">&#9679;</td><td class="c sym-part">&#9682;</td><td class="c sym-part">&#9682;</td>
+      </tr>
+      <tr>
+        <td class="rowh">Audio-native metrics <span>prosody, latency, barge-in</span></td>
+        <td class="c sym-core">&#9679;</td><td class="c sym-part">&#9682;</td><td class="c sym-none">&#9675;</td><td class="c sym-part">&#9682;</td>
+      </tr>
+      <tr>
+        <td class="rowh">Production-call replay <span>re-run real traffic</span></td>
+        <td class="c sym-core">&#9679;</td><td class="c sym-part">&#9682;</td><td class="c sym-none">&#9675;</td><td class="c sym-part">&#9682;</td>
+      </tr>
+      <tr>
+        <td class="rowh">Trace &amp; tool-call inspection <span>why it failed, span by span</span></td>
+        <td class="c sym-core">&#9679;</td><td class="c sym-none">&#9675;</td><td class="c sym-core">&#9679;</td><td class="c sym-part">&#9682;</td>
+      </tr>
+      <tr class="frontier">
+        <td class="rowh">Human-calibrated judgment <span>are the auto-scores trustworthy?</span></td>
+        <td class="c sym-part">&#9682;</td><td class="c sym-part">&#9682;</td><td class="c sym-part">&#9682;</td><td class="c sym-none">&#9675;</td>
+      </tr>
+      <tr class="frontier">
+        <td class="rowh">Failure &rarr; test &rarr; release lineage <span>one durable, auditable object</span></td>
+        <td class="c sym-part">&#9682;</td><td class="c sym-none">&#9675;</td><td class="c sym-none">&#9675;</td><td class="c sym-none">&#9675;</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<div class="callout callout-warm">
+  A capability everyone marks &ldquo;core&rdquo; is no longer a differentiator. The signal is in the empty cells: <strong>calibration and lineage are where the category is still unwon.</strong>
+</div>
+
+<!-- ============ 06 ============ -->
+<div class="section-header" id="calibration">
+  <span class="section-num">06 ——</span>
+  <span class="section-title">Who grades the graders?</span>
+  <span class="section-desc">An eval score is a model output too</span>
+</div>
+
+<p class="body">Most of these tools score calls with a model. But an eval score is <strong>itself an uncertain model output</strong> — the judge can be wrong exactly the way the agent it grades can be. More metrics don't fix that; they multiply the number of confident numbers you're now trusting blind.</p>
+
+<div class="diagram">
+  <div class="diagram-label">Exhibit 6 — The judge vs. the human</div>
+  <div class="diagram-sub">Illustrative. Each dot is a call: horizontal = automated judge score, vertical = human score. On the diagonal the judge is trustworthy. The shaded corner — judge says pass, human says fail — is false confidence, the most dangerous output an eval tool can produce. Hover a dot.</div>
+  <div class="chart-wrap">
+    <svg id="chart-calib" role="img" aria-label="Scatter plot of automated judge scores against human scores"></svg>
+    <div class="tip" id="tip-calib"></div>
+  </div>
+  <div class="footnote"><strong>The product consequence:</strong> a release-blocking metric needs a measured agreement rate and the humility to abstain when unsure — not a bigger dashboard.</div>
+</div>
+
+<div class="callout">
+  &ldquo;More metrics&rdquo; is a marketing axis. <strong>&ldquo;Calibrated metrics&rdquo; is a trust axis</strong> — and only the second one survives a compliance review.
+</div>
+
+<!-- ============ 07 ============ -->
+<div class="section-header" id="value">
+  <span class="section-num">07 ——</span>
+  <span class="section-title">Where the value actually is</span>
+  <span class="section-desc">The evaluation waterline</span>
+</div>
+
+<p class="body">Grading a call already costs more than making it — so the money in voice is drifting toward eval. But not evenly. Metric counts and call volumes are countable, copyable, and heading for a price war. What compounds is the stuff earned per customer over time.</p>
+
+<div class="diagram">
+  <div class="diagram-label">Exhibit 7 — The grader costs more than the call</div>
+  <div class="diagram-sub">Per connected minute: what it costs to run the agent versus what the market charges to evaluate it. Carried from <a href="voice-ai-commoditization.html">The Voice AI Stack</a>. Testing is now the expensive part.</div>
+  <div class="chart-wrap">
+    <svg id="chart-cost" role="img" aria-label="Two bars comparing the cost to run a voice minute versus grade it"></svg>
+    <div class="tip" id="tip-cost"></div>
+  </div>
+</div>
+
+<div class="diagram">
+  <div class="diagram-label">Exhibit 8 — The evaluation waterline</div>
+  <div class="diagram-sub">The rungs of a voice-eval product by how defensible each is. Below the line: replicable, trending to a feature race. Above it: earned per customer, hard to copy. Same logic as the stack teardown, one layer up.</div>
+  <div class="zone-label">&uarr; Above the line — value compounds here</div>
+  <div class="ladder">
+    <div class="rung"><span class="rung-c" style="background:var(--c4)">5</span><span class="rung-name">Raw metric count <span>· &ldquo;50+ scores&rdquo;</span></span><span class="rung-note">anyone can add one</span></div>
+    <div class="rung"><span class="rung-c" style="background:var(--c4)">5</span><span class="rung-name">Simulated-call volume <span>· &ldquo;50K concurrent&rdquo;</span></span><span class="rung-note">capacity, not insight</span></div>
+    <div class="rung"><span class="rung-c" style="background:var(--c4)">5</span><span class="rung-name">Protocol / channel coverage <span>· SIP, WebRTC, DTMF</span></span><span class="rung-note">table stakes in a year</span></div>
+    <div class="rung"><span class="rung-c" style="background:var(--c3)">4</span><span class="rung-name">Trace &amp; audio inspection</span><span class="rung-note">converging fast</span></div>
+    <div class="rung" style="border-color:var(--accent);border-width:1px 1px 1px 2px;"><span class="rung-c" style="background:var(--cneutral)">3</span><span class="rung-name">Calibrated, human-anchored judgment</span><span class="rung-note">&larr; the frontier</span></div>
+    <div class="waterline"><div class="waterline-rule"></div><div class="waterline-text">the line — copyable below, earned above</div></div>
+    <div class="rung" style="border-color:var(--rust);border-width:1px 1px 1px 2px;"><span class="rung-c" style="background:var(--rust)">2</span><span class="rung-name">Evidence lineage <span>· failure &rarr; test &rarr; release, one object</span></span><span class="rung-note">mostly unbuilt</span></div>
+    <div class="rung" style="border-color:var(--rust);border-width:1px 1px 1px 2px;"><span class="rung-c" style="background:var(--rust)">1</span><span class="rung-name">Quality policy as code <span>· the go/no-go gate, versioned</span></span><span class="rung-note">nobody owns it cleanly</span></div>
+  </div>
+  <div class="zone-label" style="margin-top:8px;">&darr; Below the line — countable, copyable, price-war-bound</div>
+  <div class="footnote"><strong>C = defensibility, not quality.</strong> 5 = anyone can replicate it, so it commoditizes; 1 = it accrues per customer and resists copying. The bottom two rungs — bind a production failure to the test that proves it won't recur, versioned — are the category's obvious next primitive, and they're the emptiest cells on the map above.</div>
+</div>
+
+<div class="callout">
+  The features that demo best — metric counts, call volumes, protocol lists — are the ones heading for a price war. The unglamorous middle, <strong>calibrated judgment and evidence lineage</strong>, is what compounds per customer and what almost no one has built.
+</div>
+
+<!-- ============ 08 ============ -->
+<div class="section-header" id="evidence">
+  <span class="section-num">08 ——</span>
+  <span class="section-title">Is the problem even real?</span>
+  <span class="section-desc">What the benchmarks say</span>
+</div>
+
+<p class="body">A fair objection: maybe agents are fine and this is anxiety being sold. The benchmarks say otherwise. Agents that ace a task in text lose a large share of that ability the moment it runs over audio — and more under realistic conditions.</p>
+
+<div class="diagram">
+  <div class="diagram-label">Exhibit 9 — The capability cliff</div>
+  <div class="diagram-sub">Direction, not measured values — the shape is the finding. The same task, moved from text to clean audio to noisy real-world audio, sheds capability at each step. Hover a bar.</div>
+  <div class="chart-wrap">
+    <svg id="chart-cliff" role="img" aria-label="Schematic bars showing capability dropping from text to clean audio to realistic audio"></svg>
+    <div class="tip" id="tip-cliff"></div>
+  </div>
+  <div class="footnote"><strong>Directional read</strong> across recent voice benchmarks (&tau;-Voice, EVA-Bench, and — on the evaluators themselves — Testing the Testers). Exact figures vary by setup; the robust finding is that the text-to-voice gap is large and traces mostly to agent behavior under audio.</div>
+</div>
+
+<div class="callout callout-warm">
+  The problem is real, specific to the audio-and-timing layer transcripts ignore, and recursive: <strong>even the graders need grading.</strong> That's a category with a reason to exist — the open question was never demand, only which shape and which rung ends up owning it.
+</div>
+
+<!-- ============ 09 ============ -->
+<div class="section-header" id="questions">
+  <span class="section-num">09 ——</span>
+  <span class="section-title">The four questions that decide it</span>
+  <span class="section-desc">Unanswerable from public materials today</span>
+</div>
+
+<div class="two-col">
+  <div class="qcard">
+    <span class="kicker">Open question</span>
+    <h4>Does calibration actually gate releases?</h4>
+    <p>Everyone can compute judge-vs-human agreement. Do buyers block a go-live on it — or is it a dashboard no one acts on? Decides whether §06 is a moat or a slide.</p>
+  </div>
+  <div class="qcard">
+    <span class="kicker">Open question</span>
+    <h4>Can real audio be legally replayed?</h4>
+    <p>&ldquo;Replay production calls&rdquo; assumes you may. Consent, PII and residency rules may quietly cap how much of that headline capability is usable in regulated verticals.</p>
+  </div>
+  <div class="qcard">
+    <span class="kicker">Open question</span>
+    <h4>Which artifact is canonical?</h4>
+    <p>Call, ticket, test case, metric result, or release? Whoever's object becomes the unit of record shapes the category — and it's genuinely unsettled.</p>
+  </div>
+  <div class="qcard">
+    <span class="kicker">Open question</span>
+    <h4>Do bundled platform evals win by default?</h4>
+    <p>If a runtime's built-in evals satisfy most buyers, the voice-native pure-plays get compressed into regulated, high-consequence work. The whole bull/bear axis.</p>
+  </div>
+</div>
+
+<hr class="rule">
+
+<div class="section-header" style="margin-top:20px;">
+  <span class="section-num">——</span>
+  <span class="section-title">Sources &amp; method</span>
+  <span class="section-desc">Public pages &amp; research</span>
+</div>
+
+<p class="srcs">
+  <b>Prior teardown in this series</b> · <a href="voice-ai-commoditization.html">The Voice AI Stack — What's Commoditized and What Isn't</a> — source of the 4.8&times; grade-vs-run figure and the waterline framing.<br><br>
+  <b>Voice-native QA loop</b> · <a href="https://www.coval.ai/" target="_blank" rel="noopener">Coval</a> · <a href="https://hamming.ai/" target="_blank" rel="noopener">Hamming</a> · <a href="https://roark.ai/" target="_blank" rel="noopener">Roark</a><br>
+  <b>Adjacent shapes</b> · Cyara &amp; CCaaS QA suites · Braintrust, LangSmith, Arize Phoenix · Retell, Vapi, ElevenLabs<br>
+  <b>Research anchors</b> · <a href="https://arxiv.org/abs/2603.13686" target="_blank" rel="noopener">&tau;-Voice</a> · <a href="https://arxiv.org/abs/2605.13841" target="_blank" rel="noopener">EVA-Bench</a> · <a href="https://arxiv.org/abs/2511.04133" target="_blank" rel="noopener">Testing the Testers</a><br><br>
+  <span style="color:var(--muted);">Category map from public product pages, docs, pricing, and preprint benchmarks. Company capabilities are self-reported and not verified in a controlled bakeoff; the four-shape taxonomy and all charts are the author's. No product is ranked or recommended. August 2026.</span>
+</p>
+
+<script>
+(function () {
+  'use strict';
+
+  var C = {
+    c1: '#86a9cb', c2: '#5e8cba', c3: '#3a6a9e', c4: '#1d4d7f',
+    rust: '#a63a1e', warm: '#cf8a5f', neutral: '#9a9691',
+    surface: '#f0efea', border: '#d5d2ca', muted: '#6b6e73',
+    text: '#1a1c20', text2: '#3a3d42', accent: '#2563a8'
+  };
+  var MONO = "'Space Mono', monospace";
+  var SERIF = "'Cormorant Garamond', serif";
+
+  function esc(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+  function el(tag, attrs, text) {
+    var n = document.createElementNS('http://www.w3.org/2000/svg', tag);
+    for (var k in attrs) { if (attrs[k] !== null && attrs[k] !== undefined) n.setAttribute(k, attrs[k]); }
+    if (text !== undefined) n.textContent = text;
+    return n;
+  }
+  function label(x, y, str, opts) {
+    opts = opts || {};
+    return el('text', {
+      x: x, y: y,
+      'font-family': opts.font || MONO,
+      'font-size': opts.size || 10,
+      'font-weight': opts.weight || 400,
+      fill: opts.fill || C.muted,
+      'text-anchor': opts.anchor || 'start',
+      'letter-spacing': opts.ls || 0
+    }, str);
+  }
+  function wireTips(wrapId, tipId) {
+    var wrap = document.getElementById(wrapId);
+    var tip = document.getElementById(tipId);
+    if (!wrap || !tip) return;
+    wrap.addEventListener('mouseover', function (e) {
+      var t = e.target.closest('[data-tip]');
+      if (!t) return;
+      var r = t.getBoundingClientRect(), w = wrap.getBoundingClientRect();
+      tip.innerHTML = t.getAttribute('data-tip');
+      tip.style.left = (r.left + r.width / 2 - w.left) + 'px';
+      tip.style.top = (r.top - w.top - 6) + 'px';
+      tip.style.opacity = '1';
+    });
+    wrap.addEventListener('mouseout', function (e) {
+      if (e.target.closest('[data-tip]')) tip.style.opacity = '0';
+    });
+  }
+  function colorFor(v) {
+    if (v >= 70) return C.c3;
+    if (v >= 45) return C.c2;
+    if (v >= 25) return C.warm;
+    return C.rust;
+  }
+
+  /* ---------------- Exhibit 1 — commoditization sequence ---------------- */
+  function sequence() {
+    var svg = document.getElementById('chart-seq');
+    if (!svg) return;
+    var W = 920, H = 150;
+    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+    var nodes = [
+      { n: 'Transcription', m: 'word error rate', done: true, tip: 'A number since the 1990s. Many interchangeable vendors — the layer that fell first.' },
+      { n: 'Synthesis', m: 'MOS + latency', done: true, tip: 'Mean-opinion-score and time-to-first-byte made voices comparable. Baseline TTS is now near-flat priced.' },
+      { n: 'Turn-taking', m: 'milliseconds', done: true, tip: 'Endpointing and barge-in became a latency number. Commoditizing now.' },
+      { n: 'The minute', m: '$ per minute', done: true, tip: 'The whole connected minute is a published price. ~$0.021 commodity floor.' },
+      { n: 'Evaluation', m: 'no number yet', done: false, tip: 'Was the call good? No agreed unit — so it still sets price by value, not cost. The last rung standing.' }
+    ];
+    var nW = 152, gap = (W - nodes.length * nW) / (nodes.length - 1);
+    var top = 42, nH = 52;
+    // baseline
+    svg.appendChild(el('line', { x1: 8, x2: W - 8, y1: top + nH + 20, y2: top + nH + 20, stroke: C.border, 'stroke-width': 1 }));
+    svg.appendChild(label(8, 26, 'AS EACH LAYER BECAME COUNTABLE  →', { size: 8.5, fill: C.muted, ls: 0.6 }));
+
+    nodes.forEach(function (nd, i) {
+      var x = i * (nW + gap);
+      var col = nd.done ? [C.c3, C.c4, C.c3, C.c4][i] || C.c3 : C.rust;
+      // connector arrow
+      if (i > 0) {
+        var ax = x - gap + 5, ay = top + nH / 2;
+        svg.appendChild(el('line', { x1: ax, x2: x - 5, y1: ay, y2: ay, stroke: C.neutral, 'stroke-width': 1.4 }));
+        svg.appendChild(el('path', { d: 'M ' + (x - 5) + ' ' + (ay - 3.5) + ' L ' + (x + 1) + ' ' + ay + ' L ' + (x - 5) + ' ' + (ay + 3.5) + ' Z', fill: C.neutral }));
+      }
+      var g = el('g', {});
+      g.setAttribute('data-tip', '<b>' + esc(nd.n) + '</b><br><i>metric: ' + esc(nd.m) + '</i><br>' + esc(nd.tip));
+      var rect = el('rect', { x: x, y: top, width: nW, height: nH, rx: 4, fill: nd.done ? '#fff' : 'rgba(166,58,30,0.05)', stroke: col, 'stroke-width': nd.done ? 1 : 1.6, 'stroke-dasharray': nd.done ? '0' : '4 3' });
+      g.appendChild(rect);
+      g.appendChild(label(x + nW / 2, top + 22, nd.n, { size: 13, anchor: 'middle', fill: nd.done ? C.text : C.rust, weight: 700, font: SERIF }));
+      g.appendChild(label(x + nW / 2, top + 40, nd.m, { size: 9.5, anchor: 'middle', fill: col }));
+      // status tag below baseline
+      g.appendChild(label(x + nW / 2, top + nH + 38, nd.done ? 'COMMODITIZED' : 'HOLDS ITS PRICE', { size: 8, anchor: 'middle', fill: nd.done ? C.muted : C.rust, weight: nd.done ? 400 : 700, ls: 0.5 }));
+      // tick on baseline
+      g.appendChild(el('circle', { cx: x + nW / 2, cy: top + nH + 20, r: 3.5, fill: nd.done ? C.neutral : C.rust }));
+      svg.appendChild(g);
+    });
+    wireTips('chart-seq', 'tip-seq');
+  }
+
+  /* ---------------- Exhibit 2 — what a transcript can't see ---------------- */
+  function blind() {
+    var svg = document.getElementById('chart-blind');
+    if (!svg) return;
+    var W = 920, padL = 250, padR = 70, top = 26, rowH = 40;
+    var plotW = W - padL - padR;
+    var rows = [
+      { n: 'Words / final answer', cov: 95, ex: 'Did it say the correct thing? The one axis a transcript owns.' },
+      { n: 'Policy sequence', cov: 55, ex: 'Auth, disclosure, escalation in the right order — partly visible, timing-dependent.' },
+      { n: 'ASR error under accent / noise', cov: 42, ex: 'The transcript IS the error — you cannot grade what was mis-heard using the mis-hearing.' },
+      { n: 'Tool state ("said done, did nothing")', cov: 30, ex: 'Agent claims the booking succeeded; the API call never completed. Text shows the claim, not the truth.' },
+      { n: 'Prosody / emotion / repetition', cov: 12, ex: 'Robotic, flat, or looping delivery. Invisible to text.' },
+      { n: 'Endpointing / silence', cov: 8, ex: 'Awkward pauses, cutting the caller off, dead air. No transcript trace.' },
+      { n: 'Barge-in / interruption handling', cov: 6, ex: 'Talking over the caller, or failing to yield. A timing event, not a word.' },
+      { n: 'End-to-end latency', cov: 2, ex: 'The single biggest driver of "felt broken" — and completely absent from a transcript.' }
+    ];
+    var H = top + rows.length * rowH + 16;
+    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+    [0, 25, 50, 75, 100].forEach(function (t) {
+      var x = padL + t / 100 * plotW;
+      svg.appendChild(el('line', { x1: x, x2: x, y1: top - 8, y2: top + rows.length * rowH - 6, stroke: t === 0 ? C.border : '#e4e2dc', 'stroke-width': 1 }));
+      svg.appendChild(label(x, top + rows.length * rowH + 8, t + '%', { size: 8.5, anchor: 'middle', fill: C.muted }));
+    });
+    svg.appendChild(label(padL + plotW / 2, top - 14, 'HOW MUCH A TRANSCRIPT CAPTURES  →', { size: 8.5, anchor: 'middle', fill: C.muted, ls: 0.5 }));
+    rows.forEach(function (r, i) {
+      var y = top + i * rowH;
+      var col = colorFor(r.cov);
+      var bw = Math.max(3, r.cov / 100 * plotW);
+      svg.appendChild(label(padL - 12, y + 20, r.n, { size: 11, anchor: 'end', fill: C.text2, weight: r.cov >= 70 ? 700 : 400 }));
+      svg.appendChild(el('rect', { x: padL, y: y + 8, width: plotW, height: 18, fill: '#eceae4', rx: 2 }));
+      var bar = el('rect', { x: padL, y: y + 8, width: bw, height: 18, fill: col, rx: 2 });
+      bar.setAttribute('data-tip', '<b>' + esc(r.n) + '</b><br><i>~' + r.cov + '% transcript-visible</i><br>' + esc(r.ex));
+      svg.appendChild(bar);
+      svg.appendChild(label(padL + bw + 8, y + 21, r.cov + '%', { size: 10, fill: col, weight: 700 }));
+    });
+    wireTips('chart-blind', 'tip-blind');
+  }
+
+  /* ---------------- Exhibit 6 — judge vs human scatter ---------------- */
+  function calib() {
+    var svg = document.getElementById('chart-calib');
+    if (!svg) return;
+    var W = 760, padL = 64, top = 24, padB = 54;
+    var plot = 380;
+    var H = top + plot + padB;
+    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+    var x0 = padL, y0 = top + plot;
+    var sx = function (v) { return x0 + v * plot; };
+    var sy = function (v) { return y0 - v * plot; };
+
+    svg.appendChild(el('rect', { x: sx(0.6), y: sy(0.4), width: sx(1) - sx(0.6), height: sy(0) - sy(0.4), fill: 'rgba(166,58,30,0.09)' }));
+    svg.appendChild(label(sx(0.8), sy(0.2), 'FALSE CONFIDENCE', { size: 8.5, anchor: 'middle', fill: C.rust, ls: 0.4 }));
+    svg.appendChild(label(sx(0.8), sy(0.2) + 13, 'judge passes, human fails', { size: 7.5, anchor: 'middle', fill: C.rust }));
+    svg.appendChild(el('path', { d: 'M ' + sx(0) + ' ' + sy(0.12) + ' L ' + sx(0.88) + ' ' + sy(1) + ' L ' + sx(1) + ' ' + sy(1) + ' L ' + sx(1) + ' ' + sy(0.88) + ' L ' + sx(0.12) + ' ' + sy(0) + ' L ' + sx(0) + ' ' + sy(0) + ' Z', fill: 'rgba(37,99,168,0.06)' }));
+    [0, 0.25, 0.5, 0.75, 1].forEach(function (t) {
+      svg.appendChild(el('line', { x1: sx(t), x2: sx(t), y1: sy(0), y2: sy(1), stroke: '#e4e2dc', 'stroke-width': 1 }));
+      svg.appendChild(el('line', { x1: sx(0), x2: sx(1), y1: sy(t), y2: sy(t), stroke: '#e4e2dc', 'stroke-width': 1 }));
+      svg.appendChild(label(sx(t), sy(0) + 16, t.toFixed(2), { size: 8, anchor: 'middle', fill: C.muted }));
+      svg.appendChild(label(sx(0) - 8, sy(t) + 3, t.toFixed(2), { size: 8, anchor: 'end', fill: C.muted }));
+    });
+    svg.appendChild(el('line', { x1: sx(0), y1: sy(0), x2: sx(1), y2: sy(1), stroke: C.accent, 'stroke-width': 1.5, 'stroke-dasharray': '5 4' }));
+    svg.appendChild(label(sx(0.5) + 6, sy(0.5) - 8, 'perfectly calibrated', { size: 8, fill: C.accent, anchor: 'start' }));
+    svg.appendChild(label(sx(0.5), sy(0) + 40, 'AUTOMATED JUDGE SCORE  →', { size: 9, anchor: 'middle', fill: C.text2, ls: 0.5 }));
+    var yt = el('text', { x: x0 - 44, y: sy(0.5), 'font-family': MONO, 'font-size': 9, fill: C.text2, 'text-anchor': 'middle', 'letter-spacing': 0.5, transform: 'rotate(-90 ' + (x0 - 44) + ' ' + sy(0.5) + ')' }, '↑  HUMAN SCORE');
+    svg.appendChild(yt);
+    var pts = [
+      [0.95, 0.92, 'clean pass — agree'], [0.88, 0.85, 'good call — agree'], [0.80, 0.78, 'minor slip — agree'],
+      [0.72, 0.68, 'acceptable — agree'], [0.60, 0.62, 'borderline — agree'], [0.35, 0.30, 'clear fail — agree'],
+      [0.20, 0.15, 'broken — agree'], [0.10, 0.12, 'dead air — agree'],
+      [0.90, 0.30, 'said "done", booking failed'], [0.82, 0.25, 'talked over caller, judge missed it'],
+      [0.78, 0.18, 'policy breach, transcript looked clean'], [0.30, 0.75, 'judge too harsh — human ok'],
+      [0.45, 0.80, 'penalized accent, call was fine'], [0.55, 0.52, 'noisy line — agree']
+    ];
+    pts.forEach(function (p) {
+      var bad = (p[0] >= 0.6 && p[1] < 0.4);
+      var harsh = (p[0] < 0.5 && p[1] >= 0.7);
+      var col = bad ? C.rust : (harsh ? C.warm : C.c3);
+      var dot = el('circle', { cx: sx(p[0]), cy: sy(p[1]), r: bad ? 6 : 5, fill: col, 'fill-opacity': 0.85, stroke: '#fff', 'stroke-width': 1 });
+      dot.setAttribute('data-tip', '<b>judge ' + p[0].toFixed(2) + ' / human ' + p[1].toFixed(2) + '</b><br><i>' + esc(p[2]) + '</i>');
+      svg.appendChild(dot);
+    });
+    wireTips('chart-calib', 'tip-calib');
+  }
+
+  /* ---------------- Exhibit 7 — grade vs run cost ---------------- */
+  function cost() {
+    var svg = document.getElementById('chart-cost');
+    if (!svg) return;
+    var W = 760, padL = 150, padR = 70, top = 20, rowH = 62;
+    var plotW = W - padL - padR;
+    var max = 0.11;
+    var x = function (v) { return padL + v / max * plotW; };
+    var rows = [
+      { n: 'Run the minute', v: 0.021, col: C.neutral, d: 'Commodity cost to operate the agent — carriage, ASR, LLM, TTS, orchestration.' },
+      { n: 'Grade the minute', v: 0.10, col: C.rust, d: 'Market price to evaluate that same minute. 4.8× the cost of running it.' }
+    ];
+    var H = top + rows.length * rowH + 16;
+    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+    [0, 0.025, 0.05, 0.075, 0.10].forEach(function (t) {
+      svg.appendChild(el('line', { x1: x(t), x2: x(t), y1: top - 6, y2: top + rows.length * rowH - 10, stroke: t === 0 ? C.border : '#e4e2dc', 'stroke-width': 1 }));
+      svg.appendChild(label(x(t), top + rows.length * rowH + 2, '$' + t.toFixed(3), { size: 8, anchor: 'middle', fill: C.muted }));
+    });
+    rows.forEach(function (r, i) {
+      var y = top + i * rowH;
+      var bw = Math.max(4, r.v / max * plotW);
+      svg.appendChild(label(padL - 14, y + 30, r.n, { size: 13, anchor: 'end', fill: C.text, weight: 700, font: SERIF }));
+      var bar = el('rect', { x: padL, y: y + 12, width: bw, height: 30, fill: r.col, rx: 3 });
+      bar.setAttribute('data-tip', '<b>' + esc(r.n) + '</b><br><i>$' + r.v.toFixed(3) + ' / min</i><br>' + esc(r.d));
+      svg.appendChild(bar);
+      svg.appendChild(label(padL + bw + 10, y + 32, '$' + r.v.toFixed(3), { size: 12, fill: r.col, weight: 700 }));
+    });
+    // 4.8x annotation bracket
+    var bx = x(0.10) + 4;
+    svg.appendChild(label(bx + 44, top + rowH + 32, '4.8×', { size: 20, fill: C.rust, weight: 700, anchor: 'middle', font: SERIF }));
+    wireTips('chart-cost', 'tip-cost');
+  }
+
+  /* ---------------- Exhibit 9 — capability cliff ---------------- */
+  function cliff() {
+    var svg = document.getElementById('chart-cliff');
+    if (!svg) return;
+    var W = 760, padL = 60, padR = 40, top = 30, padB = 56;
+    var plot = 300, gap = 46;
+    var H = top + plot + padB;
+    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+    var y0 = top + plot;
+    var bars = [
+      { n: 'Text only', v: 100, col: C.c4, note: 'Baseline: the agent does the task well when it reads and writes.' },
+      { n: 'Clean audio', v: 58, col: C.c2, note: 'Same task spoken over a clean line — a large share of capability already lost.' },
+      { n: 'Realistic audio', v: 34, col: C.rust, note: 'Add noise, accents, interruptions — the gap widens further.' }
+    ];
+    var bw = (W - padL - padR - gap * (bars.length - 1)) / bars.length;
+    [0, 25, 50, 75, 100].forEach(function (t) {
+      var y = y0 - t / 100 * plot;
+      svg.appendChild(el('line', { x1: padL, x2: W - padR, y1: y, y2: y, stroke: t === 0 ? C.border : '#e8e6e0', 'stroke-width': 1 }));
+      svg.appendChild(label(padL - 8, y + 3, t, { size: 8, anchor: 'end', fill: C.muted }));
+    });
+    svg.appendChild(label(padL - 40, top - 12, 'CAPABILITY RETAINED (schematic)', { size: 8.5, fill: C.text2, ls: 0.4 }));
+    bars.forEach(function (b, i) {
+      var x = padL + i * (bw + gap);
+      var h = b.v / 100 * plot;
+      var rect = el('rect', { x: x, y: y0 - h, width: bw, height: h, fill: b.col, rx: 2 });
+      rect.setAttribute('data-tip', '<b>' + esc(b.n) + '</b><br><i>direction only — not a measured value</i><br>' + esc(b.note));
+      svg.appendChild(rect);
+      svg.appendChild(label(x + bw / 2, y0 - h - 10, '~' + b.v, { size: 13, anchor: 'middle', fill: b.col, weight: 700, font: SERIF }));
+      svg.appendChild(label(x + bw / 2, y0 + 20, b.n, { size: 10, anchor: 'middle', fill: C.text2, weight: 600 }));
+    });
+    svg.appendChild(label(W - padR, top + 6, 'the cliff ↓', { size: 9, anchor: 'end', fill: C.rust, weight: 700 }));
+    wireTips('chart-cliff', 'tip-cliff');
+  }
+
+  function boot() { sequence(); blind(); calib(); cost(); cliff(); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+})();
+</script>
+
+</body>
+</html>

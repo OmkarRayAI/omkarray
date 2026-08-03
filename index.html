@@ -197,6 +197,12 @@
             <p>What's commoditized and what isn't — 15 layers scored against verified vendor pricing. The inference floor is $0.021/min; the market clears at $0.10.</p>
             <span class="card-date">Jul 2026</span>
           </a>
+          <a href="voice-ai-evaluation.html" class="card" data-cat="voice-ai">
+            <span class="card-tag">Voice AI</span>
+            <h3>The Voice AI Eval Layer</h3>
+            <p>Was this call good? — the last question in the voice stack without a number, and the category racing to supply one. Four product shapes, the calibration problem, and the ground nobody's claimed.</p>
+            <span class="card-date">Aug 2026</span>
+          </a>
         </div>
       </div>
     </div>
@@ -1019,6 +1025,9 @@
       { text: "A voice minute costs $0.021 to build and sells for ~$0.10. Roughly 80-90% of what you pay isn't inference at all.", src: "The Voice AI Stack", href: "voice-ai-commoditization.html" },
       { text: "Evaluating an AI call is priced at $0.10/min — 4.8x the cost of actually running it. Testing is the expensive part now.", src: "The Voice AI Stack", href: "voice-ai-commoditization.html" },
       { text: "Layers commoditize in the order their quality becomes measurable. ASR had word error rate, so it fell first. \"Was this call good?\" still has no number.", src: "The Voice AI Stack", href: "voice-ai-commoditization.html" },
+      { text: "Every rung of the voice stack has a number except one: \"was this call good?\" A whole category of tools has appeared to manufacture that missing number.", src: "The Voice AI Eval Layer", href: "voice-ai-evaluation.html" },
+      { text: "Text eval scores a final answer. A voice call is a real-time duplex process — latency, barge-in, endpointing and tool-state all fail where a transcript can't see them.", src: "The Voice AI Eval Layer", href: "voice-ai-evaluation.html" },
+      { text: "The judge is a model too. An eval score is itself an uncertain model output — which is why calibration against humans, not metric count, is the real frontier.", src: "The Voice AI Eval Layer", href: "voice-ai-evaluation.html" },
       { text: "India's home services TAM: ₹5,100-5,210 Bn (~$60B). Online penetration is <1%. 90.5% is unorganised.", src: "Pronto-fication", href: "prontofication.html" },
       { text: "$95M+ raised by Urban Company unbundlers. Combined daily bookings hit 69K+ in 9 months from zero.", src: "Pronto-fication", href: "prontofication.html" },
       { text: "Snabbit's median walking distance between jobs: 250m. Win micromarkets (1.5-2km radius), not cities.", src: "Pronto-fication", href: "prontofication.html" },
@@ -1122,12 +1131,13 @@
   (function() {
     var kb = [
       {
-        tags: ['voice ai','voice','bolna','tts','asr','speech','call','calls','voice agent','voice bot','telephony','ivr','conversational','commoditized','commoditization','pricing','cost per minute','stack'],
+        tags: ['voice ai','voice','bolna','tts','asr','speech','call','calls','voice agent','voice bot','telephony','ivr','conversational','commoditized','commoditization','pricing','cost per minute','stack','evaluation','eval','voice eval','voice evaluation','testing','simulation','call quality','deployment readiness','observability'],
         synonyms: { 'speak': 'voice', 'talk': 'voice', 'audio': 'voice', 'phone': 'call', 'sound': 'voice', 'eleven labs': 'tts', 'elevenlabs': 'tts', 'commodity': 'commoditization', 'price': 'pricing' },
         title: 'Voice AI',
-        answer: 'Omkar has written extensively about Voice AI in India. Four deep dives cover the space:',
+        answer: 'Omkar has written extensively about Voice AI in India. Five deep dives cover the space:',
         links: [
           { name: 'The Voice AI Stack', href: 'voice-ai-commoditization.html', desc: 'What\'s commoditized and what isn\'t — 15 layers scored, $0.021/min inference floor vs a $0.10 market price' },
+          { name: 'The Voice AI Eval Layer', href: 'voice-ai-evaluation.html', desc: 'Was this call good? — the eval category racing to supply the number the stack lacks' },
           { name: 'Bolna AI', href: 'bolna-deepdive.html', desc: '200K calls/day, YC W25, sub-600ms ASR→LLM→TTS pipeline' },
           { name: 'Smallest.ai', href: 'smallest-deepdive.html', desc: 'Proprietary TTS/LLM/ASR stack, 20x cost reduction to $0.01/min' },
           { name: 'Ringg.ai', href: 'ringg-deepdive.html', desc: '3M+ lead gen calls, no-code distribution-first platform' }
@@ -1431,7 +1441,7 @@
         ]};
       }
       if (/recommend|suggest|best|start|first|favorite|favourite|should i read/.test(ql)) {
-        return { text: 'If you\'re into AI, start with <strong>Agent Design Patterns</strong> — it\'s the most popular. For fintech, <strong>Visa\'s Product Ecosystem</strong> is a favourite. For something unique, the <strong>Voice AI series</strong> (Bolna, Smallest, Ringg, and the stack-wide commoditization teardown) is one-of-a-kind analysis.' +
+        return { text: 'If you\'re into AI, start with <strong>Agent Design Patterns</strong> — it\'s the most popular. For fintech, <strong>Visa\'s Product Ecosystem</strong> is a favourite. For something unique, the <strong>Voice AI series</strong> (Bolna, Smallest, Ringg, the stack-wide commoditization teardown, and the evaluation-layer map) is one-of-a-kind analysis.' +
           buildLinkCards([
             { name: 'Agent Design Patterns', href: 'agent-design-deepdive.html', desc: 'Most popular — 7 patterns from Claude Code & Manus' },
             { name: 'Visa Product Ecosystem', href: 'visa-deepdive.html', desc: '$200T opportunity, concentric expansion' },
