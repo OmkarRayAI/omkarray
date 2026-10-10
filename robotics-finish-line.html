@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-62YF7Y81BS"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-62YF7Y81BS');
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cheap to Start, Hard to Finish: The Robotics Thesis</title>
+<meta name="description" content="Why robotics got so crowded, and where the value goes. Starting a robotics company got cheap between 2023 and 2026; finishing one did not. A thesis on physical AI read through a16z, Greylock, Lightspeed and builder lenses, with the bear case and the signals that would change it.">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Space+Mono:wght@400;700&family=Nunito+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f8f8f5;
+    --surface: #f0efea;
+    --surface2: #e8e7e1;
+    --border: #d5d2ca;
+    --accent: #2563a8;
+    --accent2: #1a7a3a;
+    --gold: #a06d08;
+    --rust: #a63a1e;
+    --muted: #6b6e73;
+    --text: #1a1c20;
+    --text2: #3a3d42;
+    --white: #111214;
+    --grid: #e3e1da;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Nunito Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 48px 32px;
+    line-height: 1.7;
+    font-size: 15px;
+  }
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    text-decoration: none;
+    margin-bottom: 20px;
+  }
+  .back-link:hover { color: var(--text); }
+
+  /* MASTHEAD */
+  .masthead {
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 32px;
+    margin-bottom: 28px;
+  }
+  .eyebrow {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 16px;
+  }
+  .masthead h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 60px;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--white);
+  }
+  .masthead h1 em { font-style: italic; color: var(--accent); font-weight: 400; }
+  .masthead-sub {
+    font-size: 15px;
+    color: var(--muted);
+    font-weight: 300;
+    max-width: 640px;
+    line-height: 1.7;
+    margin-top: 20px;
+  }
+  .masthead-sub b { color: var(--text2); font-weight: 600; }
+
+  /* SECTIONS */
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin: 56px 0 20px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 12px;
+  }
+  .section-num { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--accent); letter-spacing: 0.1em; }
+  .section-title { font-family: 'Cormorant Garamond', serif; font-size: 26px; font-weight: 600; color: var(--white); }
+  .section-desc {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-left: auto;
+    text-align: right;
+  }
+  p.body {
+    font-size: 15px;
+    color: var(--text2);
+    margin-bottom: 16px;
+    max-width: 760px;
+    font-weight: 300;
+    line-height: 1.75;
+  }
+  p.body strong { color: var(--text); font-weight: 600; }
+  p.body a, .footnote a, .srcs a, .tl a { color: var(--accent); text-decoration: none; border-bottom: 1px solid rgba(37,99,168,0.3); }
+  p.body a:hover, .footnote a:hover, .srcs a:hover, .tl a:hover { border-bottom-color: var(--accent); }
+  .lede {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 21px;
+    line-height: 1.55;
+    color: var(--text2);
+    max-width: 780px;
+    margin-bottom: 14px;
+  }
+  .lede strong { color: var(--white); font-weight: 600; }
+  .lede em { color: var(--accent); font-style: italic; }
+  .sub-h {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 21px;
+    font-weight: 600;
+    color: var(--white);
+    margin: 30px 0 10px;
+    line-height: 1.25;
+  }
+
+  /* DIAGRAM SHELL */
+  .diagram {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 24px 26px;
+    margin: 22px 0;
+    position: relative;
+  }
+  .diagram-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    margin-bottom: 6px;
+  }
+  .diagram-sub {
+    font-size: 12.5px;
+    color: var(--muted);
+    font-weight: 300;
+    margin-bottom: 18px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+    line-height: 1.6;
+  }
+  .footnote {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    border-top: 1px solid var(--border);
+    padding-top: 10px;
+    margin-top: 16px;
+    line-height: 1.8;
+  }
+  .footnote strong { color: var(--text2); }
+
+  /* TOOLTIP */
+  .chart-wrap { position: relative; }
+  .tip {
+    position: absolute;
+    pointer-events: none;
+    background: var(--white);
+    color: #f4f3ef;
+    font-family: 'Space Mono', monospace;
+    font-size: 10.5px;
+    line-height: 1.6;
+    padding: 7px 10px;
+    border-radius: 3px;
+    opacity: 0;
+    transition: opacity 0.12s;
+    z-index: 20;
+    max-width: 300px;
+    transform: translate(-50%, -100%);
+    box-shadow: 0 4px 14px rgba(0,0,0,0.18);
+  }
+  .tip b { color: #fff; font-weight: 700; }
+  .tip i { color: #b8c7d8; font-style: normal; }
+
+  /* LEDGER (exhibit 1) */
+  .ledger { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border); border: 1px solid var(--border); }
+  .ledger > div { background: var(--bg); padding: 16px 18px; }
+  .ledger-k { font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; display: block; margin-bottom: 10px; }
+  .ledger-k.start { color: var(--accent2); }
+  .ledger-k.finish { color: var(--rust); }
+  .ledger dl { display: grid; }
+  .ledger dt { font-size: 13px; font-weight: 700; color: var(--text); padding-top: 9px; border-top: 1px dotted var(--border); }
+  .ledger dt:first-of-type { border-top: none; padding-top: 0; }
+  .ledger dd { font-size: 12px; color: var(--muted); font-weight: 300; line-height: 1.55; margin: 2px 0 9px; }
+
+  /* HTML BAR CHARTS (exhibits 2, 3) */
+  .bars { display: grid; gap: 8px; position: relative; }
+  .brow { display: grid; grid-template-columns: 170px 1fr; gap: 12px; align-items: center; }
+  .bname { font-size: 12.5px; font-weight: 600; color: var(--text); text-align: right; line-height: 1.25; }
+  .bname small { display: block; font-family: 'Space Mono', monospace; font-size: 9px; font-weight: 400; color: var(--muted); letter-spacing: 0.02em; }
+  .track { position: relative; height: 22px; }
+  .bar { position: absolute; left: 0; top: 2px; height: 18px; border-radius: 0 3px 3px 0; background: var(--accent); }
+  .bar.hi { background: var(--gold); }
+  .bval { position: absolute; top: 2px; font-family: 'Space Mono', monospace; font-size: 10.5px; line-height: 18px; color: var(--text2); white-space: nowrap; padding-left: 6px; }
+  .gridwrap { position: absolute; top: 0; bottom: 0; left: 182px; right: 0; pointer-events: none; }
+  .gl { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--grid); }
+  .refline { position: absolute; top: 0; bottom: 0; width: 0; border-left: 2px solid var(--rust); }
+  .reflabel { position: absolute; bottom: 4px; transform: translateX(-100%); max-width: min(240px, 70%); text-align: right; font-family: 'Space Mono', monospace; font-size: 9.5px; line-height: 1.5; color: var(--rust); background: var(--surface); padding: 2px 6px; }
+  .axis { display: grid; grid-template-columns: 170px 1fr; gap: 12px; margin-top: 6px; }
+  .ticks { position: relative; height: 14px; font-family: 'Space Mono', monospace; font-size: 9px; color: var(--muted); }
+  .ticks span { position: absolute; transform: translateX(-50%); }
+  .legend { display: flex; flex-wrap: wrap; gap: 16px; font-family: 'Space Mono', monospace; font-size: 9.5px; color: var(--muted); margin-top: 14px; letter-spacing: 0.02em; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .sw { width: 11px; height: 11px; border-radius: 2px; display: inline-block; }
+
+  /* TABLE */
+  .tbl-scroll { overflow-x: auto; }
+  .tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .tbl th {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 9px 10px;
+    background: var(--surface2);
+    color: var(--muted);
+    text-align: left;
+    font-weight: 500;
+    border: 1px solid var(--border);
+    vertical-align: bottom;
+  }
+  .tbl td { padding: 9px 10px; border: 1px solid var(--border); vertical-align: top; line-height: 1.5; color: var(--muted); font-weight: 300; }
+  .tbl td.rowh { color: var(--text); font-weight: 700; font-size: 12.5px; white-space: nowrap; }
+  .tbl td.n { font-family: 'Space Mono', monospace; color: var(--text2); white-space: nowrap; }
+  details.tv { margin-top: 12px; }
+  details.tv summary { cursor: pointer; font-family: 'Space Mono', monospace; font-size: 10px; color: var(--muted); letter-spacing: 0.04em; }
+  details.tv .tbl { margin-top: 10px; background: var(--bg); }
+
+  /* TIMELINE */
+  .tl { list-style: none; border-left: 1px solid var(--border); margin: 8px 0 18px 6px; }
+  .tl li { position: relative; padding: 0 0 14px 22px; }
+  .tl li::before { content: ""; position: absolute; left: -4px; top: 7px; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+  .tl time { font-family: 'Space Mono', monospace; font-size: 9.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); display: block; }
+  .tl a { font-weight: 600; font-size: 14px; }
+  .tl p { font-size: 13px; color: var(--muted); font-weight: 300; line-height: 1.6; max-width: 700px; }
+
+  /* CARDS */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 18px 0; }
+  .qcard { background: var(--surface); border: 1px solid var(--border); padding: 14px 18px; }
+  .qcard .kicker { font-family: 'Space Mono', monospace; font-size: 8.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); display: block; margin-bottom: 6px; }
+  .qcard h4 { font-family: 'Cormorant Garamond', serif; font-size: 19px; color: var(--white); margin-bottom: 5px; line-height: 1.15; }
+  .qcard p { font-size: 12.5px; color: var(--muted); line-height: 1.6; font-weight: 300; }
+  .qcard ul { list-style: none; margin-top: 6px; }
+  .qcard li { font-size: 12.5px; color: var(--text2); font-weight: 300; padding: 4px 0; border-top: 1px dotted var(--border); line-height: 1.5; }
+  .qcard li b { font-weight: 700; color: var(--text); }
+
+  /* 2x2 (exhibit 4) */
+  .q-axis { font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+  .q-top { text-align: center; margin-bottom: 8px; }
+  .q-bottom { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+  .quad { display: grid; grid-template-columns: 1fr 1fr; grid-auto-rows: 1fr; position: relative; background: var(--bg); border: 1px solid var(--border); }
+  .quad::before { content: ""; position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: var(--muted); }
+  .quad::after { content: ""; position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: var(--muted); }
+  .qc { padding: 16px 18px 18px; display: grid; gap: 10px; align-content: start; }
+  .qc.deploy { background: rgba(37,99,168,0.06); }
+  .qhead .ax { font-family: 'Space Mono', monospace; font-size: 8.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); display: block; }
+  .qhead h4 { font-family: 'Cormorant Garamond', serif; font-size: 20px; color: var(--white); line-height: 1.2; }
+  .qhead h4 span { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--muted); font-weight: 400; margin-left: 6px; }
+  .qhead p { font-size: 12px; color: var(--muted); font-weight: 300; line-height: 1.5; }
+  .chipset { display: flex; flex-wrap: wrap; gap: 5px; }
+  .qchip { display: inline-flex; flex-direction: column; font-size: 12px; font-weight: 600; color: var(--text); line-height: 1.25; padding: 4px 8px; border: 1px solid var(--border); border-radius: 3px; background: var(--bg); }
+  .qchip.ls { border: 2px solid var(--accent); padding: 3px 7px; }
+  .qchip.ext { border: 1px dashed var(--muted); color: var(--muted); font-weight: 400; background: transparent; }
+  .qchip small { font-family: 'Space Mono', monospace; font-size: 8.5px; font-weight: 400; color: var(--accent); letter-spacing: 0.02em; }
+  .offmap { border: 1px dashed var(--muted); padding: 14px 16px; margin-top: 14px; display: grid; gap: 9px; background: var(--bg); }
+  .offmap .oh { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
+  .offmap .oh b { font-family: 'Cormorant Garamond', serif; font-size: 19px; color: var(--white); }
+  .offmap .oh span { font-size: 12px; color: var(--muted); font-weight: 300; }
+  .orow { display: grid; grid-template-columns: 170px 1fr; gap: 10px; align-items: start; }
+  .orow .ol { font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); padding-top: 5px; }
+  .lg-ring { width: 12px; height: 12px; border-radius: 2px; border: 2px solid var(--accent); display: inline-block; }
+  .lg-dash { width: 12px; height: 12px; border-radius: 2px; border: 1px dashed var(--muted); display: inline-block; }
+  .lg-tint { width: 12px; height: 12px; border-radius: 2px; background: rgba(37,99,168,0.12); border: 1px solid var(--border); display: inline-block; }
+
+  /* BETS */
+  .bets { display: grid; gap: 10px; margin: 18px 0; }
+  .bet { border: 1px solid var(--border); background: var(--surface); padding: 14px 18px; display: grid; grid-template-columns: 120px 1fr; gap: 16px; }
+  .bet-tag { font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; padding-top: 4px; }
+  .bet-tag.long { color: var(--accent2); }
+  .bet-tag.under { color: var(--rust); }
+  .bet h4 { font-family: 'Cormorant Garamond', serif; font-size: 19px; color: var(--white); line-height: 1.2; margin-bottom: 4px; }
+  .bet p { font-size: 13px; color: var(--muted); font-weight: 300; line-height: 1.65; }
+  .bet p b { color: var(--text); font-weight: 700; }
+
+  /* CALLOUT */
+  .callout {
+    border-left: 2px solid var(--accent);
+    padding: 15px 22px;
+    background: rgba(37,99,168,0.04);
+    margin: 20px 0;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 19px;
+    font-style: italic;
+    color: var(--text2);
+    line-height: 1.5;
+    max-width: 820px;
+  }
+  .callout strong { font-style: normal; font-weight: 600; color: var(--white); }
+  .whitespace { border: 1px dashed var(--accent); background: rgba(37,99,168,0.03); padding: 18px 22px; margin: 22px 0; }
+  .whitespace .kicker { font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent); display: block; margin-bottom: 6px; }
+  .whitespace h4 { font-family: 'Cormorant Garamond', serif; font-size: 23px; color: var(--white); line-height: 1.2; margin-bottom: 8px; }
+  .whitespace p { font-size: 14px; color: var(--text2); font-weight: 300; line-height: 1.7; margin-bottom: 10px; max-width: 780px; }
+  .whitespace p:last-child { margin-bottom: 0; }
+
+  /* WATCH LIST */
+  .watch { border-top: 1px solid var(--border); margin: 10px 0 18px; }
+  .watch > div { display: grid; grid-template-columns: 170px 1fr; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+  .watch b { font-family: 'Cormorant Garamond', serif; font-size: 19px; color: var(--white); font-weight: 600; line-height: 1.3; }
+  .watch p { font-size: 13.5px; color: var(--text2); font-weight: 300; line-height: 1.65; }
+
+  /* SIGNALS */
+  .signals { list-style: none; counter-reset: s; margin: 12px 0 18px; display: grid; gap: 10px; max-width: 780px; }
+  .signals li { position: relative; padding-left: 34px; font-size: 14px; color: var(--text2); font-weight: 300; line-height: 1.65; }
+  .signals li b { color: var(--text); font-weight: 700; }
+  .signals li::before { counter-increment: s; content: counter(s, decimal-leading-zero); position: absolute; left: 0; top: 2px; font-family: 'Space Mono', monospace; font-size: 11px; color: var(--accent); }
+
+  /* VERDICT */
+  .verdict { background: var(--white); color: #ecebe6; padding: 24px 28px; margin: 18px 0; }
+  .verdict p { font-family: 'Cormorant Garamond', serif; font-size: 21px; line-height: 1.5; margin-bottom: 10px; }
+  .verdict p:last-child { margin-bottom: 0; }
+  .verdict b { color: #f2c869; font-weight: 600; }
+
+  hr.rule { border: none; border-top: 1px solid var(--border); margin: 34px 0; }
+  .srcs { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--muted); line-height: 2; }
+  .srcs b { color: var(--text2); }
+
+  @media (max-width: 720px) {
+    body { padding: 28px 18px; }
+    .masthead h1 { font-size: 40px; }
+    .section-desc { display: none; }
+    .ledger, .two-col { grid-template-columns: 1fr; }
+    .brow, .axis { grid-template-columns: 96px 1fr; }
+    .gridwrap { left: 108px; }
+    .bname { font-size: 11.5px; }
+    .quad { grid-template-columns: 1fr; grid-auto-rows: auto; gap: 8px; border: none; background: transparent; }
+    .quad::before, .quad::after { display: none; }
+    .qc { border: 1px solid var(--border); background: var(--bg); }
+    .q-top, .q-bottom { display: none; }
+    .orow, .watch > div, .bet { grid-template-columns: 1fr; gap: 4px; }
+    .diagram { padding: 18px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<a href="index.html" class="back-link">&larr; Back to omkarray.com</a>
+
+<div class="masthead">
+  <div class="eyebrow">Investment Thesis · Physical AI · October 2026</div>
+  <h1>Cheap to start,<br><em>hard to finish</em>.</h1>
+  <div class="masthead-sub">Robotics got crowded because between 2023 and 2026 almost everything you need to <b>start</b> a robotics company collapsed in price. What it takes to <b>finish</b> one has not moved: 99.9% reliability inside a paying customer's building. The returns will go to whoever owns that finish line, not to the tenth general-purpose robot brain.</div>
+</div>
+
+<!-- ============ 01 ============ -->
+<div class="section-header" id="happening">
+  <span class="section-num">01</span>
+  <span class="section-title">A real unlock, and the money came first</span>
+  <span class="section-desc">The state of play, autumn 2026</span>
+</div>
+
+<p class="lede">Robotics in 2026 looks like language models around 2020. The technical breakthrough is real. <em>The money arrived before the products.</em></p>
+
+<p class="body">The breakthrough is the vision-language-action (VLA) model, which reuses the vision-language pretraining behind LLMs to control a robot's motors. Through 2025 and 2026, five labs (Figure, Dyna, Skild, Generalist and Xiaomi) separately reported steady gains from training on more <strong>human</strong> video rather than robot data. Generalist trains on more than 500,000 hours from wearable cameras, and Dyna on more than a million hours of first-person video. That is why so many pitches have moved from "we collect robot data" to "we record people doing the work."</p>
+
+<p class="body">The capital came faster. Crunchbase counted about $15B of robotics venture funding in 2025 and $18.8B by mid-June 2026; broader definitions reach $41B. F-Prime's analysis of PitchBook data finds that all of the growth came from rounds of $50M or more, while early-stage funding has been flat for five years. Founders from the right lab now raise $100M+ seed rounds: Genesis raised $105M, and Walden raised $300M at a $1.1B valuation. About 13,000 humanoids shipped in 2025, roughly 90% of them Chinese.</p>
+
+<p class="body">The products are behind the money. The best 2026 models succeed 40% to 66% of the time on tasks or homes they have never seen, as the labs themselves report it. Figure's Helix 2.5 hit 56% across 30 unseen homes; Skild's S1 hit 66% on unseen tasks. 99% shows up only on narrow tasks after extra training. A production line needs roughly 99.9%, and at 95% per step a ten-step task succeeds only about 60% of the time. Bessemer puts the field at "GPT-2.5" while NVIDIA says robotics' ChatGPT moment has arrived. Both are right, about different layers.</p>
+
+<!-- ============ 02 ============ -->
+<div class="section-header" id="crowded">
+  <span class="section-num">02</span>
+  <span class="section-title">Six inputs got cheap. The finish line didn't.</span>
+  <span class="section-desc">Why the market is crowded</span>
+</div>
+
+<p class="body">When the cost of starting a company collapses and the cost of finishing one does not, you get exactly this market: dozens of well-funded teams at the start, very few near the finish. The clearest sample is the 42 labs and startups that 55 voters named on <a href="https://frontierlist.com/robotics-talent-density" target="_blank" rel="noopener">Frontier List's robotics talent-density ranking</a>. I researched every one of them for this piece.</p>
+
+<div class="diagram">
+  <div class="diagram-label">Exhibit 1. The cost of starting vs. the cost of finishing, 2023 to 2026</div>
+  <div class="diagram-sub">Left column: what collapsed in price. Right column: what didn't. Figures come from lab releases, BofA, Goldman, a16z and vendor price lists; vendor-only numbers are marked.</div>
+  <div class="ledger">
+    <div>
+      <span class="ledger-k start">Got cheap: starting</span>
+      <dl>
+        <dt>The robot brain</dt><dd>Open models: π0 and π0.5 (Apache-2.0), NVIDIA GR00T N1.7 (commercial licence), SmolVLA (runs on a laptop). Google's Gemini Robotics-ER 2 is available as an API.</dd>
+        <dt>The body</dt><dd>Unitree's R1 humanoid starts at $4,900 and its G1 at $13,500; an SO-101 arm costs $122. BofA expects a China-built humanoid bill of materials to fall from ~$35K (2025) to under $17K by 2030.</dd>
+        <dt>Training data</dt><dd>Paying people to record first-person video costs $1 to $25 an hour in labour. Open 100,000-hour datasets exist. A vendor puts fully loaded teleoperation at ~$118/hr, down from ~$340 in 2024.</dd>
+        <dt>Simulation and world models</dt><dd>Isaac Lab on the open Newton engine, MuJoCo, Genesis and NVIDIA Cosmos 3 are all free or open.</dd>
+        <dt>The story for investors</dt><dd>Labour is the biggest market left to sell against. Goldman raised its 2035 humanoid forecast from $38B to $138B in September 2026. Every large fund needs a position.</dd>
+        <dt>Talent to found companies</dt><dd>Five research groups (DeepMind robotics, Chelsea Finn's Stanford lab, Berkeley and CMU, Toyota Research Institute, NVIDIA GEAR) each now seed several startups.</dd>
+      </dl>
+    </div>
+    <div>
+      <span class="ledger-k finish">Didn't get cheap: finishing</span>
+      <dl>
+        <dt>The last mile of reliability</dt><dd>Getting from 40 to 66% on unseen tasks to 99.9% in production. The data needed grows super-exponentially as precision approaches its limit.</dd>
+        <dt>Data from real deployments</dt><dd>Failures, recoveries, and force or touch signals only come from fleets doing real work. Skild spends $3 checking data quality for every $1 it spends collecting.</dd>
+        <dt>Field service and integration</dt><dd>Figure's BMW proof point was one robot over 1,250 hours, and its forearm was the main failure. Meta's Watney robots still need people to open cage doors.</dd>
+        <dt>Certification</dt><dd>ISO 25785-1, the safety standard for robots that balance, is still a draft. Cut power to a humanoid and it falls over, which breaks the classic fail-safe assumption.</dd>
+        <dt>Compliance</dt><dd>Since July 2026 the FCC's Covered List makes a cheap Chinese bill of materials a liability. New mobile robots sold in the US must meet a 65% domestic-content test.</dd>
+        <dt>Frontier compute</dt><dd>The closed frontier is about six labs spending $0.5B to $3.5B each.</dd>
+      </dl>
+    </div>
+  </div>
+</div>
+
+<div class="diagram">
+  <div class="diagram-label">Exhibit 2. Where the 42 companies actually build</div>
+  <div class="diagram-sub">Frontier List companies counted by layer. Twelve of the 42 build a robot brain; three build software for the industrial robots factories already own. Hover a bar for the names.</div>
+  <div class="chart-wrap" id="wrap-crowd">
+    <div class="bars" id="crowd"></div>
+    <div class="axis" id="crowd-axis"></div>
+    <div class="tip" id="tip-crowd"></div>
+  </div>
+  <details class="tv"><summary>View as table</summary><div class="tbl-scroll"><table class="tbl" id="crowd-t"></table></div></details>
+</div>
+
+<!-- ============ 03 ============ -->
+<div class="section-header" id="priced">
+  <span class="section-num">03</span>
+  <span class="section-title">The market is paying for the start</span>
+  <span class="section-desc">Valuation vs. disclosed revenue</span>
+</div>
+
+<p class="body">Only two companies on the list have large, disclosed revenue. Unitree, now listed in Shanghai, made about $0.24B in 2025 and was profitable. Skild says it is at a ~$100M annual run-rate. Everyone else is valued on research speed and demos. At $39B, Figure's valuation is already higher than Goldman's 2024 estimate for the entire 2035 humanoid market.</p>
+
+<div class="diagram">
+  <div class="diagram-label">Exhibit 3. Latest valuation vs. disclosed revenue ($B)</div>
+  <div class="diagram-sub">Robotics companies from the list with a priced round or market cap. Rounds reported but not confirmed as closed are excluded, except Generalist, which is marked. Hover a bar for detail.</div>
+  <div class="chart-wrap" id="wrap-val">
+    <div class="bars" id="val"></div>
+    <div class="axis" id="val-axis"></div>
+    <div class="tip" id="tip-val"></div>
+  </div>
+  <div class="legend"><span><i class="sw" style="background:var(--accent)"></i>No large disclosed revenue</span><span><i class="sw" style="background:var(--gold)"></i>Large disclosed revenue</span></div>
+  <details class="tv"><summary>View as table</summary><div class="tbl-scroll"><table class="tbl" id="val-t"></table></div></details>
+  <div class="footnote">Unitree's revenue converted at ~¥7.1 to the dollar; market cap (~¥197B) as of 24 Sep 2026. Physical Intelligence was reportedly in talks at $11B+ in March 2026; that close is unconfirmed, so the chart shows its last priced round. Prometheus builds AI for engineering rather than robots but is on the list.</div>
+</div>
+
+<!-- ============ 04 ============ -->
+<div class="section-header" id="lenses">
+  <span class="section-num">04</span>
+  <span class="section-title">How the investors read it</span>
+  <span class="section-desc">a16z · Greylock · the builder</span>
+</div>
+
+<h3 class="sub-h">a16z: the model is heading toward abundance, so own the deployment and the supply chain</h3>
+<p class="body">a16z has published more on this than anyone, and its view has moved in a clear order: a horizontal platform in 2024, geopolitics and the hardware underneath in 2025, deployment realism and a dedicated hardware fund in 2026. Its money followed the writing. a16z is not an investor in Physical Intelligence, Skild, Figure, Genesis or Dyna. It led Atoms' $1.7B round (Kalanick's company, built on specialized robots rather than humanoids), co-led Mind Robotics' $500M Series A (using Rivian's production lines as a data source), and backed XDOF (robot training data), Westmag (US-made motors and actuators), World Labs, and defense autonomy (Anduril, Saronic, Shield AI, Skydio).</p>
+<ol class="tl">
+  <li><time>Aug 2024</time><a href="https://a16z.com/toward-a-general-purpose-robotics-platform/" target="_blank" rel="noopener">Toward a Horizontal Robotics Platform</a><p>Oliver Hsu. Foundation models could create the first shared robotics platform, with many body types rather than one best one.</p></li>
+  <li><time>Aug 2025</time><a href="https://a16z.com/the-electro-industrial-stack-will-move-the-world/" target="_blank" rel="noopener">The Electro-Industrial Stack Will Move the World</a><p>Ryan McEntush. Minerals, batteries, power electronics, motors and compute form one stack, and China dominates the middle of it.</p></li>
+  <li><time>Sep 2025</time><a href="https://a16z.com/america-cannot-lose-the-robotics-race/" target="_blank" rel="noopener">America Cannot Lose the Robotics Race</a><p>Martin Casado and Anne Neuberger. Whoever deploys first gets the data to deploy more.</p></li>
+  <li><time>Jan 2026</time><a href="https://a16z.com/everything-is-computer/" target="_blank" rel="noopener">Everything Is Computer</a><p>McEntush. EVs, drones and robots share one component design, and whoever controls the modular middle wins.</p></li>
+  <li><time>Jan 2026</time><a href="https://www.a16z.news/p/the-physical-ai-deployment-gap" target="_blank" rel="noopener">The Physical AI Deployment Gap</a><p>Hsu. Six gaps separate lab demos from production: distribution shift, reliability, latency, integration, safety and maintenance. Value sits in closing them.</p></li>
+  <li><time>Apr 2026</time><a href="https://a16z.com/frontier-systems-for-the-physical-world/" target="_blank" rel="noopener">Frontier Systems for the Physical World</a><p>Hsu. Embodied AI repeats the LLM scaling pattern, earlier on the curve. Simulation moves the bottleneck to designing environments.</p></li>
+  <li><time>Aug 2026</time><a href="https://a16z.com/the-machine-age-fund/" target="_blank" rel="noopener">The Machine Age Fund</a><p>A $1.1B hardware-only fund covering chips to robots. Hardware is now over 20% of a16z's deal flow.</p></li>
+</ol>
+<p class="body">Read together, a16z's writing and portfolio say the robot brain alone is not a moat. The value they back is deployment data, reliability, middleware, safety, and hardware components that aren't made in China.</p>
+
+<h3 class="sub-h">Greylock: back the tools that make every robot team faster</h3>
+<p class="body">Greylock has published almost nothing on robotics since its 2022 autonomy podcasts, and I found no stake in any of the 42 companies. The signal is its one 2026 bet: leading Antioch's $32M Series A in September, for simulation tooling used by robot and drone teams. Partner Saam Motamedi framed it as advantage going to teams that shorten development cycles, not to teams with better models.</p>
+<p class="body">My reading of how a Greylock-style lens (network effects, enterprise distribution, compounding advantage) would score this market: horizontal robot brains do not yet have a network effect. There is no developer ecosystem, no two-sided market, and switching costs are low once open models are good enough. The durable position is the toolchain every robot team adopts early and can't easily rip out: simulation, evaluation, data operations and fleet observability.</p>
+
+<h3 class="sub-h">The builder: autonomy should improve your margin, not gate your launch</h3>
+<p class="body">The playbook is getting consistent. Don't pretrain a generalist model. Fine-tune an open one (π0.5, GR00T N1.7) and let reinforcement learning from real deployments do the rest, as in Physical Intelligence's Recap method behind π*0.6. Pick tasks where 99% is reachable and the buyer pays per outcome. Ship with remote operators behind the robot, and measure the business in human-minutes per task. If you sell in the US, design for the FCC's domestic-content rule from the start.</p>
+
+<div class="two-col">
+  <div class="qcard">
+    <span class="kicker">Camp 1</span>
+    <h4>The horizontal brain wins</h4>
+    <p>One model for every body, monetized by licensing and fine-tuning.</p>
+    <ul>
+      <li><b>Sequoia, Lightspeed</b> · Skild's first backers</li>
+      <li><b>CapitalG</b> · led PI's $600M round</li>
+      <li><b>Radical Ventures</b> · led Generalist</li>
+      <li><b>Thrive, Lux, Founders Fund</b> · PI</li>
+      <li><b>SoftBank</b> · led Skild's $1.4B round</li>
+    </ul>
+  </div>
+  <div class="qcard">
+    <span class="kicker">Camp 2</span>
+    <h4>Vertical and full-stack win first</h4>
+    <p>Own a paid workflow and its data. Horizontal robot APIs come later.</p>
+    <ul>
+      <li><b>a16z</b> · Atoms, Mind Robotics</li>
+      <li><b>Bessemer</b> · puts the "robotics API moment" at 2028+</li>
+      <li><b>Eclipse</b> · Mind Robotics seed, Bedrock</li>
+      <li><b>CapitalG, again</b> · Bedrock, so it is in both camps</li>
+      <li><b>Greylock</b> · tooling, not robots</li>
+    </ul>
+  </div>
+</div>
+<p class="body">Everyone agrees data is the bottleneck. They disagree about where it comes from (simulation, recordings of people, or working fleets) and who ends up capturing it.</p>
+
+<!-- ============ 05 ============ -->
+<div class="section-header" id="quadrants">
+  <span class="section-num">05</span>
+  <span class="section-title">Lightspeed's 2×2, with all 42 placed</span>
+  <span class="section-desc">Model generality × body generality</span>
+</div>
+
+<p class="body">On 8 October Lightspeed published "Mapping the Robotics Landscape", drawn from Amber Yang's discussion with Claire Zau on Lightwork, Lightspeed's weekly show. It sorts robotics companies on two axes: how general the model is, and how general the robot's body is. It names one category outright: <strong>DeployCos</strong>, general-purpose hardware running a model tuned for one paid job, with Ultra as the example. The chart marks Lightspeed as an investor in two of its eleven examples, Skild and Dexterity. Here is the same frame with every company from the Frontier List placed in it.</p>
+
+<div class="diagram">
+  <div class="diagram-label">Exhibit 4. Model generality × body generality, all 42 companies</div>
+  <div class="diagram-sub">The axes and the DeployCos label follow Lightspeed's chart. The other quadrant names, and every placement not on Lightspeed's original, are mine.</div>
+  <div class="q-axis q-top">General body ↑</div>
+  <div class="quad" id="quad"></div>
+  <div class="q-axis q-bottom"><span>← Specific model</span><span>Specific body ↓</span><span>General model →</span></div>
+  <div class="offmap" id="offmap"></div>
+  <div class="legend">
+    <span><i class="lg-ring"></i>On Lightspeed's original chart</span>
+    <span><i class="lg-dash"></i>Lightspeed's example, not on the Frontier List</span>
+    <span><i class="lg-tint"></i>The quadrant Lightspeed names</span>
+    <span>* Lightspeed portfolio, per the chart</span>
+    <span>† Placement tentative</span>
+  </div>
+  <details class="tv"><summary>View as table</summary><div class="tbl-scroll"><table class="tbl" id="quad-t"></table></div></details>
+  <div class="footnote">Lightspeed describes its chart as illustrative and non-exhaustive, reflecting Yang's views. Dexterity, Tacta Systems and Reflex Robotics appear on it but not on the Frontier List, so they are not counted in the 42. OpenAI Robotics is tentative because it has not chosen a form factor.</div>
+</div>
+
+<p class="body"><strong>The crowding is on the right.</strong> 20 of the 42 build general models: ten as shared brains meant for many bodies, ten inside their own robots. The shared-brain quadrant also holds the big-tech labs giving their models away, which is the pricing pressure the original chart does not draw.</p>
+<p class="body"><strong>The paid work is on the left.</strong> DeployCos and vertical full-stack companies make up only 11 of the 42, but they hold most of the paid deployments: Ultra at Highline Commerce, Bedrock's operator-free excavation, Watney at Meta, Medra's biopharma partners.</p>
+<p class="body"><strong>The right sells to the left.</strong> Ultra's OP1 runs on Physical Intelligence's π0.6, so the top-right quadrant's customers are the top-left quadrant's companies. Whether Ultra pays PI a licence, and how much, is the cleanest early test of whether a horizontal brain can be a business.</p>
+<p class="body"><strong>A quarter of the list doesn't fit the frame.</strong> 11 of the 42 build data, evaluation, simulation and developer tools, sell robot bodies to others, or don't build robots at all. A model-by-body map can't see that layer, and it is where I think the least crowded opportunity sits. China is missing too, though Unitree belongs here as a body supplier.</p>
+
+<!-- ============ 06 ============ -->
+<div class="section-header" id="call">
+  <span class="section-num">06</span>
+  <span class="section-title">Where value accrues, and where it doesn't</span>
+  <span class="section-desc">The call</span>
+</div>
+
+<div class="bets">
+  <div class="bet"><span class="bet-tag long">Long</span><div><h4>Own a paid workflow, and let the fleet be the data moat</h4>
+    <p>The data that stays scarce comes from real deployments: failures, recoveries, and high-precision contact. Only fleets doing paid work produce it. Look for a structured environment, a task where 99% is reachable, a buyer who pays per outcome, and remote-operator costs already counted in the margin. On the list: <b>Bedrock</b> (paid excavation with nobody in the cab since Aug 2026), <b>Dyna</b> (Din Tai Fung expanded after the robots cleared its ROI bar), <b>Watney</b> (data-center work for Meta), <b>Ultra</b> (~30% of one customer's order fulfilment on three units), and <b>Skild</b>'s shift to 60+ paying customers.</p></div></div>
+  <div class="bet"><span class="bet-tag long">Long</span><div><h4>Sell the finish line: reliability, evaluation and robot operations</h4>
+    <p>Every company deploying robots needs intervention analytics, independent benchmarks, safety cases and a remote-operator floor. Almost nobody builds these as products. <b>Robocurve</b> has a $10M seed; <b>RoboArena</b> is academic. It is the least crowded box on the map, and every other box needs it.</p></div></div>
+  <div class="bet"><span class="bet-tag long">Long, selectively</span><div><h4>Build the compliant modular middle</h4>
+    <p>Actuators are more than half a humanoid's bill of materials, and China holds ~63% of actuators, motors and reducers. Planetary roller screws are the tightest bottleneck. The FCC rule creates a protected US market for domestic-content parts, which is a16z's Westmag bet. It is a policy moat: real for now, erasable by a policy change.</p></div></div>
+  <div class="bet"><span class="bet-tag under">Underweight</span><div><h4>The next general-purpose robot brain, built from scratch</h4>
+    <p>Open models are now good enough to build on. The closed frontier is about six labs with $0.5B to $3.5B each, and Google and NVIDIA give models away to sell cloud and chips. A new entrant needs a data source nobody else has, not a better architecture.</p></div></div>
+  <div class="bet"><span class="bet-tag under">Underweight</span><div><h4>Raw recordings of people</h4>
+    <p>Labour costs $1 to $25 an hour, 100,000-hour datasets are open, DoorDash can reach 8M Dashers, and Figure's Index programme pays creators directly. This is the commodity end of the data market. It lasts only with curation, action labels and quality control.</p></div></div>
+  <div class="bet"><span class="bet-tag under">Underweight, near term</span><div><h4>Home humanoids for consumers</h4>
+    <p>The long-term prize is huge, but today these are beta fleets (Sunday is in 50 homes), $20K builds, and remote operators behind every product. The next 24 months carry the wrong risk for the price.</p></div></div>
+</div>
+
+<div class="whitespace">
+  <span class="kicker">The white space</span>
+  <h4>A robot operations center: a contact center for machines</h4>
+  <p>Every robot product shipping in 2026 has people in the loop. 1X's "Expert Mode" hands the robot to a remote operator, Weave has remote specialists finish folds, Watney describes a floor of 2,000+ teleoperators, and OpenAI runs a 400+ person data-collection lab. That is a contact center, and it has the same problems: queueing, routing, quality scoring, handle time, escalation, workforce management. It also has one new job, turning every intervention into training data.</p>
+  <p>Contact centers took decades to build their software. Robot fleets need it now, and nobody sells it as a horizontal product yet. Much of that operator work will sit in India and Southeast Asia, where Build AI and Vision Lab already collect data. Other gaps: safety-case tooling for learned policies, and integration middleware for existing factories.</p>
+</div>
+
+<!-- ============ 07 ============ -->
+<div class="section-header" id="watch">
+  <span class="section-num">07</span>
+  <span class="section-title">Five names that test the thesis</span>
+  <span class="section-desc">Who I'm watching</span>
+</div>
+
+<div class="watch">
+  <div><b>Skild AI</b><p>The only independent robot-brain company with real revenue (~$100M run-rate, 60+ customers) and a hardware sales channel through Zebra's former Fetch unit. If a horizontal brain becomes a business, it is this one.</p></div>
+  <div><b>Dyna</b><p>Deploys first and trains its own model. Din Tai Fung is expanding on ROI. Watch whether "hundreds of robots by H1 2027" happens.</p></div>
+  <div><b>Bedrock Robotics</b><p>Paid, operator-free excavation for Sundt and Zachry about 27 months after founding. Construction is structured enough, and short enough of workers, to be an early profit pool.</p></div>
+  <div><b>Robocurve</b><p>An independent referee for robot claims: three people and a $10M seed. Evals mattered for LLMs. They will matter more when a failure breaks something physical.</p></div>
+  <div><b>Build AI</b><p>The most aggressive data bet: a million hours of first-person video, a Bengaluru entity, Gurugram factories, a self-reported $100M run-rate. It is also the one to watch for labour and consent risk, which Indian press has reported on.</p></div>
+</div>
+
+<!-- ============ 08 ============ -->
+<div class="section-header" id="bear">
+  <span class="section-num">08</span>
+  <span class="section-title">The bear case</span>
+  <span class="section-desc">Robotics has done this before</span>
+</div>
+
+<p class="lede">The strongest argument against all of this: robotics has been here before, and <em>the money ran out before the autonomy arrived</em>.</p>
+
+<div class="tbl-scroll">
+<table class="tbl">
+  <thead><tr><th>Precedent</th><th>What happened</th><th>What it teaches</th></tr></thead>
+  <tbody>
+    <tr><td class="rowh">Anki</td><td>~$100M revenue in 2017 and 1.5M+ robots sold. Shut down in 2019 when a late-stage deal fell through.</td><td>Revenue isn't survival for low-margin consumer hardware.</td></tr>
+    <tr><td class="rowh">Pepper / Aldebaran</td><td>~27,000 units sold on a $550/month subscription; only ~15% of customers planned to renew. Receivership in 2025.</td><td>Service costs kill subscription robots.</td></tr>
+    <tr><td class="rowh">Berkshire Grey</td><td>Listed via SPAC at $2.7B in 2021. Taken private by SoftBank for $375M in 2023.</td><td>Demand wasn't the bottleneck. Delivering and integrating systems was.</td></tr>
+    <tr><td class="rowh">Cruise</td><td>GM spent $10B+. One pedestrian incident in 2023 cost it its permits; GM ended funding in 2024.</td><td>A single safety event can end a programme, and "autonomy" can hide a remote workforce.</td></tr>
+    <tr><td class="rowh">Embark · TuSimple</td><td>Listed at $5B+ and $8B+. Embark sold for $71M; TuSimple delisted ~98.5% off its peak.</td><td>Pre-revenue physical-AI valuations reprice hard when sentiment turns.</td></tr>
+    <tr><td class="rowh">Covariant</td><td>A robot-brain startup valued at ~$625M. Amazon hired its founders and ~25% of staff and licensed its models (2024).</td><td>The closest precedent for how a standalone robot brain exits.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p class="body" style="margin-top:20px;"><strong>Revenue multiples are extreme.</strong> Agility's $2.5B SPAC rests on $1.8M of 2025 sales. Skild's $14B round priced it at roughly 470x its ~$30M 2025 revenue. Unitree trades at ~125x sales even after falling ~53% from its first-day high, though it is still about 3.4x its IPO price. That is froth cooling, not a failed listing.</p>
+<p class="body"><strong>The repricing has started.</strong> 1X went from targeting $10B+ to reported SoftBank talks at ~$6B. K-Scale Labs shut down in November 2025 after a failed Series A. iRobot filed for bankruptcy, and its Chinese contract manufacturer is taking the equity. China's economic planning agency warned of a bubble across 150+ humanoid firms, and its securities regulator has slowed humanoid IPOs.</p>
+<p class="body"><strong>"Autonomy" still has a person behind it.</strong> Tesla's 2024 Optimus showcase used teleoperated robots. 1X's Expert Mode lets remote operators see inside customers' homes. OpenAI runs 400+ data collectors in three shifts. Those are wages, not software margins.</p>
+<p class="body"><strong>The scaling curves measure the wrong thing.</strong> Most published curves track training loss, not task success. Pooling data from different robots can make models worse. Rodney Brooks argues touch can't be learned from video at all.</p>
+<p class="body"><strong>The labour maths doesn't travel.</strong> A US materials mover earns ~$18/hr, a Chinese factory worker ~$5/hr, an Indian salaried worker about $1 to $1.50/hr. A $20K to $30K robot at ~80% of human productivity can pay back in the US, but not in India for general-purpose work.</p>
+<p class="body"><strong>Buyers aren't ready.</strong> In a Morgan Stanley survey only 23% of Chinese humanoid buyers were satisfied. Gartner expects fewer than 20 companies to deploy humanoids at scale by 2028. Unitree's average selling price fell 72% in two years.</p>
+
+<div class="callout">Most of the bear case lands on humanoids and horizontal robot brains, the two areas I'm underweight. It lands much less on paid vertical fleets and the tools they buy. <strong>Starship is the honest template: the vertical path works, but it took ten years and $280M+ to get to 2,700 robots.</strong> Bet on the time it takes, not on the demo.</div>
+
+<!-- ============ 09 ============ -->
+<div class="section-header" id="signals">
+  <span class="section-num">09</span>
+  <span class="section-title">What would change my mind</span>
+  <span class="section-desc">Signals for the next 12 to 24 months</span>
+</div>
+
+<ol class="signals">
+  <li><b>A robot model sold as a paid API</b>, with disclosed revenue from other companies' hardware: Skild or PI past $250M in licensing ARR while GR00T and Gemini Robotics stay free. The first live case is Ultra's OP1 running on PI's π0.6; whether that is a paid licence, and at what price, is the number to find.</li>
+  <li><b>A humanoid fleet of 1,000+ units in paid, sustained production outside China</b>, with published intervention rates. Agility's first filings after its SPAC will be the first clean test.</li>
+  <li><b>Success above 90% on unseen homes or sites</b>, measured by an independent evaluator rather than the lab that built the model.</li>
+  <li><b>Human-minutes per task falling on a disclosed curve</b> at 1X, Weave or Watney. This is the metric that makes remote-operated products work.</li>
+  <li><b>The FCC rule reversed or broadly waived.</b> That would erase the protected market for compliant hardware.</li>
+</ol>
+
+<!-- ============ 10 ============ -->
+<div class="section-header" id="verdict">
+  <span class="section-num">10</span>
+  <span class="section-title">Verdict</span>
+  <span class="section-desc">What I'd back</span>
+</div>
+
+<div class="verdict">
+  <p><b>Take the meeting</b> with any team that has a paying fleet and a falling intervention curve, whatever its model.</p>
+  <p><b>Pass</b> on the next general-purpose robot brain unless it has a data source nobody else can get.</p>
+  <p><b>Place an early, small bet</b> on robot operations and evaluation infrastructure. It is the least crowded box on the map, and every other box has to buy it.</p>
+</div>
+
+<hr class="rule">
+
+<div class="section-header" style="margin-top:20px;">
+  <span class="section-num"></span>
+  <span class="section-title">Sources &amp; method</span>
+  <span class="section-desc">Public pages &amp; research</span>
+</div>
+
+<p class="srcs">
+  <b>Earlier thesis in this series</b> · <a href="physical-ai-india.html">Physical AI &amp; Robotics: The India Thesis</a><br><br>
+  <b>Company sample</b> · <a href="https://frontierlist.com/robotics-talent-density" target="_blank" rel="noopener">Frontier List: robotics talent density</a> (42 companies, 55 voters)<br>
+  <b>a16z</b> · <a href="https://www.a16z.news/p/the-physical-ai-deployment-gap" target="_blank" rel="noopener">Deployment Gap</a> · <a href="https://a16z.com/the-machine-age-fund/" target="_blank" rel="noopener">Machine Age Fund</a> · <a href="https://a16z.com/travis-is-back/" target="_blank" rel="noopener">Atoms</a> · <a href="https://a16z.com/announcement/investing-in-westmag/" target="_blank" rel="noopener">Westmag</a><br>
+  <b>Other funds</b> · <a href="https://antioch.com/blog/series-a" target="_blank" rel="noopener">Antioch (Greylock)</a> · <a href="https://www.bvp.com/atlas/bessemer-predicts-robotics-and-physical-ai" target="_blank" rel="noopener">Bessemer Predicts</a> · <a href="https://www.capitalg.com/insights/physical-intelligence-bringing-general-purpose-ai-into-the-physical-world/" target="_blank" rel="noopener">CapitalG on PI</a> · <a href="https://sequoiacap.com/article/partnering-with-skild/" target="_blank" rel="noopener">Sequoia on Skild</a> · Lightspeed, "Mapping the Robotics Landscape" (Lightwork, 8 Oct 2026)<br>
+  <b>Market data</b> · <a href="https://news.crunchbase.com/robotics/startup-venture-funding-surges-2026-data/" target="_blank" rel="noopener">Crunchbase</a> · <a href="https://fprimecapital.com/wp-content/uploads/2026/03/State-of-Robotics-2026.pptx.pdf" target="_blank" rel="noopener">F-Prime</a> · <a href="https://technode.com/2026/01/09/chinas-agibot-leads-global-humanoid-robot-shipments-in-2025-omdia-says/" target="_blank" rel="noopener">Omdia</a> · <a href="https://institute.bankofamerica.com/content/dam/transformation/physical-ai-part-2.pdf" target="_blank" rel="noopener">BofA Institute</a> · <a href="https://humanoid.guide/goldman-raises-2035-humanoid-robot-forecast-to-6-5-million/" target="_blank" rel="noopener">Goldman revision</a> · <a href="https://www.therobotreport.com/gartner-predicts-fewer-than-20-companies-will-deploy-humanoids-at-scale-by-2028/" target="_blank" rel="noopener">Gartner</a> · <a href="https://www.bls.gov/ooh/transportation-and-material-moving/hand-laborers-and-material-movers.htm" target="_blank" rel="noopener">BLS</a><br>
+  <b>Lab claims</b> · <a href="https://www.figure.ai/news/helix-2-5-zero-shot-30-home-generalization" target="_blank" rel="noopener">Figure Helix 2.5</a> · <a href="https://www.figure.ai/news/production-at-bmw" target="_blank" rel="noopener">Figure at BMW</a> · <a href="https://www.skild.ai/blogs/s1" target="_blank" rel="noopener">Skild S1</a> · <a href="https://www.dyna.co/dyna-2" target="_blank" rel="noopener">Dyna DYNA-2</a> · <a href="https://generalistai.com/blog/gen-1" target="_blank" rel="noopener">Generalist GEN-1</a><br>
+  <b>Policy</b> · <a href="https://www.sidley.com/en/insights/newsupdates/2026/08/fcc-adds-all-foreign-produced-advanced-robotic-devices-to-the-covered-list" target="_blank" rel="noopener">FCC Covered List (Sidley)</a><br>
+  <b>Bear case</b> · <a href="https://www.therobotreport.com/unitree-shares-down-53-from-ipo-debut/" target="_blank" rel="noopener">Unitree after IPO</a> · <a href="https://www.therobotreport.com/agility-robotics-reports-18m-revenue-ahead-of-humanoid-spac/" target="_blank" rel="noopener">Agility revenue</a> · <a href="https://thenextweb.com/news/china-humanoid-robot-boom-commercialisation-reality-check" target="_blank" rel="noopener">China reality check</a> · <a href="https://www.scmp.com/economy/china-economy/article/3334440/chinas-top-economic-planning-agency-warns-rise-too-many-robots" target="_blank" rel="noopener">NDRC warning</a> · <a href="https://en.wikipedia.org/wiki/Covariant_(company)" target="_blank" rel="noopener">Covariant</a> · <a href="https://rodneybrooks.com/why-todays-humanoids-wont-learn-dexterity/" target="_blank" rel="noopener">Rodney Brooks</a> · <a href="https://scroll.in/article/1092960/how-big-tech-is-harnessing-the-data-of-indian-factory-workers-to-train-robots" target="_blank" rel="noopener">Scroll on factory data work</a><br><br>
+  <span style="color:var(--muted);">Company data researched in late September 2026 from company sites, job boards and press. Model success rates are as reported by each lab, not independently verified. Rounds reported but not confirmed as closed are marked. Quadrant placements, category cuts and all charts are the author's. This is analysis, not investment advice. October 2026.</span>
+</p>
+
+<script>
+(function () {
+  'use strict';
+
+  function esc(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function wireTips(wrapId, tipId) {
+    var wrap = document.getElementById(wrapId);
+    var tip = document.getElementById(tipId);
+    if (!wrap || !tip) return;
+    function show(t) {
+      var r = t.getBoundingClientRect(), w = wrap.getBoundingClientRect();
+      tip.innerHTML = t.getAttribute('data-tip');
+      var x = r.left + Math.min(r.width, 160) / 2 - w.left;
+      x = Math.max(150, Math.min(x, w.width - 150));
+      tip.style.left = x + 'px';
+      tip.style.top = (r.top - w.top - 6) + 'px';
+      tip.style.opacity = '1';
+    }
+    wrap.addEventListener('mouseover', function (e) {
+      var t = e.target.closest('[data-tip]');
+      if (t) show(t);
+    });
+    wrap.addEventListener('mouseout', function (e) {
+      if (!e.relatedTarget || !wrap.contains(e.relatedTarget) || !e.relatedTarget.closest('[data-tip]')) tip.style.opacity = '0';
+    });
+    wrap.addEventListener('focusin', function (e) {
+      var t = e.target.closest('[data-tip]');
+      if (t) show(t);
+    });
+    wrap.addEventListener('focusout', function () { tip.style.opacity = '0'; });
+  }
+
+  function barChart(id, rows, max, ticks, fmt, ref) {
+    var el = document.getElementById(id);
+    var axisEl = document.getElementById(id + '-axis');
+    function pct(v) { return v / max * 100; }
+    var grid = '<div class="gridwrap" aria-hidden="true">' +
+      ticks.map(function (t) { return '<span class="gl" style="left:' + pct(t) + '%"></span>'; }).join('') +
+      (ref ? '<span class="refline" style="left:' + pct(ref.v) + '%"></span><span class="reflabel" style="left:calc(' + pct(ref.v) + '% - 6px)">' + esc(ref.label) + '</span>' : '') +
+      '</div>';
+    el.innerHTML = grid + rows.map(function (r) {
+      return '<div class="brow"><div class="bname">' + esc(r.name) + (r.sub ? '<small>' + esc(r.sub) + '</small>' : '') + '</div>' +
+        '<div class="track"><span class="bar' + (r.hi ? ' hi' : '') + '" style="width:' + pct(r.v) + '%" tabindex="0" role="img" aria-label="' + esc(r.name + ': ' + fmt(r.v)) + '" data-tip="' + esc(r.tip) + '"></span>' +
+        '<span class="bval" style="left:' + pct(r.v) + '%">' + esc(fmt(r.v)) + '</span></div></div>';
+    }).join('');
+    axisEl.innerHTML = '<span></span><div class="ticks">' + ticks.map(function (t) { return '<span style="left:' + pct(t) + '%">' + esc(fmt(t)) + '</span>'; }).join('') + '</div>';
+  }
+
+  var CROWD = [
+    ['Robot brains · independent', 6, 'Physical Intelligence, Generalist, Skild AI, Dream Labs, Pantograph, Reward AI'],
+    ['Robot brains · big-tech labs', 6, 'OpenAI Robotics, Amazon FAR, GDM Robotics, NVIDIA GEAR, Runway GWM, RobbyAnt'],
+    ['Data, evals & dev tools', 8, 'Build AI, microagi, Vision Lab, Enact, Robocurve, Antim Labs, Dimensional, Bracket Bot'],
+    ['Full-stack general-purpose', 6, 'Figure, Tesla, Unitree, Genesis, Walden, Dyna'],
+    ['Vertical, one-job robots', 6, 'Bedrock, Watney, Ultra, Medra, Foundry, Mimic'],
+    ['Home & consumer', 5, 'Sunday, 1X, The Bot Company, Weave, Eye Candy'],
+    ['Industrial robot software', 3, 'Trener, Xaba, Somana'],
+    ['Physical AI, not robots', 2, 'Prometheus, Hark']
+  ];
+  var VAL = [
+    ['Prometheus', 41, 'none', '$12B Series B, Jun 2026. No product yet. Builds AI for engineering, not robots.', false],
+    ['Figure', 39, 'not disclosed', 'Series C of over $1B, Sep 2025. ~350 Figure 03s built by Apr 2026.', false],
+    ['Unitree', 29, '≈$0.24B (2025)', 'Shanghai market cap on 24 Sep 2026 (~¥197B). 2025 revenue ¥1.70B, net profit ¥278M.', true],
+    ['Skild AI', 14, '~$0.1B run-rate', '$1.4B Series C led by SoftBank, Jan 2026. $100M run-rate and 60+ customers by Sep 2026.', true],
+    ['Physical Intelligence', 5.6, 'none', '$600M led by CapitalG, Nov 2025. Reported talks at $11B+ (Mar 2026) unconfirmed.', false],
+    ['Generalist (reported)', 3, 'not disclosed', '~$200M led by 8VC at $3B, Aug 2026, per TechCrunch sources; $2B in Jun 2026.', false],
+    ['The Bot Company', 2, 'none', '$150M led by Greenoaks, Mar 2025. No product shown publicly.', false],
+    ['Bedrock Robotics', 1.75, 'not disclosed', '$270M Series B, Feb 2026. Paid operator-free work began Aug 2026.', false],
+    ['Sunday', 1.15, 'none', '$165M Series B led by Coatue, Mar 2026. 50 beta homes by Thanksgiving 2026.', false],
+    ['Walden Robotics', 1.1, 'not disclosed', '$300M seed, Jul 2026. In production at a Toyota plant since Feb 2026.', false]
+  ];
+
+  barChart('crowd', CROWD.map(function (c) {
+    return { name: c[0], v: c[1], tip: '<b>' + esc(c[0]) + ': ' + c[1] + '</b><br>' + esc(c[2]) };
+  }), 10, [0, 2, 4, 6, 8, 10], function (v) { return String(v); });
+  document.getElementById('crowd-t').innerHTML = '<thead><tr><th>Layer</th><th>Count</th><th>Companies</th></tr></thead><tbody>' +
+    CROWD.map(function (c) { return '<tr><td class="rowh">' + esc(c[0]) + '</td><td class="n">' + c[1] + '</td><td>' + esc(c[2]) + '</td></tr>'; }).join('') + '</tbody>';
+
+  barChart('val', VAL.map(function (v) {
+    return { name: v[0], sub: 'rev: ' + v[2], v: v[1], hi: v[4], tip: '<b>' + esc(v[0]) + ': $' + v[1] + 'B</b><br><i>Revenue: ' + esc(v[2]) + '</i><br>' + esc(v[3]) };
+  }), 45, [0, 10, 20, 30, 40], function (v) { return '$' + v + 'B'; },
+    { v: 38, label: "Goldman's 2024 estimate for the whole 2035 humanoid market: $38B" });
+  document.getElementById('val-t').innerHTML = '<thead><tr><th>Company</th><th>Valuation</th><th>Disclosed revenue</th><th>Basis</th></tr></thead><tbody>' +
+    VAL.map(function (v) { return '<tr><td class="rowh">' + esc(v[0]) + '</td><td class="n">$' + v[1] + 'B</td><td>' + esc(v[2]) + '</td><td>' + esc(v[3]) + '</td></tr>'; }).join('') + '</tbody>';
+
+  wireTips('wrap-crowd', 'tip-crowd');
+  wireTips('wrap-val', 'tip-val');
+
+  var QUAD = [
+    { cls: 'deploy', name: 'DeployCos', ax: 'General body · specific model', note: "Brand-agnostic or off-the-shelf hardware, with a model tuned for one paid job. Lightspeed's label.",
+      cos: [['Ultra', 'ls', "runs on PI's π0.6"], ['Trener Robotics'], ['Medra'], ['Mimic'], ['Xaba'], ['Foundry Robotics'], ['Somana']] },
+    { name: 'Shared robot brains', ax: 'General body · general model', note: 'One model meant to run on many different robots.',
+      cos: [['Physical Intelligence', 'ls', 'model inside Ultra'], ['Skild AI *', 'ls'], ['Generalist', 'ls'], ['Reward AI', 'ls'], ['Dream Labs'], ['GDM Robotics'], ['NVIDIA GEAR'], ['Amazon FAR'], ['RobbyAnt'], ['Runway GWM']] },
+    { name: 'Vertical full-stack', ax: 'Specific body · specific model', note: 'Own robot, own model, one job.',
+      cos: [['Bedrock Robotics'], ['Watney Robotics'], ['Weave Robotics'], ['Eye Candy Robotics'], ['Dexterity *', 'ext'], ['Tacta Systems', 'ext'], ['Reflex Robotics', 'ext']] },
+    { name: 'General-purpose full-stack', ax: 'Specific body · general model', note: 'Own robot, general model, many jobs.',
+      cos: [['Sunday', 'ls'], ['1X', 'ls'], ['Figure', 'ls'], ['Tesla Optimus'], ['The Bot Company'], ['Genesis'], ['Walden Robotics'], ['Dyna'], ['Pantograph'], ['OpenAI Robotics †']] }
+  ];
+  var OFF = [
+    ['Data', ['Build AI', 'microagi', 'Vision Lab', 'Enact']],
+    ['Evaluation', ['Robocurve']],
+    ['Simulation & dev tools', ['Antim Labs', 'Dimensional']],
+    ['Bodies sold to others', ['Unitree', 'Bracket Bot']],
+    ['Not robots', ['Prometheus', 'Hark']]
+  ];
+  function qcount(q) { return q.cos.filter(function (c) { return c[1] !== 'ext'; }).length; }
+  function qchip(c) {
+    return '<span class="qchip' + (c[1] === 'ls' ? ' ls' : c[1] === 'ext' ? ' ext' : '') + '">' + esc(c[0]) + (c[2] ? '<small>' + esc(c[2]) + '</small>' : '') + '</span>';
+  }
+  document.getElementById('quad').innerHTML = QUAD.map(function (q) {
+    return '<div class="qc' + (q.cls ? ' ' + q.cls : '') + '"><div class="qhead"><span class="ax">' + esc(q.ax) + '</span><h4>' + esc(q.name) + '<span>' + qcount(q) + ' of 42</span></h4><p>' + esc(q.note) + '</p></div><div class="chipset">' + q.cos.map(qchip).join('') + '</div></div>';
+  }).join('');
+  var offN = OFF.reduce(function (n, o) { return n + o[1].length; }, 0);
+  document.getElementById('offmap').innerHTML = '<div class="oh"><b>Off both axes</b><span>' + offN + " of 42 · the layer a model-by-body map can't see</span></div>" +
+    OFF.map(function (o) { return '<div class="orow"><span class="ol">' + esc(o[0]) + '</span><div class="chipset">' + o[1].map(function (n) { return qchip([n]); }).join('') + '</div></div>'; }).join('');
+  document.getElementById('quad-t').innerHTML = '<thead><tr><th>Quadrant</th><th>Count</th><th>Companies</th></tr></thead><tbody>' +
+    QUAD.map(function (q) { return '<tr><td class="rowh">' + esc(q.name) + '<br><span style="font-weight:300;color:var(--muted);font-size:11px;">' + esc(q.ax) + '</span></td><td class="n">' + qcount(q) + '</td><td>' + esc(q.cos.map(function (c) { return c[0] + (c[1] === 'ext' ? ' (not on list)' : ''); }).join(', ')) + '</td></tr>'; }).join('') +
+    '<tr><td class="rowh">Off both axes</td><td class="n">' + offN + '</td><td>' + esc(OFF.map(function (o) { return o[0] + ': ' + o[1].join(', '); }).join('; ')) + '</td></tr></tbody>';
+})();
+</script>
+
+</body>
+</html>
