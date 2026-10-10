@@ -349,6 +349,104 @@
   .srcs { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--muted); line-height: 2; }
   .srcs b { color: var(--text2); }
 
+
+  /* ===== v2 visuals ===== */
+  .panels { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+  .panel-k { font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text2); margin-bottom: 10px; display: block; }
+  .panel-k span { color: var(--muted); letter-spacing: 0.04em; text-transform: none; }
+
+  /* columns (exhibit 1) */
+  .cols { display: flex; align-items: flex-end; gap: 14px; height: 190px; border-bottom: 1px solid var(--muted); padding: 0 6px; position: relative; }
+  .col { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; position: relative; }
+  .colbar { width: 100%; max-width: 46px; background: var(--accent); border-radius: 3px 3px 0 0; position: relative; }
+  .colbar.partial { background: repeating-linear-gradient(45deg, var(--accent) 0 3px, rgba(37,99,168,0.18) 3px 7px); box-shadow: inset 0 0 0 1.5px var(--accent); }
+  .colval { font-family: 'Space Mono', monospace; font-size: 10.5px; color: var(--text2); margin-bottom: 4px; white-space: nowrap; }
+  .colx { display: flex; gap: 14px; padding: 6px 6px 0; }
+  .colx span { flex: 1; text-align: center; font-family: 'Space Mono', monospace; font-size: 9.5px; color: var(--muted); }
+
+  /* dot / range / dumbbell tracks */
+  .prow { display: grid; grid-template-columns: 170px 1fr; gap: 12px; align-items: center; }
+  .prow.wl { grid-template-columns: 170px 1fr 64px; }
+  .pname { font-size: 12.5px; font-weight: 600; color: var(--text); text-align: right; line-height: 1.25; }
+  .pname small { display: block; font-family: 'Space Mono', monospace; font-size: 9px; font-weight: 400; color: var(--muted); }
+  .ptrack { position: relative; height: 24px; }
+  .dot { position: absolute; top: 6px; width: 12px; height: 12px; margin-left: -6px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 2px var(--surface); }
+  .dot.gold { background: var(--gold); }
+  .dot.rust { background: var(--rust); }
+  .dot.hollow { background: var(--surface); box-shadow: inset 0 0 0 2px var(--accent), 0 0 0 2px var(--surface); }
+  .rng { position: absolute; top: 9px; height: 6px; border-radius: 3px; background: var(--accent); }
+  .rng.gold { background: var(--gold); }
+  .conn { position: absolute; top: 11px; height: 2px; background: var(--border); }
+  .dlab { position: absolute; top: 4px; font-family: 'Space Mono', monospace; font-size: 10px; line-height: 16px; color: var(--text2); white-space: nowrap; }
+  .pchg { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--rust); font-weight: 700; text-align: left; }
+  .plot { display: grid; gap: 6px; position: relative; }
+  .plot .gridwrap { left: 182px; }
+  .plot.wl .gridwrap { right: 76px; }
+  .axis.wl { grid-template-columns: 170px 1fr 64px; }
+
+  /* svg line chart */
+  .svgbox { position: relative; width: 100%; }
+  .svgbox svg { display: block; width: 100%; height: auto; }
+
+  /* investor matrix */
+  .mx { border-collapse: collapse; width: 100%; font-size: 12px; min-width: 720px; background: var(--bg); }
+  .mx th, .mx td { border: 1px solid var(--border); text-align: center; padding: 6px 4px; }
+  .mx thead tr:first-child th { font-family: 'Space Mono', monospace; font-size: 8.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); background: var(--surface2); font-weight: 500; }
+  .mx thead tr:nth-child(2) th { font-size: 11px; font-weight: 700; color: var(--text); background: var(--surface); line-height: 1.2; height: 46px; vertical-align: bottom; }
+  .mx thead tr:nth-child(2) th small { display: block; font-family: 'Space Mono', monospace; font-size: 8px; font-weight: 400; color: var(--muted); }
+  .mx td.fund { text-align: left; font-weight: 700; color: var(--text); white-space: nowrap; padding-left: 10px; }
+  .mx td.fund.hl { background: rgba(37,99,168,0.07); }
+  .mx td.g0 { background: rgba(37,99,168,0.03); }
+  .mk { display: inline-block; width: 12px; height: 12px; border-radius: 50%; vertical-align: middle; }
+  .mk.led { background: var(--accent); }
+  .mk.in { box-shadow: inset 0 0 0 2px var(--accent); }
+
+  /* value stack */
+  .stack { display: grid; gap: 6px; }
+  .band { display: grid; grid-template-columns: 6px 210px 1fr 150px; align-items: stretch; background: var(--bg); border: 1px solid var(--border); }
+  .band .stripe { background: var(--muted); }
+  .band.long .stripe { background: var(--accent2); }
+  .band.under .stripe { background: var(--rust); }
+  .band.white { border: 1.5px dashed var(--accent); background: rgba(37,99,168,0.05); }
+  .band.white .stripe { background: transparent; }
+  .band .bl { padding: 10px 14px; }
+  .band .bl b { font-family: 'Cormorant Garamond', serif; font-size: 18px; color: var(--white); display: block; line-height: 1.2; }
+  .band .bl span { font-family: 'Space Mono', monospace; font-size: 8.5px; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; }
+  .band .bd { padding: 10px 14px; font-size: 12.5px; color: var(--text2); font-weight: 300; line-height: 1.55; border-left: 1px dotted var(--border); }
+  .band .bd em { font-style: normal; color: var(--muted); display: block; font-size: 11.5px; }
+  .band .bs { padding: 10px 14px; display: flex; align-items: center; justify-content: flex-end; }
+  .stance { font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; padding: 4px 8px; border-radius: 2px; white-space: nowrap; }
+  .stance.long { color: var(--accent2); border: 1px solid var(--accent2); }
+  .stance.under { color: var(--rust); border: 1px solid var(--rust); }
+  .stance.white { color: #fff; background: var(--accent); }
+  .stack-axis { display: flex; justify-content: space-between; font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin: 0 0 8px; }
+
+  /* signal tracker */
+  .tracker { display: grid; gap: 8px; }
+  .trow { display: grid; grid-template-columns: 34px 1fr 110px 1.1fr; gap: 14px; align-items: start; background: var(--bg); border: 1px solid var(--border); padding: 12px 14px; }
+  .trow .tn { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--accent); padding-top: 2px; }
+  .trow .ts { font-size: 13px; color: var(--text2); font-weight: 300; line-height: 1.55; }
+  .trow .ts b { color: var(--text); font-weight: 700; display: block; }
+  .trow .te { font-size: 12px; color: var(--muted); font-weight: 300; line-height: 1.55; }
+  .pill { font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 0.08em; text-transform: uppercase; padding: 4px 8px; border-radius: 10px; white-space: nowrap; display: inline-flex; align-items: center; gap: 5px; }
+  .pill.early { color: var(--gold); border: 1px solid var(--gold); }
+  .pill.notyet { color: var(--muted); border: 1px solid var(--border); background: var(--surface); }
+  .pill.met { color: var(--accent2); border: 1px solid var(--accent2); }
+
+  @media (max-width: 720px) {
+    .panels { grid-template-columns: 1fr; }
+    .prow, .axis { grid-template-columns: 96px 1fr; }
+    .prow.wl, .axis.wl { grid-template-columns: 96px 1fr 48px; }
+    .plot .gridwrap { left: 108px; }
+    .plot.wl .gridwrap { right: 60px; }
+    .pname { font-size: 11.5px; }
+    .band { grid-template-columns: 6px 1fr; }
+    .band .bd { grid-column: 2; border-left: none; border-top: 1px dotted var(--border); }
+    .band .bs { grid-column: 2; justify-content: flex-start; padding-top: 0; }
+    .trow { grid-template-columns: 26px 1fr; }
+    .trow .tp, .trow .te { grid-column: 2; }
+  }
+
   @media (max-width: 720px) {
     body { padding: 28px 18px; }
     .masthead h1 { font-size: 40px; }
@@ -389,7 +487,41 @@
 
 <p class="body">The capital came faster. Crunchbase counted about $15B of robotics venture funding in 2025 and $18.8B by mid-June 2026; broader definitions reach $41B. F-Prime's analysis of PitchBook data finds that all of the growth came from rounds of $50M or more, while early-stage funding has been flat for five years. Founders from the right lab now raise $100M+ seed rounds: Genesis raised $105M, and Walden raised $300M at a $1.1B valuation. About 13,000 humanoids shipped in 2025, roughly 90% of them Chinese.</p>
 
+<div class="diagram">
+  <div class="diagram-label">Exhibit 1. The money: robotics venture funding, $B</div>
+  <div class="diagram-sub">Both panels share one scale. 2026 is only through mid-June and already above all of 2025. Funding for humanoid makers alone roughly quadrupled in a year. Hover a column.</div>
+  <div class="chart-wrap" id="wrap-money">
+    <div class="panels">
+      <div><span class="panel-k">All robotics <span>· Crunchbase</span></span><div id="cols-robotics"></div></div>
+      <div><span class="panel-k">Humanoid makers <span>· PitchBook</span></span><div id="cols-humanoid"></div></div>
+    </div>
+    <div class="tip" id="tip-money"></div>
+  </div>
+  <div class="footnote">Totals depend on the definition: CB Insights' broader count puts 2025 at $40.7B. The hatched column is a partial year (to 22 June 2026). PitchBook's humanoid figures are from its published summary.</div>
+</div>
+
 <p class="body">The products are behind the money. The best 2026 models succeed 40% to 66% of the time on tasks or homes they have never seen, as the labs themselves report it. Figure's Helix 2.5 hit 56% across 30 unseen homes; Skild's S1 hit 66% on unseen tasks. 99% shows up only on narrow tasks after extra training. A production line needs roughly 99.9%, and at 95% per step a ten-step task succeeds only about 60% of the time. Bessemer puts the field at "GPT-2.5" while NVIDIA says robotics' ChatGPT moment has arrived. Both are right, about different layers.</p>
+
+<div class="diagram">
+  <div class="diagram-label">Exhibit 2. The products: how far the best models are from the finish line</div>
+  <div class="diagram-sub">Left: success rates the labs report for their newest models, on tasks or homes they never trained on. Only one result reaches the production line, and only on narrow tasks after extra training. Right: why the last few points matter. Small per-step failure rates compound over a multi-step job. Hover either panel.</div>
+  <div class="panels">
+    <div class="chart-wrap" id="wrap-gap">
+      <span class="panel-k">Reported success rate, % <span>· self-reported by each lab</span></span>
+      <div class="plot" id="gap"></div>
+      <div class="axis" id="gap-axis"></div>
+      <div class="legend"><span><i class="sw" style="background:var(--accent);border-radius:50%"></i>Unseen tasks or homes</span><span><i class="sw" style="background:var(--gold);border-radius:50%"></i>Narrow tasks, after post-training</span></div>
+      <div class="tip" id="tip-gap"></div>
+    </div>
+    <div class="chart-wrap" id="wrap-compound">
+      <span class="panel-k">Whole-job success by steps <span>· per-step reliability^steps</span></span>
+      <div class="svgbox" id="compound"></div>
+      <div class="legend" id="compound-legend"></div>
+      <div class="tip" id="tip-compound"></div>
+    </div>
+  </div>
+  <div class="footnote"><strong>Reading it:</strong> a robot that gets each step right 95% of the time finishes a ten-step job only 60% of the time. At 99.9% per step it finishes 99% of them. That gap, not the demo, is what a production line pays for. Sources: NVIDIA (DreamZero), Figure (Helix 2.5), Generalist (GEN-1, GEN-1.5), Skild (S1).</div>
+</div>
 
 <!-- ============ 02 ============ -->
 <div class="section-header" id="crowded">
@@ -401,7 +533,7 @@
 <p class="body">When the cost of starting a company collapses and the cost of finishing one does not, you get exactly this market: dozens of well-funded teams at the start, very few near the finish. The clearest sample is the 42 labs and startups that 55 voters named on <a href="https://frontierlist.com/robotics-talent-density" target="_blank" rel="noopener">Frontier List's robotics talent-density ranking</a>. I researched every one of them for this piece.</p>
 
 <div class="diagram">
-  <div class="diagram-label">Exhibit 1. The cost of starting vs. the cost of finishing, 2023 to 2026</div>
+  <div class="diagram-label">Exhibit 3. The cost of starting vs. the cost of finishing, 2023 to 2026</div>
   <div class="diagram-sub">Left column: what collapsed in price. Right column: what didn't. Figures come from lab releases, BofA, Goldman, a16z and vendor price lists; vendor-only numbers are marked.</div>
   <div class="ledger">
     <div>
@@ -430,7 +562,29 @@
 </div>
 
 <div class="diagram">
-  <div class="diagram-label">Exhibit 2. Where the 42 companies actually build</div>
+  <div class="diagram-label">Exhibit 4. What got cheap: the body and the data</div>
+  <div class="diagram-sub">Both panels use a log scale, so each gridline is ten times (or two to five times) the last. Left: list prices of humanoids and home robots you can order today, against analysts' bill-of-materials estimates. Right: what an hour of training data costs, by collection method. Hover any mark.</div>
+  <div class="panels">
+    <div class="chart-wrap" id="wrap-price">
+      <span class="panel-k">Price per robot, USD <span>· log scale</span></span>
+      <div class="plot" id="price"></div>
+      <div class="axis" id="price-axis"></div>
+      <div class="legend"><span><i class="sw" style="background:var(--accent);border-radius:50%"></i>List price</span><span><i class="sw" style="background:var(--gold);border-radius:50%"></i>Bill of materials (BofA)</span></div>
+      <div class="tip" id="tip-price"></div>
+    </div>
+    <div class="chart-wrap" id="wrap-data">
+      <span class="panel-k">Cost per hour of training data, USD <span>· log scale</span></span>
+      <div class="plot" id="datacost"></div>
+      <div class="axis" id="datacost-axis"></div>
+      <div class="legend"><span><i class="sw" style="background:var(--accent)"></i>Range or point</span></div>
+      <div class="tip" id="tip-data"></div>
+    </div>
+  </div>
+  <div class="footnote">The collection rigs fell too: Sunday's data glove costs about $200, against roughly $20,000 for a teleoperation rig. Teleoperation figures are one vendor's fully loaded estimates. Sources: Unitree, Weave, 1X store pages; BofA Institute; MIT Technology Review; TechCrunch; Fortune.</div>
+</div>
+
+<div class="diagram">
+  <div class="diagram-label">Exhibit 5. Where the 42 companies actually build</div>
   <div class="diagram-sub">Frontier List companies counted by layer. Twelve of the 42 build a robot brain; three build software for the industrial robots factories already own. Hover a bar for the names.</div>
   <div class="chart-wrap" id="wrap-crowd">
     <div class="bars" id="crowd"></div>
@@ -450,7 +604,7 @@
 <p class="body">Only two companies on the list have large, disclosed revenue. Unitree, now listed in Shanghai, made about $0.24B in 2025 and was profitable. Skild says it is at a ~$100M annual run-rate. Everyone else is valued on research speed and demos. At $39B, Figure's valuation is already higher than Goldman's 2024 estimate for the entire 2035 humanoid market.</p>
 
 <div class="diagram">
-  <div class="diagram-label">Exhibit 3. Latest valuation vs. disclosed revenue ($B)</div>
+  <div class="diagram-label">Exhibit 6. Latest valuation vs. disclosed revenue ($B)</div>
   <div class="diagram-sub">Robotics companies from the list with a priced round or market cap. Rounds reported but not confirmed as closed are excluded, except Generalist, which is marked. Hover a bar for detail.</div>
   <div class="chart-wrap" id="wrap-val">
     <div class="bars" id="val"></div>
@@ -460,6 +614,19 @@
   <div class="legend"><span><i class="sw" style="background:var(--accent)"></i>No large disclosed revenue</span><span><i class="sw" style="background:var(--gold)"></i>Large disclosed revenue</span></div>
   <details class="tv"><summary>View as table</summary><div class="tbl-scroll"><table class="tbl" id="val-t"></table></div></details>
   <div class="footnote">Unitree's revenue converted at ~¥7.1 to the dollar; market cap (~¥197B) as of 24 Sep 2026. Physical Intelligence was reportedly in talks at $11B+ in March 2026; that close is unconfirmed, so the chart shows its last priced round. Prometheus builds AI for engineering rather than robots but is on the list.</div>
+</div>
+
+<p class="body">Units tell a different story than valuations. The companies actually shipping humanoids are Chinese, and the most valuable Western ones have built a few hundred.</p>
+
+<div class="diagram">
+  <div class="diagram-label">Exhibit 7. Who actually ships humanoids: 2025 units</div>
+  <div class="diagram-sub">About 13,000 humanoids shipped worldwide in 2025 (Omdia), roughly 90% from Chinese makers. For scale, Figure, valued at $39B, had built about 350 Figure 03s by April 2026. Hover a bar.</div>
+  <div class="chart-wrap" id="wrap-ship">
+    <div class="bars" id="ship"></div>
+    <div class="axis" id="ship-axis"></div>
+    <div class="tip" id="tip-ship"></div>
+  </div>
+  <div class="footnote">Unitree's own IPO prospectus reports 5,500+ humanoids sold in 2025; Omdia counts 4,200. "All others" is the remainder of Omdia's ~13,000 total and includes dozens of smaller Chinese makers. H1 2026 shipments reached about 19,100, up 272%.</div>
 </div>
 
 <!-- ============ 04 ============ -->
@@ -517,6 +684,14 @@
 </div>
 <p class="body">Everyone agrees data is the bottleneck. They disagree about where it comes from (simulation, recordings of people, or working fleets) and who ends up capturing it.</p>
 
+<div class="diagram">
+  <div class="diagram-label">Exhibit 8. Who backs whom</div>
+  <div class="diagram-sub">Selected funds against selected companies, grouped by what the company sells. A filled dot means the fund led or co-led a round; a ring means it participated. Read across a16z's row: nothing under robot brains or full-stack robots. Greylock's only mark is a tool.</div>
+  <div class="tbl-scroll"><table class="mx" id="mx"></table></div>
+  <div class="legend"><span><i class="mk led"></i>Led or co-led a round</span><span><i class="mk in"></i>Participated</span><span>† Not on the Frontier List</span></div>
+  <div class="footnote">From company and fund announcements and reporting as of September 2026. Selective, not exhaustive: a blank cell means no investment found in this research, not proof of none.</div>
+</div>
+
 <!-- ============ 05 ============ -->
 <div class="section-header" id="quadrants">
   <span class="section-num">05</span>
@@ -527,7 +702,7 @@
 <p class="body">On 8 October Lightspeed published "Mapping the Robotics Landscape", drawn from Amber Yang's discussion with Claire Zau on Lightwork, Lightspeed's weekly show. It sorts robotics companies on two axes: how general the model is, and how general the robot's body is. It names one category outright: <strong>DeployCos</strong>, general-purpose hardware running a model tuned for one paid job, with Ultra as the example. The chart marks Lightspeed as an investor in two of its eleven examples, Skild and Dexterity. Here is the same frame with every company from the Frontier List placed in it.</p>
 
 <div class="diagram">
-  <div class="diagram-label">Exhibit 4. Model generality × body generality, all 42 companies</div>
+  <div class="diagram-label">Exhibit 9. Model generality × body generality, all 42 companies</div>
   <div class="diagram-sub">The axes and the DeployCos label follow Lightspeed's chart. The other quadrant names, and every placement not on Lightspeed's original, are mine.</div>
   <div class="q-axis q-top">General body ↑</div>
   <div class="quad" id="quad"></div>
@@ -554,6 +729,16 @@
   <span class="section-num">06</span>
   <span class="section-title">Where value accrues, and where it doesn't</span>
   <span class="section-desc">The call</span>
+</div>
+
+<p class="body">Put the calls on one stack, from the parts inside a robot up to the paid job it does, and the pattern is plain. The value I'd back sits at the top and the bottom. The crowded middle is where I'd hold back.</p>
+
+<div class="diagram">
+  <div class="diagram-label">Exhibit 10. The value stack: where I'd put money</div>
+  <div class="diagram-sub">Layers ordered from the customer's paid job (top) down to the parts inside the robot (bottom). The dashed layer is the one nobody on the list sells as a product.</div>
+  <div class="stack-axis"><span>↑ Closer to the customer</span></div>
+  <div class="stack" id="stack"></div>
+  <div class="stack-axis" style="margin:8px 0 0;"><span>↓ Closer to the hardware</span></div>
 </div>
 
 <div class="bets">
@@ -618,9 +803,32 @@
 
 <p class="body" style="margin-top:20px;"><strong>Revenue multiples are extreme.</strong> Agility's $2.5B SPAC rests on $1.8M of 2025 sales. Skild's $14B round priced it at roughly 470x its ~$30M 2025 revenue. Unitree trades at ~125x sales even after falling ~53% from its first-day high, though it is still about 3.4x its IPO price. That is froth cooling, not a failed listing.</p>
 <p class="body"><strong>The repricing has started.</strong> 1X went from targeting $10B+ to reported SoftBank talks at ~$6B. K-Scale Labs shut down in November 2025 after a failed Series A. iRobot filed for bankruptcy, and its Chinese contract manufacturer is taking the equity. China's economic planning agency warned of a bubble across 150+ humanoid firms, and its securities regulator has slowed humanoid IPOs.</p>
+
+<div class="diagram">
+  <div class="diagram-label">Exhibit 11. Repricing, then and now: earlier value → later value, $B</div>
+  <div class="diagram-sub">Log scale. Blue is the earlier high (a SPAC price, a peak, or a valuation sought); rust is what came after. The first three are the last cycle. The last two are this one. Hover a row.</div>
+  <div class="chart-wrap" id="wrap-reprice">
+    <div class="plot wl" id="reprice"></div>
+    <div class="axis wl" id="reprice-axis"></div>
+    <div class="legend"><span><i class="sw" style="background:var(--accent);border-radius:50%"></i>Earlier value</span><span><i class="sw" style="background:var(--rust);border-radius:50%"></i>Later value</span></div>
+    <div class="tip" id="tip-reprice"></div>
+  </div>
+  <div class="footnote">TuSimple's endpoint is approximate: it peaked above $8B and delisted roughly 98.5% below that. 1X's earlier value is the valuation it sought in 2025, and its later value is reported SoftBank talks, not a closed deal. Unitree is still about 3.4× its IPO price.</div>
+</div>
 <p class="body"><strong>"Autonomy" still has a person behind it.</strong> Tesla's 2024 Optimus showcase used teleoperated robots. 1X's Expert Mode lets remote operators see inside customers' homes. OpenAI runs 400+ data collectors in three shifts. Those are wages, not software margins.</p>
 <p class="body"><strong>The scaling curves measure the wrong thing.</strong> Most published curves track training loss, not task success. Pooling data from different robots can make models worse. Rodney Brooks argues touch can't be learned from video at all.</p>
 <p class="body"><strong>The labour maths doesn't travel.</strong> A US materials mover earns ~$18/hr, a Chinese factory worker ~$5/hr, an Indian salaried worker about $1 to $1.50/hr. A $20K to $30K robot at ~80% of human productivity can pay back in the US, but not in India for general-purpose work.</p>
+
+<div class="diagram">
+  <div class="diagram-label">Exhibit 12. What a robot has to beat: hourly labour cost</div>
+  <div class="diagram-sub">The rust line is an illustrative robot cost per hour: a $25,000 robot paid off over three years at two shifts a day, before service, integration or downtime. Above the line, a robot can pay back. Below it, it can't. Hover a bar.</div>
+  <div class="chart-wrap" id="wrap-wage">
+    <div class="bars" id="wage"></div>
+    <div class="axis" id="wage-axis"></div>
+    <div class="tip" id="tip-wage"></div>
+  </div>
+  <div class="footnote">US: BLS median for hand laborers and material movers, May 2025. China: private-sector manufacturing average wage for 2025 (NBS), ¥76,055 a year at ~¥7.2/$ over ~2,000 hours. India: average regular salaried earnings, ₹21,285 a month (PLFS 2025), at ~₹88/$ over ~176 hours. Robot line: $25,000 ÷ (3 years × 4,000 hours) ≈ $2.1/hr, an assumption for illustration.</div>
+</div>
 <p class="body"><strong>Buyers aren't ready.</strong> In a Morgan Stanley survey only 23% of Chinese humanoid buyers were satisfied. Gartner expects fewer than 20 companies to deploy humanoids at scale by 2028. Unitree's average selling price fell 72% in two years.</p>
 
 <div class="callout">Most of the bear case lands on humanoids and horizontal robot brains, the two areas I'm underweight. It lands much less on paid vertical fleets and the tools they buy. <strong>Starship is the honest template: the vertical path works, but it took ten years and $280M+ to get to 2,700 robots.</strong> Bet on the time it takes, not on the demo.</div>
@@ -632,13 +840,12 @@
   <span class="section-desc">Signals for the next 12 to 24 months</span>
 </div>
 
-<ol class="signals">
-  <li><b>A robot model sold as a paid API</b>, with disclosed revenue from other companies' hardware: Skild or PI past $250M in licensing ARR while GR00T and Gemini Robotics stay free. The first live case is Ultra's OP1 running on PI's π0.6; whether that is a paid licence, and at what price, is the number to find.</li>
-  <li><b>A humanoid fleet of 1,000+ units in paid, sustained production outside China</b>, with published intervention rates. Agility's first filings after its SPAC will be the first clean test.</li>
-  <li><b>Success above 90% on unseen homes or sites</b>, measured by an independent evaluator rather than the lab that built the model.</li>
-  <li><b>Human-minutes per task falling on a disclosed curve</b> at 1X, Weave or Watney. This is the metric that makes remote-operated products work.</li>
-  <li><b>The FCC rule reversed or broadly waived.</b> That would erase the protected market for compliant hardware.</li>
-</ol>
+<div class="diagram">
+  <div class="diagram-label">Exhibit 13. Signal tracker, as of October 2026</div>
+  <div class="diagram-sub">Five things that would change this thesis, and where each stands today. I'll update this as they move.</div>
+  <div class="tracker" id="tracker"></div>
+  <div class="legend"><span><span class="pill notyet">○ Not yet</span></span><span><span class="pill early">◐ Early sign</span></span><span><span class="pill met">● Met</span></span></div>
+</div>
 
 <!-- ============ 10 ============ -->
 <div class="section-header" id="verdict">
@@ -793,6 +1000,303 @@
   document.getElementById('quad-t').innerHTML = '<thead><tr><th>Quadrant</th><th>Count</th><th>Companies</th></tr></thead><tbody>' +
     QUAD.map(function (q) { return '<tr><td class="rowh">' + esc(q.name) + '<br><span style="font-weight:300;color:var(--muted);font-size:11px;">' + esc(q.ax) + '</span></td><td class="n">' + qcount(q) + '</td><td>' + esc(q.cos.map(function (c) { return c[0] + (c[1] === 'ext' ? ' (not on list)' : ''); }).join(', ')) + '</td></tr>'; }).join('') +
     '<tr><td class="rowh">Off both axes</td><td class="n">' + offN + '</td><td>' + esc(OFF.map(function (o) { return o[0] + ': ' + o[1].join(', '); }).join('; ')) + '</td></tr></tbody>';
+
+  /* ===== v2 visuals ===== */
+  function logPct(v, lo, hi) { return (Math.log(v) - Math.log(lo)) / (Math.log(hi) - Math.log(lo)) * 100; }
+  function linPct(v, lo, hi) { return (v - lo) / (hi - lo) * 100; }
+  function fmtUSD(v) { return v >= 1000 ? '$' + (v / 1000).toFixed(v % 1000 === 0 ? 0 : 1) + 'K' : '$' + v; }
+  function placeLabel(pct, text, side) {
+    var left = side === 'left' || (side !== 'right' && pct > 74);
+    return '<span class="dlab" style="left:calc(' + pct + '% ' + (left ? '- 10px' : '+ 10px') + ');' + (left ? 'transform:translateX(-100%);' : '') + '">' + esc(text) + '</span>';
+  }
+  function axisHTML(el, ticks, pctFn, fmt, extra) {
+    el.innerHTML = '<span></span><div class="ticks">' + ticks.map(function (t) { return '<span style="left:' + pctFn(t) + '%">' + esc(fmt(t)) + '</span>'; }).join('') + '</div>' + (extra ? '<span></span>' : '');
+  }
+  function gridHTML(ticks, pctFn, ref) {
+    return '<div class="gridwrap" aria-hidden="true">' + ticks.map(function (t) { return '<span class="gl" style="left:' + pctFn(t) + '%"></span>'; }).join('') +
+      (ref ? '<span class="refline" style="left:' + pctFn(ref.v) + '%"></span><span class="reflabel" style="left:calc(' + pctFn(ref.v) + '% - 6px);' + (ref.css || '') + '">' + esc(ref.label) + '</span>' : '') + '</div>';
+  }
+
+  // Exhibit 1: funding columns (shared scale)
+  function columns(id, rows, max) {
+    var el = document.getElementById(id);
+    el.innerHTML = '<div class="cols">' + rows.map(function (r) {
+      var h = r.v / max * 100;
+      return '<div class="col"><span class="colval">$' + r.v + 'B</span><span class="colbar' + (r.partial ? ' partial' : '') + '" style="height:' + h + '%" tabindex="0" data-tip="' + esc(r.tip) + '" aria-label="' + esc(r.x + ': $' + r.v + 'B') + '"></span></div>';
+    }).join('') + '</div><div class="colx">' + rows.map(function (r) { return '<span>' + esc(r.x) + '</span>'; }).join('') + '</div>';
+  }
+  columns('cols-robotics', [
+    { x: '2024', v: 8.2, tip: '<b>2024: $8.2B</b><br>Robotics venture funding (Crunchbase)' },
+    { x: '2025', v: 15, tip: '<b>2025: ~$15B</b><br>Crunchbase, revised. CB Insights\' broader count: $40.7B' },
+    { x: '2026 to Jun', v: 18.8, partial: true, tip: '<b>2026 to 22 June: $18.8B</b><br>Already above all of 2025' }
+  ], 20);
+  columns('cols-humanoid', [
+    { x: '2024', v: 1.5, tip: '<b>2024: $1.5B</b><br>Humanoid makers, 65 deals (PitchBook)' },
+    { x: '2025', v: 6.1, tip: '<b>2025: $6.1B</b><br>Humanoid makers, 139 deals (PitchBook)' }
+  ], 20);
+  wireTips('wrap-money', 'tip-money');
+
+  // Exhibit 2a: reported success vs production line
+  (function () {
+    var rows = [
+      ['DreamZero', 'NVIDIA GEAR', 39.5, 'acc', 'Average task progress on unseen tasks (Feb 2026 paper).'],
+      ['Helix 2.5', 'Figure', 56, 'acc', 'Zero-shot success across 30 Bay Area homes it never trained in (Sep 2026).'],
+      ['GEN-1.5', 'Generalist', 59, 'acc', 'One-shot success on new tasks (Aug 2026). 83% with five minutes of data.'],
+      ['S1', 'Skild AI', 66, 'acc', 'Success on unseen tasks, learned from a single video (Aug 2026).'],
+      ['GEN-1', 'Generalist', 99, 'gold', 'Box folding, phone packing, vacuum servicing: three narrow tasks after post-training.']
+    ];
+    var pct = function (v) { return linPct(v, 0, 100); };
+    var ticks = [0, 25, 50, 75, 100];
+    document.getElementById('gap').innerHTML = gridHTML(ticks, pct, { v: 99.9, label: 'Production line ~99.9%', css: 'top:0;bottom:auto;max-width:none;white-space:nowrap;' }) + '<div class="prow" style="height:18px"><div></div><div></div></div>' + rows.map(function (r) {
+      return '<div class="prow"><div class="pname">' + esc(r[0]) + '<small>' + esc(r[1]) + '</small></div><div class="ptrack">' +
+        '<span class="dot' + (r[3] === 'gold' ? ' gold' : '') + '" style="left:' + pct(r[2]) + '%" tabindex="0" data-tip="<b>' + esc(r[1] + ' ' + r[0] + ': ' + r[2] + '%') + '</b><br>' + esc(r[4]) + '"></span>' +
+        placeLabel(pct(r[2]), r[2] + '%', r[2] > 90 ? 'left' : 'right') + '</div></div>';
+    }).join('');
+    axisHTML(document.getElementById('gap-axis'), ticks, pct, function (t) { return t + '%'; });
+    wireTips('wrap-gap', 'tip-gap');
+  })();
+
+  // Exhibit 2b: compounding curve (SVG at container width)
+  (function () {
+    var host = document.getElementById('compound');
+    var series = [
+      { p: 0.9, c: '#86a9cb', n: '90% per step' },
+      { p: 0.95, c: '#5e8cba', n: '95% per step' },
+      { p: 0.99, c: '#3a6a9e', n: '99% per step' },
+      { p: 0.999, c: '#1d4d7f', n: '99.9% per step' }
+    ];
+    document.getElementById('compound-legend').innerHTML = series.map(function (s) {
+      return '<span><i class="sw" style="background:' + s.c + ';height:3px;width:16px;border-radius:2px"></i>' + esc(s.n) + '</span>';
+    }).join('');
+    var NS = 'http://www.w3.org/2000/svg';
+    function mk(tag, a, txt) { var e = document.createElementNS(NS, tag); for (var k in a) e.setAttribute(k, a[k]); if (txt != null) e.textContent = txt; return e; }
+    function draw() {
+      var W = Math.max(280, host.clientWidth), H = 250;
+      var L = 38, R = 58, T = 12, B = 30;
+      var pw = W - L - R, ph = H - T - B;
+      var x = function (n) { return L + (n - 1) / 19 * pw; };
+      var y = function (v) { return T + (1 - v) * ph; };
+      host.innerHTML = '';
+      var svg = mk('svg', { viewBox: '0 0 ' + W + ' ' + H, width: W, height: H, role: 'img', 'aria-label': 'Whole-job success falls as steps compound: 95% per step gives 60% over ten steps' });
+      [0, 0.25, 0.5, 0.75, 1].forEach(function (v) {
+        svg.appendChild(mk('line', { x1: L, x2: L + pw, y1: y(v), y2: y(v), stroke: v === 0 ? '#9a9691' : '#e3e1da', 'stroke-width': 1 }));
+        svg.appendChild(mk('text', { x: L - 6, y: y(v) + 3, 'text-anchor': 'end', 'font-family': 'Space Mono, monospace', 'font-size': 9, fill: '#6b6e73' }, Math.round(v * 100) + '%'));
+      });
+      [1, 5, 10, 15, 20].forEach(function (n) {
+        svg.appendChild(mk('text', { x: x(n), y: H - 12, 'text-anchor': 'middle', 'font-family': 'Space Mono, monospace', 'font-size': 9, fill: '#6b6e73' }, n));
+      });
+      svg.appendChild(mk('text', { x: L + pw, y: H - 1, 'text-anchor': 'end', 'font-family': 'Space Mono, monospace', 'font-size': 8.5, fill: '#6b6e73' }, 'steps in the job →'));
+      // 10-step marker
+      svg.appendChild(mk('line', { x1: x(10), x2: x(10), y1: T, y2: T + ph, stroke: '#d5d2ca', 'stroke-width': 1 }));
+      series.forEach(function (s) {
+        var d = '';
+        for (var n = 1; n <= 20; n++) d += (n === 1 ? 'M' : 'L') + x(n).toFixed(1) + ' ' + y(Math.pow(s.p, n)).toFixed(1);
+        svg.appendChild(mk('path', { d: d, fill: 'none', stroke: s.c, 'stroke-width': 2, 'stroke-linejoin': 'round', 'stroke-linecap': 'round' }));
+        var end = Math.pow(s.p, 20);
+        svg.appendChild(mk('circle', { cx: x(20), cy: y(end), r: 4, fill: s.c, stroke: '#f0efea', 'stroke-width': 2 }));
+      });
+      // end labels with simple collision nudge
+      var ends = series.map(function (s) { return { y: y(Math.pow(s.p, 20)), t: Math.round(Math.pow(s.p, 20) * 100) + '%' }; }).sort(function (a, b) { return a.y - b.y; });
+      for (var i = 1; i < ends.length; i++) if (ends[i].y - ends[i - 1].y < 12) ends[i].y = ends[i - 1].y + 12;
+      ends.forEach(function (e) { svg.appendChild(mk('text', { x: x(20) + 9, y: e.y + 3, 'font-family': 'Space Mono, monospace', 'font-size': 10, fill: '#3a3d42' }, e.t)); });
+      // highlight 95% at 10 steps
+      var hy = y(Math.pow(0.95, 10));
+      svg.appendChild(mk('circle', { cx: x(10), cy: hy, r: 5, fill: '#a63a1e', stroke: '#f0efea', 'stroke-width': 2 }));
+      svg.appendChild(mk('text', { x: x(10) + 9, y: hy - 9, 'text-anchor': 'start', 'font-family': 'Space Mono, monospace', 'font-size': 10, fill: '#a63a1e', 'font-weight': 700 }, '95% × 10 steps = 60%'));
+      // crosshair
+      var cross = mk('line', { x1: 0, x2: 0, y1: T, y2: T + ph, stroke: '#1a1c20', 'stroke-width': 1, opacity: 0 });
+      svg.appendChild(cross);
+      var hit = mk('rect', { x: L, y: T, width: pw, height: ph, fill: 'transparent' });
+      svg.appendChild(hit);
+      host.appendChild(svg);
+      var tip = document.getElementById('tip-compound'), wrap = document.getElementById('wrap-compound');
+      hit.addEventListener('mousemove', function (e) {
+        var r = svg.getBoundingClientRect(), sx = (e.clientX - r.left) * (W / r.width);
+        var n = Math.min(20, Math.max(1, Math.round((sx - L) / pw * 19 + 1)));
+        cross.setAttribute('x1', x(n)); cross.setAttribute('x2', x(n)); cross.setAttribute('opacity', 0.35);
+        tip.innerHTML = '<b>' + n + ' step' + (n > 1 ? 's' : '') + '</b><br>' + series.slice().reverse().map(function (s) { return esc(s.n) + ': ' + (Math.pow(s.p, n) * 100).toFixed(n > 1 ? 0 : 1) + '%'; }).join('<br>');
+        var w = wrap.getBoundingClientRect();
+        var px = r.left + x(n) * (r.width / W) - w.left;
+        tip.style.left = Math.max(110, Math.min(px, w.width - 110)) + 'px';
+        tip.style.top = (r.top - w.top + 70) + 'px';
+        tip.style.opacity = '1';
+      });
+      hit.addEventListener('mouseleave', function () { cross.setAttribute('opacity', 0); tip.style.opacity = '0'; });
+    }
+    draw();
+    var t; window.addEventListener('resize', function () { clearTimeout(t); t = setTimeout(draw, 150); });
+  })();
+
+  // Exhibit 4a: price ladder (log)
+  (function () {
+    var lo = 3000, hi = 150000;
+    var pct = function (v) { return logPct(v, lo, hi); };
+    var rows = [
+      ['Unitree R1', 'humanoid', [4900], 'acc', 'List price from $4,900 (launched at $5,900).'],
+      ['Weave Isaac 1', 'home robot', [7999], 'acc', '$7,999, or $449 a month. Ships in California from fall 2026.'],
+      ['Unitree G1', 'humanoid', [13500], 'acc', 'List price from $13,500.'],
+      ['China-built BOM, 2030', 'BofA forecast', [17000], 'gold', 'BofA expects a China-built humanoid bill of materials below $17K by 2030.'],
+      ['1X NEO', 'home humanoid', [20000], 'acc', '$20,000, or $499 a month.'],
+      ['Unitree H2', 'humanoid', [29900], 'acc', 'Listed at $29,900.'],
+      ['China-built BOM, 2025', 'BofA estimate', [35000], 'gold', 'BofA puts a China-built humanoid bill of materials at ~$35K in 2025.'],
+      ['Pilot-stage BOM', 'BofA estimate', [90000, 100000], 'gold', 'Pilot-stage humanoid bill of materials: $90K to $100K.']
+    ];
+    var ticks = [5000, 10000, 20000, 50000, 100000];
+    document.getElementById('price').innerHTML = gridHTML(ticks, pct) + rows.map(function (r) {
+      var v = r[2], g = r[3] === 'gold' ? ' gold' : '';
+      var tip = '<b>' + esc(r[0]) + ': ' + v.map(fmtUSD).join(' to ') + '</b><br>' + esc(r[4]);
+      var mark = v.length > 1
+        ? '<span class="rng' + g + '" style="left:' + pct(v[0]) + '%;width:' + (pct(v[1]) - pct(v[0])) + '%" tabindex="0" data-tip="' + esc(tip) + '"></span>'
+        : '<span class="dot' + g + '" style="left:' + pct(v[0]) + '%" tabindex="0" data-tip="' + esc(tip) + '"></span>';
+      return '<div class="prow"><div class="pname">' + esc(r[0]) + '<small>' + esc(r[1]) + '</small></div><div class="ptrack">' + mark +
+        placeLabel(pct(v[v.length - 1]), v.map(fmtUSD).join('–'), pct(v[0]) > 70 ? 'left' : 'right') + '</div></div>';
+    }).join('');
+    axisHTML(document.getElementById('price-axis'), ticks, pct, fmtUSD);
+    wireTips('wrap-price', 'tip-price');
+  })();
+
+  // Exhibit 4b: data cost per hour (log)
+  (function () {
+    var lo = 0.7, hi = 600;
+    var pct = function (v) { return logPct(v, lo, hi); };
+    var rows = [
+      ['First-person video', 'labour paid to recorders', [1, 25], 'From ~$1/hr (India) to ~$15–25/hr (US gig platforms).'],
+      ['Motion capture', 'Tesla, 2024 pay', [25, 48], 'Tesla advertised $25–48/hr for motion-capture work in 2024.'],
+      ['Teleoperation, 2026', 'fully loaded, vendor', [118], 'One vendor\'s fully loaded estimate, March 2026. Unverified.'],
+      ['Teleoperation, 2024', 'fully loaded, vendor', [340], 'The same vendor\'s early-2024 figure. Unverified.']
+    ];
+    var ticks = [1, 10, 100];
+    document.getElementById('datacost').innerHTML = gridHTML(ticks, pct) + rows.map(function (r) {
+      var v = r[2];
+      var tip = '<b>' + esc(r[0]) + ': $' + v.join('–$') + '/hr</b><br>' + esc(r[3]);
+      var mark = v.length > 1
+        ? '<span class="rng" style="left:' + pct(v[0]) + '%;width:' + (pct(v[1]) - pct(v[0])) + '%" tabindex="0" data-tip="' + esc(tip) + '"></span>'
+        : '<span class="dot" style="left:' + pct(v[0]) + '%" tabindex="0" data-tip="' + esc(tip) + '"></span>';
+      return '<div class="prow"><div class="pname">' + esc(r[0]) + '<small>' + esc(r[1]) + '</small></div><div class="ptrack">' + mark +
+        placeLabel(pct(v[v.length - 1]), '$' + v.join('–'), pct(v[v.length - 1]) > 74 ? 'left' : 'right') + '</div></div>';
+    }).join('');
+    axisHTML(document.getElementById('datacost-axis'), ticks, pct, function (t) { return '$' + t; });
+    wireTips('wrap-data', 'tip-data');
+  })();
+
+  // Exhibit 7: humanoid shipments 2025
+  barChart('ship', [
+    { name: 'AgiBot', sub: 'China', v: 5168, tip: '<b>AgiBot: 5,168</b><br>39% of 2025 shipments (Omdia)' },
+    { name: 'Unitree', sub: 'China', v: 4200, tip: '<b>Unitree: 4,200</b><br>Omdia. Unitree\'s prospectus says 5,500+' },
+    { name: 'UBTech', sub: 'China', v: 1000, tip: '<b>UBTech: ~1,000</b><br>Omdia' },
+    { name: 'All others', sub: '≈ remainder of 13,000', v: 2600, tip: '<b>All others: ≈2,600</b><br>Remainder of Omdia\'s ~13,000 total, mostly smaller Chinese makers' }
+  ], 6000, [0, 2000, 4000, 6000], function (v) { return v.toLocaleString('en-US'); });
+  wireTips('wrap-ship', 'tip-ship');
+
+  // Exhibit 8: investor matrix
+  (function () {
+    var groups = [
+      ['Robot brains', [['Physical Intelligence', ''], ['Skild AI', ''], ['Generalist', '']]],
+      ['Full-stack robots', [['Figure', ''], ['Sunday', ''], ['Genesis', '']]],
+      ['Vertical & deployment', [['Bedrock', ''], ['Mind Robotics', '†'], ['Atoms', '†']]],
+      ['Tools & parts', [['Antioch', '† sim'], ['Westmag', '† motors'], ['XDOF', '† data']]]
+    ];
+    var cols = []; groups.forEach(function (g) { g[1].forEach(function (c) { cols.push(c[0]); }); });
+    var F = [
+      ['a16z', { 'Mind Robotics': 2, 'Atoms': 2, 'Westmag': 2, 'XDOF': 1 }, true],
+      ['Greylock', { 'Antioch': 2 }, true],
+      ['Sequoia', { 'Skild AI': 2 }],
+      ['Lightspeed', { 'Skild AI': 2 }],
+      ['SoftBank', { 'Skild AI': 2 }],
+      ['Coatue', { 'Skild AI': 2, 'Sunday': 2 }],
+      ['CapitalG', { 'Physical Intelligence': 2, 'Bedrock': 2 }],
+      ['Thrive', { 'Physical Intelligence': 1 }],
+      ['Lux', { 'Physical Intelligence': 1 }],
+      ['Radical', { 'Generalist': 2 }],
+      ['Benchmark', { 'Sunday': 2 }],
+      ['Parkway', { 'Figure': 2 }],
+      ['Eclipse', { 'Genesis': 2, 'Mind Robotics': 2, 'Bedrock': 1 }],
+      ['Khosla', { 'Genesis': 2 }],
+      ['NVIDIA', { 'Skild AI': 1, 'Generalist': 1, 'Figure': 1, 'Bedrock': 1 }]
+    ];
+    var head1 = '<tr><th></th>' + groups.map(function (g) { return '<th colspan="' + g[1].length + '">' + esc(g[0]) + '</th>'; }).join('') + '</tr>';
+    var head2 = '<tr><th style="text-align:left;padding-left:10px;font-family:Space Mono,monospace;font-size:8.5px;color:var(--muted);font-weight:400;letter-spacing:.1em;text-transform:uppercase;">Fund</th>' +
+      groups.map(function (g) { return g[1].map(function (c) { return '<th>' + esc(c[0]) + (c[1] ? '<small>' + esc(c[1]) + '</small>' : '') + '</th>'; }).join(''); }).join('') + '</tr>';
+    var body = F.map(function (f) {
+      return '<tr><td class="fund' + (f[2] ? ' hl' : '') + '">' + esc(f[0]) + '</td>' + cols.map(function (c, i) {
+        var v = f[1][c]; var g0 = i < 3 ? ' class="g0"' : '';
+        return '<td' + g0 + '>' + (v === 2 ? '<i class="mk led" title="' + esc(f[0] + ' led or co-led a round in ' + c) + '"></i>' : v === 1 ? '<i class="mk in" title="' + esc(f[0] + ' participated in ' + c) + '"></i>' : '') + '</td>';
+      }).join('') + '</tr>';
+    }).join('');
+    document.getElementById('mx').innerHTML = '<thead>' + head1 + head2 + '</thead><tbody>' + body + '</tbody>';
+  })();
+
+  // Exhibit 10: value stack
+  (function () {
+    var L = [
+      ['long', 'Paid workflows', 'DeployCos and vertical fleets', 'Only fleets doing paid work produce the scarce data: failures, recoveries, precise contact.', 'Bedrock · Dyna · Watney · Ultra · Medra', 'Long'],
+      ['white', 'Robot operations', 'teleop floors, routing, QA', 'Every product has people in the loop. A contact center for machines, sold as software by no one on the list.', 'The white space', 'White space'],
+      ['long', 'Reliability & evaluation', 'benchmarks, safety cases', 'Every deployer needs an independent referee and intervention analytics.', 'Robocurve · RoboArena', 'Long'],
+      ['under', 'Robot brains', 'general-purpose models', '20 of 42 build general models, and Google and NVIDIA give theirs away.', 'PI · Skild · Generalist · big-tech labs', 'Underweight'],
+      ['under', 'Training data', 'raw recordings of people', 'Labour at $1–25 an hour and open 100,000-hour datasets. Curation is the only moat.', 'Build AI · microagi · Vision Lab', 'Underweight'],
+      ['under', 'Bodies', 'humanoids, home robots', 'China ships ~90%, prices fell 72% in two years, and home robots still need remote operators.', 'Unitree · Figure · 1X · Sunday', 'Underweight, near term'],
+      ['long', 'Components', 'actuators, motors, roller screws', 'Over half a humanoid\'s bill of materials. The FCC rule protects US-made parts, for now.', 'Westmag (a16z), not on the list', 'Long, selectively']
+    ];
+    document.getElementById('stack').innerHTML = L.map(function (b) {
+      return '<div class="band ' + b[0] + '"><span class="stripe"></span><div class="bl"><b>' + esc(b[1]) + '</b><span>' + esc(b[2]) + '</span></div>' +
+        '<div class="bd">' + esc(b[3]) + '<em>' + esc(b[4]) + '</em></div><div class="bs"><span class="stance ' + b[0] + '">' + esc(b[5]) + '</span></div></div>';
+    }).join('');
+  })();
+
+  // Exhibit 11: repricing dumbbells (log)
+  (function () {
+    var lo = 0.05, hi = 100;
+    var pct = function (v) { return logPct(v, lo, hi); };
+    var rows = [
+      ['Embark', 'SPAC 2021 → sale 2023', 5.16, 0.071, 'SPAC target $5.16B (2021). Sold to Applied Intuition for $71M (2023).'],
+      ['TuSimple', 'peak → delisting 2024', 8, 0.12, 'Peaked above $8B. Delisted ~98.5% below peak (2024). Endpoint approximate.'],
+      ['Berkshire Grey', 'SPAC 2021 → take-private 2023', 2.7, 0.375, 'SPAC at $2.7B (2021). Taken private by SoftBank for $375M (2023).'],
+      ['Unitree', 'debut peak → 24 Sep 2026', 66, 29, 'Peaked near $66B on its first trading day (Aug 2026); ~$29B by 24 Sep. Still ~3.4× its IPO price.'],
+      ['1X', 'sought 2025 → reported 2026', 10, 6, 'Sought $10B+ (Sep 2025). Reported SoftBank talks at ~$6B (Aug 2026), not closed.']
+    ];
+    var ticks = [0.1, 1, 10, 100];
+    var fmt = function (v) { return v < 1 ? '$' + Math.round(v * 1000) + 'M' : '$' + v + 'B'; };
+    document.getElementById('reprice').innerHTML = gridHTML(ticks, pct) + rows.map(function (r) {
+      var a = pct(r[2]), b = pct(r[3]);
+      var chg = Math.round((r[3] / r[2] - 1) * 100);
+      var tip = '<b>' + esc(r[0]) + ': ' + fmt(r[2]) + ' → ' + fmt(r[3]) + ' (' + chg + '%)</b><br>' + esc(r[4]);
+      return '<div class="prow wl"><div class="pname">' + esc(r[0]) + '<small>' + esc(r[1]) + '</small></div><div class="ptrack" tabindex="0" data-tip="' + esc(tip) + '">' +
+        '<span class="conn" style="left:' + b + '%;width:' + (a - b) + '%"></span>' +
+        '<span class="dot" style="left:' + a + '%"></span><span class="dot rust" style="left:' + b + '%"></span>' +
+        '</div><div class="pchg">' + (chg > 0 ? '+' : '') + chg + '%</div></div>';
+    }).join('');
+    axisHTML(document.getElementById('reprice-axis'), ticks, pct, fmt, true);
+    wireTips('wrap-reprice', 'tip-reprice');
+  })();
+
+  // Exhibit 12: wages vs illustrative robot cost
+  barChart('wage', [
+    { name: 'United States', sub: 'materials mover', v: 18.4, tip: '<b>US: $18.38/hr</b><br>BLS median, hand laborers and material movers, May 2025' },
+    { name: 'China', sub: 'manufacturing', v: 5.3, tip: '<b>China: ≈$5.3/hr</b><br>¥76,055 a year (NBS, 2025) at ~¥7.2/$ over ~2,000 hours' },
+    { name: 'India', sub: 'regular salaried', v: 1.4, tip: '<b>India: ≈$1.4/hr</b><br>₹21,285 a month (PLFS 2025) at ~₹88/$ over ~176 hours' }
+  ], 23, [0, 5, 10, 15, 20], function (v) { return '$' + v; }, { v: 2.1, label: 'Illustrative robot: ≈$2.1/hr before service' });
+  (function () {
+    var wl = document.querySelector('#wage .reflabel');
+    if (wl) { wl.style.transform = 'none'; wl.style.left = 'calc(' + (2.1 / 23 * 100) + '% + 6px)'; wl.style.maxWidth = '82%'; wl.style.textAlign = 'left'; wl.style.whiteSpace = 'normal'; wl.style.bottom = '0'; }
+    document.getElementById('wage').insertAdjacentHTML('beforeend', '<div class="brow" style="height:' + (window.innerWidth < 720 ? 34 : 20) + 'px"><div></div><div></div></div>');
+  })();
+  wireTips('wrap-wage', 'tip-wage');
+
+  // Exhibit 13: signal tracker
+  (function () {
+    var S = [
+      ['early', 'A robot model sold as a paid API', 'Disclosed revenue from other companies\' hardware: Skild or PI past $250M in licensing ARR while GR00T and Gemini Robotics stay free.', 'Ultra\'s OP1 runs on PI\'s π0.6, terms undisclosed. Skild\'s ~$100M run-rate includes acquired hardware.'],
+      ['notyet', '1,000+ humanoids in paid production outside China', 'A single fleet in sustained paid work, with published intervention rates.', 'Figure had built ~350 by April 2026. Agility has 9 customer sites; its post-SPAC filings are the first clean test.'],
+      ['notyet', 'Above 90% on unseen sites, measured independently', 'Not the lab grading its own model.', 'Best self-reported zero-shot results: 56–66%.'],
+      ['notyet', 'Human-minutes per task falling on a disclosed curve', 'At 1X, Weave or Watney, the metric that makes remote-operated products work.', 'No company has published one.'],
+      ['notyet', 'The FCC rule reversed or broadly waived', 'That would erase the protected market for compliant hardware.', 'In force since July 2026.']
+    ];
+    var P = { early: ['early', '◐ Early sign'], notyet: ['notyet', '○ Not yet'], met: ['met', '● Met'] };
+    document.getElementById('tracker').innerHTML = S.map(function (s, i) {
+      return '<div class="trow"><span class="tn">0' + (i + 1) + '</span><div class="ts"><b>' + esc(s[1]) + '</b>' + esc(s[2]) + '</div><div class="tp"><span class="pill ' + P[s[0]][0] + '">' + P[s[0]][1] + '</span></div><div class="te">' + esc(s[3]) + '</div></div>';
+    }).join('');
+  })();
+
 })();
 </script>
 
