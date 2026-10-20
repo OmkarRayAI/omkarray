@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-62YF7Y81BS"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-62YF7Y81BS');
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eight PMs, One Loop: A Field Guide to the AI PM Roles</title>
+<meta name="description" content="At AI labs and model companies the PM job has split into eight roles, each owning one slice of the model loop. Learn what each role owns, the questions it asks, its core moves and one illustration per role, with drills and a self-check.">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Space+Mono:wght@400;700&family=Nunito+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f8f8f5;
+    --surface: #f0efea;
+    --surface2: #e8e7e1;
+    --border: #d5d2ca;
+    --accent: #2563a8;
+    --accent-tint: #e3ecf7;
+    --accent2: #1a7a3a;
+    --gold: #a06d08;
+    --rust: #a63a1e;
+    --muted: #6b6e73;
+    --text: #1a1c20;
+    --text2: #3a3d42;
+    --white: #111214;
+    --grid: #e3e1da;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Nunito Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 48px 32px;
+    line-height: 1.7;
+    font-size: 15px;
+  }
+  .back-link { display: inline-flex; align-items: center; gap: 6px; font-family: 'Space Mono', monospace; font-size: 12px; color: var(--muted); text-decoration: none; margin-bottom: 20px; }
+  .back-link:hover { color: var(--text); }
+
+  .masthead { border-bottom: 1px solid var(--border); padding-bottom: 32px; margin-bottom: 28px; }
+  .eyebrow { font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); margin-bottom: 16px; }
+  .masthead h1 { font-family: 'Cormorant Garamond', serif; font-size: 60px; font-weight: 700; line-height: 1; letter-spacing: -0.02em; color: var(--white); }
+  .masthead h1 em { font-style: italic; color: var(--accent); font-weight: 400; }
+  .masthead-sub { font-size: 15px; color: var(--muted); font-weight: 300; max-width: 660px; line-height: 1.7; margin-top: 20px; }
+  .masthead-sub b { color: var(--text2); font-weight: 600; }
+
+  .toc { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(7, auto); grid-auto-flow: column; gap: 4px 28px; margin: 6px 0 8px; }
+  .toc a { font-size: 13.5px; color: var(--text2); text-decoration: none; display: flex; gap: 10px; padding: 3px 0; border-bottom: 1px dotted var(--border); }
+  .toc a span { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--accent); padding-top: 3px; min-width: 22px; }
+  .toc a:hover { color: var(--accent); }
+
+  .section-header { display: flex; align-items: baseline; gap: 16px; margin: 60px 0 20px; border-bottom: 1px solid var(--border); padding-bottom: 12px; scroll-margin-top: 16px; }
+  .section-num { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--accent); letter-spacing: 0.1em; }
+  .section-title { font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 600; color: var(--white); }
+  .section-desc { font-family: 'Space Mono', monospace; font-size: 9px; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; margin-left: auto; text-align: right; }
+  p.body { font-size: 15px; color: var(--text2); margin-bottom: 16px; max-width: 760px; font-weight: 300; line-height: 1.75; }
+  p.body strong { color: var(--text); font-weight: 600; }
+  p.body a, .footnote a, .srcs a { color: var(--accent); text-decoration: none; border-bottom: 1px solid rgba(37,99,168,0.3); }
+  .lede { font-family: 'Cormorant Garamond', serif; font-size: 22px; line-height: 1.5; color: var(--text2); max-width: 780px; margin-bottom: 16px; }
+  .lede strong { color: var(--white); font-weight: 600; }
+  .lede em { color: var(--accent); font-style: italic; }
+  .sub-h { font-family: 'Cormorant Garamond', serif; font-size: 21px; font-weight: 600; color: var(--white); margin: 28px 0 10px; line-height: 1.25; }
+
+  .diagram { background: var(--surface); border: 1px solid var(--border); padding: 24px 26px; margin: 22px 0; }
+  .diagram-label { font-family: 'Space Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); margin-bottom: 6px; }
+  .diagram-sub { font-size: 12.5px; color: var(--muted); font-weight: 300; margin-bottom: 16px; padding-bottom: 14px; border-bottom: 1px solid var(--border); line-height: 1.6; }
+  .footnote { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--muted); border-top: 1px solid var(--border); padding-top: 10px; margin-top: 14px; line-height: 1.8; }
+  .footnote strong { color: var(--text2); }
+  svg { width: 100%; height: auto; display: block; }
+  svg { font-family: 'Nunito Sans', sans-serif; }
+  svg .mono { font-family: 'Space Mono', monospace; }
+  svg a .chip { transition: fill 0.15s, stroke 0.15s; }
+  svg a:hover .chip, svg a:focus .chip { fill: var(--accent-tint); stroke: var(--accent); }
+  svg a:focus { outline: none; }
+
+  /* ROLE CARD */
+  .role-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border); border: 1px solid var(--border); margin: 18px 0 6px; }
+  .role-grid > div { background: var(--bg); padding: 16px 18px; }
+  .k { font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); display: block; margin-bottom: 8px; }
+  .k.rust { color: var(--rust); }
+  .role-grid ul, .role-grid ol { padding-left: 18px; }
+  .role-grid li { font-size: 13px; color: var(--text2); font-weight: 400; line-height: 1.55; margin-bottom: 5px; }
+  .role-grid p { font-size: 13px; color: var(--text2); line-height: 1.6; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chips span { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--text2); background: var(--surface2); border: 1px solid var(--border); padding: 2px 7px; border-radius: 2px; }
+  .who { font-size: 12.5px; color: var(--muted); font-weight: 300; margin: 8px 0 0; }
+  .who b { color: var(--text2); font-weight: 600; }
+
+  /* DRILL */
+  details.drill { border: 1px solid var(--border); border-left: 3px solid var(--accent); background: var(--bg); margin: 14px 0 4px; padding: 14px 18px; }
+  details.drill summary { cursor: pointer; font-size: 14px; color: var(--text); font-weight: 600; list-style: none; }
+  details.drill summary::-webkit-details-marker { display: none; }
+  details.drill summary .tag { font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); display: block; margin-bottom: 4px; font-weight: 400; }
+  details.drill summary .hint { display: block; font-family: 'Space Mono', monospace; font-size: 10px; color: var(--muted); font-weight: 400; margin-top: 6px; }
+  details.drill[open] summary .hint { display: none; }
+  details.drill .ans { margin-top: 12px; padding-top: 10px; border-top: 1px dotted var(--border); }
+  details.drill .ans li { font-size: 13px; color: var(--text2); line-height: 1.6; margin: 0 0 4px 18px; }
+
+  /* LEARNING PATH */
+  .weeks { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; background: var(--border); border: 1px solid var(--border); }
+  .weeks > div { background: var(--bg); padding: 14px 14px 12px; }
+  .weeks .wk { font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); }
+  .weeks h4 { font-family: 'Cormorant Garamond', serif; font-size: 18px; font-weight: 600; color: var(--white); margin: 4px 0 6px; line-height: 1.2; }
+  .weeks p { font-size: 12.5px; color: var(--muted); line-height: 1.55; font-weight: 300; }
+  .loopsteps { counter-reset: s; list-style: none; margin: 10px 0 0; display: grid; gap: 6px; }
+  .loopsteps li { counter-increment: s; display: grid; grid-template-columns: 34px 1fr; gap: 10px; font-size: 13.5px; color: var(--text2); line-height: 1.6; }
+  .loopsteps li::before { content: counter(s, decimal-leading-zero); font-family: 'Space Mono', monospace; font-size: 10px; color: var(--accent); padding-top: 3px; }
+
+  /* TABLE */
+  .tbl-scroll { overflow-x: auto; }
+  .tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .tbl th { font-family: 'Space Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.08em; padding: 9px 10px; background: var(--surface2); color: var(--muted); text-align: left; font-weight: 500; border: 1px solid var(--border); }
+  .tbl td { padding: 9px 10px; border: 1px solid var(--border); vertical-align: top; line-height: 1.5; color: var(--muted); font-weight: 300; }
+  .tbl td.rowh { color: var(--text); font-weight: 700; font-size: 12.5px; }
+
+  /* QUIZ */
+  .quiz { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .quiz details { border: 1px solid var(--border); background: var(--bg); padding: 12px 14px; }
+  .quiz summary { cursor: pointer; font-size: 13.5px; color: var(--text); line-height: 1.5; list-style: none; }
+  .quiz summary::-webkit-details-marker { display: none; }
+  .quiz summary .q { font-family: 'Space Mono', monospace; font-size: 9px; color: var(--accent); letter-spacing: 0.12em; display: block; margin-bottom: 4px; }
+  .quiz .a { margin-top: 8px; padding-top: 8px; border-top: 1px dotted var(--border); font-size: 12.5px; color: var(--text2); line-height: 1.55; }
+  .quiz .a b { color: var(--accent); }
+
+  .skills { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border); border: 1px solid var(--border); }
+  .skills > div { background: var(--bg); padding: 12px 14px; }
+  .skills code { font-family: 'Space Mono', monospace; font-size: 11.5px; color: var(--accent); }
+  .skills p { font-size: 12.5px; color: var(--muted); line-height: 1.5; margin-top: 3px; font-weight: 300; }
+  .prompt { font-family: 'Space Mono', monospace; font-size: 11.5px; color: var(--text2); background: var(--surface2); border: 1px solid var(--border); padding: 10px 12px; margin: 8px 0; line-height: 1.6; }
+
+  .srcs { font-size: 12.5px; color: var(--muted); line-height: 1.7; font-weight: 300; }
+  .srcs li { margin: 0 0 6px 18px; }
+  footer { margin-top: 64px; padding-top: 20px; border-top: 1px solid var(--border); font-family: 'Space Mono', monospace; font-size: 10px; color: var(--muted); display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  footer a { color: var(--muted); }
+
+  @media (max-width: 720px) {
+    body { padding: 32px 18px; }
+    .masthead h1 { font-size: 42px; }
+    .toc, .role-grid, .quiz, .skills { grid-template-columns: 1fr; }
+    .toc { grid-template-rows: none; grid-auto-flow: row; }
+    .weeks { grid-template-columns: 1fr 1fr; }
+    .section-desc { display: none; }
+    .diagram { padding: 18px 14px; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+
+<a class="back-link" href="/">← omkarray.com</a>
+
+<header class="masthead">
+  <div class="eyebrow">Field guide · AI product management · October 2026</div>
+  <h1>Eight PMs, <em>one loop</em></h1>
+  <p class="masthead-sub">At AI labs and model companies the PM job has split into eight roles. Each one owns a slice of the model loop: <b>data, model, guardrails, serving and users</b>, all measured by evals. This guide teaches the eight. For each one you get what it owns, the questions it always asks, its core moves, one illustration worth remembering and a drill to practise. A four-week path and a self-check close it out. Each role also ships as a Claude skill you can use on real work.</p>
+</header>
+
+<nav class="toc" aria-label="Contents">
+  <a href="#loop"><span>01</span>The loop and the eight roles</a>
+  <a href="#learn"><span>02</span>How to learn this in four weeks</a>
+  <a href="#data-eval"><span>03</span>Data &amp; eval PM</a>
+  <a href="#model"><span>04</span>Model PM</a>
+  <a href="#research"><span>05</span>Research PM</a>
+  <a href="#safeguards"><span>06</span>Safeguards PM</a>
+  <a href="#inference"><span>07</span>Inference PM</a>
+  <a href="#agent"><span>08</span>Agent PM</a>
+  <a href="#agent-as-user"><span>09</span>Agent-as-user PM</a>
+  <a href="#audience"><span>10</span>Audience PM</a>
+  <a href="#review"><span>11</span>Use all eight: the loop review</a>
+  <a href="#quiz"><span>12</span>Check yourself</a>
+  <a href="#skills"><span>13</span>The Claude skills</a>
+  <a href="#sources"><span>14</span>Sources and method</a>
+</nav>
+
+<!-- 01 THE LOOP -->
+<div class="section-header" id="loop">
+  <span class="section-num">01</span><span class="section-title">The loop and the eight roles</span><span class="section-desc">Start here</span>
+</div>
+<p class="lede">A classic PM owned features. In an AI product the feature is downstream of a <strong>model</strong>. The model is shaped by <strong>data</strong>, bounded by <strong>guardrails</strong>, delivered by <strong>serving</strong> and judged by <strong>users</strong>. <em>Each new PM role owns one of those slices.</em></p>
+<p class="body">On 19 October 2026 I analyzed 7,813 open roles at 87 AI companies. 234 were PM roles, and 70 of those had titles naming one of the new slices: model, research, data, safeguards, agent, inference and the like. Most of the rest were classic PM roles in growth, platform and product surfaces. The eight role names are mine. The companies post them under titles like Core Models, Post-Training, Safeguards, Agent Development and Token Factory. Click a role in the loop to jump to it.</p>
+
+<div class="diagram">
+  <div class="diagram-label">Exhibit 1. The model loop and who owns each slice</div>
+  <div class="diagram-sub">Work flows clockwise. Data shapes the model, guardrails bound it, serving delivers it and users judge it. What users do becomes the next round of data. Evals measure every step.</div>
+  <svg viewBox="90 50 730 400" role="img" aria-label="A loop of five stages: Data, Model, Guardrails, Serving and Users, with the eight PM roles placed at their stages and evals at the centre.">
+    <defs>
+      <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#2563a8"/></marker>
+    </defs>
+    <g fill="none" stroke="#2563a8" stroke-width="1.6" marker-end="url(#arr)">
+      <path d="M204.1,172.3 A290,175 0 0 1 379.8,95.2"/>
+      <path d="M520.2,95.2 A290,175 0 0 1 695.9,172.3"/>
+      <path d="M739.3,252.8 A290,175 0 0 1 672.1,377.5"/>
+      <path d="M558.7,427.2 A290,175 0 0 1 341.3,427.2"/>
+      <path d="M227.9,377.5 A290,175 0 0 1 160.7,252.8"/>
+    </g>
+    <g class="mono" font-size="13" font-weight="700" text-anchor="middle" letter-spacing="2">
+      <rect x="104" y="188" width="140" height="46" fill="#f8f8f5" stroke="#2563a8" stroke-width="1.4"/><text x="174" y="216" fill="#2563a8">DATA</text>
+      <rect x="380" y="67" width="140" height="46" fill="#f8f8f5" stroke="#2563a8" stroke-width="1.4"/><text x="450" y="95" fill="#2563a8">MODEL</text>
+      <rect x="646" y="188" width="160" height="46" fill="#f8f8f5" stroke="#2563a8" stroke-width="1.4"/><text x="726" y="216" fill="#2563a8">GUARDRAILS</text>
+      <rect x="550" y="384" width="140" height="46" fill="#f8f8f5" stroke="#2563a8" stroke-width="1.4"/><text x="620" y="412" fill="#2563a8">SERVING</text>
+      <rect x="210" y="384" width="140" height="46" fill="#f8f8f5" stroke="#2563a8" stroke-width="1.4"/><text x="280" y="412" fill="#2563a8">USERS</text>
+    </g>
+    <text x="450" y="262" text-anchor="middle" font-family="Cormorant Garamond, serif" font-size="21" font-style="italic" fill="#3a3d42">evals measure every step</text>
+    <text x="450" y="282" text-anchor="middle" class="mono" font-size="10" fill="#6b6e73" letter-spacing="1">CLICK A ROLE</text>
+    <g font-size="14" font-weight="600" fill="#1a1c20">
+      <a href="#data-eval"><rect class="chip" x="180" y="246" width="150" height="30" rx="3" fill="#e8e7e1" stroke="#d5d2ca"/><text x="255" y="266" text-anchor="middle">Data &amp; eval PM</text></a>
+      <a href="#model"><rect class="chip" x="380" y="134" width="140" height="30" rx="3" fill="#e8e7e1" stroke="#d5d2ca"/><text x="450" y="154" text-anchor="middle">Model PM</text></a>
+      <a href="#research"><rect class="chip" x="380" y="170" width="140" height="30" rx="3" fill="#e8e7e1" stroke="#d5d2ca"/><text x="450" y="190" text-anchor="middle">Research PM</text></a>
+      <a href="#safeguards"><rect class="chip" x="570" y="246" width="150" height="30" rx="3" fill="#e8e7e1" stroke="#d5d2ca"/><text x="645" y="266" text-anchor="middle">Safeguards PM</text></a>
+      <a href="#inference"><rect class="chip" x="520" y="306" width="150" height="30" rx="3" fill="#e8e7e1" stroke="#d5d2ca"/><text x="595" y="326" text-anchor="middle">Inference PM</text></a>
+      <a href="#agent"><rect class="chip" x="520" y="342" width="150" height="30" rx="3" fill="#e8e7e1" stroke="#d5d2ca"/><text x="595" y="362" text-anchor="middle">Agent PM</text></a>
+      <a href="#agent-as-user"><rect class="chip" x="222" y="306" width="170" height="30" rx="3" fill="#e8e7e1" stroke="#d5d2ca"/><text x="307" y="326" text-anchor="middle">Agent-as-user PM</text></a>
+      <a href="#audience"><rect class="chip" x="232" y="342" width="150" height="30" rx="3" fill="#e8e7e1" stroke="#d5d2ca"/><text x="307" y="362" text-anchor="middle">Audience PM</text></a>
+    </g>
+  </svg>
+  <div class="footnote"><strong>Reading it:</strong> two roles sit at Model (one owns a shipped model, the other turns new research into its first product). Two sit at Serving (one owns tokens and latency, the other owns agents shipped to customers). Two sit at Users (one serves AI agents as users, the other a human segment such as teens, banks or a country).</div>
+</div>
+
+<div class="diagram">
+  <div class="diagram-label">Exhibit 2. How the role evolved</div>
+  <div class="diagram-sub">The classic skills did not go away. They moved into the slice each role owns.</div>
+  <svg viewBox="0 0 900 170" role="img" aria-label="Three stages: Classic PM owns features, AI PM ships AI features on top of a model, Loop PMs each own one slice of the model loop.">
+    <defs><marker id="arr2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#2563a8"/></marker></defs>
+    <g>
+      <rect x="10" y="20" width="250" height="130" fill="#f8f8f5" stroke="#d5d2ca"/>
+      <text x="30" y="48" class="mono" font-size="10" fill="#6b6e73" letter-spacing="2">THEN</text>
+      <text x="30" y="80" font-family="Cormorant Garamond, serif" font-size="26" font-weight="600" fill="#111214">Classic PM</text>
+      <text x="30" y="108" font-size="14" fill="#3a3d42">Owns features, the roadmap</text>
+      <text x="30" y="128" font-size="14" fill="#3a3d42">and the launch</text>
+      <line x1="268" y1="85" x2="318" y2="85" stroke="#2563a8" stroke-width="1.6" marker-end="url(#arr2)"/>
+      <rect x="325" y="20" width="250" height="130" fill="#f8f8f5" stroke="#d5d2ca"/>
+      <text x="345" y="48" class="mono" font-size="10" fill="#6b6e73" letter-spacing="2">NEXT</text>
+      <text x="345" y="80" font-family="Cormorant Garamond, serif" font-size="26" font-weight="600" fill="#111214">AI PM</text>
+      <text x="345" y="108" font-size="14" fill="#3a3d42">Ships AI features on top</text>
+      <text x="345" y="128" font-size="14" fill="#3a3d42">of someone's model</text>
+      <line x1="583" y1="85" x2="633" y2="85" stroke="#2563a8" stroke-width="1.6" marker-end="url(#arr2)"/>
+      <rect x="640" y="20" width="250" height="130" fill="#e3ecf7" stroke="#2563a8"/>
+      <text x="660" y="48" class="mono" font-size="10" fill="#2563a8" letter-spacing="2">NOW</text>
+      <text x="660" y="80" font-family="Cormorant Garamond, serif" font-size="26" font-weight="600" fill="#111214">Loop PMs</text>
+      <text x="660" y="108" font-size="14" fill="#3a3d42">Each owns one slice</text>
+      <text x="660" y="128" font-size="14" fill="#3a3d42">of the model loop</text>
+    </g>
+  </svg>
+</div>
+
+<!-- 02 LEARN -->
+<div class="section-header" id="learn">
+  <span class="section-num">02</span><span class="section-title">How to learn this in four weeks</span><span class="section-desc">Two roles a week</span>
+</div>
+<p class="body">Reading about these roles teaches you the vocabulary. <strong>Doing their work is how you learn them.</strong> Pick one AI product you know well, such as a support bot, a voice agent or an API you use, and keep it for all four weeks. For each role, run one loop:</p>
+<ol class="loopsteps">
+  <li>Read the role below in about 15 minutes. Say back, in one sentence, what it owns that nobody else does.</li>
+  <li>Do its drill on your product in about 45 minutes. Write the artifact, not notes about it.</li>
+  <li>Open the answer key and mark what you missed. The misses are the lesson.</li>
+  <li>Run the role's Claude skill on your draft and ask it to critique your work as that PM would. Fix the two biggest gaps.</li>
+  <li>Once a week, run the loop review (section 11) on the same product with every role you have learned so far.</li>
+</ol>
+<div class="diagram">
+  <div class="diagram-label">Exhibit 3. A four-week path</div>
+  <div class="diagram-sub">The order follows the loop: start with the measuring stick, end with the people.</div>
+  <div class="weeks">
+    <div><span class="wk">Week 1</span><h4>Data &amp; eval, Model</h4><p>Learn to define "good" and prove it. Everything else rests on this.</p></div>
+    <div><span class="wk">Week 2</span><h4>Research, Safeguards</h4><p>Judge whether a capability is ready, and how it will be abused once it is.</p></div>
+    <div><span class="wk">Week 3</span><h4>Inference, Agent</h4><p>Make it fast and affordable, then put it to work for a real customer.</p></div>
+    <div><span class="wk">Week 4</span><h4>Agent-as-user, Audience</h4><p>Design for machine users and for one human segment. Finish with a full loop review.</p></div>
+  </div>
+</div>
+
+<!-- 03 DATA & EVAL -->
+<div class="section-header" id="data-eval">
+  <span class="section-num">03</span><span class="section-title">Data &amp; eval PM</span><span class="section-desc">Stage: Data</span>
+</div>
+<p class="lede">The dataset, the labeling program or the benchmark <em>is the product</em>. This PM makes the data the model learns from, and the yardstick it is judged by, into things people can trust.</p>
+<div class="role-grid">
+  <div><span class="k">Owns</span><ul><li>Data specs that turn a model gap into labeled examples</li><li>Labeling and expert-data programs, with their quality system</li><li>Data vendors and expert networks</li><li>Benchmarks, leaderboards and eval platforms</li><li>Provenance, consent and licensing</li></ul></div>
+  <div><span class="k">Always asks</span><ol><li>Which eval should this data move, and what lift is worth the spend?</li><li>Could a qualified outsider label this from the guidelines alone and match our expert?</li><li>Who wrote the gold set, and is it hidden from everyone scored against it?</li><li>What does an <em>accepted</em> label cost, including review and rework?</li></ol></div>
+  <div><span class="k">Core moves</span><ul><li>Model gap → data spec</li><li>Stand up labeling and its quality system</li><li>Run vendors on quality first, then volume, then speed</li><li>Batch lift test before scaling a purchase</li><li>Design a benchmark that resists contamination and saturation</li></ul></div>
+  <div><span class="k">Metrics</span><div class="chips"><span>agreement</span><span>judge-to-human agreement</span><span>gold accuracy</span><span>cost per accepted label</span><span>turnaround</span><span>rework rate</span><span>lift per batch</span><span>saturation</span></div>
+    <span class="k rust" style="margin-top:14px">Traps</span><ul><li>Scaling volume before labelers agree</li><li>Letting a vendor write the gold set</li><li>Lift tests with no control or noise floor</li></ul></div>
+</div>
+<p class="who"><b>Who hires it:</b> Anthropic (Human Data Platform), Mercor (APEX, a public leaderboard), Snorkel (Data &amp; Quality), Scale AI.</p>
+<div class="diagram">
+  <div class="diagram-label">Exhibit 4. The batch lift test</div>
+  <div class="diagram-sub">Before you buy 50,000 labels, prove a small batch moves the eval. A lift only counts if it beats run-to-run noise and no guard slice gets worse.</div>
+  <svg viewBox="0 0 640 240" role="img" aria-label="Bar chart: the target slice rises from 62 to 68, outside a noise band of plus or minus 2; the guard slice moves from 81 to 80.6, inside its noise band.">
+    <line x1="60" y1="200" x2="470" y2="200" stroke="#d5d2ca"/>
+    <g class="mono" font-size="10" fill="#6b6e73" text-anchor="end"><text x="52" y="204">50</text><text x="52" y="119">70</text><text x="52" y="34">90</text></g>
+    <line x1="60" y1="115" x2="470" y2="115" stroke="#e3e1da"/><line x1="60" y1="30" x2="470" y2="30" stroke="#e3e1da"/>
+    <rect x="95" y="144.75" width="150" height="8.5" fill="#a06d08" opacity="0.22"/>
+    <rect x="110" y="149" width="50" height="51" fill="#6b6e73" opacity="0.55"/>
+    <rect x="180" y="123.5" width="50" height="76.5" fill="#2563a8"/>
+    <rect x="335" y="64" width="150" height="8.5" fill="#a06d08" opacity="0.22"/>
+    <rect x="350" y="68.25" width="50" height="131.75" fill="#6b6e73" opacity="0.55"/>
+    <rect x="420" y="69.95" width="50" height="130.05" fill="#2563a8"/>
+    <g class="mono" font-size="11" fill="#1a1c20" text-anchor="middle"><text x="135" y="143">62</text><text x="205" y="117">68</text><text x="375" y="62">81</text><text x="445" y="64">80.6</text></g>
+    <g font-size="12" fill="#3a3d42" text-anchor="middle"><text x="170" y="220">Target slice</text><text x="410" y="220">Guard slice</text></g>
+    <g class="mono" font-size="9.5" fill="#6b6e73" text-anchor="middle"><text x="170" y="234">e.g. Hinglish refunds</text><text x="410" y="234">e.g. English refunds</text></g>
+    <g font-size="12" fill="#3a3d42">
+      <text x="500" y="70" font-weight="700" fill="#1a7a3a">Scale it</text>
+      <text x="500" y="90">+6 beats twice the</text><text x="500" y="106">noise spread (2 × 2)</text>
+      <text x="500" y="132">Guard −0.4 sits</text><text x="500" y="148">inside its noise</text>
+      <text x="500" y="174">Next: a 2–3× tranche,</text><text x="500" y="190">then check again</text>
+    </g>
+  </svg>
+  <div class="footnote"><strong>Legend:</strong> grey = baseline, blue = after the batch, gold band = the spread across 3+ baseline runs (here 2 points). Numbers are illustrative. Write the hypothesis, the target slice and the guard slices down before the run.</div>
+</div>
+<details class="drill">
+  <summary><span class="tag">Drill · 45 min</span>Your support bot mishandles refund requests written in Hinglish. Before the team buys 20,000 labels, write the data spec and a batch lift test.<span class="hint">Open for what a strong answer covers</span></summary>
+  <div class="ans"><ul>
+    <li>The task, the rubric and 10 worked examples, including code-switched and angry messages, plus edge cases such as partial refunds and missing booking IDs.</li>
+    <li>The labeler profile, and an agreement bar the spec must clear before any volume is bought.</li>
+    <li>A gold set written in-house and hidden from the vendor and the labelers.</li>
+    <li>The lift test: target and guard slices, a noise floor from 3 or more seeds, a control arm, and a scale, revise or kill rule.</li>
+    <li>Cost per <em>accepted</em> label, and data provenance and consent.</li>
+  </ul></div>
+</details>
+
+<!-- 04 MODEL -->
+<div class="section-header" id="model">
+  <span class="section-num">04</span><span class="section-title">Model PM</span><span class="section-desc">Stage: Model</span>
+</div>
+<p class="lede">Owns <em>a model, not a feature</em>. Every version has to be measurably better for the people who use it, and the PM proves that before it ships.</p>
+<div class="role-grid">
+  <div><span class="k">Owns</span><ul><li>The model requirements doc: hero use cases and the ideal answer for each</li><li>The behavior spec: current versus ideal behavior</li><li>The data flywheel from product signals into training priorities</li><li>Release gates, launches, versioning and migrations</li><li>Choosing, swapping and routing vendor models</li></ul></div>
+  <div><span class="k">Always asks</span><ol><li>How right is it on each slice: about 60%, 95% or 99.9%? Each implies a different product.</li><li>Is the gap in the model, the context, the harness or the product?</li><li>What is the cheapest rung of the build ladder that closes it?</li><li>What did it do, what should it have done, and which principle says so?</li></ol></div>
+  <div><span class="k">Core moves</span><ul><li>Write the MRD and pick the build path: prompt, RAG, fine-tune, post-train, pretrain</li><li>Keep one behavior sheet that feeds both evals and training</li><li>Gate releases on a scorecard agreed before candidates exist</li><li>Turn every production incident into a standing metric</li></ul></div>
+  <div><span class="k">Metrics</span><div class="chips"><span>win rate</span><span>eval by slice</span><span>regressions</span><span>task success</span><span>p50/p95 latency</span><span>cost per task</span><span>over-refusal</span><span>WER/MOS for speech</span></div>
+    <span class="k rust" style="margin-top:14px">Traps</span><ul><li>Shipping on the average while a top customer's slice regresses</li><li>Editing the eval set after seeing results</li><li>Fine-tuning before trying better context</li></ul></div>
+</div>
+<p class="who"><b>Who hires it:</b> OpenAI (Core Models), Thinking Machines (Post-Training), Sarvam (Models: speech recognition, text-to-speech and evals), Cerebras (AI Models), Glean (AI Quality), Cohere (Agent Harness &amp; Modelling).</p>
+<div class="diagram">
+  <div class="diagram-label">Exhibit 5. The quality tier sets the product design</div>
+  <div class="diagram-sub">Decide the tier slice by slice. A model that is 95% right on one slice and 60% on another is two different products.</div>
+  <svg viewBox="0 0 640 250" role="img" aria-label="Three ascending steps: about 60 percent, a human reviews every output; about 95 percent, it automates with exception handling; 99.9 percent, it acts on its own on that slice only.">
+    <rect x="20" y="132" width="190" height="78" fill="#f8f8f5" stroke="#d5d2ca"/>
+    <rect x="220" y="100" width="190" height="110" fill="#e3ecf7" stroke="#d5d2ca"/>
+    <rect x="420" y="50" width="200" height="160" fill="#2563a8" opacity="0.92"/>
+    <g font-family="Cormorant Garamond, serif" font-weight="700" font-size="30"><text x="36" y="164" fill="#111214">≈60%</text><text x="236" y="134" fill="#111214">≈95%</text><text x="436" y="86" fill="#ffffff">99.9%</text></g>
+    <g font-size="12.5" fill="#3a3d42"><text x="36" y="184">A human reviews</text><text x="36" y="200">every output</text><text x="236" y="156">Automates, with exception</text><text x="236" y="173">handling and easy undo</text></g>
+    <g font-size="12.5" fill="#ffffff"><text x="436" y="110">Acts on its own,</text><text x="436" y="127">on that slice only</text></g>
+    <text x="20" y="236" font-size="12" fill="#6b6e73">Zero failures in n cases only bounds the failure rate at about 3/n. Claiming 0.1% takes about 3,000 clean cases.</text>
+  </svg>
+</div>
+<details class="drill">
+  <summary><span class="tag">Drill · 45 min</span>Your vendor ships a new model version that is 20% cheaper and "better overall". Decide whether to switch, and write the plan.<span class="hint">Open for what a strong answer covers</span></summary>
+  <div class="ans"><ul>
+    <li>Freeze the eval set and the baseline before running the candidate.</li>
+    <li>Compare it slice by slice, including the top customers and languages, and read the regressed rows by hand.</li>
+    <li>Agree the blockers in advance: a regression on a hero or top-customer slice, rising over-refusal, latency or cost ceilings, API contract breaks.</li>
+    <li>Plan a staged rollout with rollback, and a migration note for anyone downstream.</li>
+    <li>Add a standing metric for whatever broke last time.</li>
+  </ul></div>
+</details>
+
+<!-- 05 RESEARCH -->
+<div class="section-header" id="research">
+  <span class="section-num">05</span><span class="section-title">Research PM</span><span class="section-desc">Stage: Model</span>
+</div>
+<p class="lede">Sits beside researchers and turns credible research into product, <em>fast and honestly</em>. The job has three loops: spot what just became possible, prove or kill a product around it, and send what users reveal back to research.</p>
+<div class="role-grid">
+  <div><span class="k">Owns</span><ul><li>The frontier watch and an "almost possible" list</li><li>Capability briefs: what a new model or paper changes</li><li>Fast prototypes and the 0-to-1 signal</li><li>The bet portfolio, with kill criteria</li><li>Readiness, the handoff, and honest external claims</li></ul></div>
+  <div><span class="k">Always asks</span><ol><li>What can it do now that it couldn't last quarter, on whose inputs, measured how?</li><li>Which user problem does that unlock, and who has it badly?</li><li>Did it cross a threshold on our list, or is it a nicer demo?</li><li>What is the cheapest prototype a real user can try this week?</li></ol></div>
+  <div><span class="k">Core moves</span><ul><li>Keep an almost-possible list: a threshold, a trigger and a user problem per item</li><li>Prototype within days; read behavior in sessions, not DAU</li><li>Run bets in seasons; let the team call the kill</li><li>Score readiness from L0 claim to L4 production</li><li>Review every public claim against evidence</li></ul></div>
+  <div><span class="k">Metrics</span><div class="chips"><span>capability-to-prototype time</span><span>bets graduated / killed / parked</span><span>session signals</span><span>cycle time</span><span>eval coverage at handoff</span><span>claim corrections</span></div>
+    <span class="k rust" style="margin-top:14px">Traps</span><ul><li>Demo theater: golden-path inputs, one run, cost hidden</li><li>A roadmap led by benchmarks, not user problems</li><li>Zombie bets with no kill criteria</li></ul></div>
+</div>
+<p class="who"><b>Who hires it:</b> Anthropic (Product Management, Research; Research for Code; Claude Science). Google Labs runs the same playbook: an almost-possible list, seasons and teams of 2 to 3.</p>
+<div class="diagram">
+  <div class="diagram-label">Exhibit 6. Readiness: the weakest dimension sets the level</div>
+  <div class="diagram-sub">Score reliability, eval coverage, cost and safety separately. One weak dimension is enough to sink a launch, so it decides the level.</div>
+  <svg viewBox="0 0 640 250" role="img" aria-label="Four dimensions scored from L0 to L4: reliability L3, eval coverage L2, cost L3, safety L3. Overall level L2.">
+    <g class="mono" font-size="10" fill="#6b6e73" text-anchor="middle">
+      <text x="200" y="28">L0 claim</text><text x="290" y="28">L1 demo</text><text x="380" y="28">L2 prototype</text><text x="470" y="28">L3 preview</text><text x="560" y="28">L4 production</text>
+    </g>
+    <g stroke="#e3e1da"><line x1="200" y1="38" x2="200" y2="190"/><line x1="290" y1="38" x2="290" y2="190"/><line x1="380" y1="38" x2="380" y2="190"/><line x1="470" y1="38" x2="470" y2="190"/><line x1="560" y1="38" x2="560" y2="190"/></g>
+    <g font-size="13" fill="#1a1c20" text-anchor="end"><text x="170" y="62">Reliability</text><text x="170" y="100">Eval coverage</text><text x="170" y="138">Cost</text><text x="170" y="176">Safety</text></g>
+    <g><rect x="200" y="50" width="270" height="16" fill="#2563a8"/><rect x="200" y="88" width="180" height="16" fill="#a63a1e"/><rect x="200" y="126" width="270" height="16" fill="#2563a8"/><rect x="200" y="164" width="270" height="16" fill="#2563a8"/></g>
+    <text x="388" y="101" font-size="11.5" fill="#a63a1e" font-weight="700">weakest</text>
+    <text x="20" y="222" font-family="Cormorant Garamond, serif" font-size="20" font-weight="600" fill="#111214">Overall: L2. Fix eval coverage before a preview.</text>
+    <text x="20" y="242" font-size="11.5" fill="#6b6e73">Demo test: rerun on 20–50 messy inputs, 3 runs each. A drop of over 20 points means it was a demo.</text>
+  </svg>
+</div>
+<details class="drill">
+  <summary><span class="tag">Drill · 45 min</span>A new open model claims a 1M-token context window. Write a one-page capability brief: does it change your roadmap?<span class="hint">Open for what a strong answer covers</span></summary>
+  <div class="ans"><ul>
+    <li>The claim restated, with its setup, and what was released: weights, code and eval data.</li>
+    <li>Cheap disqualifiers first: license, hosting, latency budget, price per task.</li>
+    <li>30–50 of your own cases, 3 runs each, against your current pipeline, with the failures read.</li>
+    <li>Limits, the cost and latency envelope, and what it does <em>not</em> change.</li>
+    <li>One call: adopt, prototype, watch with a new trigger, or ignore. Plus a test of one week or less that would flip it.</li>
+  </ul></div>
+</details>
+
+<!-- 06 SAFEGUARDS -->
+<div class="section-header" id="safeguards">
+  <span class="section-num">06</span><span class="section-title">Safeguards PM</span><span class="section-desc">Stage: Guardrails</span>
+</div>
+<p class="lede">Keeps misuse <em>rare, cheap and recoverable</em> without taxing legitimate users. Owns the classifiers, enforcement, appeals, safe access and incident response.</p>
+<div class="role-grid">
+  <div><span class="k">Owns</span><ul><li>Threat models for features and agents</li><li>Turning policy into a spec ML can build against</li><li>Classifier thresholds, priced in dollars and harm</li><li>Enforcement ladders, appeals and verification tiers</li><li>Red-teaming, incident response and agent permission reviews</li></ul></div>
+  <div><span class="k">Always asks</span><ol><li>Who will abuse this, what do they gain, and what does one success cost us and the victim?</li><li>What is the worst irreversible outcome, and what stands in the way besides a classifier?</li><li>At this threshold, how many legitimate users get hit per day?</li><li>Was the defense tested against an attacker who adapted, or a static set?</li></ol></div>
+  <div><span class="k">Core moves</span><ul><li>Threat-model before launch: fraud, account farms, prompt injection, cost exploits</li><li>Set thresholds by severity tier and write the decision down</li><li>Warn, limit, verify, block, ban, with appeals</li><li>Test adaptively, and turn every incident into a metric</li><li>Review agent permissions: anyone who can talk to the agent can trigger what it's allowed to do</li></ul></div>
+  <div><span class="k">Metrics</span><div class="chips"><span>prevalence</span><span>precision/recall at threshold</span><span>false-positive rate</span><span>appeal overturns</span><span>time to mitigate</span><span>abuse $</span><span>friction</span></div>
+    <span class="k rust" style="margin-top:14px">Traps</span><ul><li>Trusting a "99% caught" claim from static tests</li><li>Choosing thresholds by F1, as if errors cost the same</li><li>Measuring prevalence from your own flags</li></ul></div>
+</div>
+<p class="who"><b>Who hires it:</b> Anthropic (six Safeguards and Trust PM roles), OpenAI (Integrity), Higgsfield (Trust &amp; Safety), Mercor (Trust &amp; Safety).</p>
+<div class="diagram">
+  <div class="diagram-label">Exhibit 7. Base rates decide what you can automate</div>
+  <div class="diagram-sub">Out of 100,000 users with 0.1% abusers, a classifier with 95% recall and a 1% false-positive rate raises 1,094 flags. Fewer than 1 in 11 of them are abusers.</div>
+  <svg viewBox="0 0 640 190" role="img" aria-label="A bar of 1,094 flags: 95 abusers and 999 legitimate users. Only 8.7 percent of flags are abusers.">
+    <text x="20" y="34" font-size="13" fill="#1a1c20" font-weight="600">1,094 flags raised</text>
+    <rect x="20" y="46" width="47" height="34" fill="#a63a1e"/>
+    <rect x="69" y="46" width="531" height="34" fill="#6b6e73" opacity="0.35"/>
+    <text x="24" y="100" class="mono" font-size="10.5" fill="#a63a1e">95 abusers</text>
+    <text x="330" y="68" class="mono" font-size="11" fill="#1a1c20" text-anchor="middle">999 legitimate users flagged</text>
+    <text x="20" y="134" font-family="Cormorant Garamond, serif" font-size="21" font-weight="600" fill="#111214">Only 8.7% of flags are right, so don't auto-ban on this score.</text>
+    <text x="20" y="160" font-size="12.5" fill="#3a3d42">Use step-up verification, human review or a second signal, and pick the cheapest operating point</text>
+    <text x="20" y="178" font-size="12.5" fill="#3a3d42">that meets your hard constraints, priced in dollars per error.</text>
+  </svg>
+</div>
+<details class="drill">
+  <summary><span class="tag">Drill · 45 min</span>You're launching free credits for an AI video tool. Write the threat model and the threshold decision.<span class="hint">Open for what a strong answer covers</span></summary>
+  <div class="ans"><ul>
+    <li>Threats: account farms, free-trial cycling, refund and chargeback abuse, prompt-injection cost exploits, reseller wrappers, harmful content.</li>
+    <li>Costs on both sides: dollars lost per missed abuser, and the cost and churn of each blocked real user.</li>
+    <li>Operating points compared, with step-up verification set against a hard block.</li>
+    <li>An enforcement ladder and an appeals path.</li>
+    <li>Metrics: prevalence measured independently of flags, appeal overturns, abuse dollars.</li>
+  </ul></div>
+</details>
+
+<!-- 07 INFERENCE -->
+<div class="section-header" id="inference">
+  <span class="section-num">07</span><span class="section-title">Inference PM</span><span class="section-desc">Stage: Serving</span>
+</div>
+<p class="lede">Owns tokens, endpoints, latency, capacity and cost <em>as the product</em>. The job is to serve fast, reliable tokens at a healthy margin, and to prove that speed never silently cost quality.</p>
+<div class="role-grid">
+  <div><span class="k">Owns</span><ul><li>Unit economics: cost per 1M tokens and per successful task</li><li>Latency budgets and SLOs</li><li>Capacity plans, reserved versus on-demand, failover</li><li>The served-model portfolio and pricing</li><li>Optimizations, each with a quality check; on-device and edge</li></ul></div>
+  <div><span class="k">Always asks</span><ol><li>At what utilization? A cost per token without one is a guess.</li><li>Throughput at which latency? Peak speed with no SLO is a benchmark.</li><li>Which percentile, at what input length and concurrency?</li><li>Cost per what? Per token for the platform, per <em>successful</em> task for the app.</li></ol></div>
+  <div><span class="k">Core moves</span><ul><li>Build the cost model from GPU price, throughput and utilization</li><li>Set latency budgets: time to first token, tokens/sec, p95</li><li>Plan capacity with headroom and failover</li><li>Ship quantization, caching and routing only after a slice-level quality check</li><li>Price above cost ÷ (1 − margin)</li></ul></div>
+  <div><span class="k">Metrics</span><div class="chips"><span>TTFT</span><span>tokens/sec</span><span>p95 latency</span><span>$ per 1M tokens</span><span>$ per task</span><span>utilization</span><span>gross margin</span><span>SLA</span></div>
+    <span class="k rust" style="margin-top:14px">Traps</span><ul><li>Pricing from cost at 100% utilization</li><li>Quantizing because the average held while one language fell</li><li>Green dashboards over malformed outputs</li></ul></div>
+</div>
+<p class="who"><b>Who hires it:</b> Nebius (Token Factory), CoreWeave (AI Inference), Baseten (Inference Platform), Modal (Inference Engineering and Product Lead), Together AI (Model APIs), Sarvam (Model APIs; On-Device &amp; Edge AI).</p>
+<div class="diagram">
+  <div class="diagram-label">Exhibit 8. Utilization is the lever most teams ignore</div>
+  <div class="diagram-sub">The same tokens on the same GPUs cost twice as much at 30% utilization as at 60%.</div>
+  <svg viewBox="0 0 640 250" role="img" aria-label="A curve of cost per million tokens against utilization: 0.80 dollars at 30 percent, 0.40 at 60 percent, 0.27 at 90 percent.">
+    <line x1="70" y1="200" x2="600" y2="200" stroke="#d5d2ca"/><line x1="70" y1="30" x2="70" y2="200" stroke="#d5d2ca"/>
+    <g class="mono" font-size="10" fill="#6b6e73" text-anchor="middle"><text x="70" y="216">10%</text><text x="187.8" y="216">30%</text><text x="364.4" y="216">60%</text><text x="541.1" y="216">90%</text><text x="335" y="236">GPU utilization</text></g>
+    <g class="mono" font-size="10" fill="#6b6e73" text-anchor="end"><text x="62" y="204">$0</text><text x="62" y="136">$1.00</text><text x="62" y="68">$2.00</text></g>
+    <line x1="70" y1="132" x2="600" y2="132" stroke="#e3e1da"/><line x1="70" y1="64" x2="600" y2="64" stroke="#e3e1da"/>
+    <polyline fill="none" stroke="#2563a8" stroke-width="2.4" points="70,35.8 128.9,117.9 187.8,145.3 246.7,158.9 305.6,167.2 364.4,172.6 423.3,176.5 482.2,179.5 541.1,181.8 600,183.6"/>
+    <circle cx="187.8" cy="145.3" r="5" fill="#a63a1e"/><circle cx="364.4" cy="172.6" r="5" fill="#1a7a3a"/>
+    <text x="198" y="138" class="mono" font-size="11.5" fill="#a63a1e">$0.80 per 1M</text>
+    <text x="374" y="162" class="mono" font-size="11.5" fill="#1a7a3a">$0.40 per 1M</text>
+    <text x="600" y="50" text-anchor="end" font-size="12" fill="#3a3d42">cost per 1M tokens = replica $/hour ÷ (tokens/sec × 3,600 × utilization) × 1M</text>
+  </svg>
+  <div class="footnote"><strong>Illustrative:</strong> a 4-GPU replica at $2.50 per GPU-hour serving 11,500 tokens per second within its latency SLO. Roll it up to cost per <em>successful</em> task, because failed attempts are paid for too.</div>
+</div>
+<details class="drill">
+  <summary><span class="tag">Drill · 45 min</span>Your voice agent costs $0.31 per resolved call and the target is $0.10. Find the path.<span class="hint">Open for what a strong answer covers</span></summary>
+  <div class="ans"><ul>
+    <li>A cost model per successful call, not per token, that includes failed and repeat calls.</li>
+    <li>Utilization and batching first, then caching. Routing easy intents to a smaller model saves money only while the escalation rate stays below 1 − cost_small ÷ cost_large.</li>
+    <li>A latency budget the voice turn must keep (about a second end to end), so savings don't add lag.</li>
+    <li>A quality gate per slice and language before each optimization ships.</li>
+    <li>Pricing and margin once the cost floor is known.</li>
+  </ul></div>
+</details>
+
+<!-- 08 AGENT -->
+<div class="section-header" id="agent">
+  <span class="section-num">08</span><span class="section-title">Agent PM</span><span class="section-desc">Stage: Serving</span>
+</div>
+<p class="lede">Turns a customer's messy process into an agent that <em>verifiably resolves work</em>, then keeps it improving week after week. The unit of work is a deployment, not a feature.</p>
+<div class="role-grid">
+  <div><span class="k">Owns</span><ul><li>The agent charter: the job, scope and KPIs</li><li>Autonomy per intent, earned on evidence</li><li>Flows, tools, knowledge and escalation design</li><li>Shadow mode, staged rollout and rollback</li><li>The weekly transcript review, ROI and per-resolution pricing</li></ul></div>
+  <div><span class="k">Always asks</span><ol><li>What does "resolved" look like in the customer's system of record?</li><li>What can the agent read, what can it write, and which writes are reversible?</li><li>What is the authority limit, and who signed it?</li><li>When must a human take over, and what do they receive?</li></ol></div>
+  <div><span class="k">Core moves</span><ul><li>Process discovery → SOP map → charter</li><li>Prove it on messy and adversarial scenarios before launch</li><li>Roll out in stages; treat each new language as its own rollout</li><li>Turn the weekly review's failures into regression tests and fixes</li><li>Co-build the ROI model with the customer</li></ul></div>
+  <div><span class="k">Metrics</span><div class="chips"><span>verified resolution</span><span>escalation correctness</span><span>containment (never alone)</span><span>CSAT</span><span>handle time</span><span>$ per resolution</span><span>claim-error rate</span></div>
+    <span class="k rust" style="margin-top:14px">Traps</span><ul><li>Headlining containment: it rises when the agent fails silently</li><li>Enforcing refund caps in the prompt instead of the tool</li><li>Handoffs that make the customer repeat everything</li></ul></div>
+</div>
+<p class="who"><b>Who hires it:</b> Sierra (Agent Development, in six languages), Decagon (Agent PM), Scale AI (Forward Deployed PM), Harvey (Agents), Nous Research (Hermes Agent), Vercel (Software Factory).</p>
+<div class="diagram">
+  <div class="diagram-label">Exhibit 9. Autonomy is earned per intent, never for the whole agent</div>
+  <div class="diagram-sub">Each intent (refund, reschedule, address change) climbs on its own evidence. One critical breach sends it back down.</div>
+  <svg viewBox="0 0 640 236" role="img" aria-label="Three stages: route, suggest, act. Gates between them: 95 percent intent accuracy to move to suggest; 85 to 90 percent drafts accepted and claim errors at or below 1 percent to move to act. A critical breach demotes the intent.">
+    <defs><marker id="arr3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#2563a8"/></marker>
+    <marker id="arr4" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#a63a1e"/></marker></defs>
+    <path d="M555,58 C555,2 85,2 85,56" fill="none" stroke="#a63a1e" stroke-width="1.4" stroke-dasharray="5 4" marker-end="url(#arr4)"/>
+    <text x="320" y="44" text-anchor="middle" font-size="12" fill="#a63a1e" font-weight="700">One critical breach demotes the intent</text>
+    <rect x="10" y="60" width="150" height="70" fill="#f8f8f5" stroke="#d5d2ca"/><text x="85" y="92" text-anchor="middle" font-family="Cormorant Garamond, serif" font-size="24" font-weight="700" fill="#111214">Route</text><text x="85" y="114" text-anchor="middle" font-size="11.5" fill="#6b6e73">sends to the right place</text>
+    <rect x="245" y="60" width="150" height="70" fill="#e3ecf7" stroke="#d5d2ca"/><text x="320" y="92" text-anchor="middle" font-family="Cormorant Garamond, serif" font-size="24" font-weight="700" fill="#111214">Suggest</text><text x="320" y="114" text-anchor="middle" font-size="11.5" fill="#6b6e73">drafts, a human approves</text>
+    <rect x="480" y="60" width="150" height="70" fill="#2563a8"/><text x="555" y="92" text-anchor="middle" font-family="Cormorant Garamond, serif" font-size="24" font-weight="700" fill="#ffffff">Act</text><text x="555" y="114" text-anchor="middle" font-size="11.5" fill="#e3ecf7">does it, within limits</text>
+    <line x1="165" y1="95" x2="240" y2="95" stroke="#2563a8" stroke-width="1.6" marker-end="url(#arr3)"/>
+    <line x1="400" y1="95" x2="475" y2="95" stroke="#2563a8" stroke-width="1.6" marker-end="url(#arr3)"/>
+    <g font-size="11.5" fill="#3a3d42"><text x="10" y="160" font-weight="700" fill="#2563a8">To suggest</text><text x="10" y="178">≥95% intent accuracy on 300+</text><text x="10" y="194">labeled conversations, and ≥95%</text><text x="10" y="210">recall on must-escalate cases</text></g>
+    <g font-size="11.5" fill="#3a3d42"><text x="245" y="160" font-weight="700" fill="#2563a8">To act</text><text x="245" y="178">85–90% of drafts accepted without material edit,</text><text x="245" y="194">over 200+ cases and 2+ weeks; claim errors ≤1% (≤0.5%</text><text x="245" y="210">for money or health); zero critical breaches; the write</text><text x="245" y="226">is reversible or under the authority cap</text></g>
+  </svg>
+  <div class="footnote"><strong>Starting thresholds, not laws:</strong> tune them to the stakes of the intent. Enforce authority limits in the tool layer, where the prompt can't talk its way around them.</div>
+</div>
+<details class="drill">
+  <summary><span class="tag">Drill · 45 min</span>Scope an agent for airline rebooking after cancellations. Write the charter.<span class="hint">Open for what a strong answer covers</span></summary>
+  <div class="ans"><ul>
+    <li>Intents ranked by volume × feasibility × safety, with a launch set of 3 to 8 intents covering 30 to 50% of volume.</li>
+    <li>Autonomy per intent: rebooking within the same fare can act; refunds above a cap only suggest.</li>
+    <li>Systems read and written, which writes are reversible, and the authority limits enforced in tools.</li>
+    <li>Escalation with full context, and what the agent says when a system is down.</li>
+    <li>Verified resolution checked against the booking system, shadow mode, then staged rollout.</li>
+  </ul></div>
+</details>
+
+<!-- 09 AGENT AS USER -->
+<div class="section-header" id="agent-as-user">
+  <span class="section-num">09</span><span class="section-title">Agent-as-user PM</span><span class="section-desc">Stage: Users</span>
+</div>
+<p class="lede">Builds the product an AI agent can <em>find, integrate, use and verify on its own</em>. The user is a coding agent or an assistant, not a person: APIs, MCP servers, CLIs, docs and auth designed for machines.</p>
+<div class="role-grid">
+  <div><span class="k">Owns</span><ul><li>The agent journey, from discovery to verification</li><li>Agent usability tests with real coding agents</li><li>Tool surfaces: API, MCP server, CLI</li><li>Docs written for machine readers</li><li>Auth, permissions, limits and pricing for agents</li></ul></div>
+  <div><span class="k">Always asks</span><ol><li>Asked to "add X to this app", does an agent pick us, and why?</li><li>From an empty repo, how many steps until a verified first call?</li><li>Which steps need a human, and is each one deliberate?</li><li>How does the agent know it worked, beyond a 200 response?</li></ol></div>
+  <div><span class="k">Core moves</span><ul><li>Map and instrument the agent journey</li><li>Run 3+ agents from a cold start, 5 runs each, graded by your own acceptance check</li><li>Small, well-named tools with errors an agent can act on</li><li>Solve the first-credential problem without weakening safety</li></ul></div>
+  <div><span class="k">Metrics</span><div class="chips"><span>agent task success</span><span>steps to first call</span><span>error recovery</span><span>agent traffic share</span><span>docs retrieval</span><span>abandonment points</span></div>
+    <span class="k rust" style="margin-top:14px">Traps</span><ul><li>Docs only humans can read</li><li>One MCP tool per REST endpoint</li><li>A first key that needs a browser login and a CAPTCHA</li></ul></div>
+</div>
+<p class="who"><b>Who hires it:</b> Deepgram (Staff PM, Agentic Experiences, which asks for a former engineer). Adjacent: developer-platform and model API PMs at Together AI, Baseten and Sarvam.</p>
+<div class="diagram">
+  <div class="diagram-label">Exhibit 10. The agent journey, and where agents stall</div>
+  <div class="diagram-sub">Test it like a usability study, except the participants are Claude Code, Codex and Cursor. Red marks the common stall points.</div>
+  <svg viewBox="0 0 640 220" role="img" aria-label="Eight steps in two rows: discover, choose, integrate, get a credential, first call, use in production, recover from errors, verify the result. Stall points at get a credential, recover from errors and verify.">
+    <defs><marker id="arr5" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#2563a8"/></marker></defs>
+    <g font-size="12.5" fill="#1a1c20" text-anchor="middle">
+      <rect x="10" y="30" width="130" height="52" fill="#f8f8f5" stroke="#d5d2ca"/><text x="75" y="61">Discover</text>
+      <rect x="170" y="30" width="130" height="52" fill="#f8f8f5" stroke="#d5d2ca"/><text x="235" y="61">Choose</text>
+      <rect x="330" y="30" width="130" height="52" fill="#f8f8f5" stroke="#d5d2ca"/><text x="395" y="61">Integrate</text>
+      <rect x="490" y="30" width="140" height="52" fill="#f8f8f5" stroke="#a63a1e" stroke-width="1.6"/><text x="560" y="61">Get a credential</text>
+      <rect x="490" y="128" width="140" height="52" fill="#f8f8f5" stroke="#d5d2ca"/><text x="560" y="159">First call</text>
+      <rect x="330" y="128" width="130" height="52" fill="#f8f8f5" stroke="#d5d2ca"/><text x="395" y="159">Use in production</text>
+      <rect x="170" y="128" width="130" height="52" fill="#f8f8f5" stroke="#a63a1e" stroke-width="1.6"/><text x="235" y="159">Recover from errors</text>
+      <rect x="10" y="128" width="130" height="52" fill="#f8f8f5" stroke="#a63a1e" stroke-width="1.6"/><text x="75" y="159">Verify the result</text>
+    </g>
+    <g stroke="#2563a8" stroke-width="1.4" marker-end="url(#arr5)"><line x1="142" y1="56" x2="166" y2="56"/><line x1="302" y1="56" x2="326" y2="56"/><line x1="462" y1="56" x2="486" y2="56"/><line x1="560" y1="84" x2="560" y2="124"/><line x1="488" y1="154" x2="464" y2="154"/><line x1="328" y1="154" x2="304" y2="154"/><line x1="168" y1="154" x2="144" y2="154"/></g>
+    <g class="mono" font-size="9.5" fill="#a63a1e" text-anchor="middle"><text x="552" y="108" text-anchor="end">needs a human?</text><text x="235" y="198">vague errors</text><text x="75" y="198">"200" ≠ correct</text></g>
+  </svg>
+  <div class="footnote"><strong>First-credential options, most to least agent-friendly:</strong> a keyless sandbox; a trial key the agent creates and a human claims later; a one-time browser approval that hands back a scoped token; a human pasting a key. Every key still belongs to a human or an org.</div>
+</div>
+<details class="drill">
+  <summary><span class="tag">Drill · 45 min</span>Make your product's API usable by coding agents. Design the test and the top three fixes.<span class="hint">Open for what a strong answer covers</span></summary>
+  <div class="ans"><ul>
+    <li>A cold-start test: an empty repo, 3 agents, 5 runs per task, success only when your acceptance check passes, plus one human developer as a baseline.</li>
+    <li>Results logged as steps, tokens, errors and the stall point for each run, with failures sorted into fixed classes.</li>
+    <li>Fixes: agent-readable docs (llms.txt, examples first), errors that say exactly what to change, and a programmatic first credential.</li>
+    <li>MCP versus API versus CLI, chosen by who calls at runtime.</li>
+    <li>Human confirmation kept for money, irreversible actions and permission changes.</li>
+  </ul></div>
+</details>
+
+<!-- 10 AUDIENCE -->
+<div class="section-header" id="audience">
+  <span class="section-num">10</span><span class="section-title">Audience PM</span><span class="section-desc">Stage: Users</span>
+</div>
+<p class="lede">Makes the model and the product work for <em>one segment</em>, under its rules and at its error costs: teens, schools, banks, clinicians, governments, a country or a language. It's the classic segment PM, now inside the model company.</p>
+<div class="role-grid">
+  <div><span class="k">Owns</span><ul><li>The segment brief: user, buyer, approver, affected party</li><li>A map of the regulation and trust rules that apply</li><li>Segment behavior and a domain eval set</li><li>Design-partner pilots</li><li>Country and language launches</li></ul></div>
+  <div><span class="k">Always asks</span><ol><li>Who exactly: the user, the buyer, the gatekeeper and the protected party?</li><li>What does a wrong answer cost here, and to whom?</li><li>Which rules apply, and what does each force into the product?</li><li>How much does the general product already do on the segment eval?</li></ol></div>
+  <div><span class="k">Core moves</span><ul><li>Configure first, build second</li><li>Change model behavior only when the stakes justify it</li><li>Pilots with a signed baseline, a success criterion and a decision date</li><li>Country launches with evals written by native speakers, including code-switched text</li></ul></div>
+  <div><span class="k">Metrics</span><div class="chips"><span>segment activation</span><span>retention</span><span>domain eval success</span><span>output acceptance</span><span>segment incidents</span><span>pilot conversion</span><span>time to value</span></div>
+    <span class="k rust" style="margin-top:14px">Traps</span><ul><li>Relabeling: "X for Banks" with no segment eval</li><li>English-only or translated-only evals for a local market</li><li>Pilot purgatory: no baseline, no decision date</li></ul></div>
+</div>
+<p class="who"><b>Who hires it:</b> OpenAI (Youth, Learning, Financial Services, Technology Vertical; it also listed Countries &amp; Governments in March 2026), Anthropic (Public Sector, Claude Science).</p>
+<div class="diagram">
+  <div class="diagram-label">Exhibit 11. Configure first, build second</div>
+  <div class="diagram-sub">The measured gap between the best-configured general product and the segment's bar becomes the roadmap.</div>
+  <svg viewBox="0 0 640 294" role="img" aria-label="Flow: configure the general product, run the segment eval. If it meets the bar, ship configured. If not, build a segment feature only if two or more conditions hold. If three or more segments ask, move it to the core product.">
+    <defs><marker id="arr6" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#2563a8"/></marker></defs>
+    <g font-size="12.5" fill="#1a1c20" text-anchor="middle">
+      <rect x="10" y="20" width="180" height="56" fill="#f8f8f5" stroke="#d5d2ca"/><text x="100" y="44">Configure the best</text><text x="100" y="62">general product</text>
+      <rect x="230" y="20" width="160" height="56" fill="#f8f8f5" stroke="#d5d2ca"/><text x="310" y="44">Run the</text><text x="310" y="62">segment eval</text>
+      <polygon points="510,18 580,48 510,78 440,48" fill="#e3ecf7" stroke="#2563a8"/><text x="510" y="45">Meets</text><text x="510" y="60">the bar?</text>
+    </g>
+    <g stroke="#2563a8" stroke-width="1.4" marker-end="url(#arr6)"><line x1="192" y1="48" x2="226" y2="48"/><line x1="392" y1="48" x2="436" y2="48"/><line x1="582" y1="48" x2="600" y2="48"/><line x1="510" y1="80" x2="510" y2="112"/></g>
+    <text x="608" y="40" font-size="11" fill="#1a7a3a" font-weight="700">yes:</text><text x="604" y="62" font-size="11" fill="#1a7a3a" text-anchor="start">ship</text>
+    <text x="520" y="100" font-size="11" fill="#a63a1e" font-weight="700">no</text>
+    <rect x="200" y="116" width="430" height="112" fill="#f8f8f5" stroke="#a63a1e"/>
+    <g font-size="12.5" fill="#3a3d42"><text x="216" y="138" font-weight="700" fill="#1a1c20">Build a segment feature only if two or more hold:</text><text x="216" y="158">• the configured product misses the eval bar</text><text x="216" y="175">• a rule forces a distinct control</text><text x="216" y="192">• the output must land in the segment's own system</text><text x="216" y="209">• the segment pays enough to fund the upkeep</text></g>
+    <text x="10" y="140" font-size="12" fill="#3a3d42" font-weight="700">3+ segments</text><text x="10" y="157" font-size="12" fill="#3a3d42">want it?</text><text x="10" y="174" font-size="12" fill="#2563a8">Move it into the</text><text x="10" y="191" font-size="12" fill="#2563a8">core product.</text>
+    <text x="10" y="252" font-size="12" fill="#6b6e73">Change model behavior cheapest first: defaults → prompt and policy → retrieval → classifiers</text>
+    <text x="10" y="268" font-size="12" fill="#6b6e73">→ fine-tune → a separate model. If you can't tell whether a user is in the segment (say, a minor)</text>
+    <text x="10" y="284" font-size="12" fill="#6b6e73">and the error costs are lopsided, default to the protective experience.</text>
+  </svg>
+</div>
+<details class="drill">
+  <summary><span class="tag">Drill · 45 min</span>Launch your assistant for Indian banks. Write the segment brief and the regulation and trust map.<span class="hint">Open for what a strong answer covers</span></summary>
+  <div class="ans"><ul>
+    <li>Four roles named: the relationship manager who uses it, the bank that buys, risk and compliance who approve, the customer affected.</li>
+    <li>Rules that change controls: data residency and payment-data storage, data protection and consent, audit logging. Each one maps to a default, a log or a disclosure, and goes to legal for review.</li>
+    <li>A segment eval in English, Hindi and code-switched text, graded by domain experts, with error costs ranked.</li>
+    <li>Configure-first evidence before building anything bank-specific.</li>
+    <li>A design-partner pilot with a signed baseline, a success criterion and a decision date 8 to 12 weeks out.</li>
+  </ul></div>
+</details>
+
+<!-- 11 REVIEW -->
+<div class="section-header" id="review">
+  <span class="section-num">11</span><span class="section-title">Use all eight: the loop review</span><span class="section-desc">The capstone</span>
+</div>
+<p class="lede">AI products fail <em>at the seams</em>. A model that is great on the eval but too slow to serve. An agent that resolves tickets but can be talked into refunds. A feature that works in English but not for the segment it was built for. The loop review walks every slice so none goes unowned.</p>
+<ol class="loopsteps">
+  <li>Frame it in three lines: what it is, who it's for, and what decision you need.</li>
+  <li>Pick the lenses: score each one on stake and uncertainty, review the top 3 to 5 in depth, and give the rest one line.</li>
+  <li>Run each chosen lens: what's solid, what's missing, the one change you'd make, the metric that would prove it.</li>
+  <li>Surface the tensions between lenses. Recommend a side, and name what evidence would flip it.</li>
+  <li>Close with a decision table: decision, owner lens, proof metric, by when.</li>
+  <li>For launches, run a pre-mortem: assume it failed in six months, and trace each likely cause to a lens.</li>
+</ol>
+<div class="diagram">
+  <div class="diagram-label">Exhibit 12. Pick lenses by stake and uncertainty</div>
+  <div class="diagram-sub">Example: a refund voice agent for an airline. Not every review needs all eight.</div>
+  <svg viewBox="0 0 640 300" role="img" aria-label="A two by two of stake against uncertainty, with the eight lenses placed for a refund voice agent. Agent, safeguards, model and audience fall in review in depth.">
+    <rect x="80" y="20" width="270" height="120" fill="#f8f8f5" stroke="#d5d2ca"/><rect x="350" y="20" width="270" height="120" fill="#e3ecf7" stroke="#d5d2ca"/>
+    <rect x="80" y="140" width="270" height="120" fill="#f8f8f5" stroke="#d5d2ca"/><rect x="350" y="140" width="270" height="120" fill="#f8f8f5" stroke="#d5d2ca"/>
+    <g class="mono" font-size="10" fill="#6b6e73" letter-spacing="1"><text x="92" y="38">VERIFY QUICKLY</text><text x="362" y="38" fill="#2563a8">REVIEW IN DEPTH</text><text x="92" y="252">ONE LINE</text><text x="362" y="252">RUN A CHEAP TEST</text></g>
+    <text x="350" y="284" text-anchor="middle" class="mono" font-size="10" fill="#6b6e73">UNCERTAINTY →</text>
+    <text x="30" y="140" text-anchor="middle" class="mono" font-size="10" fill="#6b6e73" transform="rotate(-90 30 140)">STAKE →</text>
+    <g font-size="13" font-weight="600" fill="#1a1c20">
+      <circle cx="520" cy="62" r="6" fill="#2563a8"/><text x="530" y="67">Agent</text>
+      <circle cx="440" cy="84" r="6" fill="#2563a8"/><text x="450" y="89">Safeguards</text>
+      <circle cx="400" cy="114" r="6" fill="#2563a8"/><text x="410" y="119">Model</text>
+      <circle cx="560" cy="112" r="6" fill="#2563a8"/><text x="510" y="132">Audience (Hindi)</text>
+      <circle cx="250" cy="76" r="6" fill="#6b6e73"/><text x="160" y="81">Inference</text>
+      <circle cx="460" cy="190" r="6" fill="#6b6e73"/><text x="470" y="195">Data &amp; eval</text>
+      <circle cx="160" cy="210" r="6" fill="#6b6e73"/><text x="170" y="215">Research</text>
+      <circle cx="210" cy="226" r="6" fill="#6b6e73"/><text x="220" y="231">Agent-as-user</text>
+    </g>
+  </svg>
+</div>
+<div class="tbl-scroll"><table class="tbl">
+  <thead><tr><th>Tension</th><th>Lenses</th><th>The question to settle</th></tr></thead>
+  <tbody>
+    <tr><td class="rowh">Quality vs speed and cost</td><td>Model · Inference</td><td>Does the bigger model, or more reasoning, earn its cost per task and its latency?</td></tr>
+    <tr><td class="rowh">Autonomy vs abuse</td><td>Agent · Safeguards</td><td>Which actions are irreversible, and who confirms them?</td></tr>
+    <tr><td class="rowh">One policy vs many segments</td><td>Model · Audience</td><td>Does one global behavior fit teens, banks and the public sector, or does one segment need its own?</td></tr>
+    <tr><td class="rowh">Speed vs eval coverage</td><td>Research · Data &amp; eval</td><td>Was it tested on messy real inputs, or only on the demo?</td></tr>
+    <tr><td class="rowh">Easy for agents vs easy for bots</td><td>Agent-as-user · Safeguards</td><td>How do you give agents a programmatic path without opening one to abuse?</td></tr>
+    <tr><td class="rowh">Data volume vs provenance</td><td>Data &amp; eval · Audience</td><td>Do you have the rights and consent for this data, in this market?</td></tr>
+  </tbody>
+</table></div>
+
+<!-- 12 QUIZ -->
+<div class="section-header" id="quiz">
+  <span class="section-num">12</span><span class="section-title">Check yourself</span><span class="section-desc">Which lens leads?</span>
+</div>
+<p class="body">For each situation, name the lens that should lead, then open it to check. Some situations involve two lenses. The answer names the lead and why.</p>
+<div class="quiz">
+  <details><summary><span class="q">01</span>Containment is 70%, but customer satisfaction fell and repeat contacts rose.</summary><div class="a"><b>Agent PM.</b> Containment rises when the agent fails silently. Switch to verified resolution and escalation correctness, then read the transcripts.</div></details>
+  <details><summary><span class="q">02</span>The 4-bit build is 30% cheaper, but Tamil and long-context quality dropped.</summary><div class="a"><b>Inference PM</b>, with the Model PM. Ship it only on the routes where no critical slice regresses. A slice loss is never averaged away.</div></details>
+  <details><summary><span class="q">03</span>Coding agents keep failing to get an API key without a human.</summary><div class="a"><b>Agent-as-user PM.</b> Solve the first-credential problem: a sandbox, a claimable trial key or a one-time approval, while every key still belongs to a human.</div></details>
+  <details><summary><span class="q">04</span>Labelers agree on only 40% of hard cases, and the vendor wants to scale to 50,000.</summary><div class="a"><b>Data &amp; eval PM.</b> Fix the guidelines and recalibrate before buying volume. Low agreement is usually an ambiguous spec, not lazy labelers.</div></details>
+  <details><summary><span class="q">05</span>A paper claims a 20% reasoning gain. Leadership asks whether to change the roadmap.</summary><div class="a"><b>Research PM.</b> Restate the claim, run 30–50 of your own cases over 3 runs, and make one call: adopt, prototype, watch or ignore.</div></details>
+  <details><summary><span class="q">06</span>Free-trial sign-ups jumped tenfold overnight from a handful of IP ranges.</summary><div class="a"><b>Safeguards PM.</b> Account farms. Price the false-positive and miss costs, prefer step-up verification to blanket blocks, and track abuse dollars.</div></details>
+  <details><summary><span class="q">07</span>Teachers say the tutor gives students the answers.</summary><div class="a"><b>Audience PM.</b> The segment's error cost differs. Build a segment eval with teachers, then change behavior using the cheapest change that works.</div></details>
+  <details><summary><span class="q">08</span>The new model wins overall but loses on your largest customer's slice.</summary><div class="a"><b>Model PM.</b> A top-customer slice regression is a default release blocker. Read the regressed rows before deciding.</div></details>
+</div>
+
+<!-- 13 SKILLS -->
+<div class="section-header" id="skills">
+  <span class="section-num">13</span><span class="section-title">The Claude skills</span><span class="section-desc">Use them on real work</span>
+</div>
+<p class="body">Each role ships as a Claude skill with its workflows, templates and decision rules, so you can run the lens on your own product instead of only reading about it. Each one also covers what that PM owns and doesn't, its questions, metrics and traps, and dated notes from real postings and practitioners.</p>
+<div class="skills">
+  <div><code>loop-pm-review</code><p>Reviews any AI feature, PRD or launch through the lenses that matter, with tensions, decisions and a pre-mortem.</p></div>
+  <div><code>model-pm</code><p>Model requirements doc, behavior spec, release-gate scorecard, migration plan.</p></div>
+  <div><code>research-pm</code><p>Almost-possible list, capability brief, bet card, readiness rubric, handoff doc.</p></div>
+  <div><code>data-eval-pm</code><p>Data spec, labeling guidelines, quality plan, vendor scorecard, batch lift test, benchmark design.</p></div>
+  <div><code>safeguards-pm</code><p>Threat model, threshold decision record, enforcement ladder, incident postmortem, agent permission review.</p></div>
+  <div><code>agent-pm</code><p>Agent charter, SOP-to-agent map, escalation policy, launch checklist, weekly agent review, ROI model.</p></div>
+  <div><code>agent-as-user-pm</code><p>Agent journey map, agent usability test, tool and MCP design review, agent-facing docs checklist.</p></div>
+  <div><code>inference-pm</code><p>Cost model, latency budget, capacity plan, pricing proposal, optimization trade-off record.</p></div>
+  <div><code>audience-pm</code><p>Segment brief, regulation and trust map, segment eval plan, pilot plan, country launch checklist.</p></div>
+  <div><code>Try a prompt</code><p class="prompt">Review this PRD for our refund voice agent as a loop review. Then go deep as the Agent PM and write the charter.</p></div>
+</div>
+
+<!-- 14 SOURCES -->
+<div class="section-header" id="sources">
+  <span class="section-num">14</span><span class="section-title">Sources and method</span><span class="section-desc">How this was built</span>
+</div>
+<ul class="srcs">
+  <li><strong>Job postings:</strong> 7,813 open roles on the public job boards of 87 AI companies (Greenhouse, Ashby, Lever, Workable), read on 19 October 2026. 234 were PM roles, and 70 of them had titles naming a new slice (model, research, data, safeguards, trust, agent, inference, API, forward deployed). Google DeepMind, Meta and Microsoft aren't in the sample. Counts are postings, not people.</li>
+  <li><strong>Practitioners</strong> on Lenny's Podcast, paraphrased:
+    <a href="https://www.lennysnewsletter.com/p/why-every-company-now-needs-to-think">Josh Woodward</a> (Google Labs, Oct 2026),
+    <a href="https://www.lennysnewsletter.com/p/kevin-weil-open-ai">Kevin Weil</a> (Apr 2025),
+    <a href="https://www.lennysnewsletter.com/p/why-soft-skills-are-the-future-of-work-karina-nguyen">Karina Nguyen</a> (Feb 2025),
+    <a href="https://www.lennysnewsletter.com/p/inside-chatgpt-nick-turley">Nick Turley</a> (Aug 2025),
+    <a href="https://www.lennysnewsletter.com/p/he-saved-openai-bret-taylor">Bret Taylor</a> (Jul 2025),
+    <a href="https://www.lennysnewsletter.com/p/why-ai-evals-are-the-hottest-new-skill">Hamel Husain and Shreya Shankar</a> (Sep 2025),
+    <a href="https://www.lennysnewsletter.com/p/an-ai-state-of-the-union">Simon Willison</a> (Apr 2026),
+    <a href="https://www.lennysnewsletter.com/p/the-coming-ai-security-crisis">Sander Schulhoff</a> (Dec 2025),
+    and the <a href="https://www.lennysnewsletter.com/p/why-your-ai-product-needs-a-different">CC/CD framework</a> on agent autonomy (Aug 2025).</li>
+  <li><strong>Thresholds</strong> such as 95% intent accuracy, the 3x cost bar or 2× the noise spread are starting heuristics to tune, not laws. Numbers inside the exhibits are illustrative unless a source is named.</li>
+  <li><strong>Related pieces on this site:</strong> <a href="/voice-ai-evaluation.html">the voice AI evaluation layer</a>, <a href="/llm-evals.html">LLM evaluation</a>, <a href="/agent-experience.html">agent experience</a>, <a href="/rl-environments.html">RL environments</a>, <a href="/datacenter.html">datacenter infrastructure</a>.</li>
+</ul>
+
+<footer>
+  <span>Omkar Ray · October 2026</span>
+  <a href="/">← omkarray.com</a>
+</footer>
+
+</body>
+</html>
