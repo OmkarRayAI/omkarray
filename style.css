@@ -702,6 +702,7 @@ a {
 .card[data-cat="agents"]    { --file-accent: #5a2080; }
 .card[data-cat="design"]    { --file-accent: #6b3fa0; }
 .card[data-cat="pm"]        { --file-accent: #2563a8; }
+.card[data-cat="history"]   { --file-accent: #8a5a0b; }
 
 .card-tag {
   display: inline-flex;

@@ -76,7 +76,7 @@
             <rect x="4" y="4" width="14" height="14" rx="3" fill="#D6D3C6"/>
           </svg>
         </div>
-        <span class="floppy-count">15 explorations</span>
+        <span class="floppy-count">16 explorations</span>
       </div>
 
       <div class="floppy fade-in" data-folder="thesis" tabindex="0" role="button" aria-expanded="false">
@@ -94,7 +94,7 @@
             <rect x="4" y="4" width="14" height="14" rx="3" fill="#D6D3C6"/>
           </svg>
         </div>
-        <span class="floppy-count">3 theses</span>
+        <span class="floppy-count">4 theses</span>
       </div>
 
       <div class="floppy fade-in" data-folder="blogs" tabindex="0" role="button" aria-expanded="false">
@@ -213,6 +213,12 @@
             <span class="card-tag">AI Product Management</span>
             <h3>Learn the Loop</h3>
             <p>How to build the eight AI PM skills: the foundations under all of them, a 12-week plan, and three projects per role you can do without the job title.</p>
+            <span class="card-date">Oct 2026</span>
+          </a>
+          <a href="ai-moment-archive.html" class="card" data-cat="history">
+            <span class="card-tag">AI History</span>
+            <h3>The AI Moment Archive</h3>
+            <p>129 fact-checked AI moments from 1943 to 2026, each dated twice: when a lab first showed it and when the public noticed. The median gap fell from 3.4 years before 2012 to 5 months since 2022.</p>
             <span class="card-date">Oct 2026</span>
           </a>
         </div>
@@ -860,6 +866,12 @@
             <p>A three-panel packaging label for a cold-pressed acai blend — WebGL paper texture, ink-style typography, and risograph-inspired color.</p>
             <span class="card-date">Mar 2026</span>
           </a>
+          <a href="behalf.html" class="card" data-cat="design">
+            <span class="card-tag">Product Prototype</span>
+            <h3>Behalf</h3>
+            <p>An AI that calls customer care for you. Tell it on WhatsApp what you need; it gets through the IVR, waits on hold, talks to the agent and comes back with proof. A working prototype for India.</p>
+            <span class="card-date">Oct 2026</span>
+          </a>
         </div>
 
         <div class="nomad-showcase">
@@ -1024,6 +1036,7 @@
     var facts = [
       { text: "Of 234 open PM roles at 87 AI companies, 70 had titles naming one slice of the model loop: model, research, data, safeguards, agent or inference.", src: "Eight PMs, One Loop", href: "loop-pm-field-guide.html" },
       { text: "At 0.1% prevalence, a classifier with 95% recall and a 1% false-positive rate is right on fewer than 1 in 11 of its flags.", src: "Eight PMs, One Loop", href: "loop-pm-field-guide.html" },
+      { text: "The gap between a lab first showing an AI capability and the public noticing fell from a median 3.4 years before 2012 to 5 months since 2022.", src: "The AI Moment Archive", href: "ai-moment-archive.html" },
       { text: "With 30 test cases, a 90% pass rate could really be anywhere from about 79% to 100%. Most AI product decisions trust evals that small.", src: "Learn the Loop", href: "loop-pm-curriculum.html" },
       { text: "Agent task length doubles every 7 months. Meta bought Manus for $2B+ and Claude Code hit a $1B run rate.", src: "Agent Design Patterns", href: "agent-design-deepdive.html" },
       { text: "Only ~15% of an agent's context window is the actual task. Tool definitions, chat history, and results eat the rest.", src: "Agent Design Patterns", href: "agent-design-deepdive.html" },
@@ -1161,7 +1174,7 @@
     var kb = [
       {
         tags: ['product manager','product management','pm','pms','ai pm','pm role','pm roles','loop pm','pm skills','career','curriculum','field guide','roles','hiring','jobs','skills','upskill','interview'],
-        synonyms: { 'manager': 'pm', 'course': 'curriculum', 'roadmap': 'curriculum', 'learning': 'curriculum', 'upskilling': 'upskill', 'job': 'jobs' },
+        synonyms: { 'manager': 'product manager', 'course': 'curriculum', 'roadmap': 'curriculum', 'learning': 'curriculum', 'upskilling': 'upskill', 'job': 'jobs' },
         title: 'AI Product Management',
         answer: 'Two companion pieces on how the PM job has split at AI labs and model companies:',
         links: [
@@ -1309,6 +1322,26 @@
           { name: 'Bayesian Optimization', href: 'bayesian-optimization.html', desc: 'Probabilistic search & surrogate models' }
         ],
         extra: 'Also studies Gaussian processes, tensors, Hilbert spaces, manifolds, probability theory, and linear algebra — all on the homepage.'
+      },
+      {
+        tags: ['history','ai history','timeline','archive','moments','milestone','milestones','chatgpt moment','alphago','deep blue','turing','eliza','imagenet','lag','hype'],
+        synonyms: { 'historical': 'history', 'past': 'history', 'chronology': 'timeline' },
+        title: 'AI History',
+        answer: 'An interactive archive of when AI capabilities appeared, and when the public noticed:',
+        links: [
+          { name: 'The AI Moment Archive', href: 'ai-moment-archive.html', desc: '129 fact-checked moments from 1943 to 2026, each dated at the lab and in public' }
+        ],
+        extra: 'The median gap between a lab result and public attention fell from 3.4 years before 2012 to 5 months since 2022.'
+      },
+      {
+        tags: ['behalf','customer care','customer service','customer support','on hold','whatsapp','complaint','refund','prototype','consumer product','consumer app'],
+        synonyms: { 'helpline': 'customer care', 'support': 'customer support' },
+        title: 'Behalf',
+        answer: 'A working prototype of a consumer product for India:',
+        links: [
+          { name: 'Behalf', href: 'behalf.html', desc: 'An AI that calls customer care for you and comes back with proof' }
+        ],
+        extra: 'Tell it on WhatsApp what you need. It gets through the IVR, waits on hold and talks to the agent.'
       }
     ];
 
@@ -1475,7 +1508,7 @@
         ]};
       }
       if (/how many|count|number of|how much content/.test(ql)) {
-        return { text: '<strong>9</strong> deep dives, <strong>3</strong> investment theses, <strong>5</strong> Substack blog posts, and an <strong>80-day</strong> ML study plan covering 80 lessons from micrograd to production RAG.', chips: [
+        return { text: '<strong>16</strong> deep dives, <strong>4</strong> investment theses, <strong>5</strong> Substack blog posts, an <strong>80-day</strong> ML study plan covering 80 lessons from micrograd to production RAG, and design work including a working product prototype.', chips: [
           { label: 'Deep dives', q: 'Show me all deep dives' },
           { label: 'Study plan', q: 'Tell me about the ML study plan' }
         ]};
