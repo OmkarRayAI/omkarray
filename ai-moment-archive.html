@@ -106,7 +106,8 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 /* chart */
 .chart-box{background:var(--surface);border:1px solid var(--rule);border-radius:6px;position:relative}
 .chart-scroll{overflow-x:auto;overflow-y:hidden;scrollbar-width:thin}
-.yaxis{position:absolute;left:1px;top:1px;pointer-events:none;border-top-left-radius:6px;overflow:hidden}
+.chart-area{position:relative}
+.yaxis{position:absolute;left:0;top:0;pointer-events:none;overflow:hidden}
 .yaxis svg{display:block}
 .chart-inner{position:relative}
 svg.chart{display:block}
@@ -260,9 +261,80 @@ dl.kv dd{margin:0}
 .rules{display:grid;gap:10px;margin:0;padding:0;list-style:none}
 .rules li{display:grid;grid-template-columns:110px 1fr;gap:12px;padding:8px 0;border-top:1px solid var(--rule-soft);margin:0}
 .rules li span:first-child{font:500 11px/1.9 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+/* player */
+.player{display:flex;flex-wrap:wrap;align-items:center;gap:12px 22px;padding:14px 16px 14px 14px;border-bottom:1px solid var(--rule)}
+.playbtn{display:inline-flex;align-items:center;gap:10px;padding:10px 18px 10px 15px;border-radius:999px;background:var(--ink);color:var(--surface);font:500 14px/1 var(--sans);white-space:nowrap;transition:transform .15s,box-shadow .2s}
+.playbtn:hover{transform:translateY(-1px);box-shadow:0 6px 16px rgba(0,0,0,.18)}
+.playbtn:active{transform:translateY(0)}
+#cbox:not(.is-playing) .playbtn{animation:breathe 2.6s ease-in-out infinite}
+@keyframes breathe{0%,100%{box-shadow:0 0 0 0 var(--wash)}50%{box-shadow:0 0 0 7px var(--wash)}}
+.now{display:flex;align-items:center;gap:16px;min-width:0;flex:1 1 320px}
+.now .yr{font:500 32px/1 var(--serif);font-variant-numeric:tabular-nums;letter-spacing:-.02em;min-width:4.4ch}
+.now .what{min-width:0;display:grid;gap:4px}
+.now .t{font-size:14px;line-height:1.35;color:var(--ink-2);overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.now .t b{font-weight:600;color:var(--ink)}
+#cbox.is-playing .now .t{color:var(--ink);font-weight:500;font-family:var(--serif);font-size:16px}
+.ctl{display:flex;gap:8px;align-items:center}
+.ctl button{padding:6px 11px;border:1px solid var(--rule);border-radius:6px;font:500 11.5px var(--mono);color:var(--ink-2);background:var(--surface)}
+.ctl button:hover{color:var(--ink);border-color:var(--ink)}
+.prog{height:12px;position:relative;cursor:pointer;border-top:1px solid var(--rule-soft)}
+.prog::before{content:"";position:absolute;left:0;right:0;top:5px;height:2px;background:var(--rule-soft)}
+.prog i{position:absolute;left:0;top:5px;height:2px;width:0;background:var(--ink)}
+.prog:hover::before{background:var(--rule)}
+.nav .snd{display:inline-flex;align-items:center;gap:6px}
+.nav .snd[aria-pressed="false"]{color:var(--muted)}
+/* motion */
+.pt{transition:opacity .35s,fill .5s,transform .35s;transform-box:fill-box;transform-origin:center}
+.ln{transition:opacity .35s,stroke .5s,fill .5s;transform-box:fill-box;transform-origin:center}
+.db{transition:opacity .35s,stroke .35s,stroke-width .35s}
+svg.chart.filtered .pt.on{transform:scale(1.25)}
+.pt.lit{fill:var(--c);transition:fill 0s}
+.ln.lit{stroke:var(--c);transition:stroke 0s}
+.lm{animation:fadein .45s ease-out both}
+.lm.in{animation:fadein .5s ease-out both}
+@keyframes fadein{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
+.pre{opacity:0!important}
+.pop{animation:pop .6s cubic-bezier(.2,1.7,.4,1) both}
+@keyframes pop{0%{transform:scale(0)}55%{transform:scale(1.7)}100%{transform:scale(1)}}
+.o0{fill:var(--surface);stroke:var(--c);stroke-width:1.3;opacity:0;transition:opacity .3s}
+svg.chart.playing .o0:not(.pre){opacity:.9}
+svg.chart.playing .db:not(.pre){stroke:var(--c);opacity:.75;stroke-width:1.4}
+.ripple{fill:none;stroke:var(--c);stroke-width:1.6;transform-box:fill-box;transform-origin:center;animation:ripple .9s ease-out forwards;pointer-events:none}
+@keyframes ripple{from{transform:scale(1);opacity:.9}to{transform:scale(5.5);opacity:0}}
+.med{stroke-dasharray:1;stroke-dashoffset:0;transition:stroke-dashoffset 1.2s cubic-bezier(.6,0,.2,1),opacity .35s}
+.ph{opacity:0;transition:opacity .3s;pointer-events:none}
+svg.chart.playing .ph{opacity:1}
+.ph line{stroke:var(--ink);stroke-width:1.25}
+.ph rect{fill:var(--ink)}
+.ph text{fill:var(--surface);font:500 10.5px var(--mono)}
+.today{stroke:var(--muted);stroke-width:1}
+.today-t{fill:var(--muted);font:500 9.5px var(--mono);letter-spacing:.06em}
+.beacon{fill:none;stroke:var(--c);stroke-width:1.6;transform-box:fill-box;transform-origin:center;animation:beacon 2.6s ease-out infinite;pointer-events:none}
+@keyframes beacon{0%{transform:scale(1);opacity:.8}100%{transform:scale(3.6);opacity:0}}
+svg.chart.playing .beacon{display:none}
+.halo{fill:none;stroke:var(--c);stroke-width:1.5;transform-box:fill-box;transform-origin:center;animation:halo 1.4s ease-out infinite}
+@keyframes halo{0%{transform:scale(1);opacity:.7}100%{transform:scale(2.4);opacity:0}}
+.grow{stroke-dasharray:1;stroke-dashoffset:1;animation:dash .45s cubic-bezier(.3,0,.2,1) forwards}
+.era{transition:opacity .4s}
+.era.pending{opacity:.3}
+.era.flash{animation:eraflash 1.4s ease-out}
+@keyframes eraflash{0%{background:var(--wash);box-shadow:inset 0 -2px 0 var(--ink)}100%{background:transparent;box-shadow:inset 0 -2px 0 transparent}}
+.tip.in{animation:tipin .16s ease-out}
+@keyframes tipin{from{opacity:0;transform:translateY(4px) scale(.98)}to{opacity:1;transform:none}}
+/* dossier motion */
+.draw path,.draw circle,.draw rect,.draw ellipse,.draw line{stroke-dasharray:1;stroke-dashoffset:1;animation:dash 1.2s cubic-bezier(.6,0,.2,1) forwards}
+.draw [fill="currentColor"]{fill-opacity:0;animation:dash 1.2s cubic-bezier(.6,0,.2,1) forwards,fillin .5s 1.1s forwards}
+@keyframes dash{to{stroke-dashoffset:0}}
+@keyframes fillin{to{fill-opacity:1}}
+.lagscale .me{transition:left 1.1s cubic-bezier(.2,.8,.2,1) .25s}
+.dhead,.dgrid .art,.dgrid .rail,.estrip{animation:rise .55s cubic-bezier(.2,.8,.2,1) both}
+.dgrid .art{animation-delay:.06s}.dgrid .rail{animation-delay:.14s}.estrip{animation-delay:.22s}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.strip .pt{animation:popin .5s cubic-bezier(.2,1.6,.4,1) backwards}
+@keyframes popin{from{transform:scale(0)}}
 footer{margin-top:40px;padding-top:14px;border-top:1px solid var(--rule);display:flex;flex-wrap:wrap;gap:6px 20px;justify-content:space-between;font-size:12.5px;color:var(--muted)}
 footer button{text-decoration:underline;text-underline-offset:3px}
-@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}.draw *{stroke-dashoffset:0!important;fill-opacity:1!important}.beacon{display:none}}
 </style>
 
 </head>
@@ -329,6 +401,7 @@ footer button{text-decoration:underline;text-underline-offset:3px}
       <button type="button" data-go="threads">Threads</button>
       <button type="button" data-go="index"><span class="count num" id="navcount"></span>Index</button>
       <button type="button" data-go="about">About</button>
+      <button type="button" id="soundbtn" class="snd" aria-pressed="true"></button>
     </nav>
   </header>
 
@@ -339,16 +412,23 @@ footer button{text-decoration:underline;text-underline-offset:3px}
     </div>
     <div class="bar">
       <div class="chips" id="chips" role="group" aria-label="Filter by thread"></div>
-      <div class="hint" id="hint">Hover a moment to preview it. Click to open its dossier.</div>
+      <div class="hint" id="hint">Hover a moment to preview it, click to open its dossier, or press play to hear it.</div>
     </div>
-    <div class="chart-box">
-      <div class="chart-scroll" id="cscroll">
-        <div class="chart-inner" id="cinner"></div>
+    <div class="chart-box" id="cbox">
+      <div class="player">
+        <button type="button" class="playbtn" id="playbtn"></button>
+        <div class="now" aria-live="off"><div class="yr" id="now-yr"></div><div class="what"><span class="eyebrow" id="now-ey"></span><span class="t" id="now-t"></span></div></div>
+        <div class="ctl"><button type="button" id="speedbtn" title="Playback speed">1×</button><button type="button" id="stopbtn" hidden>Stop</button></div>
       </div>
+      <div class="chart-area">
+        <div class="chart-scroll" id="cscroll"><div class="chart-inner" id="cinner"></div></div>
+      </div>
+      <div class="prog" id="prog" title="Jump to a point in time"><i id="progbar"></i></div>
     </div>
     <div class="chart-foot">
       <span class="key"><svg width="50" height="14" aria-hidden="true"><line x1="5" x2="42" y1="7" y2="7" stroke="var(--arc)" stroke-width="1.2"/><circle cx="5" cy="7" r="2.8" fill="var(--surface)" stroke="var(--muted)" stroke-width="1.2"/><circle cx="43" cy="7" r="4.2" fill="var(--ink-2)"/></svg>Each moment sits as high as its lag, with a line back to its lab result</span>
       <span class="key"><svg width="26" height="14" aria-hidden="true"><line x1="2" x2="24" y1="7" y2="7" stroke="var(--ink)" stroke-width="2.5" stroke-linecap="round"/></svg>Era median</span>
+      <span class="key"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--ink-2)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></svg>When it plays, pitch is lag: low notes waited years, high notes took weeks</span>
       <span class="key"><svg width="12" height="14" aria-hidden="true"><path d="M6 2.4l4.6 4.6L6 11.6 1.4 7z" fill="var(--surface)" stroke="var(--ink-2)" stroke-width="1.3"/></svg>Lab result <svg width="12" height="14" aria-hidden="true"><circle cx="6" cy="7" r="3.6" fill="var(--surface)" stroke="var(--ink-2)" stroke-width="1.3"/></svg>Event with no lab result behind it</span>
       <span>Eras holding more moments are drawn wider. <button type="button" data-go="index">See the data as a table</button></span>
     </div>
@@ -1546,6 +1626,7 @@ function renderChips(){ $("#chips").innerHTML = chipHTML(filter); }
 $("#chips").addEventListener("click", e=>{
   const b = e.target.closest(".chip"); if (!b) return;
   const v = b.dataset.th || null; filter = (filter === v) ? null : v;
+  Sound.click();
   renderChips(); applyFilter();
 });
 
@@ -1561,6 +1642,10 @@ function tNorm(t){
   if (t <= ESPAN[0].start) return 0;
   for (const s of ESPAN) if (t < s.end) return s.a + (s.b - s.a) * (t - s.start) / (s.end - s.start);
   return 1;
+}
+function timeAt(p){
+  for (const s of ESPAN) if (p < s.b) return s.start + (p - s.a) / (s.b - s.a) * (s.end - s.start);
+  const s = ESPAN[ESPAN.length-1]; return s.end;
 }
 function yearTicks(px){
   const c = [];
@@ -1581,8 +1666,84 @@ const TICKS = [[7/365.25,"1 wk"],[1/12,"1 mo"],[0.5,"6 mo"],[1,"1 yr"],[5,"5 yr"
 // labelled by default, in priority order; everything else is one hover away
 const LANDMARKS = ["chatgpt","alexnet","alphago","deep-blue","deepseek","gpt4","alphafold2","watson","perceptron","ghibli","claude-code","gpt3","siri","imo-gold","gpt6","sora","stable-diffusion","o1","darpa-2005","shakey-life","copilot","openclaw","mythos","gnmt","samuel-checkers","deepfakes","navier-stokes","dalle2","waymo-driverless","veo3","td-gammon","roomba"];
 const lagShort = y => y < 1/12 ? Math.max(1, Math.round(y*365.25)) + " d" : y < 1 ? Math.max(1, Math.round(y*12)) + " mo" : (y < 10 ? Math.round(y*10)/10 : Math.round(y)) + " yr";
+const TODAY = parseD("2026-10-20").t;
+
+/* ---------- sound ---------- */
+// Everything is synthesised; nothing plays until the viewer has clicked something.
+// A moment reaching the public plays a note whose pitch is its lag: years-long waits are low, weeks are high.
+const Sound = (function(){
+  let ctx = null, master = null, on = true;
+  try { if (localStorage.getItem("aim-sound") === "off") on = false; } catch(e){}
+  const last = {};
+  function init(){
+    if (ctx) return true;
+    const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return false;
+    try { ctx = new AC(); } catch(e){ return false; }
+    const comp = ctx.createDynamicsCompressor(); comp.threshold.value = -20; comp.ratio.value = 4;
+    master = ctx.createGain(); master.gain.value = 0.6;
+    const verb = ctx.createConvolver(), len = Math.floor(ctx.sampleRate * 1.8), buf = ctx.createBuffer(2, len, ctx.sampleRate);
+    for (let c = 0; c < 2; c++){ const d = buf.getChannelData(c); for (let i = 0; i < len; i++) d[i] = (Math.random()*2 - 1) * Math.pow(1 - i/len, 3.4); }
+    verb.buffer = buf;
+    const wet = ctx.createGain(); wet.gain.value = 0.24;
+    master.connect(comp); master.connect(verb); verb.connect(wet); wet.connect(comp); comp.connect(ctx.destination);
+    return true;
+  }
+  function ready(){ if (!on || !init()) return false; if (ctx.state === "suspended") ctx.resume(); return true; }
+  function gate(kind, ms){ const n = performance.now(); if (last[kind] && n - last[kind] < ms) return false; last[kind] = n; return true; }
+  const SCALE = [0,2,4,7,9];
+  function lagFreq(lag){
+    const lmin = Math.log(LMIN), lmax = Math.log(LMAX);
+    const u = 1 - (Math.log(Math.max(LMIN, Math.min(LMAX, lag))) - lmin) / (lmax - lmin);
+    const st = Math.round(u * 14), oct = Math.floor(st / 5);
+    return 130.81 * Math.pow(2, (oct*12 + SCALE[st % 5]) / 12);
+  }
+  function tone(freq, o){
+    o = Object.assign({type:"triangle", dur:.9, gain:.16, attack:.004, when:0}, o || {});
+    const t = ctx.currentTime + o.when;
+    const osc = ctx.createOscillator(), g = ctx.createGain(), f = ctx.createBiquadFilter();
+    osc.type = o.type; osc.frequency.value = freq;
+    f.type = "lowpass"; f.frequency.setValueAtTime(Math.min(9000, freq*8), t); f.frequency.exponentialRampToValueAtTime(Math.max(220, freq*1.4), t + o.dur);
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(o.gain, t + o.attack); g.gain.exponentialRampToValueAtTime(0.0001, t + o.dur);
+    osc.connect(f); f.connect(g); g.connect(master); osc.start(t); osc.stop(t + o.dur + .05);
+  }
+  function noise(dur, o){
+    o = Object.assign({gain:.06, freq:1800, q:.8, when:0, sweep:0}, o || {});
+    const t = ctx.currentTime + o.when, len = Math.max(1, Math.ceil(ctx.sampleRate * dur)), buf = ctx.createBuffer(1, len, ctx.sampleRate), d = buf.getChannelData(0);
+    for (let i = 0; i < len; i++) d[i] = Math.random()*2 - 1;
+    const src = ctx.createBufferSource(), f = ctx.createBiquadFilter(), g = ctx.createGain();
+    src.buffer = buf; f.type = "bandpass"; f.frequency.setValueAtTime(o.freq, t); f.Q.value = o.q;
+    if (o.sweep) f.frequency.exponentialRampToValueAtTime(o.sweep, t + dur);
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(o.gain, t + .01); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    src.connect(f); f.connect(g); g.connect(master); src.start(t); src.stop(t + dur);
+  }
+  return {
+    get on(){ return on; },
+    set(v){ on = v; try { localStorage.setItem("aim-sound", v ? "on" : "off"); } catch(e){} if (v && ready()) tone(659.25, {type:"sine", gain:.06, dur:.3}); },
+    unlock(){ if (on) ready(); },
+    lagFreq,
+    land(m){ if (!ready() || !gate("land", 55)) return; const f = lagFreq(m.lag); tone(f, {gain:.15, dur:1.2}); tone(f*2, {type:"sine", gain:.04, dur:.6}); },
+    lab(soft){ if (!ready() || !gate(soft ? "start" : "lab", 70)) return; noise(.06, {gain: soft ? .025 : .07, freq:2700, q:5}); },
+    event(){ if (!ready() || !gate("event", 70)) return; tone(98, {type:"sine", gain:.13, dur:.4}); noise(.05, {gain:.025, freq:380, q:1}); },
+    era(med){ if (!ready()) return; const f = lagFreq(med); tone(f/2, {type:"sine", gain:.08, dur:2.4, attack:.1}); tone(f*.75, {type:"sine", gain:.05, dur:2.4, attack:.14}); tone(f, {gain:.05, dur:2.4, attack:.2}); },
+    hover(m){ if (!ready() || !gate("hover", 60)) return; tone(m.lag != null ? lagFreq(m.lag) : 196, {type:"sine", gain:.03, dur:.28}); },
+    open(m){ if (!ready()) return; noise(.32, {gain:.045, freq:500, sweep:4200, q:.7}); const f = m.lag != null ? lagFreq(m.lag) : 261.63; tone(f, {gain:.11, dur:1.5, when:.12}); tone(f*1.5, {gain:.05, dur:1.5, when:.2}); },
+    click(){ if (!ready() || !gate("click", 40)) return; tone(880, {type:"sine", gain:.035, dur:.12}); },
+    start(){ if (!ready()) return; noise(.7, {gain:.05, freq:260, sweep:2600, q:.6}); },
+    end(){ if (!ready()) return; [0,4,7,12,16].forEach((s,i)=>tone(261.63*Math.pow(2, s/12), {gain:.06, dur:2.8, when:i*.1, attack:.02})); }
+  };
+})();
+addEventListener("pointerdown", ()=>Sound.unlock(), {passive:true});
+function renderSoundBtn(){
+  const b = $("#soundbtn"); if (!b) return;
+  b.setAttribute("aria-pressed", Sound.on ? "true" : "false");
+  b.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z"/>${Sound.on ? `<path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/>` : `<path d="M17 9l5 6M22 9l-5 6"/>`}</svg>Sound ${Sound.on ? "on" : "off"}`;
+}
+$("#soundbtn").addEventListener("click", ()=>{ Sound.set(!Sound.on); renderSoundBtn(); });
+renderSoundBtn();
+
 let G = null, hotP = null;
 function renderChart(){
+  playStop(true);
   const box = $("#cscroll"), inner = $("#cinner");
   const n = M.length;
   const W = Math.max(760, Math.floor(box.clientWidth));
@@ -1591,100 +1752,268 @@ function renderChart(){
   const xt = t => AX + tNorm(t) * PW;
   const lmin = Math.log(LMIN), lmax = Math.log(LMAX);
   const yl = l => PT + PH * (1 - (Math.log(Math.max(LMIN, Math.min(LMAX, l))) - lmin) / (lmax - lmin));
-  const on = m => !filter || m.thread === filter;
-  const cls = m => "th-" + m.thread + (filter && on(m) ? " on" : "");
   const col = m => TH[m.thread].c;
   const pts = M.map(m=>{
-    const x = xt(m.t);
-    if (m.lag != null) return {m, x, y:yl(m.lag), x0:Math.min(xt(m.ot), x - 3), lane:0};
+    const x = xt(m.t), k = m.i;
+    if (m.lag != null) return {m, k, x, y:yl(m.lag), x0:Math.min(xt(m.ot), x - 3), lane:0};
     const lab = !!LABKINDS[m.kind];
-    return {m, x, y: lab ? L1 : L2, lane: lab ? 1 : 2};
+    return {m, k, x, y: lab ? L1 : L2, lane: lab ? 1 : 2};
   });
   const main = pts.filter(p=>p.lane === 0), lane = pts.filter(p=>p.lane);
   const f1 = v => v.toFixed(1);
-  let s = `<svg class="chart${filter ? " filtered" : ""}" id="chart" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="Chart of ${n} AI moments by date. ${main.length} are placed by how long after their lab result they reached the public; the rest sit in two rows below.">`;
-  // era bands
+  let s = `<svg class="chart" id="chart" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="Chart of ${n} AI moments by date. ${main.length} are placed by how long after their lab result they reached the public; the rest sit in two rows below.">`;
   s += ESPAN.map((sp,i)=>`<rect class="band${i % 2 ? " alt" : ""}" x="${f1(AX + sp.a*PW)}" y="${HEAD}" width="${f1((sp.b - sp.a)*PW)}" height="${H - HEAD}"/>`).join("");
-  // lag grid
   s += `<g class="grid">` + TICKS.map(([v,l])=>{ const y = f1(yl(v)); return `<line x1="${AX}" x2="${W-PR}" y1="${y}" y2="${y}"/><text x="${AX-10}" y="${f1(+y + 3.5)}" text-anchor="end">${l}</text>`; }).join("") + `</g>`;
   s += `<text class="axis-t" x="${AX-10}" y="${PT-6}" text-anchor="end">LAG</text>`;
-  // time axis
   s += `<line class="base" x1="${AX}" x2="${W-PR}" y1="${PB}" y2="${PB}"/>`;
   s += `<g class="xt">` + yearTicks(PW).map(k=>`<line x1="${f1(AX+k.p)}" x2="${f1(AX+k.p)}" y1="${PB}" y2="${PB + (k.major ? 6 : 4)}"/><text class="${k.major ? "mj" : ""}" x="${f1(AX+k.p)}" y="${PB + 19}" text-anchor="middle">${k.y}</text>`).join("") + `</g>`;
-  // lanes for moments with no lag
   s += `<line class="laneline" x1="${AX}" x2="${W-PR}" y1="${L1}" y2="${L1}"/><line class="laneline" x1="${AX}" x2="${W-PR}" y1="${L2}" y2="${L2}"/>`;
   s += `<text class="lane-t" x="${AX-10}" y="${L1+3.5}" text-anchor="end">LAB RESULTS</text><text class="lane-t" x="${AX-10}" y="${L2+3.5}" text-anchor="end">EVENTS</text>`;
-  // era medians
-  const medL = [];
-  s += ESPAN.map(sp=>{
+  const tx = Math.min(xt(TODAY), W - PR);
+  s += `<line class="today" x1="${f1(tx)}" x2="${f1(tx)}" y1="${PT - 8}" y2="${L2 + 8}"/><text class="today-t" x="${f1(tx - 5)}" y="${PT - 2}" text-anchor="end">TODAY</text>`;
+  s += ESPAN.map((sp,i)=>{
     const e = sp.e; if (e.med == null) return "";
-    const xa = AX + sp.a*PW + 5, xb = AX + sp.b*PW - 5, y = yl(e.med);
-    return `<line class="med" x1="${f1(xa)}" x2="${f1(xb)}" y1="${f1(y)}" y2="${f1(y)}"/>`;
+    const y = f1(yl(e.med));
+    return `<line class="med" data-era="${i}" pathLength="1" x1="${f1(AX + sp.a*PW + 5)}" x2="${f1(AX + sp.b*PW - 5)}" y1="${y}" y2="${y}"/>`;
   }).join("");
-  // lines back to the lab result, then the moments
-  s += `<g>` + main.map(p=>`<line class="db ${cls(p.m)}" style="--c:${col(p.m)}" x1="${f1(p.x0)}" x2="${f1(p.x)}" y1="${f1(p.y)}" y2="${f1(p.y)}"/>`).join("") + `</g>`;
-  s += `<g>` + main.map(p=>`<circle class="pt ${cls(p.m)}" style="--c:${col(p.m)}" cx="${f1(p.x)}" cy="${f1(p.y)}" r="${filter && on(p.m) ? 5 : 4.2}"/>`).join("") + `</g>`;
+  s += `<g>` + main.map(p=>`<line class="db th-${p.m.thread}" data-k="${p.k}" style="--c:${col(p.m)}" x1="${f1(p.x0)}" x2="${f1(p.x)}" y1="${f1(p.y)}" y2="${f1(p.y)}"/>`).join("") + `</g>`;
+  s += `<g>` + main.map(p=>`<circle class="o0" data-k="${p.k}" style="--c:${col(p.m)}" cx="${f1(p.x0)}" cy="${f1(p.y)}" r="2.6"/>`).join("") + `</g>`;
+  s += `<g>` + main.map(p=>`<circle class="pt th-${p.m.thread}" data-k="${p.k}" style="--c:${col(p.m)}" cx="${f1(p.x)}" cy="${f1(p.y)}" r="4.2"/>`).join("") + `</g>`;
   s += `<g>` + lane.map(p=> p.lane === 1
-    ? `<path class="ln ${cls(p.m)}" style="--c:${col(p.m)}" d="M${f1(p.x)} ${f1(p.y-4.6)}l4.6 4.6l-4.6 4.6l-4.6-4.6z"/>`
-    : `<circle class="ln ${cls(p.m)}" style="--c:${col(p.m)}" cx="${f1(p.x)}" cy="${p.y}" r="3.6"/>`).join("") + `</g>`;
-  // labels: era medians first, then landmarks (or the whole selected thread), skipping any that would collide
+    ? `<path class="ln th-${p.m.thread}" data-k="${p.k}" style="--c:${col(p.m)}" d="M${f1(p.x)} ${f1(p.y-4.6)}l4.6 4.6l-4.6 4.6l-4.6-4.6z"/>`
+    : `<circle class="ln th-${p.m.thread}" data-k="${p.k}" style="--c:${col(p.m)}" cx="${f1(p.x)}" cy="${p.y}" r="3.6"/>`).join("") + `</g>`;
+  const lastP = pts[pts.length - 1];
+  s += `<circle class="beacon" style="--c:${col(lastP.m)}" cx="${f1(lastP.x)}" cy="${f1(lastP.y)}" r="4.5"/>`;
+  s += `<g id="labels"></g><g id="fx"></g>`;
+  s += `<g id="ph" class="ph" transform="translate(${AX} 0)"><line x1="0" x2="0" y1="${HEAD}" y2="${L2 + 10}"/><rect x="-23" y="${HEAD + 2}" width="46" height="17" rx="3"/><text x="0" y="${HEAD + 14.5}" text-anchor="middle">1943</text></g>`;
+  s += `<g id="hot"></g></svg>`;
+  let e = `<div class="eras" style="width:${W}px">`;
+  ESPAN.forEach((sp,i)=>{
+    const er = sp.e, left = AX + sp.a*PW, wd = (sp.b - sp.a)*PW;
+    e += `<div class="era" data-era="${i}" style="left:${f1(left)}px;width:${f1(wd)}px" title="Era ${er.id}: ${esc(er.name)}, ${er.items.length} moments"><div class="r">${er.id} · ${er.from}${er.to !== er.from ? "–" + String(er.to).slice(-2) : ""}</div><div class="nm">${esc(er.name)}</div><div class="md">${er.med != null ? `median <b>${lagShort(er.med)}</b> · ` : ""}${er.items.length} moments</div></div>`;
+  });
+  inner.innerHTML = s + e + `</div>`;
+  // pinned axis labels, so the scale stays readable when the chart scrolls on narrow screens
+  let ax = $("#yaxis");
+  if (!ax){ ax = document.createElement("div"); ax.id = "yaxis"; ax.className = "yaxis"; ax.setAttribute("aria-hidden","true"); $(".chart-area").appendChild(ax); }
+  ax.hidden = box.scrollWidth <= box.clientWidth + 1;
+  ax.innerHTML = `<svg width="${AX-6}" height="${H}"><rect width="${AX-6}" height="${H}" fill="var(--surface)"/><g class="grid">` +
+    TICKS.map(([v,l])=>`<text x="${AX-10}" y="${f1(yl(v)+3.5)}" text-anchor="end">${l}</text>`).join("") + `</g>` +
+    `<text class="axis-t" x="${AX-10}" y="${PT-6}" text-anchor="end">LAG</text><text class="lane-t" x="${AX-10}" y="${L1+3.5}" text-anchor="end">LAB RESULTS</text><text class="lane-t" x="${AX-10}" y="${L2+3.5}" text-anchor="end">EVENTS</text></svg>`;
+  const svg = $("#chart");
+  const el = {};
+  svg.querySelectorAll("[data-k]").forEach(x=>{ const k = +x.dataset.k; el[k] = el[k] || {}; el[k][x.classList.contains("db") ? "db" : x.classList.contains("o0") ? "o0" : x.classList.contains("pt") ? "pt" : "ln"] = x; });
+  G = {pts, main, el, AX, PW, PB, W, med:[...svg.querySelectorAll(".med")], eras:[...inner.querySelectorAll(".era")], ph:$("#ph"), phText:$("#ph text")};
+  hotP = null;
+  applyFilterClasses();
+  renderLabels();
+}
+function applyFilterClasses(){
+  const svg = $("#chart"); if (!svg || !G) return;
+  svg.classList.toggle("filtered", !!filter);
+  G.pts.forEach(p=>{ const e = G.el[p.k], on = !!filter && p.m.thread === filter; ["pt","db","ln"].forEach(n=> e[n] && e[n].classList.toggle("on", on)); });
+}
+// labels: landmarks by default, or every moment in the selected thread; any that would collide are skipped
+function renderLabels(){
+  const g = $("#labels"); if (!g || !G) return;
+  const W = G.W, PR = 22, AX = G.AX, PB = G.PB, PT = PB - 300;
   const boxes = [];
-  const dots = main.map(p=>({x0:p.x-5, x1:p.x+5, y0:p.y-5, y1:p.y+5, p}));
+  const dots = G.main.map(p=>({x0:p.x-5, x1:p.x+5, y0:p.y-5, y1:p.y+5, p}));
   const clash = (b, self) => boxes.some(o=>!(b.x1 < o.x0 || b.x0 > o.x1 || b.y1 < o.y0 || b.y0 > o.y1)) ||
     dots.some(o=>o.p !== self && !(b.x1 < o.x0 || b.x0 > o.x1 || b.y1 < o.y0 || b.y0 > o.y1));
-  // each median label tries above/below the right end, then above/below the left end
-  medL.forEach(l=>{
-    const w = l.t.length*6.4 + 4;
-    const opts = [[l.xb, l.y - 7, "end"], [l.xb, l.y + 15, "end"], [l.xa, l.y - 7, "start"], [l.xa, l.y + 15, "start"]];
-    let pick = opts[0];
-    for (const o of opts){ const b = o[2] === "end" ? {x0:o[0]-w, x1:o[0], y0:o[1]-10, y1:o[1]+3} : {x0:o[0], x1:o[0]+w, y0:o[1]-10, y1:o[1]+3}; if (!clash(b, null)){ pick = o; break; } }
-    l.x = pick[0]; l.ty = pick[1]; l.a = pick[2];
-    boxes.push(l.a === "end" ? {x0:l.x-w, x1:l.x, y0:l.ty-10, y1:l.ty+3} : {x0:l.x, x1:l.x+w, y0:l.ty-10, y1:l.ty+3});
-  });
-  const cand = filter ? main.filter(p=>p.m.thread === filter) : LANDMARKS.map(id=>main.find(p=>p.m.id === id)).filter(Boolean);
-  let lab = "";
+  const cand = filter ? G.main.filter(p=>p.m.thread === filter) : LANDMARKS.map(id=>G.main.find(p=>p.m.id === id)).filter(Boolean);
+  const f1 = v => v.toFixed(1);
+  let out = "";
+  G.pts.forEach(p=>{ G.el[p.k].lm = null; });
   cand.forEach(p=>{
     const txt = p.m.short || p.m.title, lg = lagShort(p.m.lag);
     const w = txt.length*5.9 + lg.length*6.4 + 8, h = 13;
     const opts = [
-      {bx:p.x + 8,       by:p.y - 7,  a:"start",  tx:p.x + 8, ty:p.y + 3.8},
-      {bx:p.x - 8 - w,   by:p.y - 7,  a:"end",    tx:p.x - 8, ty:p.y + 3.8},
-      {bx:p.x - w/2,     by:p.y - 21, a:"middle", tx:p.x,     ty:p.y - 10},
-      {bx:p.x - w/2,     by:p.y + 8,  a:"middle", tx:p.x,     ty:p.y + 18}
+      {bx:p.x + 8,     by:p.y - 7,  a:"start",  tx:p.x + 8, ty:p.y + 3.8},
+      {bx:p.x - 8 - w, by:p.y - 7,  a:"end",    tx:p.x - 8, ty:p.y + 3.8},
+      {bx:p.x - w/2,   by:p.y - 21, a:"middle", tx:p.x,     ty:p.y - 10},
+      {bx:p.x - w/2,   by:p.y + 8,  a:"middle", tx:p.x,     ty:p.y + 18}
     ];
     for (const o of opts){
       const b = {x0:o.bx, x1:o.bx + w, y0:o.by, y1:o.by + h};
       if (b.x0 < AX + 2 || b.x1 > W - PR || b.y0 < PT - 12 || b.y1 > PB - 2 || clash(b, p)) continue;
       boxes.push(b);
-      lab += `<text class="lm ${cls(p.m)}" x="${f1(o.tx)}" y="${f1(o.ty)}" text-anchor="${o.a}">${esc(txt)} <tspan class="lg">${esc(lg)}</tspan></text>`;
+      out += `<text class="lm th-${p.m.thread}${filter ? " on" : ""}" data-l="${p.k}" x="${f1(o.tx)}" y="${f1(o.ty)}" text-anchor="${o.a}">${esc(txt)} <tspan class="lg">${esc(lg)}</tspan></text>`;
       break;
     }
   });
-  s += lab + medL.map(l=>`<text class="medl" x="${f1(l.x)}" y="${f1(l.ty)}" text-anchor="${l.a}">${esc(l.t)}</text>`).join("");
-  s += `<g id="hot"></g></svg>`;
-  // era headers
-  let e = `<div class="eras" style="width:${W}px">`;
-  ESPAN.forEach(sp=>{
-    const er = sp.e, left = AX + sp.a*PW, wd = (sp.b - sp.a)*PW;
-    e += `<div class="era" style="left:${f1(left)}px;width:${f1(wd)}px" title="Era ${er.id}: ${esc(er.name)}, ${er.items.length} moments"><div class="r">${er.id} · ${er.from}${er.to !== er.from ? "–" + String(er.to).slice(-2) : ""}</div><div class="nm">${esc(er.name)}</div><div class="md">${er.med != null ? `median <b>${lagShort(er.med)}</b> · ` : ""}${er.items.length} moments</div></div>`;
-  });
-  inner.innerHTML = s + e + `</div>`;
-  // pinned axis labels, so the scale stays readable when the chart scrolls on narrow screens
-  let ax = $("#yaxis");
-  if (!ax){ ax = document.createElement("div"); ax.id = "yaxis"; ax.className = "yaxis"; ax.setAttribute("aria-hidden","true"); $(".chart-box").appendChild(ax); }
-  ax.hidden = box.scrollWidth <= box.clientWidth + 1;
-  ax.innerHTML = `<svg width="${AX-6}" height="${H}"><rect width="${AX-6}" height="${H}" fill="var(--surface)"/><g class="grid">` +
-    TICKS.map(([v,l])=>`<text x="${AX-10}" y="${f1(yl(v)+3.5)}" text-anchor="end">${l}</text>`).join("") + `</g>` +
-    `<text class="axis-t" x="${AX-10}" y="${PT-6}" text-anchor="end">LAG</text><text class="lane-t" x="${AX-10}" y="${L1+3.5}" text-anchor="end">LAB RESULTS</text><text class="lane-t" x="${AX-10}" y="${L2+3.5}" text-anchor="end">EVENTS</text></svg>`;
-  G = {pts, PB};
-  hotP = null;
+  g.innerHTML = out;
+  g.querySelectorAll("[data-l]").forEach(x=>{ G.el[+x.dataset.l].lm = x; });
 }
-function applyFilter(){ if (rendered.timeline) renderChart(); }
+function applyFilter(){ if (!rendered.timeline) return; playStop(true); applyFilterClasses(); renderLabels(); }
+
+/* ---------- play the history ---------- */
+const PLAY_SECONDS = 56;
+const Play = {state:"idle", p:0, speed:1, raf:0, last:0, landed:new Set(), started:new Set(), eraDone:new Set(), lastM:null};
+const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+function cls(x, c, on){ if (x) x.classList.toggle(c, on); }
+function hideAll(){
+  const svg = $("#chart"); svg.classList.add("playing");
+  G.pts.forEach(p=>{
+    const e = G.el[p.k];
+    ["pt","ln","lm","db","o0"].forEach(n=>{ cls(e[n], "pre", true); cls(e[n], "pop", false); cls(e[n], "lit", false); });
+    if (e.db) e.db.setAttribute("x2", p.x0.toFixed(1));
+  });
+  G.med.forEach(l=>{ l.style.transition = "none"; l.style.strokeDashoffset = "1"; });
+  G.eras.forEach(x=>{ x.classList.add("pending"); x.classList.remove("flash"); });
+  $("#fx").innerHTML = "";
+  void svg.getBoundingClientRect();
+  G.med.forEach(l=>{ l.style.transition = ""; });
+}
+function showAll(){
+  const svg = $("#chart"); if (!svg) return;
+  svg.classList.remove("playing");
+  G.pts.forEach(p=>{
+    const e = G.el[p.k];
+    ["pt","ln","lm","db","o0"].forEach(n=>{ cls(e[n], "pre", false); cls(e[n], "pop", false); });
+    if (e.db) e.db.setAttribute("x2", p.x.toFixed(1));
+  });
+  G.med.forEach(l=>{ l.style.strokeDashoffset = "0"; });
+  G.eras.forEach(x=>x.classList.remove("pending"));
+}
+function syncTo(p){ // jump without sound: everything before the playhead is already there
+  hideAll();
+  const X = G.AX + p*G.PW;
+  Play.landed = new Set(); Play.started = new Set(); Play.eraDone = new Set(); Play.lastM = null;
+  G.pts.forEach(pt=>{
+    const e = G.el[pt.k];
+    if (pt.lane === 0 && X >= pt.x0){ Play.started.add(pt.k); cls(e.db, "pre", false); cls(e.o0, "pre", false); e.db.setAttribute("x2", Math.min(X, pt.x).toFixed(1)); }
+    if (X >= pt.x){ Play.landed.add(pt.k); ["pt","ln","lm"].forEach(n=>cls(e[n], "pre", false)); Play.lastM = pt.m; }
+  });
+  ESPAN.forEach((sp,i)=>{ if (p >= sp.b - 1e-6){ Play.eraDone.add(i); finishEra(i, true); } });
+  Play.p = p; drawHead(p);
+}
+function ripple(pt){
+  if (reduceMotion) return;
+  const fx = $("#fx"), c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  c.setAttribute("class", "ripple"); c.setAttribute("cx", pt.x.toFixed(1)); c.setAttribute("cy", pt.y.toFixed(1)); c.setAttribute("r", "5");
+  c.style.setProperty("--c", TH[pt.m.thread].c);
+  fx.appendChild(c); setTimeout(()=>c.remove(), 950);
+}
+function land(pt){
+  Play.landed.add(pt.k);
+  const e = G.el[pt.k];
+  ["pt","ln"].forEach(n=>{ if (e[n]){ cls(e[n], "pre", false); cls(e[n], "pop", true); cls(e[n], "lit", true); setTimeout(()=>cls(e[n], "lit", false), 900); } });
+  if (e.lm){ cls(e.lm, "pre", false); e.lm.classList.remove("in"); void e.lm.getBBox(); e.lm.classList.add("in"); }
+  if (e.db) e.db.setAttribute("x2", pt.x.toFixed(1));
+  ripple(pt);
+  if (pt.lane === 0) Sound.land(pt.m); else if (pt.lane === 1) Sound.lab(false); else Sound.event();
+  Play.lastM = pt.m; renderNow();
+}
+function finishEra(i, silent){
+  const l = G.med.find(x=>+x.dataset.era === i), h = G.eras[i];
+  if (l) l.style.strokeDashoffset = "0";
+  if (h){ h.classList.remove("pending"); if (!silent){ h.classList.remove("flash"); void h.offsetWidth; h.classList.add("flash"); } }
+  if (!silent && ESPAN[i].e.med != null) Sound.era(ESPAN[i].e.med);
+}
+function drawHead(p){
+  const X = G.AX + p*G.PW;
+  G.ph.setAttribute("transform", `translate(${X.toFixed(1)} 0)`);
+  const t = timeAt(p), y = Math.floor(t), span = ESPAN.find(s=>p < s.b) || ESPAN[ESPAN.length-1];
+  G.phText.textContent = span.end - span.start <= 3 ? MON[Math.min(11, Math.floor((t - y)*12))] + " " + String(y).slice(-2) : String(y);
+  $("#now-yr").textContent = y;
+  $("#progbar").style.width = (p*100).toFixed(2) + "%";
+  const box = $("#cscroll");
+  if (box.scrollWidth > box.clientWidth){ const target = X - box.clientWidth*0.62; if (Math.abs(box.scrollLeft - target) > 4) box.scrollLeft = target; }
+}
+function tick(now){
+  if (Play.state !== "playing") return;
+  const dt = Math.min(0.5, (now - Play.last) / 1000); Play.last = now;
+  Play.p = Math.min(1, Play.p + dt * Play.speed / PLAY_SECONDS);
+  const X = G.AX + Play.p*G.PW;
+  G.pts.forEach(pt=>{
+    const e = G.el[pt.k];
+    if (pt.lane === 0){
+      if (!Play.started.has(pt.k) && X >= pt.x0){ Play.started.add(pt.k); cls(e.db, "pre", false); cls(e.o0, "pre", false); Sound.lab(true); }
+      if (Play.started.has(pt.k) && !Play.landed.has(pt.k)) e.db.setAttribute("x2", Math.min(X, pt.x).toFixed(1));
+    }
+    if (!Play.landed.has(pt.k) && X >= pt.x) land(pt);
+  });
+  ESPAN.forEach((sp,i)=>{ if (!Play.eraDone.has(i) && Play.p >= sp.b - 1e-6){ Play.eraDone.add(i); finishEra(i, false); } });
+  drawHead(Play.p);
+  if (Play.p >= 1){ playFinish(); return; }
+  Play.raf = requestAnimationFrame(tick);
+}
+function playStart(){
+  if (!G) return;
+  Sound.unlock(); setHot(null); hideTip();
+  if (Play.state === "paused"){ Play.state = "playing"; Play.last = performance.now(); renderPlayer(); Play.raf = requestAnimationFrame(tick); return; }
+  syncTo(0);
+  Sound.start();
+  Play.state = "playing"; Play.last = performance.now(); renderPlayer(); renderNow();
+  Play.raf = requestAnimationFrame(tick);
+}
+document.addEventListener("visibilitychange", ()=>{ if (document.hidden) playPause(); });
+function playPause(){ if (Play.state !== "playing") return; Play.state = "paused"; cancelAnimationFrame(Play.raf); renderPlayer(); }
+function playFinish(){
+  cancelAnimationFrame(Play.raf); Play.state = "done";
+  G.pts.forEach(p=>cls(G.el[p.k].o0, "pre", true));
+  setTimeout(()=>{ if (Play.state === "done"){ showAll(); } }, 600);
+  Sound.end(); renderPlayer(); renderNow();
+}
+function playStop(silent){
+  cancelAnimationFrame(Play.raf);
+  const was = Play.state; Play.state = "idle"; Play.p = 0;
+  if (G && was !== "idle") showAll();
+  if ($("#progbar")) $("#progbar").style.width = "0%";
+  renderPlayer(); renderNow();
+}
+function renderPlayer(){
+  const b = $("#playbtn"); if (!b) return;
+  const st = Play.state;
+  const icon = st === "playing" ? `<svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="4" width="5" height="16" rx="1" fill="currentColor"/><rect x="14" y="4" width="5" height="16" rx="1" fill="currentColor"/></svg>` : `<svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l12-7.5z" fill="currentColor"/></svg>`;
+  b.innerHTML = icon + (st === "playing" ? "Pause" : st === "paused" ? "Resume" : st === "done" ? "Play it again" : "Play the history");
+  b.setAttribute("aria-label", st === "playing" ? "Pause" : "Play the history of AI moments with sound");
+  $("#speedbtn").textContent = Play.speed + "×";
+  $("#stopbtn").hidden = !(st === "playing" || st === "paused");
+  $("#cbox").classList.toggle("is-playing", st === "playing" || st === "paused");
+}
+function renderNow(){
+  const st = Play.state, yr = $("#now-yr"), ey = $("#now-ey"), t = $("#now-t");
+  if (!yr) return;
+  if (st === "idle"){
+    yr.textContent = M[0].year + "–" + String(M[M.length-1].year).slice(-2);
+    ey.textContent = "83 years in under a minute";
+    t.innerHTML = "Every moment plays a note as it reaches the public. <b>Low notes waited years. High notes took weeks.</b>";
+  } else if (st === "done"){
+    yr.textContent = M[M.length-1].year;
+    ey.textContent = "That was " + (M[M.length-1].year - M[0].year) + " years";
+    t.innerHTML = `Median lag fell from <b>${esc(fmtLag(pre))}</b> before 2012 to <b>${esc(fmtLag(post))}</b> since 2022.`;
+  } else {
+    const m = Play.lastM;
+    ey.textContent = m ? fmtD(m.date) + (m.lag != null ? " · reached the public " + lagShort(m.lag) + " after the lab" : LABKINDS[m.kind] ? " · lab result" : " · event") : "Starting in 1943";
+    t.textContent = m ? m.title : "The field gets its name.";
+  }
+}
+$("#playbtn").addEventListener("click", ()=>{ if (Play.state === "playing") playPause(); else { if (Play.state === "done") Play.state = "idle"; playStart(); } });
+$("#speedbtn").addEventListener("click", ()=>{ Play.speed = Play.speed === 1 ? 2 : Play.speed === 2 ? 4 : 1; Sound.click(); renderPlayer(); });
+$("#stopbtn").addEventListener("click", ()=>{ Sound.click(); playStop(); });
+$("#prog").addEventListener("click", ev=>{
+  if (!G) return;
+  const r = ev.currentTarget.getBoundingClientRect(), p = Math.max(0, Math.min(.999, (ev.clientX - r.left) / r.width));
+  Sound.unlock();
+  const wasPlaying = Play.state === "playing";
+  cancelAnimationFrame(Play.raf);
+  syncTo(p); Play.state = "playing"; Play.last = performance.now(); renderPlayer(); renderNow();
+  Play.raf = requestAnimationFrame(tick);
+  if (!wasPlaying) Sound.click();
+});
+
+/* ---------- hover ---------- */
 function nearest(ev){
   const svg = $("#chart"); if (!svg || !G) return null;
   const r = svg.getBoundingClientRect(), x = ev.clientX - r.left, y = ev.clientY - r.top;
   let best = null, bd = 16*16;
-  for (const p of G.pts){ if (filter && p.m.thread !== filter) continue; const dx = p.x - x, dy = p.y - y, d = dx*dx + dy*dy; if (d < bd){ bd = d; best = p; } }
+  for (const p of G.pts){
+    if (filter && p.m.thread !== filter) continue;
+    if (Play.state !== "idle" && Play.state !== "done" && !Play.landed.has(p.k)) continue;
+    const dx = p.x - x, dy = p.y - y, d = dx*dx + dy*dy; if (d < bd){ bd = d; best = p; }
+  }
   return best;
 }
 function setHot(p){
@@ -1696,18 +2025,20 @@ function setHot(p){
   let h = "";
   if (p.lane === 0){
     h += `<line class="drop" x1="${f1(p.x)}" x2="${f1(p.x)}" y1="${f1(p.y + 7)}" y2="${G.PB}"/>`;
-    h += `<line x1="${f1(p.x0)}" x2="${f1(p.x)}" y1="${f1(p.y)}" y2="${f1(p.y)}" stroke="${c}" stroke-width="2.5" stroke-linecap="round"/>`;
+    h += `<line class="grow" pathLength="1" x1="${f1(p.x0)}" x2="${f1(p.x)}" y1="${f1(p.y)}" y2="${f1(p.y)}" stroke="${c}" stroke-width="2.5" stroke-linecap="round"/>`;
     h += `<circle cx="${f1(p.x0)}" cy="${f1(p.y)}" r="3.6" fill="var(--surface)" stroke="${c}" stroke-width="2"/>`;
     h += `<text class="hot-t" x="${f1(p.x0)}" y="${f1(p.y - 9)}" text-anchor="${p.x - p.x0 < 70 ? "end" : "middle"}">lab ${parseD(p.m.origin.date).y}</text>`;
   }
+  h += `<circle class="halo" style="--c:${c}" cx="${f1(p.x)}" cy="${f1(p.y)}" r="6.5"/>`;
   h += `<circle cx="${f1(p.x)}" cy="${f1(p.y)}" r="6.5" fill="${c}" stroke="var(--surface)" stroke-width="2"/>`;
   g.innerHTML = h;
+  Sound.hover(p.m);
 }
 const tip = $("#tip");
 function showTip(m, ev){
   tip.innerHTML = `<div class="eyebrow">${fmtD(m.date)} · ${esc(KIND[m.kind]||m.kind)}</div><div class="t">${esc(m.title)}</div><div class="w">${esc(m.who)}</div><p>${esc(m.blurb)}</p>` +
     `<div class="lag"><span class="sw" style="--c:${TH[m.thread].c}"></span>${esc(TH[m.thread].name)}<span style="flex:1"></span>${m.lag!=null ? "lag <b>"+esc(fmtLag(m.lag))+"</b>" : LABKINDS[m.kind] ? "lab result" : (m.trigger && BY[m.trigger] ? "reaction to " + esc(BY[m.trigger].short||BY[m.trigger].title) : "no lab result")}</div>`;
-  tip.hidden = false; moveTip(ev);
+  tip.hidden = false; tip.classList.remove("in"); void tip.offsetWidth; tip.classList.add("in"); moveTip(ev);
 }
 function moveTip(ev){
   const w = tip.offsetWidth, h = tip.offsetHeight, vw = innerWidth, vh = innerHeight;
@@ -1727,7 +2058,7 @@ $("#cinner").addEventListener("pointermove", ev=>{
 });
 $("#cinner").addEventListener("pointerleave", ()=>{ setHot(null); hideTip(); });
 $("#cinner").addEventListener("click", ev=>{ const p = nearest(ev); if (p){ hideTip(); go(p.m.id); } });
-$("#cscroll").addEventListener("scroll", ()=>{ setHot(null); hideTip(); }, {passive:true});
+$("#cscroll").addEventListener("scroll", ()=>{ if (Play.state !== "playing"){ setHot(null); hideTip(); } }, {passive:true});
 
 /* ---------- threads view ---------- */
 function renderThreads(){
@@ -1741,7 +2072,7 @@ function renderThreads(){
         <div class="meta"><span class="eyebrow">${t.items.length} moments</span><span class="eyebrow">${t.items[0] ? t.items[0].year + "–" + t.items[t.items.length-1].year : ""}</span><span class="eyebrow">${t.med!=null ? "median lag " + fmtLag(t.med) : ""}</span></div>
       </div>
       <div>
-        <div class="strip" aria-hidden="true"><div class="ax"></div>${ticks.map((y,i)=>`<span class="tk${i % 2 ? " minor" : ""}" style="left:${pct(y)}">${y}</span>`).join("")}${t.items.map(m=>`<button type="button" class="pt" tabindex="-1" data-id="${m.id}" style="left:${pct(m.t)}"></button>`).join("")}</div>
+        <div class="strip" aria-hidden="true"><div class="ax"></div>${ticks.map((y,i)=>`<span class="tk${i % 2 ? " minor" : ""}" style="left:${pct(y)}">${y}</span>`).join("")}${t.items.map((m,j)=>`<button type="button" class="pt" tabindex="-1" data-id="${m.id}" style="left:${pct(m.t)};animation-delay:${(j*0.045).toFixed(3)}s"></button>`).join("")}</div>
         <ol class="chain">${t.items.map(m=>`<li><button type="button" data-id="${m.id}"><span class="y">${m.year}</span>${esc(m.short||m.title)}</button></li>`).join("")}</ol>
       </div>
     </section>`).join("");
@@ -1775,11 +2106,17 @@ const VERD = {
   fair: ["The public read it about right", "M4 12h16"],
   open: ["Too early to call", "M12 7v5l3 2"]
 };
+function drawGlyph(id, size){
+  const g = document.getElementById("gl-" + id); if (!g) return glyph(id, size);
+  let i = 0;
+  const inner = g.innerHTML.replace(/<(path|circle|rect|ellipse|line)\b/g, (x, tag)=>`<${tag} pathLength="1" style="animation-delay:${(0.2 + 0.14*(i++)).toFixed(2)}s"`);
+  return `<svg class="draw" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${inner}</svg>`;
+}
 function lagScale(m){
   const lmin = Math.log(LMIN), lmax = Math.log(LMAX);
   const p = l => ((Math.log(Math.max(LMIN, Math.min(LMAX, l))) - lmin)/(lmax-lmin)*100).toFixed(2) + "%";
   const ticks = [[7/365.25,"1 wk"],[1/12,"1 mo"],[1,"1 yr"],[10,"10 yr"]];
-  return `<div class="lagscale" aria-hidden="true"><div class="ln"></div>${ticks.map(([v,l])=>`<span class="tk" style="left:${p(v)}">${l}</span>`).join("")}${m.era.med!=null?`<span class="med" style="left:${p(m.era.med)}"></span>`:""}<span class="me" style="left:${p(m.lag)}"></span></div>`;
+  return `<div class="lagscale" aria-hidden="true"><div class="ln"></div>${ticks.map(([v,l])=>`<span class="tk" style="left:${p(v)}">${l}</span>`).join("")}${m.era.med!=null?`<span class="med" style="left:${p(m.era.med)}"></span>`:""}<span class="me" style="left:0" data-to="${p(m.lag)}"></span></div>`;
 }
 let lastView = "timeline";
 function renderDossier(m){
@@ -1823,7 +2160,7 @@ function renderDossier(m){
       </article>
       <aside class="rail">
         <div class="card exhibit" style="--c:${t.c}">
-          <div class="stage">${glyph(m.glyph,104)}</div>
+          <div class="stage">${drawGlyph(m.glyph,104)}</div>
           <div class="acc"><span>EXHIBIT</span><span>${acc}</span></div>
           <dl class="kv"><dt>Date</dt><dd>${fmtD(m.date)}</dd><dt>Who</dt><dd>${esc(m.who)}</dd><dt>Kind</dt><dd>${esc(KIND[m.kind]||m.kind)}</dd><dt>Source</dt><dd><a class="src" href="${esc(m.src)}" target="_blank" rel="noopener">${esc(m.srcName || new URL(m.src).hostname.replace(/^www\./,""))} ↗</a></dd></dl>
         </div>
@@ -1845,7 +2182,7 @@ function renderAbout(){
   <div class="eyebrow">About the archive</div>
   <h2 style="margin-top:6px">The AI Moment Archive</h2>
   <p class="big" style="margin-top:14px">Most AI "moments" are not the day a capability was invented. They are the day the public found out. This archive dates both, and treats the gap as data.</p>
-  <p>${M.length} moments from ${y0} to ${y1}. ${nl} of them have a clear lab result behind them, so the archive can measure how long that result took to reach the public. The other ${M.length - nl} are reactions, rulings, deals or market moves. They get a dot on the chart but no arc. The longest lag in the archive is ${esc(longest.title)}: ${esc(fmtLag(longest.lag))} from ${esc(longest.origin.label)}.</p>
+  <p>${M.length} moments from ${y0} to ${y1}. ${nl} of them have a clear lab result behind them, so the archive can measure how long that result took to reach the public. The other ${M.length - nl} are lab results themselves, or reactions, rulings, deals and market moves. They sit in the two rows under the chart. The longest lag in the archive is ${esc(longest.title)}: ${esc(fmtLag(longest.lag))} from ${esc(longest.origin.label)}.</p>
   <h3 class="eyebrow">How a moment is dated</h3>
   <ul class="rules">
     <li><span>Moment date</span><span>The day the public could see it: a launch, a broadcast match, a front-page story, a ruling. Not the date of the underlying paper.</span></li>
@@ -1854,6 +2191,8 @@ function renderAbout(){
     <li><span>Era</span><span>Assigned from the moment date alone, so a 2018 film can never land in the 1990s.</span></li>
     <li><span>Hindsight</span><span>The archive's own judgment of whether the public over- or under-reacted, given what followed. Recent moments, and cases still being decided, are marked "too early to call".</span></li>
   </ul>
+  <h3 class="eyebrow">How to listen</h3>
+  <p>Press <b>Play the history</b> under the title, or the space bar. A playhead runs from 1943 to today. When it passes a lab result you hear a soft tick, and a line starts growing. When the public catches up, the moment lands on a note. <b>Its pitch is its lag</b>: the lower the note, the longer the wait. Events with no lab result behind them make a low thump, and each era ends on a chord built from its median. Turn sound off from the top bar.</p>
   <h3 class="eyebrow">Ideas the archive borrows</h3>
   <ol>
     <li><b>Amara's law.</b> Attributed to Roy Amara of the Institute for the Future: we overestimate a technology in the short run and underestimate it in the long run. The hindsight tags test this one moment at a time.</li>
@@ -1877,14 +2216,21 @@ $("#about").addEventListener("click", e=>{ if (e.target.closest("[data-close]"))
 /* ---------- routing ---------- */
 const VIEWS = ["timeline","threads","index"];
 let rendered = {};
+let userNav = false;
 function show(view, m){
   hideTip();
+  if (view !== "timeline" && Play.state === "playing") playPause();
   ["timeline","threads","index","dossier"].forEach(v=> $("#v-"+v).hidden = v !== view);
   document.querySelectorAll(".nav button").forEach(b=> b.setAttribute("aria-current", b.dataset.go === view || (view==="dossier" && b.dataset.go===lastView) ? "page" : "false"));
   if (view === "timeline" && !rendered.timeline){ renderChips(); renderChart(); rendered.timeline = true; }
   if (view === "threads" && !rendered.threads){ renderThreads(); rendered.threads = true; }
   if (view === "index"){ renderIndex(); }
-  if (view === "dossier"){ renderDossier(m); window.scrollTo({top:0}); }
+  if (view === "dossier"){
+    renderDossier(m); window.scrollTo({top:0});
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{ const me = $("#v-dossier .lagscale .me"); if (me) me.style.left = me.dataset.to; }));
+    if (userNav) Sound.open(m);
+  }
+  userNav = false;
 }
 function route(){
   const h = decodeURIComponent(location.hash.slice(1));
@@ -1897,6 +2243,7 @@ function route(){
 }
 let scrollTo_ = null;
 function go(x){
+  userNav = true;
   if (x === "about"){ location.hash = "about"; return; }
   if (VIEWS.includes(x)) lastView = x;
   if (location.hash === "#" + x) route(); else location.hash = x;
@@ -1904,6 +2251,8 @@ function go(x){
 document.addEventListener("click", e=>{ const b = e.target.closest("[data-go]"); if (b){ e.preventDefault(); go(b.dataset.go); } });
 window.addEventListener("hashchange", route);
 document.addEventListener("keydown", e=>{
+  const tag = document.activeElement && document.activeElement.tagName;
+  if (e.key === " " && !$("#v-timeline").hidden && $("#about").hidden && tag !== "INPUT" && tag !== "BUTTON" && tag !== "A"){ e.preventDefault(); $("#playbtn").click(); return; }
   if (e.key === "Escape"){ if (!$("#about").hidden){ closeAbout(); history.replaceState(null,"","#"+lastView); } else if (!$("#v-dossier").hidden) go(lastView); }
   if (!$("#v-dossier").hidden && !e.metaKey && !e.ctrlKey && document.activeElement.tagName !== "INPUT"){
     const id = decodeURIComponent(location.hash.slice(1)), m = BY[id]; if (!m) return;
