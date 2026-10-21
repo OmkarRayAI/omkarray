@@ -76,7 +76,7 @@
             <rect x="4" y="4" width="14" height="14" rx="3" fill="#D6D3C6"/>
           </svg>
         </div>
-        <span class="floppy-count">10 explorations</span>
+        <span class="floppy-count">15 explorations</span>
       </div>
 
       <div class="floppy fade-in" data-folder="thesis" tabindex="0" role="button" aria-expanded="false">
@@ -202,6 +202,18 @@
             <h3>The Voice AI Eval Layer</h3>
             <p>Was this call good? — the last question in the voice stack without a number, and the category racing to supply one. Four product shapes, the calibration problem, and the ground nobody's claimed.</p>
             <span class="card-date">Aug 2026</span>
+          </a>
+          <a href="loop-pm-field-guide.html" class="card" data-cat="pm">
+            <span class="card-tag">AI Product Management</span>
+            <h3>Eight PMs, One Loop</h3>
+            <p>A field guide to the eight PM roles at AI labs and model companies, each owning one slice of the model loop. What each owns, one illustration per role, drills and a self-check.</p>
+            <span class="card-date">Oct 2026</span>
+          </a>
+          <a href="loop-pm-curriculum.html" class="card" data-cat="pm">
+            <span class="card-tag">AI Product Management</span>
+            <h3>Learn the Loop</h3>
+            <p>How to build the eight AI PM skills: the foundations under all of them, a 12-week plan, and three projects per role you can do without the job title.</p>
+            <span class="card-date">Oct 2026</span>
           </a>
         </div>
       </div>
@@ -1010,6 +1022,9 @@
   <script>
   (function() {
     var facts = [
+      { text: "Of 234 open PM roles at 87 AI companies, 70 had titles naming one slice of the model loop: model, research, data, safeguards, agent or inference.", src: "Eight PMs, One Loop", href: "loop-pm-field-guide.html" },
+      { text: "At 0.1% prevalence, a classifier with 95% recall and a 1% false-positive rate is right on fewer than 1 in 11 of its flags.", src: "Eight PMs, One Loop", href: "loop-pm-field-guide.html" },
+      { text: "With 30 test cases, a 90% pass rate could really be anywhere from about 79% to 100%. Most AI product decisions trust evals that small.", src: "Learn the Loop", href: "loop-pm-curriculum.html" },
       { text: "Agent task length doubles every 7 months. Meta bought Manus for $2B+ and Claude Code hit a $1B run rate.", src: "Agent Design Patterns", href: "agent-design-deepdive.html" },
       { text: "Only ~15% of an agent's context window is the actual task. Tool definitions, chat history, and results eat the rest.", src: "Agent Design Patterns", href: "agent-design-deepdive.html" },
       { text: "\"Context engineering is the delicate art of filling the context window with just the right information for the next step.\" — Andrej Karpathy", src: "Agent Design Patterns", href: "agent-design-deepdive.html" },
@@ -1144,6 +1159,17 @@
   <script>
   (function() {
     var kb = [
+      {
+        tags: ['product manager','product management','pm','pms','ai pm','pm role','pm roles','loop pm','pm skills','career','curriculum','field guide','roles','hiring','jobs','skills','upskill','interview'],
+        synonyms: { 'manager': 'pm', 'course': 'curriculum', 'roadmap': 'curriculum', 'learning': 'curriculum', 'upskilling': 'upskill', 'job': 'jobs' },
+        title: 'AI Product Management',
+        answer: 'Two companion pieces on how the PM job has split at AI labs and model companies:',
+        links: [
+          { name: 'Eight PMs, One Loop', href: 'loop-pm-field-guide.html', desc: 'Field guide to the eight loop PM roles, from Model PM to Audience PM, with drills and a self-check' },
+          { name: 'Learn the Loop', href: 'loop-pm-curriculum.html', desc: 'The curriculum: foundations, a 12-week plan, and three projects per role' }
+        ],
+        extra: 'Built from a scan of 7,813 open roles at 87 AI companies on 19 October 2026.'
+      },
       {
         tags: ['voice ai','voice','bolna','tts','asr','speech','call','calls','voice agent','voice bot','telephony','ivr','conversational','commoditized','commoditization','pricing','cost per minute','stack','evaluation','eval','voice eval','voice evaluation','testing','simulation','call quality','deployment readiness','observability'],
         synonyms: { 'speak': 'voice', 'talk': 'voice', 'audio': 'voice', 'phone': 'call', 'sound': 'voice', 'eleven labs': 'tts', 'elevenlabs': 'tts', 'commodity': 'commoditization', 'price': 'pricing' },
