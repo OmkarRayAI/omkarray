@@ -76,7 +76,7 @@
             <rect x="4" y="4" width="14" height="14" rx="3" fill="#D6D3C6"/>
           </svg>
         </div>
-        <span class="floppy-count">16 explorations</span>
+        <span class="floppy-count">17 explorations</span>
       </div>
 
       <div class="floppy fade-in" data-folder="thesis" tabindex="0" role="button" aria-expanded="false">
@@ -219,6 +219,12 @@
             <span class="card-tag">AI History</span>
             <h3>The AI Moment Archive</h3>
             <p>129 fact-checked AI moments from 1943 to 2026, each dated twice: when a lab first showed it and when the public noticed. The median gap fell from 3.4 years before 2012 to 5 months since 2022.</p>
+            <span class="card-date">Oct 2026</span>
+          </a>
+          <a href="kimi-k3-serving.html" class="card" data-cat="infra">
+            <span class="card-tag">Infrastructure</span>
+            <h3>Serving a Trillion Parameters</h3>
+            <p>Kimi K3 in plain words: 16 of 896 experts per token, mostly summary layers, and the memory math that decides how many people one GPU can serve.</p>
             <span class="card-date">Oct 2026</span>
           </a>
         </div>
@@ -1036,6 +1042,8 @@
     var facts = [
       { text: "Of 234 open PM roles at 87 AI companies, 70 had titles naming one slice of the model loop: model, research, data, safeguards, agent or inference.", src: "Eight PMs, One Loop", href: "loop-pm-field-guide.html" },
       { text: "At 0.1% prevalence, a classifier with 95% recall and a 1% false-positive rate is right on fewer than 1 in 11 of its flags.", src: "Eight PMs, One Loop", href: "loop-pm-field-guide.html" },
+      { text: "Kimi K3 has 2.8 trillion parameters, but each token uses only 16 of its 896 experts: about 104 billion parameters at work.", src: "Serving a Trillion Parameters", href: "kimi-k3-serving.html" },
+      { text: "Past about 2,100 tokens, a Kimi K3 conversation's per-token notes take more GPU memory than its fixed-size summary state.", src: "Serving a Trillion Parameters", href: "kimi-k3-serving.html" },
       { text: "The gap between a lab first showing an AI capability and the public noticing fell from a median 3.4 years before 2012 to 5 months since 2022.", src: "The AI Moment Archive", href: "ai-moment-archive.html" },
       { text: "With 30 test cases, a 90% pass rate could really be anywhere from about 79% to 100%. Most AI product decisions trust evals that small.", src: "Learn the Loop", href: "loop-pm-curriculum.html" },
       { text: "Agent task length doubles every 7 months. Meta bought Manus for $2B+ and Claude Code hit a $1B run rate.", src: "Agent Design Patterns", href: "agent-design-deepdive.html" },
@@ -1240,12 +1248,13 @@
         extra: 'GenAI app downloads in India: 198M (2024) → 602M (2025). 3x in one year.'
       },
       {
-        tags: ['datacenter','data center','gpu','rack','cooling','nvidia','infrastructure','power','server','chip','semiconductor'],
-        synonyms: { 'hardware': 'datacenter', 'compute': 'gpu', 'cluster': 'datacenter', 'energy': 'power' },
-        title: 'Datacenter Infrastructure',
-        answer: 'A deep dive on the six layers being forced into simultaneous transition:',
+        tags: ['datacenter','data center','gpu','rack','cooling','nvidia','infrastructure','power','server','chip','semiconductor','inference','serving','kimi','kimi k3','moe','mixture of experts','experts','kv cache','memory','baseten','b300'],
+        synonyms: { 'hardware': 'datacenter', 'compute': 'gpu', 'cluster': 'datacenter', 'energy': 'power', 'moonshot': 'kimi', 'serve': 'serving' },
+        title: 'AI Infrastructure',
+        answer: 'Two deep dives on AI infrastructure, from the datacenter down to serving one model:',
         links: [
-          { name: 'Building a Datacenter', href: 'datacenter.html', desc: 'Rack power 50x in 10 years, cooling crisis, gallium supply chains' }
+          { name: 'Building a Datacenter', href: 'datacenter.html', desc: 'Rack power 50x in 10 years, cooling crisis, gallium supply chains' },
+          { name: 'Serving a Trillion Parameters', href: 'kimi-k3-serving.html', desc: 'Kimi K3 in plain words: experts, summary layers and the memory math of one GPU' }
         ],
         extra: 'China controls ~80% of global gallium supply — critical for GaN transistors in datacenter power.'
       },

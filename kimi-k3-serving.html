@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-62YF7Y81BS"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-62YF7Y81BS');
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Serving a Trillion Parameters: A Kimi K3 Field Guide</title>
+<meta name="description" content="How Kimi K3, a 2.8 trillion parameter open model, is built and served, explained in plain words from Baseten's whiteboard session: experts, summary layers, the family tree of attention, and the memory math of one GPU.">
+<link rel="canonical" href="https://omkarray.com/kimi-k3-serving.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="omkarray.com">
+<meta property="og:url" content="https://omkarray.com/kimi-k3-serving.html">
+<meta property="og:title" content="Serving a Trillion Parameters: A Kimi K3 Field Guide">
+<meta property="og:description" content="2.8T parameters, 16 of 896 experts per token, mostly summary layers, and two separate ways to run out of memory. Kimi K3 explained in plain words.">
+<meta property="og:image" content="https://omkarray.com/kimi-k3-serving-og.png">
+<meta property="og:image:width" content="2400">
+<meta property="og:image:height" content="1260">
+<meta property="og:image:alt" content="A grid of 896 small squares with 16 highlighted, showing how few experts Kimi K3 uses per token.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Serving a Trillion Parameters: A Kimi K3 Field Guide">
+<meta name="twitter:description" content="2.8T parameters, 16 of 896 experts per token, mostly summary layers, and two separate ways to run out of memory.">
+<meta name="twitter:image" content="https://omkarray.com/kimi-k3-serving-og.png">
+<meta name="twitter:image:alt" content="A grid of 896 small squares with 16 highlighted.">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Space+Mono:wght@400;700&family=Nunito+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f8f8f5;
+    --surface: #f0efea;
+    --surface2: #e8e7e1;
+    --border: #d5d2ca;
+    --accent: #2563a8;
+    --accent-tint: #e3ecf7;
+    --accent2: #1a7a3a;
+    --gold: #a06d08;
+    --gold-tint: #f6ead2;
+    --rust: #a63a1e;
+    --muted: #6b6e73;
+    --text: #1a1c20;
+    --text2: #3a3d42;
+    --white: #111214;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Nunito Sans', sans-serif; background: var(--bg); color: var(--text); max-width: 960px; margin: 0 auto; padding: 48px 32px; line-height: 1.7; font-size: 15px; }
+  .back-link { display: inline-flex; align-items: center; gap: 6px; font-family: 'Space Mono', monospace; font-size: 12px; color: var(--muted); text-decoration: none; margin-bottom: 20px; }
+  .back-link:hover { color: var(--text); }
+  .masthead { border-bottom: 1px solid var(--border); padding-bottom: 32px; margin-bottom: 28px; }
+  .eyebrow { font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); margin-bottom: 16px; }
+  .masthead h1 { font-family: 'Cormorant Garamond', serif; font-size: 60px; font-weight: 700; line-height: 1; letter-spacing: -0.02em; color: var(--white); }
+  .masthead h1 em { font-style: italic; color: var(--accent); font-weight: 400; }
+  .masthead-sub { font-size: 15px; color: var(--muted); font-weight: 300; max-width: 680px; line-height: 1.7; margin-top: 20px; }
+  .masthead-sub b { color: var(--text2); font-weight: 600; }
+  .toc { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(7, auto); grid-auto-flow: column; gap: 4px 28px; margin: 6px 0 8px; }
+  .toc a { font-size: 13.5px; color: var(--text2); text-decoration: none; display: flex; gap: 10px; padding: 3px 0; border-bottom: 1px dotted var(--border); }
+  .toc a span { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--accent); padding-top: 3px; min-width: 22px; }
+  .toc a:hover { color: var(--accent); }
+  .section-header { display: flex; align-items: baseline; gap: 16px; margin: 60px 0 20px; border-bottom: 1px solid var(--border); padding-bottom: 12px; scroll-margin-top: 16px; }
+  .section-num { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--accent); letter-spacing: 0.1em; }
+  .section-title { font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 600; color: var(--white); }
+  .section-desc { font-family: 'Space Mono', monospace; font-size: 9px; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; margin-left: auto; text-align: right; }
+  p.body { font-size: 15px; color: var(--text2); margin-bottom: 16px; max-width: 760px; font-weight: 300; line-height: 1.75; }
+  p.body strong { color: var(--text); font-weight: 600; }
+  p.body a, .footnote a, .srcs a { color: var(--accent); text-decoration: none; border-bottom: 1px solid rgba(37,99,168,0.3); }
+  .lede { font-family: 'Cormorant Garamond', serif; font-size: 22px; line-height: 1.5; color: var(--text2); max-width: 780px; margin-bottom: 16px; }
+  .lede strong { color: var(--white); font-weight: 600; }
+  .lede em { color: var(--accent); font-style: italic; }
+  .sub-h { font-family: 'Cormorant Garamond', serif; font-size: 21px; font-weight: 600; color: var(--white); margin: 28px 0 10px; line-height: 1.25; }
+  .diagram { background: var(--surface); border: 1px solid var(--border); padding: 24px 26px; margin: 22px 0; }
+  .diagram-label { font-family: 'Space Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); margin-bottom: 6px; }
+  .diagram-sub { font-size: 12.5px; color: var(--muted); font-weight: 300; margin-bottom: 16px; padding-bottom: 14px; border-bottom: 1px solid var(--border); line-height: 1.6; }
+  .footnote { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--muted); border-top: 1px solid var(--border); padding-top: 10px; margin-top: 14px; line-height: 1.8; }
+  .footnote strong { color: var(--text2); }
+  svg { width: 100%; height: auto; display: block; font-family: 'Nunito Sans', sans-serif; }
+  svg .mono { font-family: 'Space Mono', monospace; }
+  .tbl-scroll { overflow-x: auto; }
+  .tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .tbl th { font-family: 'Space Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.08em; padding: 9px 10px; background: var(--surface2); color: var(--muted); text-align: left; font-weight: 500; border: 1px solid var(--border); }
+  .tbl td { padding: 9px 10px; border: 1px solid var(--border); vertical-align: top; line-height: 1.5; color: var(--text2); font-weight: 300; }
+  .tbl td.rowh { color: var(--text); font-weight: 700; font-size: 12.5px; white-space: nowrap; }
+  .tbl td.num { font-family: 'Space Mono', monospace; font-size: 12px; color: var(--text); white-space: nowrap; }
+  .gloss { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border); border: 1px solid var(--border); margin: 14px 0; }
+  .gloss > div { background: var(--bg); padding: 12px 14px; }
+  .gloss b { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--accent); font-weight: 400; display: block; margin-bottom: 3px; }
+  .gloss p { font-size: 13px; color: var(--text2); line-height: 1.55; font-weight: 300; }
+  .takeaways { list-style: none; display: grid; gap: 10px; margin: 8px 0; }
+  .takeaways li { display: grid; grid-template-columns: 34px 1fr; gap: 10px; font-size: 14px; color: var(--text2); line-height: 1.6; font-weight: 300; }
+  .takeaways li span { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--accent); padding-top: 4px; }
+  .takeaways li strong { color: var(--text); font-weight: 600; }
+  .quiz { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .quiz details { border: 1px solid var(--border); background: var(--bg); padding: 12px 14px; }
+  .quiz summary { cursor: pointer; font-size: 13.5px; color: var(--text); line-height: 1.5; list-style: none; }
+  .quiz summary::-webkit-details-marker { display: none; }
+  .quiz summary .q { font-family: 'Space Mono', monospace; font-size: 9px; color: var(--accent); letter-spacing: 0.12em; display: block; margin-bottom: 4px; }
+  .quiz .a { margin-top: 8px; padding-top: 8px; border-top: 1px dotted var(--border); font-size: 12.5px; color: var(--text2); line-height: 1.55; }
+  .quiz .a b { color: var(--accent); }
+  .watch { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border); border: 1px solid var(--border); }
+  .watch > div { background: var(--bg); padding: 12px 14px; }
+  .watch .k { font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); display: block; margin-bottom: 6px; }
+  .watch ul { list-style: none; display: grid; gap: 6px; }
+  .watch li { font-size: 13px; color: var(--text2); line-height: 1.5; }
+  .watch a { color: var(--text); text-decoration: none; border-bottom: 1px solid rgba(37,99,168,0.3); }
+  .watch a:hover { color: var(--accent); }
+  .watch .len { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--muted); }
+  .srcs { font-size: 12.5px; color: var(--muted); line-height: 1.7; font-weight: 300; }
+  .srcs li { margin: 0 0 6px 18px; }
+  footer { margin-top: 64px; padding-top: 20px; border-top: 1px solid var(--border); font-family: 'Space Mono', monospace; font-size: 10px; color: var(--muted); display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  footer a { color: var(--muted); }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  @media (max-width: 720px) {
+    body { padding: 32px 18px; }
+    .masthead h1 { font-size: 42px; }
+    .toc, .gloss, .quiz, .watch { grid-template-columns: 1fr; }
+    .toc { grid-template-rows: none; grid-auto-flow: row; }
+    .section-desc { display: none; }
+    .diagram { padding: 18px 14px; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+
+<a class="back-link" href="/">← omkarray.com</a>
+
+<header class="masthead">
+  <div class="eyebrow">Field guide · Inference · October 2026</div>
+  <h1>Serving a <em>trillion</em> parameters</h1>
+  <p class="masthead-sub">Kimi K3 is Moonshot AI's open model with <b>2.8 trillion parameters</b>. On 19 October 2026, Baseten's model performance team walked through how it is built and how they serve it, on a whiteboard, for an hour. This guide turns that session into plain words and diagrams: the three problems a model this size has to solve, the family tree of attention that led to its design, and the memory math that decides how many people one machine can serve.</p>
+</header>
+
+<nav class="toc" aria-label="Contents">
+  <a href="#why"><span>01</span>Why this session is worth an hour</a>
+  <a href="#glance"><span>02</span>Kimi K3 at a glance</a>
+  <a href="#experts"><span>03</span>Problem one: 896 experts</a>
+  <a href="#context"><span>04</span>Problem two: a million tokens</a>
+  <a href="#attention"><span>05</span>The family tree of attention</a>
+  <a href="#fit"><span>06</span>Fitting it on one machine</a>
+  <a href="#split"><span>07</span>Splitting it across eight GPUs</a>
+  <a href="#caches"><span>08</span>Two kinds of memory, one scheduler</a>
+  <a href="#speed"><span>09</span>Reading, writing and guessing ahead</a>
+  <a href="#product"><span>10</span>What it means for product people</a>
+  <a href="#quiz"><span>11</span>Check yourself</a>
+  <a href="#watch"><span>12</span>Watch next</a>
+  <a href="#sources"><span>13</span>Sources and method</a>
+</nav>
+
+<!-- 01 -->
+<div class="section-header" id="why">
+  <span class="section-num">01</span><span class="section-title">Why this session is worth an hour</span><span class="section-desc">Start here</span>
+</div>
+<p class="lede">Most model launches are explained with benchmark charts. This one was explained with a <strong>memory budget</strong>. <em>That is the more useful lens.</em></p>
+<p class="body">The session is <a href="https://www.youtube.com/watch?v=a58ldGhR5wM">How trillion-parameter AI models work and how to serve them</a> (61 minutes). Philip Kiely, author of <em>Inference Engineering</em>, talks with Ali and Bryce from Baseten's model performance team. Ali covers the architecture and draws the history of attention on the whiteboard. Bryce covers serving: fitting the model on B300 GPUs, splitting it across chips, managing two kinds of memory, and the speed tricks on top.</p>
+<p class="body">The reason it matters beyond Kimi: the design choices in K3 are the ones every large model now faces. Use only a sliver of the model per word. Stop remembering every word in full. Then work out how many conversations fit in what is left of the chip's memory. If you understand this one model, you can read most model launches.</p>
+
+<div class="gloss">
+  <div><b>Token</b><p>A piece of text, about three quarters of a word. Models read and write tokens.</p></div>
+  <div><b>Parameter</b><p>One adjustable number inside the model. K3 has 2.8 trillion of them.</p></div>
+  <div><b>Expert</b><p>A group of parameters that only switches on for some tokens. The model picks a few experts per token.</p></div>
+  <div><b>Attention</b><p>How the model looks back at earlier tokens to decide the next one.</p></div>
+  <div><b>KV cache</b><p>The notes a model keeps for every token it has read, so it doesn't redo work. It grows with the conversation.</p></div>
+  <div><b>Summary state</b><p>A fixed-size running summary that some layers keep instead of a note per token. It doesn't grow.</p></div>
+</div>
+
+<!-- 02 -->
+<div class="section-header" id="glance">
+  <span class="section-num">02</span><span class="section-title">Kimi K3 at a glance</span><span class="section-desc">The model card</span>
+</div>
+<div class="tbl-scroll"><table class="tbl">
+  <tr><th>Part</th><th>Value</th><th>What it means</th></tr>
+  <tr><td class="rowh">Size</td><td class="num">2.8T total · 104B active</td><td>Only about 4% of the parameters do work for any one token.</td></tr>
+  <tr><td class="rowh">Experts</td><td class="num">896 · 16 per token</td><td>Each token is routed to 16 specialist groups out of 896.</td></tr>
+  <tr><td class="rowh">Layers</td><td class="num">93 = 69 KDA + 24 MLA</td><td>Most layers keep a running summary (KDA). About one in four looks back at every token (MLA).</td></tr>
+  <tr><td class="rowh">Context</td><td class="num">1,048,576 tokens</td><td>It can consider about a million tokens at once.</td></tr>
+  <tr><td class="rowh">Precision</td><td class="num">4-bit weights · 8-bit activations</td><td>Shipped already compressed (MXFP4 and MXFP8 formats).</td></tr>
+  <tr><td class="rowh">Vision</td><td class="num">401M encoder</td><td>A separate image reader (MoonViT-V2) feeds the language model.</td></tr>
+</table></div>
+
+<div class="diagram">
+  <div class="diagram-label">Exhibit 1. 896 experts, 16 at work</div>
+  <div class="diagram-sub">Each square is one expert. For any single token, the router switches on 16 of them (highlighted). All 896 still have to sit in memory, because the next token may need different ones.</div>
+  <svg id="ex1" viewBox="0 0 900 290" role="img" aria-label="A 32 by 28 grid of 896 squares with 16 highlighted"></svg>
+  <div class="footnote"><strong>Which 16:</strong> chosen per token by a small router network, so the highlighted set changes every token. Positions here are illustrative.</div>
+</div>
+
+<div class="diagram">
+  <div class="diagram-label">Exhibit 2. The layer stack: mostly summaries, a few look-backs</div>
+  <div class="diagram-sub">93 layers, read left to right. Blue layers keep a fixed-size running summary (Kimi Delta Attention). Gold layers look back at every earlier token (gated MLA). Roughly three summary layers for every look-back layer.</div>
+  <svg id="ex2" viewBox="0 0 900 120" role="img" aria-label="93 thin bars, three blue then one gold, repeating"></svg>
+  <div class="footnote"><strong>Pattern:</strong> vLLM's notes on serving K3 describe a full-attention layer every fourth layer. 23 blocks of three plus one, and a final look-back layer, give 69 and 24. The exact placement is my reconstruction.</div>
+</div>
+
+<!-- 03 -->
+<div class="section-header" id="experts">
+  <span class="section-num">03</span><span class="section-title">Problem one: 896 experts that stay balanced</span><span class="section-desc">Stable LatentMoE</span>
+</div>
+<p class="body"><strong>The idea.</strong> A mixture-of-experts model splits its parameters into groups and lets a router pick a few per token. More experts with fewer active per token means more total knowledge for the same work per token. K3 pushes this hard: 16 of 896 is under 2%.</p>
+<p class="body"><strong>Why it gets unstable.</strong> The video has a chapter on exactly this. The general problem in the field: when the router can pick from hundreds of experts, it tends to favour a few. Those get overloaded while others barely train, and the whole run can wobble. Labs fight this with balancing rules that push the router to spread tokens around. Moonshot calls its approach <strong>Stable LatentMoE</strong> and says it gives about 2.5 times the scaling efficiency of its previous model, K2. That figure is Moonshot's own.</p>
+<p class="body"><strong>What it costs at serving time.</strong> Less math per token, but the memory bill does not shrink, because every expert has to be loaded somewhere. This is why the rest of the session is about memory.</p>
+
+<!-- 04 -->
+<div class="section-header" id="context">
+  <span class="section-num">04</span><span class="section-title">Problem two: a million tokens of context</span><span class="section-desc">Notes vs summaries</span>
+</div>
+<p class="body">A standard look-back layer keeps a note for every token it has read. On Baseten's whiteboard, K3's look-back layers need <strong>13.5 KiB per token</strong> in total. That sounds small until you multiply: a full million-token conversation needs about <strong>13 GiB</strong> of notes, for one person.</p>
+<p class="body">The summary layers work differently. Each conversation gets one fixed-size state, <strong>27.7 MiB</strong> across all of K3's summary layers, whether the conversation is ten tokens or a million. Moonshot says its two architectural changes, Kimi Delta Attention and Attention Residuals, improve how information flows across sequence length and model depth. Baseten's session pairs Attention Residuals with the million-token context.</p>
+
+<div class="diagram">
+  <div class="diagram-label">Exhibit 3. Memory per conversation: notes grow, the summary doesn't</div>
+  <div class="diagram-sub">Memory for one conversation as it gets longer (log scale). The look-back notes grow with every token. The summary state is flat. They cross at about 2,100 tokens: past that, the notes cost more than the summary for every conversation.</div>
+  <svg id="ex3" viewBox="0 0 900 330" role="img" aria-label="A rising line for notes crossing a flat line for the summary near 2,100 tokens"></svg>
+  <div class="footnote"><strong>My math from the whiteboard:</strong> 27.7 MiB ÷ 13.5 KiB ≈ 2,101 tokens. 1,000,000 tokens × 13.5 KiB ≈ 12.9 GiB. Notes are summed across K3's 24 look-back layers and the summary across its 69 summary layers, as drawn on the board.</div>
+</div>
+
+<!-- 05 -->
+<div class="section-header" id="attention">
+  <span class="section-num">05</span><span class="section-title">The family tree of attention</span><span class="section-desc">From the whiteboard</span>
+</div>
+<p class="body">The longest stretch of the video is Ali drawing how attention evolved. Each step fixed one problem and created the next. This is the shortest version I can give:</p>
+
+<div class="diagram">
+  <div class="diagram-label">Exhibit 4. Six steps from "compare everything" to Kimi Delta Attention</div>
+  <div class="diagram-sub">Read left to right. Each box says what the step changed and what it cost.</div>
+  <svg id="ex4" viewBox="0 0 900 360" role="img" aria-label="Six boxes from softmax attention to Kimi Delta Attention"></svg>
+  <div class="footnote"><strong>Lineage:</strong> softmax attention (2017), linear attention (2020), the delta rule as used in DeltaNet, Gated DeltaNet (2024), and Kimi Delta Attention from Moonshot's Kimi Linear work (2025). The chapter titles in the video follow this order.</div>
+</div>
+
+<p class="body"><strong>Why linear attention didn't win earlier.</strong> Two reasons come up in the field, and the video has chapters on both. A fixed-size summary can't hold everything, so exact recall suffers. And the update rule is sequential, which made it slow on GPUs built for big parallel matrix math. Newer methods rewrite the delta update into chunks that GPU tensor cores can run in parallel, and hybrids keep a few full look-back layers for exact recall. K3 does both.</p>
+
+<!-- 06 -->
+<div class="section-header" id="fit">
+  <span class="section-num">06</span><span class="section-title">Fitting 2.8 trillion parameters on one machine</span><span class="section-desc">The memory budget</span>
+</div>
+<p class="lede">The most useful drawing in the session is a <strong>single GPU's memory budget</strong>. <em>It decides how many people the model can serve.</em></p>
+
+<div class="diagram">
+  <div class="diagram-label">Exhibit 5. One B300 GPU, 288 GB, as drawn on the whiteboard</div>
+  <div class="diagram-sub">Top: where the GPU's memory goes. Bottom: the 50 GiB set aside for conversation memory, and how many tokens or conversations it holds.</div>
+  <svg id="ex5" viewBox="0 0 900 300" role="img" aria-label="A bar split into experts 183, other 9, aux 6 and free 90; below, 35 GiB of notes and 15 GiB of summaries"></svg>
+  <div class="footnote"><strong>Redrawn from the whiteboard at about 56:00.</strong> The board's numbers sum to 288 and mix GB and GiB, as written. That the model is spread over eight GPUs is my reading of the 47:00 drawing; 2.8T parameters at about 4.25 bits is roughly 1.5 TB, or about 186 GB per GPU across eight, close to the 183 drawn.</div>
+</div>
+
+<p class="body"><strong>Two ways to run out of room.</strong> The notes budget holds about 2.3 million tokens in total, across everyone. The summary budget holds about 527 conversations at once, however short. A service can hit either wall first: many short chats fill the summary slots; a few very long ones fill the notes. Capacity planning, pricing and rate limits all need both numbers.</p>
+
+<!-- 07 -->
+<div class="section-header" id="split">
+  <span class="section-num">07</span><span class="section-title">Splitting the model across eight GPUs</span><span class="section-desc">Tensor vs expert parallelism</span>
+</div>
+<p class="body">A model this size doesn't fit on one chip, so it is split. There are two ways, and Bryce drew both.</p>
+
+<div class="diagram">
+  <div class="diagram-label">Exhibit 6. Slice every layer, or hand out whole experts</div>
+  <div class="diagram-sub">Left: tensor parallelism gives every GPU one eighth of every layer, so all eight must talk after each layer. Right: expert parallelism gives each GPU whole experts, about 112 of 896 each, and sends each token to the GPUs that hold its experts.</div>
+  <svg id="ex6" viewBox="0 0 900 300" role="img" aria-label="Two panels comparing tensor and expert parallelism across eight GPUs"></svg>
+  <div class="footnote"><strong>In practice:</strong> vLLM's early K3 setup paired expert parallelism with data parallelism across 16 GPUs (DP16 + EP16). The trade: tensor parallelism means constant chatter between chips; expert parallelism means uneven traffic when popular experts sit on the same GPU.</div>
+</div>
+
+<!-- 08 -->
+<div class="section-header" id="caches">
+  <span class="section-num">08</span><span class="section-title">Two kinds of memory, one scheduler</span><span class="section-desc">Caching and checkpoints</span>
+</div>
+<p class="body">Serving systems save money by reusing work. If a thousand requests start with the same long instructions, the model should read them once and reuse the result. With per-token notes that is easy: keep the notes for the shared start and point new requests at them.</p>
+<p class="body">Summary layers make it harder. The summary is one blended state, not a list of notes, so you can't cut it at an arbitrary token. The fix is to save <strong>checkpoints</strong> of the summary at regular points (the video's chapter on KDA state checkpointing). A new request can then resume from the last checkpoint before the shared text ends. vLLM had to rebuild parts of its cache manager to do this, including partial reuse with copy-on-write.</p>
+
+<div class="diagram">
+  <div class="diagram-label">Exhibit 7. Reusing a shared prompt when part of the memory is a summary</div>
+  <div class="diagram-sub">Two requests share a long opening. Notes can be reused token by token. The summary can only be reused from a saved checkpoint, so anything after the last checkpoint is recomputed.</div>
+  <svg id="ex7" viewBox="0 0 900 260" role="img" aria-label="Two token timelines sharing a prefix, with summary checkpoints at intervals"></svg>
+</div>
+
+<!-- 09 -->
+<div class="section-header" id="speed">
+  <span class="section-num">09</span><span class="section-title">Reading, writing and guessing ahead</span><span class="section-desc">Disaggregation and speculation</span>
+</div>
+<p class="body">Every answer has two phases. <strong>Reading</strong> the prompt happens all at once and is limited by how fast the chip does math. <strong>Writing</strong> the reply happens one token at a time and is limited by how fast the chip can fetch weights and memory. Because the two phases stress different parts of the chip, large deployments now run them on separate GPUs. This is called disaggregation. The reading GPUs hand the conversation memory to the writing GPUs.</p>
+<p class="body">On the writing side, <strong>speculative decoding</strong> cuts the number of slow steps. A small, fast drafter guesses several tokens ahead, and the big model checks them all in one step, keeping the ones it agrees with. The session covers two recent drafters, DFlash and DSpark. DFlash, for example, drafts a whole block of tokens in one pass.</p>
+
+<div class="diagram">
+  <div class="diagram-label">Exhibit 8. Separate the phases, then guess ahead</div>
+  <div class="diagram-sub">Top: reading and writing on different GPUs, with memory handed between them. Bottom: a drafter proposes four tokens, and the big model accepts three and fixes one in a single step.</div>
+  <svg id="ex8" viewBox="0 0 900 300" role="img" aria-label="Prefill GPUs hand memory to decode GPUs; a drafter proposes four tokens, three accepted"></svg>
+</div>
+
+<!-- 10 -->
+<div class="section-header" id="product">
+  <span class="section-num">10</span><span class="section-title">What it means if you build on models</span><span class="section-desc">For PMs</span>
+</div>
+<ul class="takeaways">
+  <li><span>01</span><div><strong>Capacity has two limits.</strong> Count tokens in flight and conversations in flight. Rate limits and load tests need both.</div></li>
+  <li><span>02</span><div><strong>Long context is a pricing decision.</strong> One full million-token session uses over a third of a GPU's notes budget on the whiteboard's numbers. Price or limit long sessions separately.</div></li>
+  <li><span>03</span><div><strong>Test exact recall by length.</strong> Summary layers can blur exact details over long distances. Check IDs, numbers and quotes at 8K, 128K, 512K and 1M tokens as separate slices, not one average.</div></li>
+  <li><span>04</span><div><strong>Measure cost per finished task.</strong> Agents resend long shared instructions. With summary layers, cache reuse depends on checkpoints, so report the cache hit rate alongside cost.</div></li>
+  <li><span>05</span><div><strong>The same weights can behave differently by provider.</strong> Compression formats, kernels and cache settings vary. Run your own tests on each provider's endpoint before choosing.</div></li>
+</ul>
+
+<!-- 11 -->
+<div class="section-header" id="quiz">
+  <span class="section-num">11</span><span class="section-title">Check yourself</span><span class="section-desc">Answers fold out</span>
+</div>
+<div class="quiz">
+  <details><summary><span class="q">Q1</span>K3 uses 16 of 896 experts per token. Why doesn't that cut memory by the same ratio?</summary><div class="a">Because <b>every expert must stay loaded</b>; the next token may route to different ones. Experts cut the math per token, not the memory.</div></details>
+  <details><summary><span class="q">Q2</span>Past roughly how many tokens does a conversation's notes cost more than its summary state?</summary><div class="a">About <b>2,100 tokens</b>: 27.7 MiB ÷ 13.5 KiB per token.</div></details>
+  <details><summary><span class="q">Q3</span>A service runs out of room with only 400,000 tokens in flight. What hit the limit?</summary><div class="a">Probably the <b>conversation count</b>: about 527 summary states per GPU on the whiteboard, regardless of length. Lots of short chats fill it first.</div></details>
+  <details><summary><span class="q">Q4</span>Why is reusing a shared prompt harder with summary layers?</summary><div class="a">A summary is one blended state, so it can only be reused from a <b>saved checkpoint</b>, not cut at any token like a list of notes.</div></details>
+  <details><summary><span class="q">Q5</span>What's the trade between tensor and expert parallelism?</summary><div class="a">Tensor: <b>every GPU talks after every layer</b>. Expert: less chatter, but <b>uneven load</b> when popular experts share a GPU.</div></details>
+  <details><summary><span class="q">Q6</span>Why run reading and writing on different GPUs?</summary><div class="a">Reading is limited by <b>math speed</b>, writing by <b>memory speed</b>. Separating them lets each set of GPUs do what it is best at.</div></details>
+</div>
+
+<!-- 12 -->
+<div class="section-header" id="watch">
+  <span class="section-num">12</span><span class="section-title">Watch next</span><span class="section-desc">Checked 20 Oct 2026</span>
+</div>
+<div class="watch">
+  <div><span class="k">More from Baseten</span><ul>
+    <li><a href="https://www.youtube.com/watch?v=a58ldGhR5wM">How trillion-parameter AI models work and how to serve them</a> <span class="len">61 min</span></li>
+    <li><a href="https://www.youtube.com/watch?v=LUGxx1XNqcM">How to become an inference engineer</a> <span class="len">28 min</span></li>
+    <li><a href="https://www.youtube.com/watch?v=qqLVZHjMH-4">AI research hot takes with Baseten's head of training</a> <span class="len">1 hr</span></li>
+    <li><a href="https://www.youtube.com/watch?v=ps4ZACgz04M">Poolside co-founder on frontier open-weight models</a> <span class="len">34 min</span></li>
+  </ul></div>
+  <div><span class="k">How the models are built</span><ul>
+    <li><a href="https://www.youtube.com/watch?v=0VLAoVGf_74">How DeepSeek rewrote the transformer (MLA)</a> · Welch Labs <span class="len">18 min</span></li>
+    <li><a href="https://www.youtube.com/watch?v=0QQlYR1r6pQ">Mixture of Experts, visually explained</a> · Jia-Bin Huang <span class="len">32 min</span></li>
+    <li><a href="https://www.youtube.com/watch?v=sOPDGQjFcuM">A visual guide to Mixture of Experts</a> · Maarten Grootendorst <span class="len">20 min</span></li>
+    <li><a href="https://www.youtube.com/watch?v=_vXsJT_TLPg">DeepSeek-V3.2 explained from scratch</a> <span class="len">1 hr 45 min</span></li>
+  </ul></div>
+  <div><span class="k">How the models are served</span><ul>
+    <li><a href="https://www.youtube.com/watch?v=y2W4FNAuPEA">Deep dive on LLM inference at scale</a> · AI Engineer <span class="len">1 hr 28 min</span></li>
+    <li><a href="https://www.youtube.com/watch?v=9gmHwe5-j0E">The engineering behind LLM inference</a> · PY <span class="len">30 min</span></li>
+    <li><a href="https://www.youtube.com/watch?v=-7zk3XcZMGo">How LLM inference actually works</a> <span class="len">41 min</span></li>
+    <li><a href="https://www.youtube.com/watch?v=9tvJ_GYJA-o">Mastering LLM inference optimization</a> · Mark Moyou <span class="len">34 min</span></li>
+    <li><a href="https://www.youtube.com/watch?v=-uSWCo11x0Q">Prefill vs decode</a> · SambaNova <span class="len">4 min</span></li>
+    <li><a href="https://www.youtube.com/watch?v=H4azmWcqO5g">Speculative decoding</a> · Hugging Face <span class="len">livestream</span></li>
+  </ul></div>
+  <div><span class="k">The full foundation</span><ul>
+    <li><a href="https://www.youtube.com/watch?v=7xTGNNLPyMI">Deep Dive into LLMs like ChatGPT</a> · Andrej Karpathy <span class="len">3.5 hr</span></li>
+  </ul></div>
+</div>
+
+<!-- 13 -->
+<div class="section-header" id="sources">
+  <span class="section-num">13</span><span class="section-title">Sources and method</span><span class="section-desc">How this was built</span>
+</div>
+<ul class="srcs">
+  <li><strong>The session:</strong> Baseten, <a href="https://www.youtube.com/watch?v=a58ldGhR5wM">How trillion-parameter AI models work and how to serve them</a>, 19 October 2026. Captions were not available, so this guide works from the chapter list, frames read at the key chapters (the memory budget at about 56:00 and the parallelism drawing at about 47:00) and the sources below. Numbers read from the whiteboard are as written; where I interpret them (per GPU, eight GPUs), the text says so.</li>
+  <li><strong>Model facts:</strong> Moonshot AI's <a href="https://github.com/MoonshotAI/Kimi-K3">Kimi K3 model card</a>: 2.8T total and 104B active parameters, 93 layers (69 KDA, 24 gated MLA), 896 experts with 16 active, 1,048,576-token context, MXFP4 weights and MXFP8 activations, MoonViT-V2 vision encoder. The 2.5x efficiency claim for Stable LatentMoE is Moonshot's. Moonshot's <a href="https://x.com/Kimi_Moonshot/status/2077830234955816983">announcement</a> describes KDA and Attention Residuals.</li>
+  <li><strong>Serving:</strong> vLLM, <a href="https://vllm.ai/blog/2026-07-22-kimi-k3-preview">A preview of production-scale Kimi K3 support</a> (22 July 2026): the two caches, prefix caching with partial reuse, the DP16 + EP16 setup.</li>
+  <li><strong>My calculations:</strong> the 2,100-token crossover, the million-token figure, 112 experts per GPU and the per-GPU weight estimate are arithmetic on the numbers above.</li>
+  <li><strong>Related pieces on this site:</strong> <a href="/datacenter.html">building a datacenter</a>, <a href="/transformers.html">transformers</a>, <a href="/voice-ai-commoditization.html">the voice AI stack</a>, <a href="/loop-pm-field-guide.html">eight PMs, one loop</a>.</li>
+</ul>
+
+<footer>
+  <span>Omkar Ray · October 2026</span>
+  <span><a href="/">omkarray.com</a></span>
+</footer>
+
+<script>
+(function(){
+  var NS = "http://www.w3.org/2000/svg";
+  var C = { ink:"#1a1c20", text2:"#3a3d42", muted:"#6b6e73", border:"#d5d2ca", surface2:"#e8e7e1", bg:"#f8f8f5", accent:"#2563a8", tint:"#e3ecf7", gold:"#a06d08", goldTint:"#f6ead2", green:"#1a7a3a", rust:"#a63a1e" };
+  function E(tag, a, txt){ var e=document.createElementNS(NS,tag); for (var k in a) e.setAttribute(k,a[k]); if (txt!=null) e.textContent=txt; return e; }
+  function T(svg,x,y,s,o){ o=o||{}; var a={x:x,y:y,fill:o.fill||C.text2,"font-size":o.size||13}; if(o.anchor) a["text-anchor"]=o.anchor; if(o.weight) a["font-weight"]=o.weight; if(o.mono) a["class"]="mono"; svg.appendChild(E("text",a,s)); }
+  function R(svg,x,y,w,h,fill,o){ o=o||{}; var a={x:x,y:y,width:w,height:h,fill:fill,rx:o.rx==null?3:o.rx}; if(o.stroke){a.stroke=o.stroke;a["stroke-width"]=o.sw||1;} if(o.dash) a["stroke-dasharray"]=o.dash; svg.appendChild(E("rect",a)); }
+  function L(svg,x1,y1,x2,y2,color,w,dash){ var a={x1:x1,y1:y1,x2:x2,y2:y2,stroke:color,"stroke-width":w||1.4}; if(dash) a["stroke-dasharray"]=dash; svg.appendChild(E("line",a)); }
+  function A(svg,x1,y1,x2,y2,color){ L(svg,x1,y1,x2,y2,color,1.6); var ang=Math.atan2(y2-y1,x2-x1),s=7; svg.appendChild(E("path",{d:"M"+x2+","+y2+" L"+(x2-s*Math.cos(ang-0.45))+","+(y2-s*Math.sin(ang-0.45))+" L"+(x2-s*Math.cos(ang+0.45))+","+(y2-s*Math.sin(ang+0.45))+" Z",fill:color})); }
+
+  // Exhibit 1: 896 grid
+  (function(){ var s=document.getElementById("ex1"), cols=32, rows=28, size=8.2, gap=1.6, x0=20, y0=12;
+    var lit={}; [37,90,151,203,260,318,371,430,488,541,602,655,713,766,824,877].forEach(function(i){lit[i]=1;});
+    for (var r=0;r<rows;r++) for (var c=0;c<cols;c++){ var i=r*cols+c; R(s,x0+c*(size+gap),y0+r*(size+gap),size,size,lit[i]?C.accent:C.surface2,{rx:1}); }
+    var bx=x0+cols*(size+gap)+30;
+    T(s,bx,60,"896",{size:44,weight:700,fill:C.ink}); T(s,bx+92,60,"experts in memory",{size:14,fill:C.muted});
+    T(s,bx,128,"16",{size:44,weight:700,fill:C.accent}); T(s,bx+60,128,"switched on per token",{size:14,fill:C.muted});
+    T(s,bx,190,"104B of 2.8T parameters active",{size:14,fill:C.text2}); T(s,bx,212,"≈ 3.7% of the model per token",{size:12,fill:C.muted,mono:true});
+  })();
+
+  // Exhibit 2: layer stack
+  (function(){ var s=document.getElementById("ex2"), n=93, w=8.2, gap=1.2, x0=20;
+    for (var i=0;i<n;i++){ var mla=((i+1)%4===0)||i===n-1; R(s,x0+i*(w+gap),20,w,56,mla?C.gold:C.accent,{rx:1}); }
+    T(s,20,104,"layer 1",{size:11,fill:C.muted,mono:true}); T(s,x0+(n-1)*(w+gap)+w,104,"layer 93",{size:11,fill:C.muted,mono:true,anchor:"end"});
+    R(s,330,93,12,12,C.accent,{rx:2}); T(s,348,104,"summary layer (KDA) · 69",{size:12}); R(s,560,93,12,12,C.gold,{rx:2}); T(s,578,104,"look-back layer (MLA) · 24",{size:12});
+  })();
+
+  // Exhibit 3: memory vs tokens (log x)
+  (function(){ var s=document.getElementById("ex3"), x0=90, x1=860, y0=270, y1=24;
+    var lx=function(t){ return x0+(Math.log10(t)-2)/(6-2)*(x1-x0); };   // 100 .. 1,000,000
+    var ly=function(mib){ return y0-(Math.log10(mib)-0)/(5-0)*(y0-y1); }; // 1 MiB .. 100,000 MiB
+    [100,1000,10000,100000,1000000].forEach(function(t){ L(s,lx(t),y0,lx(t),y0+5,C.muted); T(s,lx(t),y0+22,t>=1e6?"1M":t>=1e3?(t/1e3)+"K":String(t),{size:12,fill:C.muted,mono:true,anchor:"middle"}); });
+    [[1,"1 MiB"],[10,"10 MiB"],[100,"100 MiB"],[1024,"1 GiB"],[10240,"10 GiB"]].forEach(function(p){ L(s,x0,ly(p[0]),x1,ly(p[0]),C.border,0.8,"3 4"); T(s,x0-8,ly(p[0])+4,p[1],{size:11,fill:C.muted,mono:true,anchor:"end"}); });
+    L(s,x0,y0,x1,y0,C.ink,1.2); L(s,x0,y1,x0,y0,C.ink,1.2);
+    T(s,(x0+x1)/2,y0+44,"tokens in one conversation (log scale)",{size:12,fill:C.muted,anchor:"middle"});
+    var d="", t; for (var k=0;k<=80;k++){ t=Math.pow(10,2+4*k/80); var mib=t*13.5/1024; d+=(k?"L":"M")+lx(t).toFixed(1)+","+ly(mib).toFixed(1)+" "; }
+    s.appendChild(E("path",{d:d,fill:"none",stroke:C.gold,"stroke-width":2.6}));
+    L(s,lx(100),ly(27.7),x1,ly(27.7),C.accent,2.6);
+    var cx=lx(2101); s.appendChild(E("circle",{cx:cx,cy:ly(27.7),r:5,fill:C.ink}));
+    T(s,cx+10,ly(27.7)+22,"cross at ≈ 2,100 tokens",{size:12,fill:C.ink,mono:true});
+    T(s,lx(1000000)-6,ly(13.5*1e6/1024)-10,"notes: 13.5 KiB per token → ≈ 13 GiB at 1M",{size:12,fill:C.gold,anchor:"end",weight:600});
+    T(s,lx(100)+6,ly(27.7)-10,"summary: 27.7 MiB, flat",{size:12,fill:C.accent,weight:600});
+  })();
+
+  // Exhibit 4: attention family tree
+  (function(){ var s=document.getElementById("ex4"), boxes=[
+      ["Softmax attention","2017","Every token compares with every earlier token.","Exact, but work grows with the square of length."],
+      ["KV cache","engineering","Save each token's notes so nothing is recomputed.","Memory grows with every token."],
+      ["Linear attention","2020","Replace the notes with one fixed-size running summary.","Constant memory, but recall blurs."],
+      ["Delta rule","DeltaNet","Update the summary by correcting what it got wrong, not just adding.","Better recall in the same space."],
+      ["Gated delta","2024","Add a gate so old information can fade on purpose.","Cleaner memory over long text."],
+      ["Kimi Delta Attention","2025","Finer-grained gates, built for fast GPU kernels.","Used in 69 of K3's 93 layers."]];
+    var w=136, gap=12, x0=10, y0=20;
+    boxes.forEach(function(b,i){ var x=x0+i*(w+gap), last=i===boxes.length-1;
+      R(s,x,y0,w,320,last?C.tint:C.bg,{stroke:last?C.accent:C.border,sw:last?1.6:1,rx:4});
+      T(s,x+10,y0+24,b[1],{size:10,fill:C.accent,mono:true});
+      wrap(s,b[0],x+10,y0+48,w-20,15,{size:14,weight:700,fill:C.ink});
+      wrap(s,b[2],x+10,y0+110,w-20,12.5,{size:12,fill:C.text2});
+      L(s,x+10,y0+222,x+w-10,y0+222,C.border,1);
+      wrap(s,b[3],x+10,y0+244,w-20,12.5,{size:12,fill:last?C.accent:C.rust});
+      if(i<boxes.length-1) A(s,x+w+1,y0+160,x+w+gap-1,y0+160,C.muted);
+    });
+    function wrap(svg,str,x,y,maxw,lh,o){ var words=str.split(" "), line="", lines=[], cw=(o.size||12)*0.52; words.forEach(function(wd){ var t=line?line+" "+wd:wd; if(t.length*cw>maxw && line){ lines.push(line); line=wd; } else line=t; }); if(line) lines.push(line); lines.forEach(function(l,j){ T(svg,x,y+j*(lh*1.35),l,o); }); }
+  })();
+
+  // Exhibit 5: memory budget
+  (function(){ var s=document.getElementById("ex5"), x0=20, W=860, tot=288, sc=W/tot;
+    var parts=[[183,"experts (weights)",C.gold],[9,"",C.rust],[6,"",C.muted],[90,"free",C.surface2]], x=x0;
+    parts.forEach(function(p){ R(s,x,40,p[0]*sc,52,p[2],{rx:0}); x+=p[0]*sc; });
+    T(s,x0,30,"one B300 GPU · 288 GB",{size:13,weight:700,fill:C.ink});
+    T(s,x0+8,72,"183 GiB experts",{size:14,weight:600,fill:"#ffffff"});
+    T(s,x0+183*sc+2,112,"9 GiB other weights · 6 GiB aux",{size:11,fill:C.muted,mono:true});
+    T(s,x0+198*sc+8,72,"≈ 90 GiB free",{size:14,weight:600,fill:C.text2});
+    // KV allocation
+    var kx=x0+198*sc, kW=W; L(s,kx,92,x0,150,C.muted,1,"3 3"); L(s,kx+50*sc,92,x0+kW,150,C.muted,1,"3 3");
+    T(s,x0,142,"50 GiB set aside for conversation memory",{size:12,fill:C.muted});
+    R(s,x0,154,35/50*kW,48,C.gold,{rx:0}); R(s,x0+35/50*kW,154,15/50*kW,48,C.accent,{rx:0});
+    T(s,x0+8,184,"35 GiB notes (MLA)",{size:13,weight:600,fill:"#ffffff"}); T(s,x0+35/50*kW+8,184,"15 GiB summaries",{size:13,weight:600,fill:"#ffffff"});
+    T(s,x0,230,"13.5 KiB per token → ≈ 2.3M tokens in total",{size:12,fill:C.text2,mono:true});
+    T(s,x0+35/50*kW,230,"27.7 MiB per conversation → ≈ 527",{size:12,fill:C.text2,mono:true});
+    T(s,x0,270,"Two separate walls: total tokens in flight, and conversations in flight.",{size:13,fill:C.ink,weight:600});
+  })();
+
+  // Exhibit 6: TP vs EP
+  (function(){ var s=document.getElementById("ex6");
+    function gpus(ox,label){ T(s,ox,22,label,{size:13,weight:700,fill:C.ink}); for (var i=0;i<8;i++){ var gx=ox+(i%4)*96, gy=40+Math.floor(i/4)*110; R(s,gx,gy,86,96,C.bg,{stroke:C.border,rx:4}); T(s,gx+6,gy+14,"GPU "+(i+1),{size:10,fill:C.muted,mono:true}); } }
+    gpus(10,"Tensor parallelism: slice every layer");
+    for (var i=0;i<8;i++){ var gx=10+(i%4)*96, gy=40+Math.floor(i/4)*110; for (var l=0;l<5;l++) R(s,gx+8,gy+24+l*13,70,9,C.accent,{rx:1}); T(s,gx+43,gy+92,"1/8 of each",{size:9,fill:C.muted,anchor:"middle"}); }
+    L(s,10+86,90,10+96,90,C.rust,2); L(s,10+182,90,10+192,90,C.rust,2); L(s,10+278,90,10+288,90,C.rust,2);
+    T(s,10,274,"all eight GPUs exchange results after every layer",{size:11,fill:C.rust});
+    var ox=470; gpus(ox,"Expert parallelism: hand out whole experts");
+    for (var j=0;j<8;j++){ var hx=ox+(j%4)*96, hy=40+Math.floor(j/4)*110; for (var e=0;e<12;e++) R(s,hx+8+(e%4)*18,hy+24+Math.floor(e/4)*18,14,14,(j===2&&e===5)||(j===6&&e===1)?C.accent:C.goldTint,{stroke:C.gold,sw:0.6,rx:2}); T(s,hx+43,hy+92,"112 experts",{size:9,fill:C.muted,anchor:"middle"}); }
+    T(s,ox,274,"each token travels only to the GPUs holding its experts",{size:11,fill:C.accent});
+  })();
+
+  // Exhibit 7: prefix reuse with checkpoints
+  (function(){ var s=document.getElementById("ex7"), x0=40, W=820, n=40, tw=W/n;
+    function row(y,label,shared){ T(s,x0,y-8,label,{size:12,weight:700,fill:C.ink}); for (var i=0;i<n;i++) R(s,x0+i*tw,y,tw-2,18,i<shared?C.tint:C.surface2,{rx:1,stroke:i<shared?C.accent:C.border,sw:0.6}); }
+    row(40,"Request A",26); row(100,"Request B (same opening, different question)",26);
+    L(s,x0+26*tw-1,30,x0+26*tw-1,124,C.accent,1.4,"4 3"); T(s,x0+26*tw+4,30,"shared text ends",{size:11,fill:C.accent});
+    [8,16,24,32].forEach(function(k){ var cx=x0+k*tw-1; s.appendChild(E("path",{d:"M"+cx+",128 l-6,10 l12,0 z",fill:C.gold})); });
+    T(s,x0,160,"summary checkpoints every 8 tokens (illustrative)",{size:11,fill:C.gold});
+    R(s,x0,180,24*tw,16,C.accent,{rx:2}); T(s,x0+6,192,"reused from cache",{size:11,fill:"#ffffff"});
+    R(s,x0+24*tw,180,2*tw,16,C.rust,{rx:2}); R(s,x0+26*tw,180,14*tw,16,C.muted,{rx:2});
+    T(s,x0+26*tw+6,192,"new question: computed fresh",{size:11,fill:"#ffffff"});
+    T(s,x0,222,"The notes could be reused up to token 26, but the summary only up to its last checkpoint (token 24). Tokens 25 to 26 (red) are recomputed.",{size:12,fill:C.text2});
+  })();
+
+  // Exhibit 8: disaggregation + speculation
+  (function(){ var s=document.getElementById("ex8");
+    R(s,20,30,210,80,C.tint,{stroke:C.accent,rx:6}); T(s,125,62,"Reading GPUs",{size:14,weight:700,fill:C.ink,anchor:"middle"}); T(s,125,84,"whole prompt at once · math-bound",{size:11,fill:C.muted,anchor:"middle"});
+    A(s,236,70,330,70,C.gold); T(s,283,58,"hand off memory",{size:11,fill:C.gold,anchor:"middle"});
+    R(s,336,30,210,80,C.goldTint,{stroke:C.gold,rx:6}); T(s,441,62,"Writing GPUs",{size:14,weight:700,fill:C.ink,anchor:"middle"}); T(s,441,84,"one token at a time · memory-bound",{size:11,fill:C.muted,anchor:"middle"});
+    T(s,20,160,"Drafter guesses four tokens",{size:12,weight:700,fill:C.ink});
+    var draft=["the","model","fits","in"], fix=["the","model","fits","on"], x=20;
+    draft.forEach(function(t){ var w=t.length*9+26; R(s,x,172,w,30,C.bg,{stroke:C.accent,dash:"4 3",rx:5}); T(s,x+w/2,192,t,{size:13,fill:C.accent,anchor:"middle"}); x+=w+8; });
+    T(s,20,236,"Big model checks all four in one step",{size:12,weight:700,fill:C.ink}); x=20;
+    fix.forEach(function(t,i){ var ok=i<3, w=Math.max(t.length,draft[i].length)*9+26; R(s,x,246,w,30,ok?C.tint:C.goldTint,{rx:5}); T(s,x+w/2,266,t,{size:13,fill:C.ink,anchor:"middle"}); T(s,x+w/2,292,ok?"kept":"fixed",{size:10,fill:ok?C.green:C.rust,anchor:"middle",mono:true}); x+=w+8; });
+    T(s,600,200,"Four tokens for the cost of",{size:13,fill:C.text2}); T(s,600,220,"one big-model step,",{size:13,fill:C.text2}); T(s,600,240,"when the guesses are good.",{size:13,fill:C.text2});
+  })();
+})();
+</script>
+</body>
+</html>
