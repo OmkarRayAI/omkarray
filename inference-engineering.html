@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-62YF7Y81BS"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-62YF7Y81BS');
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Craft of Making Models Run: An Inference Engineering Field Guide</title>
+<meta name="description" content="Inference engineering in plain words, from Baseten's conversation with Philip Kiely and Charlie O'Neill: what inference is, why demand multiplies, why research makes it harder, and a five-rung ladder into the job.">
+<link rel="canonical" href="https://omkarray.com/inference-engineering.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="omkarray.com">
+<meta property="og:url" content="https://omkarray.com/inference-engineering.html">
+<meta property="og:title" content="The Craft of Making Models Run: An Inference Engineering Field Guide">
+<meta property="og:description" content="Why inference demand multiplies, why a drafter trained on code slows down on poems, and a five-rung ladder into the job. In plain words, with two calculators.">
+<meta property="og:image" content="https://omkarray.com/inference-engineering-og.png">
+<meta property="og:image:width" content="2400">
+<meta property="og:image:height" content="1260">
+<meta property="og:image:alt" content="A stack of five layers, from hardware to production, that make up inference engineering.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="The Craft of Making Models Run: An Inference Engineering Field Guide">
+<meta name="twitter:description" content="Why inference demand multiplies, why a drafter trained on code slows down on poems, and a five-rung ladder into the job.">
+<meta name="twitter:image" content="https://omkarray.com/inference-engineering-og.png">
+<meta name="twitter:image:alt" content="A stack of five layers, from hardware to production.">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Space+Mono:wght@400;700&family=Nunito+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f8f8f5;
+    --surface: #f0efea;
+    --surface2: #e8e7e1;
+    --border: #d5d2ca;
+    --accent: #2563a8;
+    --accent-tint: #e3ecf7;
+    --accent2: #1a7a3a;
+    --gold: #a06d08;
+    --gold-tint: #f6ead2;
+    --rust: #a63a1e;
+    --muted: #6b6e73;
+    --text: #1a1c20;
+    --text2: #3a3d42;
+    --white: #111214;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Nunito Sans', sans-serif; background: var(--bg); color: var(--text); max-width: 960px; margin: 0 auto; padding: 48px 32px; line-height: 1.7; font-size: 15px; }
+  .back-link { display: inline-flex; align-items: center; gap: 6px; font-family: 'Space Mono', monospace; font-size: 12px; color: var(--muted); text-decoration: none; margin-bottom: 20px; }
+  .back-link:hover { color: var(--text); }
+  .masthead { border-bottom: 1px solid var(--border); padding-bottom: 32px; margin-bottom: 28px; }
+  .eyebrow { font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); margin-bottom: 16px; }
+  .masthead h1 { font-family: 'Cormorant Garamond', serif; font-size: 60px; font-weight: 700; line-height: 1; letter-spacing: -0.02em; color: var(--white); }
+  .masthead h1 em { font-style: italic; color: var(--accent); font-weight: 400; }
+  .masthead-sub { font-size: 15px; color: var(--muted); font-weight: 300; max-width: 680px; line-height: 1.7; margin-top: 20px; }
+  .masthead-sub b { color: var(--text2); font-weight: 600; }
+  .toc { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(7, auto); grid-auto-flow: column; gap: 4px 28px; margin: 6px 0 8px; }
+  .toc a { font-size: 13.5px; color: var(--text2); text-decoration: none; display: flex; gap: 10px; padding: 3px 0; border-bottom: 1px dotted var(--border); }
+  .toc a span { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--accent); padding-top: 3px; min-width: 22px; }
+  .toc a:hover { color: var(--accent); }
+  .section-header { display: flex; align-items: baseline; gap: 16px; margin: 60px 0 20px; border-bottom: 1px solid var(--border); padding-bottom: 12px; scroll-margin-top: 16px; }
+  .section-num { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--accent); letter-spacing: 0.1em; }
+  .section-title { font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 600; color: var(--white); }
+  .section-desc { font-family: 'Space Mono', monospace; font-size: 9px; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; margin-left: auto; text-align: right; }
+  p.body { font-size: 15px; color: var(--text2); margin-bottom: 16px; max-width: 760px; font-weight: 300; line-height: 1.75; }
+  p.body strong { color: var(--text); font-weight: 600; }
+  p.body a, .footnote a, .srcs a, .takeaways a { color: var(--accent); text-decoration: none; border-bottom: 1px solid rgba(37,99,168,0.3); }
+  .lede { font-family: 'Cormorant Garamond', serif; font-size: 22px; line-height: 1.5; color: var(--text2); max-width: 780px; margin-bottom: 16px; }
+  .lede strong { color: var(--white); font-weight: 600; }
+  .lede em { color: var(--accent); font-style: italic; }
+  .sub-h { font-family: 'Cormorant Garamond', serif; font-size: 21px; font-weight: 600; color: var(--white); margin: 28px 0 10px; line-height: 1.25; }
+  .diagram { background: var(--surface); border: 1px solid var(--border); padding: 24px 26px; margin: 22px 0; }
+  .diagram-label { font-family: 'Space Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); margin-bottom: 6px; }
+  .diagram-sub { font-size: 12.5px; color: var(--muted); font-weight: 300; margin-bottom: 16px; padding-bottom: 14px; border-bottom: 1px solid var(--border); line-height: 1.6; }
+  .footnote { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--muted); border-top: 1px solid var(--border); padding-top: 10px; margin-top: 14px; line-height: 1.8; }
+  .footnote strong { color: var(--text2); }
+  svg { width: 100%; height: auto; display: block; font-family: 'Nunito Sans', sans-serif; }
+  svg .mono { font-family: 'Space Mono', monospace; }
+  .tbl-scroll { overflow-x: auto; }
+  .tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .tbl th { font-family: 'Space Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.08em; padding: 9px 10px; background: var(--surface2); color: var(--muted); text-align: left; font-weight: 500; border: 1px solid var(--border); }
+  .tbl td { padding: 9px 10px; border: 1px solid var(--border); vertical-align: top; line-height: 1.5; color: var(--text2); font-weight: 300; }
+  .tbl td.rowh { color: var(--text); font-weight: 700; font-size: 12.5px; white-space: nowrap; }
+  .gloss { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border); border: 1px solid var(--border); margin: 14px 0; }
+  .gloss > div { background: var(--bg); padding: 12px 14px; }
+  .gloss b { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--accent); font-weight: 400; display: block; margin-bottom: 3px; }
+  .gloss p { font-size: 13px; color: var(--text2); line-height: 1.55; font-weight: 300; }
+  .takeaways { list-style: none; display: grid; gap: 10px; margin: 8px 0; }
+  .takeaways li { display: grid; grid-template-columns: 34px 1fr; gap: 10px; font-size: 14px; color: var(--text2); line-height: 1.6; font-weight: 300; }
+  .takeaways li span { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--accent); padding-top: 4px; }
+  .takeaways li strong { color: var(--text); font-weight: 600; }
+  .ctrls { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 28px; margin-bottom: 14px; }
+  .ctrl label { display: flex; justify-content: space-between; font-family: 'Space Mono', monospace; font-size: 10px; color: var(--muted); letter-spacing: 0.04em; margin-bottom: 2px; }
+  .ctrl output { color: var(--accent); font-weight: 700; }
+  .ctrl input[type=range] { width: 100%; accent-color: var(--accent); }
+  .presets { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+  .presets button { font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: 0.04em; color: var(--text2); background: var(--bg); border: 1px solid var(--border); padding: 5px 10px; cursor: pointer; }
+  .presets button:hover { border-color: var(--accent); color: var(--accent); }
+  .readout { font-size: 13.5px; color: var(--text); line-height: 1.6; background: var(--bg); border-left: 3px solid var(--accent); padding: 10px 14px; margin-top: 12px; }
+  .quiz { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .quiz details { border: 1px solid var(--border); background: var(--bg); padding: 12px 14px; }
+  .quiz summary { cursor: pointer; font-size: 13.5px; color: var(--text); line-height: 1.5; list-style: none; }
+  .quiz summary::-webkit-details-marker { display: none; }
+  .quiz summary .q { font-family: 'Space Mono', monospace; font-size: 9px; color: var(--accent); letter-spacing: 0.12em; display: block; margin-bottom: 4px; }
+  .quiz .a { margin-top: 8px; padding-top: 8px; border-top: 1px dotted var(--border); font-size: 12.5px; color: var(--text2); line-height: 1.55; }
+  .quiz .a b { color: var(--accent); }
+  .watch { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border); border: 1px solid var(--border); }
+  .watch > div { background: var(--bg); padding: 12px 14px; }
+  .watch .k { font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); display: block; margin-bottom: 6px; }
+  .watch ul { list-style: none; display: grid; gap: 6px; }
+  .watch li { font-size: 13px; color: var(--text2); line-height: 1.5; }
+  .watch a { color: var(--text); text-decoration: none; border-bottom: 1px solid rgba(37,99,168,0.3); }
+  .watch a:hover { color: var(--accent); }
+  .watch .len { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--muted); }
+  .srcs { font-size: 12.5px; color: var(--muted); line-height: 1.7; font-weight: 300; }
+  .srcs li { margin: 0 0 6px 18px; }
+  footer { margin-top: 64px; padding-top: 20px; border-top: 1px solid var(--border); font-family: 'Space Mono', monospace; font-size: 10px; color: var(--muted); display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  footer a { color: var(--muted); }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  @media (max-width: 720px) {
+    body { padding: 32px 18px; }
+    .masthead h1 { font-size: 42px; }
+    .toc, .gloss, .quiz, .watch, .ctrls { grid-template-columns: 1fr; }
+    .toc { grid-template-rows: none; grid-auto-flow: row; }
+    .section-desc { display: none; }
+    .diagram { padding: 18px 14px; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+
+<a class="back-link" href="/">← omkarray.com</a>
+
+<header class="masthead">
+  <div class="eyebrow">Field guide · Inference · October 2026</div>
+  <h1>The craft of making models <em>run</em></h1>
+  <p class="masthead-sub">Inference is everything that happens after a model is trained: putting it on GPUs and making it answer <b>fast, reliably and cheaply</b>. In March 2026, Baseten sat down with Philip Kiely, author of the book <em>Inference Engineering</em>, and Charlie O'Neill for 28 minutes on why this has become one of the most valuable skills in AI and how to learn it. This guide turns that conversation into plain words, ten diagrams and two calculators you can play with.</p>
+</header>
+
+<nav class="toc" aria-label="Contents">
+  <a href="#why"><span>01</span>Why these 28 minutes are worth it</a>
+  <a href="#what"><span>02</span>What inference is</a>
+  <a href="#history"><span>03</span>How it got hard</a>
+  <a href="#map"><span>04</span>The map: one stack, eight chapters</a>
+  <a href="#demand"><span>05</span>Why demand multiplies</a>
+  <a href="#research"><span>06</span>Research ships in days</a>
+  <a href="#phases"><span>07</span>Reading and writing are different jobs</a>
+  <a href="#traffic"><span>08</span>Traffic decides speed</a>
+  <a href="#rl"><span>09</span>Training now runs on inference</a>
+  <a href="#open"><span>10</span>Open models and "Big Token"</a>
+  <a href="#become"><span>11</span>How to become one</a>
+  <a href="#quiz"><span>12</span>Check yourself</a>
+  <a href="#watch"><span>13</span>Watch and read next</a>
+  <a href="#sources"><span>14</span>Sources and method</a>
+</nav>
+
+<!-- 01 -->
+<div class="section-header" id="why">
+  <span class="section-num">01</span><span class="section-title">Why these 28 minutes are worth it</span><span class="section-desc">Start here</span>
+</div>
+<p class="lede">Inference used to be the small step after training. It is now a <strong>stack of dozens of technologies</strong> that every AI product runs on, <em>and almost nobody was trained for it.</em></p>
+<p class="body">The conversation is <a href="https://www.youtube.com/watch?v=LUGxx1XNqcM">How to become an inference engineer</a>, published by Baseten on 26 March 2026. Philip Kiely has spent a little over four years at Baseten, a company that runs models for other companies, and wrote <a href="https://www.baseten.co/inference-engineering/"><em>Inference Engineering</em></a> from what he learned there. Charlie O'Neill works on post-training at Baseten. Between them they cover what inference is, why demand for it multiplies, why every research breakthrough makes it harder, and a bet that a world of open, specialized models will need far more people who can run them.</p>
+<p class="body">The thread through all of it is Philip's claim that the field is early enough for newcomers to matter: "You don't have to have a PhD to become an inference engineer." This guide is for two readers. People who want to build inference systems, and people who buy them and need to know what to ask. The second group includes most product managers.</p>
+
+<div class="gloss">
+  <div><b>Inference</b><p>Running a trained model to get an answer. Every time an AI product responds to someone, that is inference.</p></div>
+  <div><b>GPU</b><p>The chip models run on. Its memory size and memory speed set most of the limits in this guide.</p></div>
+  <div><b>Inference engine</b><p>The software that runs a model on GPUs and serves many users at once, such as vLLM, SGLang or TensorRT-LLM.</p></div>
+  <div><b>KV cache</b><p>The notes a model keeps for every token it has read, so it doesn't redo work. It grows with the conversation.</p></div>
+  <div><b>Prefill and decode</b><p>The two phases of every answer: reading the prompt all at once, then writing the reply one token at a time.</p></div>
+  <div><b>Rollout</b><p>One attempt a model makes at a practice task during reinforcement learning, so it can be scored.</p></div>
+</div>
+
+<!-- 02 -->
+<div class="section-header" id="what">
+  <span class="section-num">02</span><span class="section-title">What inference is</span><span class="section-desc">The life of one request</span>
+</div>
+<p class="body">In Philip's telling, inference is four steps: pick a model, get a GPU, load the model onto it, and make it run fast. The first three are easy. The fourth is the job. "Fast" has to hold for thousands of people at once, with prompts of every length, at a price the business can afford, without dropping a single request when a machine fails.</p>
+
+<div class="diagram">
+  <div class="diagram-label">Exhibit 1. One request, start to finish</div>
+  <div class="diagram-sub">Top: the path a prompt takes. Bottom: what the person waiting actually feels. Every layer in between is a place to save time or money, or lose it.</div>
+  <svg id="ex1" viewBox="0 0 900 296" role="img" aria-label="Five boxes from user to GPU, then a timeline of wait, prefill and streamed tokens"></svg>
+  <div class="footnote"><strong>The three numbers:</strong> time to first token and tokens per second are what users feel. Cost per million tokens is what the business feels. All three move together: anything that makes the GPU produce more tokens per hour lowers the cost. For the memory side of this math on one real model, see <a href="/kimi-k3-serving.html">the Kimi K3 field guide</a>.</div>
+</div>
+
+<!-- 03 -->
+<div class="section-header" id="history">
+  <span class="section-num">03</span><span class="section-title">How it got hard</span><span class="section-desc">From one small GPU to many machines</span>
+</div>
+<p class="body">When Philip joined Baseten, inference was <strong>not easy, but much easier</strong>. A typical job was a classic machine-learning model or an early language model like BERT, with a few hundred million parameters, running a low-volume internal task on a CPU or a small GPU. Then speech models like Whisper needed a whole GPU each. Then language and image models grew from ten billion parameters to a hundred billion to more than a trillion.</p>
+
+<div class="diagram">
+  <div class="diagram-label">Exhibit 2. Model size, 2018 to 2026, and what it took to hold the weights</div>
+  <div class="diagram-sub">Parameters on a log scale: each gridline is ten times the one below. In eight years, open models went from about a hundred million parameters to almost three trillion.</div>
+  <svg id="ex2" viewBox="0 0 900 330" role="img" aria-label="Six models rising from 110 million to 2.8 trillion parameters"></svg>
+  <div class="footnote"><strong>Hardware notes are for the weights only,</strong> before any memory for conversations. Llama 2 70B at 16 bits is about 140 GB. DeepSeek-V3 ships in 8-bit, about 671 GB. Kimi K3's figure is from Baseten's whiteboard, covered in <a href="/kimi-k3-serving.html">the K3 guide</a>.</div>
+</div>
+
+<p class="body">As models grew, the software around them grew too. Philip describes a stack that runs from <strong>CUDA</strong>, the layer where GPU programs are written, up through the inference engine and the serving orchestrator, plus the infrastructure work of keeping thousands of expensive GPUs running and never dropping a valuable request. It went from something a small team could handle to something mission-critical for many large companies, built on dozens of technologies across several engineering specialties.</p>
+
+<!-- 04 -->
+<div class="section-header" id="map">
+  <span class="section-num">04</span><span class="section-title">The map: one stack, eight chapters</span><span class="section-desc">How the book is organized</span>
+</div>
+<p class="body">Philip says the book is first of all a <strong>map</strong>, because inference is not one technology but many layers of options and trade-offs. It runs 256 pages, with eight chapters and two appendices (a glossary and a reading list), and the PDF is free. Its chapters are Inference, Prerequisites, Architecture, Hardware, Software, Techniques, Modalities and Production. Laid out as a stack, they look like this:</p>
+
+<div class="diagram">
+  <div class="diagram-label">Exhibit 3. The inference stack, with the book's chapters attached</div>
+  <div class="diagram-sub">A request travels down the stack and tokens travel back up. The model on the left is the workload every layer is tuned for. The techniques on the right cut across layers: compressing weights to fewer bits, for example, changes the model, the kernels and how much fits on the hardware all at once.</div>
+  <svg id="ex3" viewBox="0 0 900 395" role="img" aria-label="Five stacked layers from hardware to production, with the model on the left and techniques and modalities on the right"></svg>
+  <div class="footnote"><strong>The chapter titles are the book's; the arrangement is mine.</strong> The book's chapter on software covers both the engines and the serving layer, so I've tagged both with chapter 4.</div>
+</div>
+
+<!-- 05 -->
+<div class="section-header" id="demand">
+  <span class="section-num">05</span><span class="section-title">Why demand multiplies</span><span class="section-desc">Charlie's list</span>
+</div>
+<p class="lede">Most people assume demand for inference grows with the number of users. Charlie's point is that it <strong>multiplies</strong> across several factors at once.</p>
+<div class="tbl-scroll"><table class="tbl">
+  <tr><th>Factor</th><th>Why it multiplies</th></tr>
+  <tr><td class="rowh">More models</td><td>Every company that fine-tunes or trains its own model now has to serve it.</td></tr>
+  <tr><td class="rowh">Bigger models</td><td>Each copy needs more GPUs.</td></tr>
+  <tr><td class="rowh">Agents</td><td>One request starts many agents that call tools, search the web and start their own sub-agents.</td></tr>
+  <tr><td class="rowh">Parallel thinking</td><td>Reasoning models can run several lines of thought at once for one answer. Charlie notes some frontier research modes are believed to work this way.</td></tr>
+  <tr><td class="rowh">Longer context</td><td>When 32,000-token windows arrived they felt like plenty. Now a million is common and people want far more.</td></tr>
+  <tr><td class="rowh">Tool output</td><td>Search results and files get dumped straight into the context.</td></tr>
+  <tr><td class="rowh">Cheaper calls</td><td>When each call gets cheaper, people don't use the same amount. They use more.</td></tr>
+</table></div>
+
+<div class="diagram">
+  <div class="diagram-label">Exhibit 4. Calculator: how many tokens one agent task reads</div>
+  <div class="diagram-sub">Move the sliders. Each agent step re-reads its whole context before writing a short reply, so tokens read grow with agents × steps × context. Cache reuse decides how much of that is computed fresh. The chat baseline assumes one answer that reads 2,000 tokens.</div>
+  <div class="ctrls">
+    <div class="ctrl"><label for="m-agents">Agents working in parallel <output id="m-agents-o"></output></label><input type="range" id="m-agents" min="1" max="16" step="1" value="4"></div>
+    <div class="ctrl"><label for="m-steps">Steps per agent <output id="m-steps-o"></output></label><input type="range" id="m-steps" min="1" max="60" step="1" value="25"></div>
+    <div class="ctrl"><label for="m-ctx">Average context per step <output id="m-ctx-o"></output></label><input type="range" id="m-ctx" min="1" max="200" step="1" value="40"></div>
+    <div class="ctrl"><label for="m-cache">Share reused from cache <output id="m-cache-o"></output></label><input type="range" id="m-cache" min="0" max="95" step="5" value="80"></div>
+  </div>
+  <svg id="ex4" viewBox="0 0 900 180" role="img" aria-label="Three bars on a log scale comparing a chat answer with an agent task"></svg>
+  <div class="readout" id="m-read" aria-live="polite"></div>
+  <div class="footnote"><strong>An illustration, not a measurement.</strong> Real agents vary a lot. The point is the shape: a few multipliers turn a 2,000-token chat into millions of tokens per task, which is why cache reuse matters so much for agent workloads.</div>
+</div>
+
+<!-- 06 -->
+<div class="section-header" id="research">
+  <span class="section-num">06</span><span class="section-title">Research ships in days</span><span class="section-desc">The sparse attention example</span>
+</div>
+<p class="body">In most industries, research takes months, years or decades to reach production at scale. In inference, Philip says, a new paper can be running in production within <strong>a couple of days</strong>. That means taking research code, which is rarely written to stay up 99.999% of the time (about five minutes of downtime a year), and making it bulletproof very quickly.</p>
+<p class="body">The example they discuss is DeepSeek's sparse attention. Normally each new token looks back at every earlier token. DeepSeek adds a small, fast <strong>indexer</strong> that scores the earlier tokens, and the model then looks back only at the <a href="https://vllm.ai/blog/2025-09-29-deepseek-v3-2">top 2,048</a>. On long inputs that saves a great deal of work. On short ones it saves nothing: if a request has fewer than 2,048 tokens, the top 2,048 is all of them, and you have still paid for the indexer. Philip says Baseten sometimes switches the feature off for shorter requests, because it is less efficient at some lengths.</p>
+
+<div class="diagram">
+  <div class="diagram-label">Exhibit 5. When sparse attention pays, and when it doesn't</div>
+  <div class="diagram-sub">Work to produce one new token as the context grows (both axes on a log scale). Full attention grows with every token. Sparse attention pays a small indexer cost on every token but caps the main work at 2,048. Below the crossover, sparse costs more.</div>
+  <svg id="ex5" viewBox="0 0 900 310" role="img" aria-label="Two lines crossing near 2,300 tokens; sparse attention is costlier to the left and cheaper to the right"></svg>
+  <div class="footnote"><strong>Shape only.</strong> I assume the indexer costs a tenth of full attention per token; the real ratio depends on kernels. The 2,048 figure is from vLLM's write-up of DeepSeek-V3.2-Exp. The lesson holds either way: a clever architecture is a bet on the shape of traffic, and part of the job is knowing where the bet pays.</div>
+</div>
+
+<!-- 07 -->
+<div class="section-header" id="phases">
+  <span class="section-num">07</span><span class="section-title">Reading and writing are different jobs</span><span class="section-desc">Disaggregation and memory tiers</span>
+</div>
+<p class="body">Every answer has two phases. <strong>Reading</strong> the prompt (prefill) happens all at once and is limited by how fast the chip does math. <strong>Writing</strong> the reply (decode) happens one token at a time and is limited by how fast the chip can fetch from memory. Philip's framing: they run together only because both are needed, but they are completely different shapes of work. Charlie adds that the balance between them has already shifted and will keep shifting as agent workloads grow.</p>
+<p class="body">The response is to separate them, which is called <strong>disaggregation</strong>. Philip says Baseten was one of the first adopters of NVIDIA's <a href="https://github.com/ai-dynamo/dynamo">Dynamo</a> toolkit, which can split the two phases onto different GPUs and move the KV cache between levels of memory.</p>
+
+<div class="diagram">
+  <div class="diagram-label">Exhibit 6. Split the phases, then give the memory somewhere to go</div>
+  <div class="diagram-sub">Left: reading and writing on separate GPU pools, with the conversation's KV cache handed between them. Right: the tiers that cache can live in, from fast and small to slow and huge.</div>
+  <svg id="ex6" viewBox="0 0 900 300" role="img" aria-label="Prefill and decode pools on the left; four memory tiers from GPU memory to network storage on the right"></svg>
+  <div class="footnote"><strong>Why tiers matter for agents:</strong> an agent may pause for seconds or minutes while a tool runs. Keeping its memory on the GPU wastes the most expensive space there is; throwing it away means reading everything again. Moving it down a tier and back is the middle path. NVIDIA's Dynamo documentation describes offloading to CPU memory, local SSD and network storage.</div>
+</div>
+
+<!-- 08 -->
+<div class="section-header" id="traffic">
+  <span class="section-num">08</span><span class="section-title">Traffic decides speed</span><span class="section-desc">Caching and guessing ahead</span>
+</div>
+<p class="body">The same system can be fast or slow depending on what people send it. The video gives two examples.</p>
+<p class="body"><strong>Coding agents are cache-friendly.</strong> Philip says some of the best results on Baseten's model APIs come from coding-agent users such as OpenCode, because those agents resend mostly the same context request after request. The KV cache from the last request can be reused, and performance jumps.</p>
+<p class="body"><strong>Guessing ahead can backfire.</strong> Speculative decoding uses a small drafter model to guess the next few tokens, and the big model checks all the guesses in one step. If the drafter was trained only on code and someone asks for a poem, most guesses are wrong. You still pay to draft them, so the answer comes out <strong>slower than if you hadn't guessed at all</strong>. Try it:</p>
+
+<div class="diagram">
+  <div class="diagram-label">Exhibit 7. Calculator: when guessing ahead pays</div>
+  <div class="diagram-sub">The curve shows speed against the share of guesses the big model accepts, for your draft length and drafter cost. Below the dashed line, speculation makes things slower. Use the presets to compare code with a poem.</div>
+  <div class="presets"><button type="button" data-a="80">Code: 80% of guesses accepted</button><button type="button" data-a="20">A poem: 20% accepted</button></div>
+  <div class="ctrls">
+    <div class="ctrl"><label for="s-alpha">Share of guesses accepted <output id="s-alpha-o"></output></label><input type="range" id="s-alpha" min="5" max="95" step="5" value="80"></div>
+    <div class="ctrl"><label for="s-k">Tokens guessed per step <output id="s-k-o"></output></label><input type="range" id="s-k" min="1" max="8" step="1" value="4"></div>
+    <div class="ctrl"><label for="s-c">Drafter cost per guess, vs one big-model step <output id="s-c-o"></output></label><input type="range" id="s-c" min="2" max="30" step="2" value="10"></div>
+  </div>
+  <svg id="ex7" viewBox="0 0 900 290" role="img" aria-label="Speed-up curve against acceptance rate with a break-even line at 1x"></svg>
+  <div class="readout" id="s-read" aria-live="polite"></div>
+  <div class="footnote"><strong>The formula</strong> is from Leviathan, Kalman and Matias, <a href="https://arxiv.org/abs/2211.17192">Fast Inference from Transformers via Speculative Decoding</a>. Tokens kept per step = (1 − a<sup>k+1</sup>) ÷ (1 − a), where a is the share accepted and k the tokens guessed. Speed = tokens kept ÷ (1 + k × drafter cost). It assumes checking k guesses costs about the same as one normal step, which is roughly true when writing is limited by memory speed.</div>
+</div>
+
+<p class="body">Philip's conclusion is that inference systems increasingly have to <strong>adjust in real time</strong> to whatever traffic is arriving, instead of being configured once and left alone. He expects the field to get harder and more valuable, not simpler.</p>
+
+<!-- 09 -->
+<div class="section-header" id="rl">
+  <span class="section-num">09</span><span class="section-title">Training now runs on inference</span><span class="section-desc">Why researchers care</span>
+</div>
+<p class="body">Charlie makes a point that is easy to miss: inference engineering isn't only for inference engineers. Post-training used to mean mostly <strong>supervised fine-tuning</strong>: show the model good examples and let it imitate them. That needs no inference at all. <strong>Reinforcement learning</strong> changed this. The model has to produce its own attempts, which get scored, and those attempts must come from the current version of the model (this is what "on-policy" means). So the model being trained also has to be served, fast, at large scale.</p>
+
+<div class="diagram">
+  <div class="diagram-label">Exhibit 8. The reinforcement learning loop has inference inside it</div>
+  <div class="diagram-sub">Every lap of the loop starts with the newest model writing thousands of fresh attempts. Slow inference means a slow loop, and a slow loop means slow research.</div>
+  <svg id="ex8" viewBox="0 0 900 312" role="img" aria-label="A four-step loop: generate attempts, score, update, ship new weights"></svg>
+</div>
+
+<p class="body">One consequence is that training and serving are converging. Some companies now pitch both on the same kernels and settings, so a model behaves in production exactly as it did in training. <a href="https://www.appliedcompute.com/">Applied Compute</a> calls this "zero train-to-deployment mismatch".</p>
+
+<!-- 10 -->
+<div class="section-header" id="open">
+  <span class="section-num">10</span><span class="section-title">Open models and "Big Token"</span><span class="section-desc">Thresholds and specialization</span>
+</div>
+<p class="body"><strong>"Big Token"</strong> is their nickname for one possible version of the industry: two or three companies make the models, and everyone else rents intelligence from them one token at a time. Philip thinks that version is fading, and his argument rests on <strong>thresholds</strong>. Each task has a bar: tab completion, then code generation, then agentic coding, then PR review. Once a model clears a task's bar, it doesn't need to get smarter to do that task. Closed models clear each bar first, and open models clear the same bar a few months later. From then on, the task can move to a faster, cheaper, more reliable open model.</p>
+
+<div class="diagram">
+  <div class="diagram-label">Exhibit 9. Same bars, a few months apart</div>
+  <div class="diagram-sub">Capability over time for closed and open models (schematic). Dashed lines are task thresholds. Blue dots: the closed frontier clears the bar. Gold dots: open models clear it. Gold bands mark the months when only closed models can do the task.</div>
+  <svg id="ex9" viewBox="0 0 900 330" role="img" aria-label="Two rising lines crossing four threshold lines, the open line about six months behind"></svg>
+  <div class="footnote"><strong>How big is the gap?</strong> The chart is a schematic. For one measured case, Epoch AI reported in October 2026 that open-weight models trail the closed frontier by about <a href="https://x.com/EpochAIResearch/status/2111165029470949867">6 to 7 months on cyber capabilities</a>.</div>
+</div>
+
+<p class="body"><strong>Charlie's counterpoint, and how he resolves it.</strong> Demand for intelligence is fairly inelastic: people want the smartest model available and will make their workflows more complex to use it. And a general open model can do only a subset of what the best closed model can. But he argues that's the wrong comparison, because open models can be <strong>specialized</strong>. Post-trained on one workflow, an open model can beat the biggest reasoning models from the frontier labs at that workflow, in his view. Today, full control of the weights is the only practical way to specialize. For repeatable work where cost and speed matter, he expects specialization to win, as it does across the rest of the economy.</p>
+<p class="body"><strong>Who controls AI.</strong> Charlie also makes a political argument: concentrating this much power in one or two organizations is risky, and widely held open models work more like a majority vote on how AI gets used. He notes that US enterprises have hesitated because the strongest open models have often been Chinese, and expects competitive American open models to ease that. Philip adds that open bases from Mistral and OpenAI's gpt-oss still see heavy demand for fine-tuning. These are their views, and they work for a company that serves open models.</p>
+<p class="body">Philip ties the two worlds back to careers. A world with one or two giant models needs relatively few inference engineers. A world with millions of specialized models, each owned by the company that uses it, needs an inference strategy, and people to run it, in every one of those companies. Baseten's book page predicts a million inference engineers within a couple of years.</p>
+
+<!-- 11 -->
+<div class="section-header" id="become">
+  <span class="section-num">11</span><span class="section-title">How to become one</span><span class="section-desc">A ladder and a weekend lab</span>
+</div>
+<p class="body">Both speakers think <strong>pedigree counts for less than it used to</strong>. When you can ask a model to explain any paper, having twenty years of papers in your head is less of an edge. Curiosity and problem-solving are worth more. Charlie goes further: much of the last twenty years of deep-learning expertise doesn't apply to today's language models. Philip joined Baseten with no AI background and works at the level of the tools, not the theory.</p>
+<p class="body">One twist from Philip: when he tried to get AI models to help write the book, they did badly. Their knowledge of inference concepts was weak, and they kept reaching for older machine-learning operations and deep-learning ideas that no longer apply. His takeaway is that there is almost an advantage in learning what is happening now, rather than everything that came before.</p>
+
+<div class="diagram">
+  <div class="diagram-label">Exhibit 10. Five rungs, from asking the right questions to writing kernels</div>
+  <div class="diagram-sub">Philip's floor: after the book, you can ask the right questions and know what you're shopping for. His ceiling: you can build the system yourself. These are the rungs in between, in the order most people climb them.</div>
+  <svg id="ex10" viewBox="0 0 900 305" role="img" aria-label="Five ascending steps from asking the right questions to writing kernels"></svg>
+  <div class="footnote"><strong>The rungs are my synthesis</strong> of the book's chapters and the techniques in the conversation, not a list from the video.</div>
+</div>
+
+<div class="sub-h">A weekend lab for rungs 1 and 2</div>
+<ul class="takeaways">
+  <li><span>01</span><div><strong>Read the map.</strong> Read the first three chapters of the <a href="https://www.baseten.co/inference-engineering/">free PDF</a>: inference, prerequisites, architecture.</div></li>
+  <li><span>02</span><div><strong>Serve one model.</strong> Rent one GPU for a few hours and serve a small open model (7 to 8 billion parameters) with vLLM. Use its built-in benchmark to record time to first token and tokens per second with 1, 8 and 32 users at once.</div></li>
+  <li><span>03</span><div><strong>Test the cache.</strong> Send 50 requests that share the same 4,000-token opening, first with prefix caching off and then on. Compare time to first token.</div></li>
+  <li><span>04</span><div><strong>Test guessing ahead.</strong> Turn on n-gram speculation, which guesses by copying text from the prompt and needs no extra model. Time a request that edits code you pasted in, then a request for a poem. Explain the difference with Exhibit 7.</div></li>
+  <li><span>05</span><div><strong>Write one page.</strong> For each setting, work out cost per million tokens: GPU price per hour ÷ tokens per hour × 1,000,000. Say which change mattered most and why.</div></li>
+</ul>
+
+<div class="sub-h">If you buy inference rather than build it</div>
+<ul class="takeaways">
+  <li><span>01</span><div><strong>Ask for numbers on your traffic.</strong> Time to first token and tokens per second at your number of concurrent users and your prompt lengths, not a vendor benchmark.</div></li>
+  <li><span>02</span><div><strong>Ask about caching.</strong> What share of your requests reuse cached context, and do cached tokens cost less?</div></li>
+  <li><span>03</span><div><strong>Ask about precision.</strong> Is the model running at 16, 8 or 4 bits, and how did they check that quality didn't drop on tasks like yours?</div></li>
+  <li><span>04</span><div><strong>Ask about speculation.</strong> Is it on, what was the drafter trained on, and what happens to speed when your traffic changes?</div></li>
+  <li><span>05</span><div><strong>Ask about spikes and failures.</strong> How long does it take to add capacity, how often are there cold starts, and what happens when a region goes down?</div></li>
+  <li><span>06</span><div><strong>Ask about your own model.</strong> Can you bring a fine-tuned version, and will it run on the same kernels and settings as the base model?</div></li>
+</ul>
+
+<!-- 12 -->
+<div class="section-header" id="quiz">
+  <span class="section-num">12</span><span class="section-title">Check yourself</span><span class="section-desc">Answers fold out</span>
+</div>
+<div class="quiz">
+  <details><summary><span class="q">Q1</span>Loading a model onto a GPU is easy. What makes inference a whole job?</summary><div class="a">Making it run <b>fast for thousands of people at once</b>, with prompts of every length, at an affordable cost, without dropping requests when machines fail.</div></details>
+  <details><summary><span class="q">Q2</span>Why does inference demand grow faster than the number of users?</summary><div class="a">Because several factors <b>multiply</b>: more and bigger models, agents that fan out, parallel reasoning, longer context, tool output in the context, and more use as calls get cheaper.</div></details>
+  <details><summary><span class="q">Q3</span>Why would anyone switch off DeepSeek's sparse attention for short requests?</summary><div class="a">It keeps the top 2,048 earlier tokens. Below 2,048 tokens that is <b>all of them</b>, so the indexer's work buys nothing.</div></details>
+  <details><summary><span class="q">Q4</span>A drafter trained on code is guessing ahead for a poem. Why can that be slower than no guessing?</summary><div class="a">Most guesses get rejected, so each step keeps <b>barely more than one token</b>, but you still pay to draft every guess. At 20% accepted, 4 guesses and 10% drafter cost, speed is about 0.89×.</div></details>
+  <details><summary><span class="q">Q5</span>Why do coding agents get unusually good performance from caching?</summary><div class="a">They resend <b>mostly the same context</b> request after request, so the KV cache from the previous request can be reused instead of re-reading everything.</div></details>
+  <details><summary><span class="q">Q6</span>Why did reinforcement learning turn researchers into inference users?</summary><div class="a">The model must <b>generate its own attempts</b> to be scored, from its current version, thousands at a time. Supervised fine-tuning on fixed examples never needed that.</div></details>
+  <details><summary><span class="q">Q7</span>An open model clears your task's bar six months after a closed one. What changes for you?</summary><div class="a">You can move the task to a <b>faster, cheaper model you control</b>, and specialize it further on your own data.</div></details>
+  <details><summary><span class="q">Q8</span>What's the strongest argument against "open models will take over"?</summary><div class="a">Demand for intelligence is <b>fairly inelastic</b>: people want the smartest model and expand their workflows to use it. Specialization is the reply.</div></details>
+</div>
+
+<!-- 13 -->
+<div class="section-header" id="watch">
+  <span class="section-num">13</span><span class="section-title">Watch and read next</span><span class="section-desc">Checked 23 Oct 2026</span>
+</div>
+<div class="watch">
+  <div><span class="k">From Baseten</span><ul>
+    <li><a href="https://www.youtube.com/watch?v=LUGxx1XNqcM">How to become an inference engineer</a> <span class="len">28 min</span></li>
+    <li><a href="https://www.baseten.co/inference-engineering/">Inference Engineering</a> · Philip Kiely <span class="len">256 pages · free PDF</span></li>
+    <li><a href="https://www.youtube.com/watch?v=a58ldGhR5wM">How trillion-parameter AI models work and how to serve them</a> <span class="len">61 min</span></li>
+    <li><a href="/kimi-k3-serving.html">Serving a Trillion Parameters</a> · my guide to that session</li>
+  </ul></div>
+  <div><span class="k">How serving works</span><ul>
+    <li><a href="https://www.youtube.com/watch?v=y2W4FNAuPEA">Deep dive on LLM inference at scale</a> · AI Engineer <span class="len">1 hr 28 min</span></li>
+    <li><a href="https://www.youtube.com/watch?v=9tvJ_GYJA-o">Mastering LLM inference optimization</a> · Mark Moyou <span class="len">34 min</span></li>
+    <li><a href="https://www.youtube.com/watch?v=-uSWCo11x0Q">Prefill vs decode</a> · SambaNova <span class="len">4 min</span></li>
+    <li><a href="https://www.youtube.com/watch?v=H4azmWcqO5g">Speculative decoding</a> · Hugging Face <span class="len">livestream</span></li>
+  </ul></div>
+  <div><span class="k">The papers behind the techniques</span><ul>
+    <li><a href="https://arxiv.org/abs/2309.06180">PagedAttention</a>, the idea behind vLLM <span class="len">2023</span></li>
+    <li><a href="https://arxiv.org/abs/2312.07104">SGLang</a> and reusing shared prompts <span class="len">2023</span></li>
+    <li><a href="https://arxiv.org/abs/2211.17192">Speculative decoding</a> <span class="len">2022</span></li>
+    <li><a href="https://arxiv.org/abs/2401.09670">DistServe</a> and <a href="https://arxiv.org/abs/2311.18677">Splitwise</a>, on separating prefill and decode <span class="len">2023 to 2024</span></li>
+    <li><a href="https://github.com/deepseek-ai/DeepSeek-V3.2-Exp">DeepSeek-V3.2-Exp</a>, sparse attention <span class="len">2025</span></li>
+  </ul></div>
+  <div><span class="k">The tools</span><ul>
+    <li><a href="https://github.com/vllm-project/vllm">vLLM</a> · <a href="https://github.com/sgl-project/sglang">SGLang</a> · <a href="https://github.com/NVIDIA/TensorRT-LLM">TensorRT-LLM</a> <span class="len">inference engines</span></li>
+    <li><a href="https://github.com/ai-dynamo/dynamo">NVIDIA Dynamo</a> <span class="len">disaggregation and KV cache tiers</span></li>
+  </ul></div>
+</div>
+
+<!-- 14 -->
+<div class="section-header" id="sources">
+  <span class="section-num">14</span><span class="section-title">Sources and method</span><span class="section-desc">How this was built</span>
+</div>
+<ul class="srcs">
+  <li><strong>The conversation:</strong> Baseten, <a href="https://www.youtube.com/watch?v=LUGxx1XNqcM">How to become an inference engineer</a>, 26 March 2026, 28 minutes, with Philip Kiely and Charlie O'Neill. I worked from the auto-generated captions and the chapter list. The speakers are paraphrased, with one short quote. Opinions are labelled as theirs, and both work for Baseten, which serves open models.</li>
+  <li><strong>The book:</strong> <a href="https://www.baseten.co/inference-engineering/">baseten.co/inference-engineering</a>: 256 pages, chapters 0 to 7 plus two appendices, free PDF, and the million-engineer prediction.</li>
+  <li><strong>Sparse attention:</strong> vLLM, <a href="https://vllm.ai/blog/2025-09-29-deepseek-v3-2">DeepSeek-V3.2-Exp in vLLM</a> (29 September 2025): the indexer selects the top 2,048 tokens per query. The 10% indexer cost in Exhibit 5 is my assumption.</li>
+  <li><strong>Memory tiers:</strong> NVIDIA <a href="https://github.com/ai-dynamo/dynamo">Dynamo</a> and its documentation on KV cache offloading to CPU memory, local SSD and network storage. Tier capacities in Exhibit 6 are typical server figures, not Dynamo's.</li>
+  <li><strong>Model sizes:</strong> <a href="https://arxiv.org/abs/1810.04805">BERT</a> (base, 110M), <a href="https://huggingface.co/openai/whisper-large-v3">Whisper large</a> (1.55B), <a href="https://arxiv.org/abs/2307.09288">Llama 2</a> (70B), <a href="https://arxiv.org/abs/2412.19437">DeepSeek-V3</a> (671B), <a href="https://github.com/moonshotai/Kimi-K2">Kimi K2</a> (1T), and Kimi K3 (2.8T) from <a href="/kimi-k3-serving.html">my K3 guide</a>.</li>
+  <li><strong>Open-model gap:</strong> Epoch AI, <a href="https://x.com/EpochAIResearch/status/2111165029470949867">16 October 2026</a>.</li>
+  <li><strong>Illustrations:</strong> Exhibits 4, 5, 7 and 9 are models, not measurements, and their assumptions are stated under each one. Exhibits 3 and 10 are my arrangement.</li>
+  <li><strong>Related pieces on this site:</strong> <a href="/kimi-k3-serving.html">serving a trillion parameters</a>, <a href="/datacenter.html">building a datacenter</a>, <a href="/transformers.html">transformers</a>, <a href="/loop-pm-field-guide.html">eight PMs, one loop</a>.</li>
+</ul>
+
+<footer>
+  <span>Omkar Ray · October 2026</span>
+  <span><a href="/">omkarray.com</a></span>
+</footer>
+
+<script>
+(function(){
+  var NS = "http://www.w3.org/2000/svg";
+  var C = { ink:"#1a1c20", text2:"#3a3d42", muted:"#6b6e73", border:"#d5d2ca", surface2:"#e8e7e1", bg:"#f8f8f5", accent:"#2563a8", tint:"#e3ecf7", gold:"#a06d08", goldTint:"#f6ead2", green:"#1a7a3a", rust:"#a63a1e", rustTint:"#f6e4de" };
+  function E(tag, a, txt){ var e=document.createElementNS(NS,tag); for (var k in a) e.setAttribute(k,a[k]); if (txt!=null) e.textContent=txt; return e; }
+  function T(svg,x,y,s,o){ o=o||{}; var a={x:x,y:y,fill:o.fill||C.text2,"font-size":o.size||13}; if(o.anchor) a["text-anchor"]=o.anchor; if(o.weight) a["font-weight"]=o.weight; if(o.mono) a["class"]="mono"; svg.appendChild(E("text",a,s)); }
+  function R(svg,x,y,w,h,fill,o){ o=o||{}; var a={x:x,y:y,width:w,height:h,fill:fill,rx:o.rx==null?3:o.rx}; if(o.stroke){a.stroke=o.stroke;a["stroke-width"]=o.sw||1;} if(o.dash) a["stroke-dasharray"]=o.dash; svg.appendChild(E("rect",a)); }
+  function L(svg,x1,y1,x2,y2,color,w,dash){ var a={x1:x1,y1:y1,x2:x2,y2:y2,stroke:color,"stroke-width":w||1.4}; if(dash) a["stroke-dasharray"]=dash; svg.appendChild(E("line",a)); }
+  function A(svg,x1,y1,x2,y2,color){ L(svg,x1,y1,x2,y2,color,1.6); var ang=Math.atan2(y2-y1,x2-x1),s=7; svg.appendChild(E("path",{d:"M"+x2+","+y2+" L"+(x2-s*Math.cos(ang-0.45))+","+(y2-s*Math.sin(ang-0.45))+" L"+(x2-s*Math.cos(ang+0.45))+","+(y2-s*Math.sin(ang+0.45))+" Z",fill:color})); }
+  function wrap(svg,str,x,y,maxw,lh,o){ var words=str.split(" "), line="", lines=[], cw=(o.size||12)*0.52; words.forEach(function(wd){ var t=line?line+" "+wd:wd; if(t.length*cw>maxw && line){ lines.push(line); line=wd; } else line=t; }); if(line) lines.push(line); lines.forEach(function(l,j){ T(svg,x,y+j*(lh*1.35),l,o); }); return lines.length; }
+  function dot(svg,x,y,r,fill){ svg.appendChild(E("circle",{cx:x,cy:y,r:r,fill:fill})); }
+  function clear(svg){ while(svg.firstChild) svg.removeChild(svg.firstChild); }
+  function el(id){ return document.getElementById(id); }
+  function fmt(n){ return Math.round(n).toLocaleString("en-US"); }
+  function short(n){ var u=[[1e9,"B"],[1e6,"M"],[1e3,"K"]]; for (var i=0;i<u.length;i++){ if(n>=u[i][0]){ var v=n/u[i][0]; return (v>=10?Math.round(v):parseFloat(v.toFixed(1)))+u[i][1]; } } return String(Math.round(n)); }
+
+  // Exhibit 1: life of a request
+  (function(){ var s=el("ex1");
+    var bx=[["You","send a prompt from an app or an API call"],["Gateway","checks who you are and your rate limit"],["Router","picks a copy of the model, ideally one that already holds your earlier context"],["Inference engine","batches your request with others and manages memory"],["GPU","reads the whole prompt, then writes the reply one token at a time"]];
+    var w=160, gap=20, x0=10, y0=14, h=128;
+    bx.forEach(function(b,i){ var x=x0+i*(w+gap), last=i===bx.length-1;
+      R(s,x,y0,w,h,last?C.tint:C.bg,{stroke:last?C.accent:C.border,sw:last?1.6:1,rx:5});
+      T(s,x+12,y0+22,"0"+(i+1),{size:10,fill:C.accent,mono:true});
+      T(s,x+12,y0+42,b[0],{size:14,weight:700,fill:C.ink});
+      wrap(s,b[1],x+12,y0+64,w-24,11.5,{size:11.5,fill:C.text2});
+      if(i<bx.length-1) A(s,x+w+2,y0+h/2,x+w+gap-2,y0+h/2,C.muted);
+    });
+    T(s,10,180,"What the person waiting feels",{size:12,weight:700,fill:C.ink});
+    R(s,10,192,80,26,C.surface2,{rx:2}); T(s,50,209,"wait",{size:11,fill:C.muted,anchor:"middle"});
+    R(s,92,192,158,26,C.accent,{rx:2}); T(s,171,209,"read the prompt",{size:11,fill:"#ffffff",anchor:"middle"});
+    for (var i=0;i<32;i++) R(s,254+i*20,192,16,26,C.gold,{rx:2});
+    L(s,10,228,250,228,C.accent,1.2); L(s,10,224,10,232,C.accent,1.2); L(s,250,224,250,232,C.accent,1.2);
+    T(s,130,246,"time to first token",{size:11,fill:C.accent,mono:true,anchor:"middle"});
+    L(s,254,228,890,228,C.gold,1.2); L(s,254,224,254,232,C.gold,1.2); L(s,890,224,890,232,C.gold,1.2);
+    T(s,572,246,"tokens per second: how fast the reply streams",{size:11,fill:C.gold,mono:true,anchor:"middle"});
+    T(s,10,284,"Cost per million tokens = GPU price per hour ÷ tokens produced per hour × 1,000,000",{size:12,fill:C.ink,mono:true});
+  })();
+
+  // Exhibit 2: model size over time
+  (function(){ var s=el("ex2"), x0=80, x1=860, y0=290, y1=30;
+    var lx=function(y){ return x0+(y-2018)/9*(x1-x0); }, ly=function(p){ return y0-(Math.log10(p)-8)/5*(y0-y1); };
+    [[1e8,"100M"],[1e9,"1B"],[1e10,"10B"],[1e11,"100B"],[1e12,"1T"],[1e13,"10T"]].forEach(function(g){ L(s,x0,ly(g[0]),x1,ly(g[0]),C.border,0.8,"3 4"); T(s,x0-8,ly(g[0])+4,g[1],{size:11,fill:C.muted,mono:true,anchor:"end"}); });
+    [2018,2020,2022,2024,2026].forEach(function(y){ L(s,lx(y),y0,lx(y),y0+5,C.muted); T(s,lx(y),y0+20,String(y),{size:11,fill:C.muted,mono:true,anchor:"middle"}); });
+    L(s,x0,y0,x1,y0,C.ink,1.2); L(s,x0,y1,x0,y0,C.ink,1.2);
+    T(s,x0,16,"parameters (log scale)",{size:11,fill:C.muted});
+    var pts=[[2018.8,1.1e8,"BERT-base · 110M","a CPU was enough",8,-26,"start"],[2022.7,1.55e9,"Whisper large · 1.55B","a whole small GPU for one model",8,-4,"start"],[2023.55,7e10,"Llama 2 · 70B","≈140 GB at 16-bit: two 80 GB GPUs",8,-4,"start"],[2024.97,6.71e11,"DeepSeek-V3 · 671B","a full machine of eight big GPUs",-10,-3,"end"],[2025.53,1e12,"Kimi K2 · 1T","",-8,-14,"end"],[2026.5,2.8e12,"Kimi K3 · 2.8T · eight B300 GPUs at ≈4 bits","",-8,-19,"end"]];
+    pts.forEach(function(p,i){ var x=lx(p[0]), y=ly(p[1]), last=i===pts.length-1;
+      dot(s,x,y,5.5,last?C.gold:C.accent);
+      T(s,x+p[4],y+p[5],p[2],{size:12,weight:700,fill:C.ink,anchor:p[6]});
+      if(p[3]) T(s,x+p[4],y+p[5]+15,p[3],{size:11,fill:C.muted,anchor:p[6]});
+    });
+  })();
+
+  // Exhibit 3: the stack
+  (function(){ var s=el("ex3");
+    R(s,10,20,118,332,C.goldTint,{stroke:C.gold,rx:5});
+    T(s,22,46,"The model",{size:14,weight:700,fill:C.ink}); T(s,22,64,"ch. 2",{size:10,fill:C.gold,mono:true});
+    wrap(s,"The workload every layer is tuned for: its size, attention type, experts and precision.",22,92,96,11.5,{size:11.5,fill:C.text2});
+    var layers=[["Production","ch. 7","Thousands of GPUs kept serving: capacity, autoscaling, failover, monitoring"],["Serving","ch. 4","Spin model copies up and down; send each request to the right copy"],["Inference engine","ch. 4","vLLM, SGLang, TensorRT-LLM: batch requests, manage memory, schedule work"],["Kernels","ch. 3 to 4","Small GPU programs (CUDA) that do the math: attention, matrix multiply"],["Hardware","ch. 3","GPUs: how much memory, how fast it is, how chips talk to each other"]];
+    layers.forEach(function(l,i){ var y=20+i*68, x=142, w=574, top=i===0;
+      R(s,x,y,w,60,top?C.tint:C.bg,{stroke:top?C.accent:C.border,rx:4});
+      T(s,x+14,y+24,l[0],{size:14,weight:700,fill:C.ink}); T(s,x+w-14,y+24,l[1],{size:10,fill:C.accent,mono:true,anchor:"end"});
+      T(s,x+14,y+45,l[2],{size:12,fill:C.text2});
+    });
+    R(s,730,20,160,196,C.bg,{stroke:C.border,rx:5});
+    T(s,744,46,"Techniques",{size:14,weight:700,fill:C.ink}); T(s,744,64,"ch. 5",{size:10,fill:C.accent,mono:true});
+    ["quantization","caching","speculation","parallelism","disaggregation"].forEach(function(t,i){ R(s,744,80+i*24,8,8,C.accent,{rx:1}); T(s,760,89+i*24,t,{size:12,fill:C.text2}); });
+    R(s,730,224,160,128,C.bg,{stroke:C.border,rx:5});
+    T(s,744,250,"Modalities",{size:14,weight:700,fill:C.ink}); T(s,744,268,"ch. 6",{size:10,fill:C.accent,mono:true});
+    wrap(s,"Text, speech, images and video each stress the stack differently.",744,292,134,11.5,{size:11.5,fill:C.text2});
+    T(s,10,382,"Chapters 0 and 1 set up the map: what inference is, and what you need to know first.",{size:12,fill:C.muted});
+  })();
+
+  // Exhibit 4: demand multiplier (interactive)
+  (function(){ var s=el("ex4"), ids=["m-agents","m-steps","m-ctx","m-cache"];
+    function draw(){
+      var a=+el("m-agents").value, st=+el("m-steps").value, ctx=+el("m-ctx").value*1000, cache=+el("m-cache").value/100;
+      el("m-agents-o").textContent=a; el("m-steps-o").textContent=st; el("m-ctx-o").textContent=short(ctx)+" tokens"; el("m-cache-o").textContent=Math.round(cache*100)+"%";
+      var chat=2000, read=a*st*ctx, fresh=read*(1-cache);
+      clear(s);
+      var x0=230, x1=880, lx=function(t){ return x0+(Math.log10(Math.max(t,1000))-3)/6*(x1-x0); };
+      [1e3,1e4,1e5,1e6,1e7,1e8,1e9].forEach(function(t){ L(s,lx(t),14,lx(t),148,C.border,0.8,"3 4"); T(s,lx(t),166,short(t),{size:11,fill:C.muted,mono:true,anchor:"middle"}); });
+      [["One chat answer",chat,C.muted],["Agent task: tokens read",read,C.gold],["Computed fresh after cache",fresh,C.accent]].forEach(function(r,i){ var y=22+i*42, w=Math.max(lx(r[1])-x0,2), inside=x0+w>760;
+        T(s,10,y+19,r[0],{size:13,weight:600,fill:C.ink});
+        R(s,x0,y,w,28,r[2],{rx:2});
+        T(s,inside?x0+w-8:x0+w+8,y+19,short(r[1])+" tokens",{size:12,fill:inside?"#ffffff":C.text2,mono:true,anchor:inside?"end":"start"});
+      });
+      el("m-read").textContent=a+" agents × "+st+" steps × "+short(ctx)+" tokens of context = "+fmt(read)+" tokens read for one task, about "+fmt(read/chat)+" times one chat answer. With "+Math.round(cache*100)+"% reused from cache, "+fmt(fresh)+" are computed fresh.";
+    }
+    ids.forEach(function(id){ el(id).addEventListener("input",draw); });
+    draw();
+  })();
+
+  // Exhibit 5: sparse vs full attention
+  (function(){ var s=el("ex5"), x0=90, x1=860, y0=260, y1=24;
+    var lx=function(n){ return x0+(Math.log2(n)-8)/12*(x1-x0); }, ly=function(v){ return y0-(Math.log10(v)-2)/4*(y0-y1); };
+    var dense=function(n){ return n; }, sparse=function(n){ return 0.1*n+Math.min(n,2048); }, cross=2048/0.9;
+    R(s,x0,y1,lx(cross)-x0,y0-y1,C.rustTint,{rx:0});
+    T(s,x0+10,y1+20,"sparse costs more here",{size:12,fill:C.rust,weight:600});
+    T(s,x0+10,y1+37,"(top 2,048 keeps every token)",{size:11,fill:C.rust});
+    [[100,"100"],[1000,"1K"],[10000,"10K"],[100000,"100K"],[1000000,"1M"]].forEach(function(g){ L(s,x0,ly(g[0]),x1,ly(g[0]),C.border,0.8,"3 4"); T(s,x0-8,ly(g[0])+4,g[1],{size:11,fill:C.muted,mono:true,anchor:"end"}); });
+    [[256,"256"],[2048,"2K"],[16384,"16K"],[131072,"128K"],[1048576,"1M"]].forEach(function(g){ L(s,lx(g[0]),y0,lx(g[0]),y0+5,C.muted); T(s,lx(g[0]),y0+20,g[1],{size:11,fill:C.muted,mono:true,anchor:"middle"}); });
+    L(s,x0,y0,x1,y0,C.ink,1.2); L(s,x0,y1,x0,y0,C.ink,1.2);
+    function path(f,color){ var d="", n; for (var k=0;k<=96;k++){ n=Math.pow(2,8+12*k/96); d+=(k?"L":"M")+lx(n).toFixed(1)+","+ly(f(n)).toFixed(1)+" "; } s.appendChild(E("path",{d:d,fill:"none",stroke:color,"stroke-width":2.6})); }
+    path(dense,C.rust); path(sparse,C.accent);
+    dot(s,lx(cross),ly(cross),5,C.ink);
+    T(s,lx(cross)+10,ly(cross)+20,"cross at ≈ 2,300 tokens",{size:12,fill:C.ink,mono:true});
+    T(s,lx(400000),ly(400000)-12,"full attention: every earlier token",{size:12,fill:C.rust,weight:600,anchor:"end"});
+    T(s,lx(40000),ly(sparse(40000))+30,"sparse: indexer + top 2,048",{size:12,fill:C.accent,weight:600});
+    T(s,(x0+x1)/2,y0+40,"tokens of context (log scale)",{size:12,fill:C.muted,anchor:"middle"});
+    T(s,x0,14,"work per new token, relative (log scale)",{size:11,fill:C.muted});
+  })();
+
+  // Exhibit 6: disaggregation and memory tiers
+  (function(){ var s=el("ex6");
+    T(s,10,24,"Separate reading from writing",{size:13,weight:700,fill:C.ink});
+    R(s,10,40,170,84,C.tint,{stroke:C.accent,rx:6}); T(s,95,76,"Reading GPUs",{size:14,weight:700,fill:C.ink,anchor:"middle"}); T(s,95,96,"prefill · math-bound",{size:11,fill:C.muted,anchor:"middle"});
+    A(s,184,82,226,82,C.gold); T(s,205,70,"KV cache",{size:10,fill:C.gold,mono:true,anchor:"middle"});
+    R(s,230,40,170,84,C.goldTint,{stroke:C.gold,rx:6}); T(s,315,76,"Writing GPUs",{size:14,weight:700,fill:C.ink,anchor:"middle"}); T(s,315,96,"decode · memory-bound",{size:11,fill:C.muted,anchor:"middle"});
+    wrap(s,"Agents re-read long contexts and write short steps, so the reading share keeps growing. Separate pools let each side scale on its own.",10,160,390,12,{size:12,fill:C.text2});
+    T(s,450,24,"Where the KV cache can live",{size:13,weight:700,fill:C.ink});
+    var tiers=[["GPU memory","fastest","80 to 288 GB per GPU",40,C.accent],["CPU memory","slower","often 1 to 2 TB per server",80,"#6f97cc"],["Local SSD","slower still","tens of TB per server",130,"#a9c1e2"],["Network storage","slowest","up to petabytes",190,C.tint]];
+    tiers.forEach(function(t,i){ var y=40+i*56;
+      T(s,450,y+18,t[0],{size:13,weight:700,fill:C.ink}); T(s,450,y+36,t[1],{size:11,fill:C.muted,mono:true});
+      R(s,590,y+4,t[3],34,t[4],{stroke:C.accent,sw:0.8,rx:3}); T(s,590+t[3]+8,y+26,t[2],{size:11,fill:C.text2});
+    });
+    wrap(s,"Idle conversations move down a tier. When they resume, their memory moves back up instead of being recomputed.",450,272,440,12,{size:12,fill:C.text2});
+  })();
+
+  // Exhibit 7: speculative decoding (interactive)
+  (function(){ var s=el("ex7"), ids=["s-alpha","s-k","s-c"];
+    function sp(a,k,c){ var e=a>=0.999?k+1:(1-Math.pow(a,k+1))/(1-a); return { e:e, s:e/(1+k*c) }; }
+    function draw(){
+      var a=+el("s-alpha").value/100, k=+el("s-k").value, c=+el("s-c").value/100, r=sp(a,k,c);
+      el("s-alpha-o").textContent=Math.round(a*100)+"%"; el("s-k-o").textContent=k; el("s-c-o").textContent=Math.round(c*100)+"%";
+      clear(s);
+      var x0=70, x1=860, y0=240, y1=20, ymax=Math.max(2,Math.ceil(sp(0.95,k,c).s));
+      var lx=function(v){ return x0+v*(x1-x0); }, ly=function(v){ return y0-v/ymax*(y0-y1); };
+      R(s,x0,ly(1),x1-x0,y0-ly(1),C.rustTint,{rx:0});
+      T(s,x1-8,y0-8,"slower than not guessing",{size:11,fill:C.rust,anchor:"end"});
+      for (var v=0; v<=ymax; v++){ L(s,x0,ly(v),x1,ly(v),C.border,0.8,"3 4"); T(s,x0-8,ly(v)+4,v+"×",{size:11,fill:C.muted,mono:true,anchor:"end"}); }
+      L(s,x0,ly(1),x1,ly(1),C.rust,1.4,"6 4");
+      [0,0.2,0.4,0.6,0.8,1].forEach(function(t){ L(s,lx(t),y0,lx(t),y0+5,C.muted); T(s,lx(t),y0+20,Math.round(t*100)+"%",{size:11,fill:C.muted,mono:true,anchor:"middle"}); });
+      L(s,x0,y0,x1,y0,C.ink,1.2); L(s,x0,y1,x0,y0,C.ink,1.2);
+      var d=""; for (var i=0;i<=95;i++){ var t=i/100; d+=(i?"L":"M")+lx(t).toFixed(1)+","+ly(sp(t,k,c).s).toFixed(1)+" "; }
+      s.appendChild(E("path",{d:d,fill:"none",stroke:C.accent,"stroke-width":2.6}));
+      var mx=lx(a), my=ly(r.s), slow=r.s<1;
+      dot(s,mx,my,6,slow?C.rust:C.ink);
+      T(s,mx+(a>0.7?-10:10),my-10,r.s.toFixed(2)+"×",{size:13,fill:slow?C.rust:C.ink,mono:true,weight:700,anchor:a>0.7?"end":"start"});
+      T(s,(x0+x1)/2,y0+40,"share of guesses the big model accepts",{size:12,fill:C.muted,anchor:"middle"});
+      T(s,x0,12,"speed vs no guessing",{size:11,fill:C.muted});
+      el("s-read").textContent="Each big-model step keeps "+r.e.toFixed(2)+" tokens on average. Drafting costs "+k+" × "+Math.round(c*100)+"% = "+Math.round(k*c*100)+"% extra per step, so the net speed is "+r.s.toFixed(2)+"×"+(slow?": slower than not guessing at all.":" the speed of not guessing.");
+    }
+    ids.forEach(function(id){ el(id).addEventListener("input",draw); });
+    Array.prototype.forEach.call(document.querySelectorAll(".presets button"),function(b){ b.addEventListener("click",function(){ el("s-alpha").value=b.getAttribute("data-a"); draw(); }); });
+    draw();
+  })();
+
+  // Exhibit 8: RL loop
+  (function(){ var s=el("ex8");
+    var bx=[[40,20,"1 · Generate attempts","The current model writes thousands of answers to practice tasks. This is inference, at scale.",true],[520,20,"2 · Score them","Graders, tests or reward models mark every attempt.",false],[520,170,"3 · Update the model","Training nudges the weights toward what scored well.",false],[40,170,"4 · Ship the new weights","The generators load the updated model, so the next attempts come from it (on-policy).",false]];
+    bx.forEach(function(b){ R(s,b[0],b[1],340,100,b[4]?C.tint:C.bg,{stroke:b[4]?C.accent:C.border,sw:b[4]?1.6:1,rx:6});
+      T(s,b[0]+16,b[1]+28,b[2],{size:14,weight:700,fill:C.ink});
+      if(b[4]) T(s,b[0]+326,b[1]+28,"inference",{size:10,fill:C.accent,mono:true,anchor:"end"});
+      wrap(s,b[3],b[0]+16,b[1]+54,308,12,{size:12,fill:C.text2});
+    });
+    A(s,384,70,516,70,C.muted); A(s,690,124,690,166,C.muted); A(s,516,220,384,220,C.muted); A(s,210,166,210,124,C.muted);
+    T(s,40,302,"Fine-tuning on fixed examples (SFT) has no step 1, which is why it never needed inference engineers.",{size:12,fill:C.muted});
+  })();
+
+  // Exhibit 9: capability thresholds
+  (function(){ var s=el("ex9"), x0=80, x1=860, y0=300, y1=30, lag=6.5;
+    var lx=function(m){ return x0+m/36*(x1-x0); }, ly=function(v){ return y0-v/100*(y0-y1); };
+    var closed=function(m){ return 20+2*m; }, open=function(m){ return 20+2*(m-lag); };
+    L(s,x0,y0,x1,y0,C.ink,1.2); L(s,x0,y1,x0,y0,C.ink,1.2);
+    T(s,x0,18,"capability →",{size:11,fill:C.muted}); T(s,x1,y0+22,"time →",{size:11,fill:C.muted,anchor:"end"});
+    var th=[[30,"tab completion"],[48,"code generation"],[66,"agentic coding"],[82,"PR review"]];
+    th.forEach(function(t){ var y=ly(t[0]), mc=(t[0]-20)/2, mo=mc+lag;
+      L(s,x0,y,x1,y,C.border,1,"4 4"); T(s,x0+6,y-7,t[1],{size:11,fill:C.muted});
+      R(s,lx(mc),y-5,Math.min(lx(mo),x1)-lx(mc),10,"#e9cf9a",{rx:2});
+    });
+    function path(f,color){ var d=""; for (var m=0;m<=36;m+=0.5){ d+=(m?"L":"M")+lx(m).toFixed(1)+","+ly(Math.max(f(m),0)).toFixed(1)+" "; } s.appendChild(E("path",{d:d,fill:"none",stroke:color,"stroke-width":2.6})); }
+    path(closed,C.accent); path(open,C.gold);
+    th.forEach(function(t){ var y=ly(t[0]), mc=(t[0]-20)/2, mo=mc+lag; dot(s,lx(mc),y,4.5,C.accent); if(mo<=36) dot(s,lx(mo),y,4.5,C.gold); });
+    T(s,lx(11.5)+10,ly(30)+22,"from here, the task can move to a faster, cheaper open model",{size:11,fill:C.gold});
+    R(s,600,252,12,12,C.accent,{rx:2}); T(s,618,262,"closed frontier models",{size:12,fill:C.text2});
+    R(s,600,272,12,12,C.gold,{rx:2}); T(s,618,282,"open models, a few months behind",{size:12,fill:C.text2});
+  })();
+
+  // Exhibit 10: learning ladder
+  (function(){ var s=el("ex10");
+    var rungs=[["Ask the right questions","Know time to first token, tokens per second, cost per token and cache hit rate. Enough to buy well."],["Run one model","Serve an open model with vLLM or SGLang on one rented GPU, and measure it."],["Tune it","Try 8-bit and 4-bit weights, prefix caching, batch limits and speculation, one at a time."],["Split it","Spread a big model across GPUs, and separate reading from writing."],["Go down to kernels","Profile where GPU time goes, then fuse or write a kernel in Triton or CUDA."]];
+    rungs.forEach(function(r,i){ var x=10+i*178, w=170, top=130-i*30, last=i===rungs.length-1;
+      R(s,x,top,w,300-top,last?C.tint:C.bg,{stroke:last?C.accent:C.border,sw:last?1.6:1,rx:5});
+      T(s,x+12,top+20,"rung "+i,{size:10,fill:C.accent,mono:true});
+      var n=wrap(s,r[0],x+12,top+42,w-24,13.5,{size:13.5,weight:700,fill:C.ink});
+      wrap(s,r[1],x+12,top+42+n*18+8,w-24,11.5,{size:11.5,fill:C.text2});
+    });
+  })();
+})();
+</script>
+</body>
+</html>
