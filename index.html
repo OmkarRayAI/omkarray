@@ -76,7 +76,7 @@
             <rect x="4" y="4" width="14" height="14" rx="3" fill="#D6D3C6"/>
           </svg>
         </div>
-        <span class="floppy-count">18 explorations</span>
+        <span class="floppy-count">19 explorations</span>
       </div>
 
       <div class="floppy fade-in" data-folder="thesis" tabindex="0" role="button" aria-expanded="false">
@@ -231,6 +231,12 @@
             <span class="card-tag">Infrastructure</span>
             <h3>The Craft of Making Models Run</h3>
             <p>Inference engineering in plain words: why demand multiplies, why a drafter trained on code slows down on poems, and a five-rung ladder into the job.</p>
+            <span class="card-date">Oct 2026</span>
+          </a>
+          <a href="rl/" class="card" data-cat="ml">
+            <span class="card-tag">Machine Learning</span>
+            <h3>Reinforcement Learning, Page by Page</h3>
+            <p>A visual companion to Matt Landers' RL notes: one robot, one cliff and 35 animated figures, from MDPs and Q-learning to PPO, GRPO, SAC and AlphaZero.</p>
             <span class="card-date">Oct 2026</span>
           </a>
         </div>
@@ -1052,6 +1058,8 @@
       { text: "Past about 2,100 tokens, a Kimi K3 conversation's per-token notes take more GPU memory than its fixed-size summary state.", src: "Serving a Trillion Parameters", href: "kimi-k3-serving.html" },
       { text: "Below 2,048 tokens, DeepSeek's sparse attention keeps every token anyway, so its indexer is pure overhead. Baseten sometimes switches it off for short requests.", src: "The Craft of Making Models Run", href: "inference-engineering.html" },
       { text: "A drafter that guesses 4 tokens ahead at 10% cost each makes a model slower if only 20% of its guesses are accepted: about 0.89x speed.", src: "The Craft of Making Models Run", href: "inference-engineering.html" },
+      { text: "On the cliff-walking grid with 10% random moves, Q-learning learns the shortest route but earns about −51 per episode while learning. SARSA takes the safe route and earns about −27.", src: "RL, Page by Page", href: "rl/" },
+      { text: "In the deadly-triad example every true value is 0, yet value estimates pass a trillion after 1,000 sweeps. Remove any one of the three legs and they stay bounded.", src: "RL, Page by Page", href: "rl/" },
       { text: "The gap between a lab first showing an AI capability and the public noticing fell from a median 3.4 years before 2012 to 5 months since 2022.", src: "The AI Moment Archive", href: "ai-moment-archive.html" },
       { text: "With 30 test cases, a 90% pass rate could really be anywhere from about 79% to 100%. Most AI product decisions trust evals that small.", src: "Learn the Loop", href: "loop-pm-curriculum.html" },
       { text: "Agent task length doubles every 7 months. Meta bought Manus for $2B+ and Claude Code hit a $1B run rate.", src: "Agent Design Patterns", href: "agent-design-deepdive.html" },
@@ -1268,11 +1276,12 @@
         extra: 'China controls ~80% of global gallium supply — critical for GaN transistors in datacenter power.'
       },
       {
-        tags: ['rl','reinforcement learning','environment','environments','training','eval','evals','reward','policy','gym'],
-        synonyms: { 'benchmark': 'eval', 'simulate': 'environment', 'simulation': 'environment' },
-        title: 'RL Environments',
-        answer: 'A thesis on why RL environments are the new data moat:',
+        tags: ['rl','reinforcement learning','environment','environments','training','eval','evals','reward','policy','gym','q-learning','sarsa','mdp','bellman','policy gradient','ppo','grpo','trpo','sac','alphazero','actor-critic'],
+        synonyms: { 'benchmark': 'eval', 'simulate': 'environment', 'simulation': 'environment', 'q learning': 'q-learning', 'reinforce': 'policy gradient' },
+        title: 'Reinforcement Learning',
+        answer: 'A visual walk through RL, and a thesis on why RL environments are the new data moat:',
         links: [
+          { name: 'Reinforcement Learning, Page by Page', href: 'rl/', desc: 'One robot, one cliff, 35 animated figures: MDPs to PPO, GRPO and AlphaZero' },
           { name: 'RL Environments Are the New Data Moat', href: 'rl-environments.html', desc: 'RL scaling consumes environment interactions — who builds the gyms wins' }
         ],
         extra: '"The primary barrier to applying agents to the entire economy is building evals for everything." — Brendan Foody, Mercor'

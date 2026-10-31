@@ -1,0 +1,1667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-62YF7Y81BS"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-62YF7Y81BS');
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Reinforcement Learning, Page by Page</title>
+<meta name="description" content="An animated, page-by-page companion to Matt Landers' reinforcement learning notes: one robot, one cliff, and live figures from MDPs and value iteration to Q-learning, PPO, GRPO, SAC and AlphaZero.">
+<link rel="canonical" href="https://omkarray.com/rl/">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="omkarray.com">
+<meta property="og:url" content="https://omkarray.com/rl/">
+<meta property="og:title" content="Reinforcement Learning, Page by Page">
+<meta property="og:description" content="One robot, one cliff, live figures. A visual walk through Matt Landers' RL notes, from MDPs to PPO, GRPO and AlphaZero.">
+<meta property="og:image" content="https://omkarray.com/rl/og.png">
+<meta property="og:image:width" content="2400">
+<meta property="og:image:height" content="1260">
+<meta property="og:image:alt" content="A small robot crossing a grid world beside a cliff, with the cells coloured by how much each square is worth.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Reinforcement Learning, Page by Page">
+<meta name="twitter:description" content="One robot, one cliff, live figures. A visual walk through Matt Landers' RL notes.">
+<meta name="twitter:image" content="https://omkarray.com/rl/og.png">
+<meta name="twitter:image:alt" content="A small robot crossing a grid world beside a cliff.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Space+Mono:wght@400;700&family=Nunito+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+/* House style of omkarray.com: off-white page, one blue accent, flat exhibits. Words on the left, one live exhibit on the right. */
+:root{
+  --bg:#f8f8f5; --surface:#f0efea; --surface2:#e8e7e1; --border:#d5d2ca; --accent:#2563a8; --accent-tint:#e3ecf7;
+  --ink:#1a1c20; --ink-2:#3a3d42; --faint:#6b6e73; --rule:#d5d2ca; --sheet:#f8f8f5; --cell:#e4e2da; --title:#111214;
+  --c0:#2563a8; --c1:#2563a8; --c2:#6f97cc; --c3:#1a7a3a; --c4:#a06d08; --c5:#a63a1e; --c6:#3a3d42; --c7:#8a5a0b; --c8:#9a9ca1;
+  --good:#1a7a3a; --bad:#a63a1e; --gold:#a06d08; --cyan:#6f97cc; --pink:#a06d08; --violet:#2563a8; --A:#2563a8; --B:#a06d08;
+  --ch:var(--accent);
+  --display:"Cormorant Garamond",Georgia,"Times New Roman",serif;
+  --body:"Nunito Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"Space Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;color:var(--ink);background:var(--bg);font-family:var(--body);font-size:15px;line-height:1.7;display:flex;flex-direction:column;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));-webkit-font-smoothing:antialiased}
+.bar{flex:none;display:flex;align-items:center;gap:18px;min-height:60px;max-width:1360px;width:100%;margin:0 auto;border-bottom:1px solid var(--border)}
+.home{font:12px var(--mono);color:var(--faint);text-decoration:none;white-space:nowrap}
+.home:hover{color:var(--ink)}
+.brand{display:flex;flex-direction:column;min-width:0;line-height:1.15}
+.brand b{font-family:var(--display);font-weight:700;font-size:23px;white-space:nowrap;color:var(--title);letter-spacing:-.01em}
+.brand b em{font-style:italic;font-weight:600;color:var(--accent)}
+.brand span{font:10px var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--accent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:3px}
+.prog{flex:1;display:flex;gap:6px;align-items:center;min-width:120px;max-width:520px;margin-left:auto}
+.prog .seg{flex:var(--n) 1 0;display:flex;gap:2px;height:20px;align-items:center}
+.prog button{flex:1;height:3px;border:0;padding:0;background:var(--border);cursor:pointer;transition:height .15s ease}
+.prog button.done{background:#a9c1e2}
+.prog button[aria-current="true"]{background:var(--accent);height:7px}
+.prog button:hover{height:7px}
+.turn{display:flex;align-items:center;gap:6px}
+.turn button,.toc-btn{font:10px var(--mono);letter-spacing:.06em;color:var(--ink-2);background:var(--bg);border:1px solid var(--border);height:30px;cursor:pointer}
+.turn button{width:32px;font-size:12px}
+.toc-btn{padding:0 12px;text-transform:uppercase}
+.turn button:hover:not(:disabled),.toc-btn:hover{border-color:var(--accent);color:var(--accent)}
+.turn button:disabled{opacity:.35;cursor:default}
+.count{font:10px var(--mono);color:var(--faint);min-width:50px;text-align:center;font-variant-numeric:tabular-nums}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.book{flex:1;min-height:0;display:grid;grid-template-columns:minmax(330px,.78fr) 1.22fr;gap:28px;max-width:1360px;width:100%;margin:0 auto;padding-top:22px}
+.text{padding:6px 6px 14px 0;overflow-y:auto;min-width:0}
+.fig{display:flex;flex-direction:column;min-width:0;min-height:0;background:var(--surface);border:1px solid var(--border);--sheet:var(--surface)}
+
+.pg{display:flex;flex-direction:column;gap:14px;min-height:100%;transition:opacity .2s ease}
+.pg.out{opacity:0}
+.kick{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;font:10px var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--accent)}
+.chip{color:var(--accent)}
+.kno{color:var(--faint);letter-spacing:.1em}
+.pg h1{font-family:var(--display);font-weight:700;font-size:clamp(34px,3.3vw,44px);line-height:1.02;margin:0;text-wrap:balance;letter-spacing:-.02em;color:var(--title)}
+.sub{font-family:var(--display);font-style:italic;font-weight:400;font-size:21px;color:var(--accent);margin:-6px 0 2px}
+.lead{font-family:var(--display);font-size:21px;line-height:1.5;color:var(--ink-2)}
+.pg p{margin:0;max-width:62ch;font-weight:300;color:var(--ink-2);line-height:1.75}
+.pg p b,.pg li b{color:var(--ink);font-weight:600}
+.pg p.lead{font-weight:400}
+.note{font-size:13px;color:var(--faint)!important}
+.eq{font-family:var(--display);font-size:20px;font-weight:600;color:var(--ink);padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);overflow-x:auto;white-space:normal;line-height:1.5;max-width:100%}
+.eq .hl{color:var(--accent)}
+.eq small{font-family:var(--body);font-size:12px;font-weight:300;color:var(--faint);display:block;margin-top:3px}
+table.t{border-collapse:collapse;font-size:12.5px;width:100%;max-width:460px;font-variant-numeric:tabular-nums}
+table.t th{font:9px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--faint);background:var(--surface2);text-align:left;padding:7px 8px;border:1px solid var(--border);font-weight:400}
+table.t td{padding:6px 8px;border:1px solid var(--border);vertical-align:top;color:var(--ink-2);font-weight:300}
+table.t .num{text-align:right}
+ul.l,ol.l{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;font-weight:300;color:var(--ink-2)}
+a{color:var(--accent);text-decoration:none;border-bottom:1px solid rgba(37,99,168,.3);overflow-wrap:anywhere}
+a:hover{border-bottom-color:var(--accent)}
+.key,.kA,.kviolet{font-weight:600;color:var(--accent)} .kB,.kgold,.kpink{font-weight:600;color:var(--gold)} .kbad{font-weight:600;color:var(--bad)} .kgood{font-weight:600;color:var(--good)} .kcyan{font-weight:600;color:var(--cyan)}
+.check{border:1px solid var(--border);background:var(--bg);padding:12px 14px;display:flex;flex-direction:column;gap:6px}
+.check p{font-size:14px}
+.check p b:first-child{display:block;font:9px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:400;margin-bottom:4px}
+.check summary{cursor:pointer;font:10px var(--mono);letter-spacing:.06em;color:var(--faint)}
+.check summary:hover{color:var(--accent)}
+.check details p{margin-top:6px;padding-top:6px;border-top:1px dotted var(--border);font-size:13px}
+.foot{margin-top:auto;padding-top:14px;border-top:1px solid var(--border);display:flex;justify-content:space-between;gap:12px;font:10px var(--mono);color:var(--faint);letter-spacing:.02em}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:1px;background:var(--border);border:1px solid var(--border)}
+.cards a{display:block;border:0;background:var(--bg);padding:7px 10px;font-size:13px;color:var(--ink-2)}
+.cards a:hover{color:var(--accent);background:var(--accent-tint)}
+
+.fighead{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:16px 22px 10px;margin:0 22px 0 0;border-bottom:1px solid var(--border);margin-left:22px;padding-left:0;padding-right:0}
+.figno{font:9px var(--mono);color:var(--accent);letter-spacing:.15em;text-transform:uppercase;white-space:nowrap}
+.figtitle{font-family:var(--display);font-style:italic;font-weight:600;font-size:19px;text-align:right;color:var(--ink)}
+.stage{flex:1;min-height:0;position:relative;margin:10px 18px 0}
+.stage svg{position:absolute;inset:0;width:100%;height:100%;transition:opacity .25s ease;font-family:var(--body);overflow:visible}
+.stage svg.fade{opacity:0}
+.figfoot{display:flex;justify-content:space-between;align-items:flex-end;gap:12px 18px;padding:10px 22px 16px;flex-wrap:wrap}
+.ctrl{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.ctrl button{font:10px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2);background:var(--bg);border:1px solid var(--border);padding:6px 11px;cursor:pointer}
+.ctrl button:hover{border-color:var(--accent);color:var(--accent)}
+.ctrl button.pri{color:var(--accent);border-color:var(--accent)}
+.ctrl input[type=range]{width:150px;accent-color:var(--accent)}
+.speed{font:10px var(--mono);color:var(--faint)}
+.readout{display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:12px;font:11px/1.7 var(--mono);color:var(--ink);font-variant-numeric:tabular-nums;min-width:0;max-width:440px;flex:1 1 300px;background:var(--bg);border-left:3px solid var(--accent);padding:8px 12px}
+.readout .k{color:var(--faint)}
+.readout .v{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hint{flex:none;min-height:40px;display:flex;align-items:center;justify-content:center;gap:6px 22px;flex-wrap:wrap;font:10px var(--mono);color:var(--faint);letter-spacing:.02em;max-width:1360px;width:100%;margin:0 auto}
+.hint a{color:var(--faint);border-bottom-color:var(--border)}
+
+/* contents */
+.toc{position:fixed;inset:0;z-index:20;display:none;align-items:flex-start;justify-content:center;padding:70px 16px 24px;background:rgba(248,248,245,.86)}
+.toc.open{display:flex}
+.toc .box{background:var(--bg);border:1px solid var(--border);max-width:980px;width:100%;max-height:100%;overflow:auto;padding:24px 26px}
+.toc h2{font-family:var(--display);font-size:30px;font-weight:700;color:var(--title);margin:0 0 14px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+.toc .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:16px 28px}
+.toc h3{margin:0 0 6px;font:9px var(--mono);letter-spacing:.15em;text-transform:uppercase;color:var(--accent);font-weight:400}
+.toc ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.toc li button{all:unset;cursor:pointer;display:flex;gap:10px;width:100%;padding:3px 0;font-size:13.5px;color:var(--ink-2);border-bottom:1px dotted var(--border)}
+.toc li button:hover,.toc li button:focus-visible{color:var(--accent)}
+.toc li button span{font:10px var(--mono);color:var(--accent);min-width:30px;padding-top:3px}
+.toc li button[aria-current="true"]{font-weight:700;color:var(--ink)}
+
+/* exhibit vocabulary */
+svg text{fill:var(--ink-2);font-size:11px}
+svg .lab{fill:var(--ink-2);font-size:11px;font-weight:600}
+svg .labb{fill:var(--ink);font-size:12px;font-weight:700}
+svg .ax{fill:var(--faint);font-size:10px;font-family:var(--mono)}
+svg .mono{font-family:var(--mono)}
+svg .ttl{fill:var(--ink);font-size:12px;font-weight:700}
+svg .disp{font-family:var(--display);font-weight:700;fill:var(--title)}
+svg .dispi{font-family:var(--display);font-style:italic;font-weight:600;fill:var(--ink)}
+svg .halo{paint-order:stroke;stroke:var(--sheet);stroke-width:4px;stroke-linejoin:round}
+svg .gl{stroke:var(--border);stroke-width:1}
+svg .axl{stroke:var(--faint);stroke-width:1}
+svg .z{stroke:var(--faint);stroke-width:1;stroke-dasharray:3 3}
+svg .cell{fill:var(--cell);stroke:none}
+svg .cliff{fill:url(#hCliff)}
+svg .box{fill:var(--bg);stroke:var(--border);stroke-width:1.2}
+svg .card{fill:var(--bg);stroke:var(--border);stroke-width:1}
+svg .fx{transition:opacity .35s ease}
+.pat-c{stroke:var(--bad);stroke-width:1.4;stroke-opacity:.55}
+.pat-cb{fill:#f6e4de}
+.pat-g{stroke:var(--faint);stroke-width:1.2;stroke-opacity:.6}
+
+@media (max-width:860px){
+  html,body{height:auto}
+  .bar{flex-wrap:wrap;gap:8px 12px;padding:10px 0}
+  .brand b{font-size:20px}
+  .brand span{display:none}
+  .prog{order:3;flex-basis:100%;max-width:none}
+  .book{grid-template-columns:1fr;gap:0;padding-top:14px}
+  .fig{order:-1}
+  .text{overflow:visible;padding:22px 2px 18px}
+  .stage{flex:none;height:420px;margin:8px 8px 0}
+  .fighead{margin:0 14px;padding:12px 0 8px}
+  .figtitle{font-size:16px}
+  .figfoot{padding:8px 14px 14px}
+  .readout{max-width:none}
+  .hint{padding-block:12px}
+}
+@media (prefers-reduced-motion: reduce){.pg,.stage svg,svg .fx{transition:none}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute">
+  <defs>
+    <pattern id="hCliff" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(45)"><rect width="7" height="7" class="pat-cb"/><line x1="0" y1="0" x2="0" y2="7" class="pat-c"/></pattern>
+    <pattern id="hGrey" patternUnits="userSpaceOnUse" width="6" height="6" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="6" class="pat-g"/></pattern>
+    <filter id="soft"><feOffset dx="0" dy="0"/></filter>
+    <radialGradient id="gem" cx="35%" cy="30%" r="75%"><stop offset="0" stop-color="#fff6c8"/><stop offset=".45" stop-color="#ffc83d"/><stop offset="1" stop-color="#e08a00"/></radialGradient>
+  </defs>
+</svg>
+
+<header class="bar">
+  <a class="home" href="/">← omkarray.com</a>
+  <div class="brand"><b>Reinforcement Learning, <em>page by page</em></b><span>Field guide · RL · October 2026</span></div>
+  <nav class="prog" id="prog" aria-label="Pages"></nav>
+  <button class="toc-btn" id="tocbtn" type="button" aria-haspopup="dialog">CONTENTS</button>
+  <div class="turn"><button id="prev" aria-label="Previous page">←</button><span class="count" id="count">1 / 1</span><button id="next" aria-label="Next page">→</button></div>
+</header>
+
+<main class="book">
+  <article class="sheet text" id="sheet"><div class="pg" id="pg" aria-live="polite"></div></article>
+  <section class="sheet fig" aria-label="Figure">
+    <div class="fighead"><span class="figno" id="figno">Fig. 0</span><span class="figtitle" id="figtitle"></span></div>
+    <div class="stage" id="stage"><svg id="fig" role="img" aria-label="Animated figure"></svg></div>
+    <div class="figfoot">
+      <div class="ctrl"><button id="play" class="pri" type="button">Pause</button><button id="replay" type="button">Replay</button><input id="scrub" type="range" min="0" max="1000" value="0" aria-label="Scrub through the figure"><span class="speed" id="speed"></span></div>
+      <div class="readout" id="readout" aria-live="off"></div>
+    </div>
+  </section>
+</main>
+<footer class="hint"><span>← → keys, scroll, swipe or the arrows turn the page</span><span>Course: <a href="https://mattlanders.net/about-rl.html" target="_blank" rel="noopener">Matt Landers' RL notes</a></span><span>Figures run real simulations unless marked illustrative</span></footer>
+
+<div class="toc" id="toc" role="dialog" aria-modal="true" aria-label="Contents"><div class="box"><h2>Contents</h2><div class="grid" id="tocgrid"></div></div></div>
+
+<script>
+(()=>{
+/* ---------- simulations: every figure that says "live" draws from these ---------- */
+function rng(seed){let s=seed%2147483647||1;if(s<0)s+=2147483646;return()=>(s=s*16807%2147483647)/2147483647;}
+function gauss(R){let u=0,v=0;while(u===0)u=R();v=R();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
+const memo={};const once=(k,f)=>memo[k]||(memo[k]=f());
+
+/* The running example: Cliff Walking, 4 x 12 (Sutton & Barto; used in the Model-Free Control note). */
+const ROWS=4,COLS=12,NST=ROWS*COLS,START=3*COLS,GOAL=3*COLS+11;
+const DR=[-1,0,1,0],DC=[0,1,0,-1],ANAME=["up","right","down","left"],AGL=["↑","→","↓","←"];
+const rowOf=s=>Math.floor(s/COLS),colOf=s=>s%COLS;
+const isCliff=s=>rowOf(s)===3&&colOf(s)>0&&colOf(s)<11;
+function step(s,a){let r=rowOf(s)+DR[a],c=colOf(s)+DC[a];if(r<0||r>=ROWS||c<0||c>=COLS){r=rowOf(s);c=colOf(s);}const n=r*COLS+c;
+  if(isCliff(n))return{n:START,r:-100,fell:true,hit:n};return{n,r:-1,done:n===GOAL,hit:n};}
+function movesToPath(moves){const p=[START];let s=START;for(const a of moves){const o=step(s,a);if(o.fell){p.push(o.hit);s=START;p.push(START);}else{s=o.n;p.push(s);}}return p;}
+const U=0,R_=1,D=2,L=3;
+const EDGE=[U,...Array(11).fill(R_),D];                                   // 13 steps along the cliff
+const SAFE=[U,U,U,...Array(11).fill(R_),D,D,D];                           // 17 steps along the top
+const FALLER=[U,R_,R_,R_,R_,R_,D,U,...Array(11).fill(R_),D];              // walks 5 right, steps off, starts again
+const WANDER=[U,R_,U,R_,R_,D,R_,R_,U,R_,R_,R_,D,R_,R_,R_,D];             // a meandering 17-step walk
+
+function qOf(V,gamma,p,s,a){let q=0;for(let b=0;b<4;b++){const w=(b===a?1-p:0)+p/4;if(!w)continue;const o=step(s,b);q+=w*(o.r+(o.done?0:gamma*V[o.n]));}return q;}
+function greedyA(V,gamma,p,s){let best=-1e18,ba=0;for(let a=0;a<4;a++){const q=qOf(V,gamma,p,s,a);if(q>best+1e-9){best=q;ba=a;}}return ba;}
+function viHist(gamma,p,sweeps){const out=[new Float64Array(NST)];let V=out[0];
+  for(let k=0;k<sweeps;k++){const N=new Float64Array(NST);for(let s=0;s<NST;s++){if(s===GOAL||isCliff(s))continue;let b=-1e18;for(let a=0;a<4;a++)b=Math.max(b,qOf(V,gamma,p,s,a));N[s]=b;}V=N;out.push(V);}return out;}
+function greedyPath(pol,max=60){const path=[START],seen=new Set([START]);let s=START;for(let i=0;i<max&&s!==GOAL;i++){const o=step(s,pol(s));if(o.fell){path.push(o.hit);return{path,fell:true};}s=o.n;path.push(s);if(seen.has(s))return{path,loop:true};seen.add(s);}return{path,ok:s===GOAL};}
+/* policy iteration from the uniform random policy, gamma 0.9; records evaluation sweeps and each improved policy */
+function piHist(gamma){const frames=[];let pol=null;let V=new Float64Array(NST);
+  const evalQ=(V,s,pol)=>{if(pol===null){let q=0;for(let a=0;a<4;a++)q+=qOf(V,gamma,0,s,a)/4;return q;}return qOf(V,gamma,0,s,pol[s]);};
+  for(let it=0;it<8;it++){const sweeps=[];for(let k=0;k<400;k++){const N=new Float64Array(NST);let d=0;for(let s=0;s<NST;s++){if(s===GOAL||isCliff(s))continue;N[s]=evalQ(V,s,pol);d=Math.max(d,Math.abs(N[s]-V[s]));}V=N;if(k<6||k%8===0)sweeps.push(V);if(d<1e-6)break;}sweeps.push(V);
+    const np=new Int8Array(NST);let changed=0;for(let s=0;s<NST;s++){if(s===GOAL||isCliff(s))continue;let b=pol?pol[s]:0,bq=pol?qOf(V,gamma,0,s,pol[s]):-1e18;for(let a=0;a<4;a++){const q=qOf(V,gamma,0,s,a);if(q>bq+1e-9){bq=q;b=a;}}np[s]=b;if(!pol||pol[s]!==b)changed++;}
+    frames.push({pol,sweeps,next:np,changed});if(pol&&changed===0)break;pol=np;}
+  return frames;}
+/* tabular control with epsilon-greedy: kind "q" (Q-learning) or "sarsa" */
+function learn(kind,episodes,seed,eps=.1,alpha=.5,keep=true){const Rn=rng(seed),Q=new Float64Array(NST*4),rets=[],snaps=[];
+  const pick=s=>{if(Rn()<eps)return Math.floor(Rn()*4);let b=0,bv=-1e18;for(let a=0;a<4;a++){const v=Q[s*4+a]+Rn()*1e-9;if(v>bv){bv=v;b=a;}}return b;};
+  for(let e=0;e<episodes;e++){let s=START,a=pick(s),G=0,path=keep?[START]:null,falls=0;
+    for(let t=0;t<3000;t++){const o=step(s,a);G+=o.r;if(o.fell)falls++;if(keep){if(o.fell){path.push(o.hit,START);}else path.push(o.n);}
+      const a2=pick(o.n);const nx=o.done?0:(kind==="q"?Math.max(Q[o.n*4],Q[o.n*4+1],Q[o.n*4+2],Q[o.n*4+3]):Q[o.n*4+a2]);
+      Q[s*4+a]+=alpha*(o.r+nx-Q[s*4+a]);if(o.done)break;s=o.n;a=kind==="q"?pick(s):a2;}
+    rets.push(G);if(keep)snaps.push({Q:Q.slice(),path,G,falls});}
+  return{rets,snaps};}
+const maxQ=(Q,s)=>Math.max(Q[s*4],Q[s*4+1],Q[s*4+2],Q[s*4+3]);
+const argQ=(Q,s)=>{let b=0;for(let a=1;a<4;a++)if(Q[s*4+a]>Q[s*4+b])b=a;return b;};
+
+/* MC vs TD(0) on two fixed episodes (alpha 0.5, gamma 1) */
+function mctdHist(){const eps=[movesToPath(WANDER),movesToPath(EDGE)],alpha=.5,mc=new Float64Array(NST),td=new Float64Array(NST),frames=[];
+  for(let e=0;e<eps.length;e++){const p=eps[e],T=p.length-1;
+    for(let t=0;t<T;t++){const s=p[t],n=p[t+1];const d=-1+(n===GOAL?0:td[n])-td[s];td[s]+=alpha*d;frames.push({e,t,s,d,td:td.slice(),mc:mc.slice(),mcUpd:null});}
+    const G=[];for(let t=0;t<T;t++)G.push(-(T-t));const upd=[];
+    for(let t=0;t<T;t++){const s=p[t];mc[s]+=alpha*(G[t]-mc[s]);upd.push(s);}
+    frames.push({e,t:T,s:GOAL,d:0,td:td.slice(),mc:mc.slice(),mcUpd:upd});}
+  return{eps,frames};}
+
+/* The two-state example from the Value Functions note (gamma 0.9): v = (I - 0.9 P)^-1 r = (89.02, 82.93) */
+const MRP={P:[[.8,.2],[.6,.4]],r:[10,5],g:.9};
+const mrpT=v=>[MRP.r[0]+MRP.g*(MRP.P[0][0]*v[0]+MRP.P[0][1]*v[1]),MRP.r[1]+MRP.g*(MRP.P[1][0]*v[0]+MRP.P[1][1]*v[1])];
+
+/* Importance sampling: behaviour 50/50, target picks A 90% of the time */
+function isHist(n,Tmax,seed){const Rn=rng(seed),w=[];for(let i=0;i<n;i++){const row=[1];let p=1;for(let t=0;t<Tmax;t++){p*=Rn()<.5?1.8:.2;row.push(p);}w.push(row);}return w;}
+
+/* Linear value prediction on a 19-state random walk (gamma 0.9), gradient Monte Carlo */
+function approxHist(eps,seed,alpha){const N=19,g=.9,Rn=rng(seed);
+  const V=new Float64Array(N);for(let k=0;k<3000;k++){for(let s=0;s<N;s++){const l=s===0?-1:g*V[s-1],r=s===N-1?1:g*V[s+1];V[s]=.5*l+.5*r;}}
+  const x=s=>(s-9)/9;let th=[0,0];const mu=new Float64Array(N),fr=[];
+  for(let e=0;e<eps;e++){let s=9;const vis=[],rew=[];for(;;){vis.push(s);const a=Rn()<.5?-1:1;const n=s+a;if(n<0){rew.push(-1);break;}if(n>=N){rew.push(1);break;}rew.push(0);s=n;}
+    let G=0;const Gs=[];for(let t=vis.length-1;t>=0;t--){G=rew[t]+g*G;Gs[t]=G;}
+    for(let t=0;t<vis.length;t++){const s=vis[t];mu[s]++;const err=Gs[t]-(th[0]+th[1]*x(s));th=[th[0]+alpha*err,th[1]+alpha*err*x(s)];}
+    let tot=0;for(let s=0;s<N;s++)tot+=mu[s];let ve=0;for(let s=0;s<N;s++)ve+=mu[s]/tot*(V[s]-(th[0]+th[1]*x(s)))**2;
+    fr.push({th:th.slice(),mu:Array.from(mu,m=>m/tot),ve,len:vis.length});}
+  return{V:Array.from(V),fr,x};}
+
+/* Baird-style counterexample from the Deadly Triad note: 6 states, 7 weights, gamma 0.99, all rewards 0 */
+const BPHI=[[2,0,0,0,0,0,1],[0,2,0,0,0,0,1],[0,0,2,0,0,0,1],[0,0,0,2,0,0,1],[0,0,0,0,2,0,1],[0,0,0,0,0,1,5]];
+function bairdHist(variant,sweeps){const g=.99,a=.01;let th=[1,1,1,1,1,10,1];let phi=BPHI,mu=[1,1,1,1,1,1].map(x=>x/6);
+  if(variant==="tabular"){phi=BPHI.map((_,i)=>[0,0,0,0,0,0].map((z,j)=>j===i?1:0));th=[3,3,3,3,3,15];}
+  if(variant==="onpolicy")mu=[0,0,0,0,0,1];
+  const V=s=>phi[s].reduce((t,f,j)=>t+f*th[j],0),out=[th.slice()];
+  for(let k=0;k<sweeps;k++){const v6=V(5),upd=th.map(()=>0);for(let s=0;s<6;s++){if(!mu[s])continue;const target=variant==="mc"?0:g*v6;const d=target-V(s);phi[s].forEach((f,j)=>upd[j]+=a*mu[s]*d*f);}th=th.map((x,j)=>x+upd[j]);out.push(th.slice());}
+  return out;}
+
+/* REINFORCE on a 3-armed bandit (arm means .2 .5 .8, noisy), with and without the 1/pi correction */
+function pgHist(steps,seed,correct){const Rn=rng(seed),m=[.2,.5,.8];let h=[0,1.6,0];const out=[];
+  const pi=()=>{const e=h.map(Math.exp),z=e.reduce((a,b)=>a+b);return e.map(x=>x/z);};
+  for(let t=0;t<steps;t++){const p=pi();let u=Rn(),a=0;while(a<2&&u>p[a]){u-=p[a];a++;}const G=m[a]+.25*gauss(Rn);const al=.12;
+    // grad of ln pi(a) wrt h_b = 1[a=b]-p_b ; grad of pi(a) = p_a*(1[a=b]-p_b)
+    for(let b=0;b<3;b++){const gl=(a===b?1:0)-p[b];h[b]+=al*G*(correct?gl:p[a]*gl*1.0);}
+    out.push({p,a,G,h:h.slice()});}
+  return out;}
+
+/* Expectile of a sample, for Implicit Q-Learning */
+function expectile(xs,tau){let m=xs.reduce((a,b)=>a+b)/xs.length;for(let k=0;k<200;k++){let num=0,den=0;for(const x of xs){const w=x>=m?tau:1-tau;num+=w*x;den+=w;}const nm=num/den;if(Math.abs(nm-m)<1e-10)break;m=nm;}return m;}
+
+/* REINFORCE vs one-step actor-critic on a noisy 7-cell corridor (start left, +1 at the right end, noisy step costs) */
+function acHist(kind,episodes,seed,alpha){const Rn=rng(seed),N=7,g=.95;const h=new Float64Array(N),V=new Float64Array(N),sig=[],curve=[];
+  const pR=s=>1/(1+Math.exp(-h[s]));
+  for(let e=0;e<episodes;e++){let s=0;const tr=[];let steps=0;
+    while(s<N-1&&steps<60){const right=Rn()<pR(s);const n=right?s+1:Math.max(0,s-1);const r=(n===N-1?1:0)-.05+.6*gauss(Rn);tr.push({s,right,r,n});
+      if(kind==="ac"){const d=r+(n===N-1?0:g*V[n])-V[s];V[s]+=.2*d;h[s]+=alpha*d*((right?1:0)-pR(s));sig.push(d);}
+      s=n;steps++;}
+    if(kind==="reinforce"){let G=0;for(let t=tr.length-1;t>=0;t--){G=tr[t].r+g*G;tr[t].G=G;}for(const x of tr){h[x.s]+=alpha*x.G*((x.right?1:0)-pR(x.s));sig.push(x.G);}}
+    curve.push(steps);}
+  return{curve,sig};}
+
+/* GRPO on one prompt: four hidden ways of answering, right 10/30/60/90% of the time; 8 answers per round */
+function grpoHist(rounds,seed,beta){const Rn=rng(seed),p=[.1,.3,.6,.9];let h=[1.2,.9,.5,0];const ref=h.slice(),out=[];
+  const sm=x=>{const e=x.map(Math.exp),z=e.reduce((a,b)=>a+b);return e.map(v=>v/z);};const pref=sm(ref);
+  for(let k=0;k<rounds;k++){const pi=sm(h),G=8,ans=[];for(let i=0;i<G;i++){let u=Rn(),a=0;while(a<3&&u>pi[a]){u-=pi[a];a++;}ans.push({a,r:Rn()<p[a]?1:0});}
+    const mu=ans.reduce((t,x)=>t+x.r,0)/G,sd=Math.sqrt(ans.reduce((t,x)=>t+(x.r-mu)**2,0)/G);
+    ans.forEach(x=>x.A=sd>0?(x.r-mu)/sd:0);
+    const acc=pi.reduce((t,q,i)=>t+q*p[i],0),kl=pi.reduce((t,q,i)=>t+q*Math.log(q/pref[i]),0);
+    out.push({pi,ans,mu,sd,acc,kl});
+    const lr=.35,gr=[0,0,0,0];for(const x of ans)for(let b=0;b<4;b++)gr[b]+=x.A*((x.a===b?1:0)-pi[b])/G;
+    for(let b=0;b<4;b++){const gk=pref[b]/pi[b]-1;gr[b]-=beta*(pi[b]*(Math.log(pi[b]/pref[b])-kl));}
+    h=h.map((v,b)=>v+lr*gr[b]);}
+  return out;}
+
+/* TD3: an actor that maximises a noisy critic finds the critic's optimistic bumps; the minimum of two critics resists */
+function td3Draws(n,seed){const Rn=rng(seed),grid=[];for(let i=0;i<=160;i++)grid.push(-2+i*4/160);const out=[];
+  const noise=()=>{const c=[0,1,2].map(()=>({A:.18*gauss(Rn),f:1.2+2.6*Rn(),ph:6.283*Rn()}));return a=>c.reduce((t,q)=>t+q.A*Math.sin(q.f*a+q.ph),0);};
+  for(let k=0;k<n;k++){const n1=noise(),n2=noise();let b1=-1e9,a1=0,bm=-1e9,am=0;
+    for(const a of grid){const q1=-a*a+n1(a),q2=-a*a+n2(a),m=Math.min(q1,q2);if(q1>b1){b1=q1;a1=a;}if(m>bm){bm=m;am=a;}}
+    out.push({n1,n2,a1,am,b1:b1-(-a1*a1),bm:bm-(-am*am)});}
+  return out;}
+
+/* SAC on one state, 1-D action: Q has peaks of 1.0 and 0.9; Gaussian policy trained by the reparameterised gradient */
+const sacQ=a=>1.0*Math.exp(-((a-1.1)**2)/(2*.3*.3))+0.9*Math.exp(-((a+1.1)**2)/(2*.3*.3));
+const sacdQ=a=>-1.0*(a-1.1)/.09*Math.exp(-((a-1.1)**2)/.18)-0.9*(a+1.1)/.09*Math.exp(-((a+1.1)**2)/.18);
+function sacHist(seed){const Rn=rng(seed);let mu=-.2,ls=Math.log(.6),al=.6;const out=[],H0=.6;
+  for(let k=0;k<900;k++){const phase=k<300?0:k<600?1:2;if(phase===0)al=.6;else if(phase===1&&k===300)al=.04;
+    let gm=0,gs=0,eq=0;const sg=Math.exp(ls);for(let i=0;i<64;i++){const e=gauss(Rn),a=mu+sg*e;const d=sacdQ(a);gm+=d/64;gs+=d*sg*e/64;eq+=sacQ(a)/64;}
+    const H=.5*Math.log(2*Math.PI*Math.E*sg*sg);
+    mu+=.05*gm;ls+=.05*(gs+al);ls=Math.max(Math.log(.05),Math.min(Math.log(3),ls));
+    if(phase===2)al=Math.max(.001,al-.02*(H-H0));
+    out.push({mu,sg:Math.exp(ls),al,H,eq,phase});}
+  return out;}
+
+/* PID Lagrangian vs plain (integral-only) multiplier on a toy plant where cost has momentum. Illustrative constants. */
+function pidHist(kind){const l=1,T=400,out=[];let c=0,v=0,lam=0,I=0,prev=0;
+  const KP=kind==="pid"?.9:0,KI=.02,KD=kind==="pid"?2.2:0;
+  for(let t=0;t<T;t++){const push=.06,pull=.05*lam;v=.92*v+(push-pull)*.18;c=Math.max(0,c+v);
+    I=Math.max(0,I+(c-l));const d=Math.max(0,c-prev);lam=Math.max(0,KP*(c-l)+KI*I+KD*d);prev=c;out.push({c,lam});}
+  return out;}
+
+/* AlphaZero-style PUCT search at one root: 6 moves with prior P and hidden win chance; noisy evaluations */
+function mctsHist(sims,seed,c){const Rn=rng(seed),P=[.30,.25,.18,.12,.10,.05],W=[.42,.38,.62,.30,.48,.20],N=[0,0,0,0,0,0],S=[0,0,0,0,0,0],out=[];
+  for(let k=0;k<sims;k++){const tot=N.reduce((a,b)=>a+b);let best=-1e9,b=0;const Ush=[];
+    for(let a=0;a<6;a++){const Q=N[a]?S[a]/N[a]:0,Uv=c*P[a]*Math.sqrt(tot+1)/(1+N[a]);Ush.push(Uv);if(Q+Uv>best){best=Q+Uv;b=a;}}
+    const v=(Rn()<W[b]?1:-1)*.6+(W[b]*2-1)*.4+.15*gauss(Rn);N[b]++;S[b]+=v;
+    out.push({b,N:N.slice(),Q:S.map((x,i)=>N[i]?x/N[i]:0),U:Ush});}
+  return{P,W,out};}
+
+/* Cross-Entropy Method on a 2-D landscape with a broad local hill and a narrow higher peak */
+const cemV=(x,y)=>1.0*Math.exp(-((x-1.1)**2+(y-.7)**2)/(2*.55*.55))+0.7*Math.exp(-((x+1.2)**2+(y+.9)**2)/(2*.4*.4));
+function cemHist(seed){const Rn=rng(seed);let m=[0,0],s=[1.6,1.6];const out=[],N=80,ne=12,al=.8;
+  for(let it=0;it<14;it++){const pts=[];for(let i=0;i<N;i++){const x=m[0]+s[0]*gauss(Rn),y=m[1]+s[1]*gauss(Rn);pts.push({x,y,v:cemV(x,y)});}
+    pts.sort((a,b)=>b.v-a.v);const el=pts.slice(0,ne),thr=el[ne-1].v;
+    const em=[el.reduce((t,p)=>t+p.x,0)/ne,el.reduce((t,p)=>t+p.y,0)/ne],es=[Math.sqrt(el.reduce((t,p)=>t+(p.x-em[0])**2,0)/ne)+.02,Math.sqrt(el.reduce((t,p)=>t+(p.y-em[1])**2,0)/ne)+.02];
+    out.push({m:m.slice(),s:s.slice(),pts,thr,best:pts[0].v});
+    m=m.map((v,i)=>al*em[i]+(1-al)*v);s=s.map((v,i)=>al*es[i]+(1-al)*v);}
+  return out;}
+
+/* KL: fit one Gaussian to a two-bump target, by reverse KL(q||p) and forward KL(p||q), on a grid */
+function klHist(dir,steps){const xs=[];for(let i=0;i<=400;i++)xs.push(-6+12*i/400);const dx=12/400;
+  const N=(x,m,s)=>Math.exp(-((x-m)**2)/(2*s*s))/(s*Math.sqrt(2*Math.PI));const p=x=>.5*N(x,-2,.6)+.5*N(x,2,.6);
+  const KL=(m,ls)=>{const s=Math.exp(ls);let t=0;for(const x of xs){const q=N(x,m,s)+1e-300,pp=p(x)+1e-300;t+=dir==="rev"?q*Math.log(q/pp)*dx:pp*Math.log(pp/q)*dx;}return t;};
+  let m=1.0,ls=Math.log(.9);const out=[];
+  for(let k=0;k<steps;k++){const e=1e-4,gm=(KL(m+e,ls)-KL(m-e,ls))/(2*e),gs=(KL(m,ls+e)-KL(m,ls-e))/(2*e);out.push({m,s:Math.exp(ls),kl:KL(m,ls)});m-=.08*gm;ls-=.08*gs;}
+  return out;}
+
+if(typeof module!=="undefined")module.exports={rng,gauss,ROWS,COLS,NST,START,GOAL,isCliff,step,movesToPath,EDGE,SAFE,FALLER,WANDER,qOf,greedyA,viHist,greedyPath,piHist,learn,maxQ,argQ,mctdHist,MRP,mrpT,isHist,approxHist,bairdHist,pgHist,expectile,acHist,grpoHist,td3Draws,sacQ,sacHist,pidHist,mctsHist,cemV,cemHist,klHist};
+
+/* ---------- drawing helpers ---------- */
+const NSV="http://www.w3.org/2000/svg";
+const el=(tag,a,p)=>{const e=document.createElementNS(NSV,tag);if(a)for(const k in a){const v=a[k];if(v==null)continue;if(k==="text")e.textContent=v;else e.setAttribute(k,v);}if(p)p.appendChild(e);return e;};
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const lerp=(a,b,u)=>a+(b-a)*u;
+const ease=p=>1-Math.pow(1-clamp(p,0,1),3);
+const smooth=p=>{p=clamp(p,0,1);return p*p*(3-2*p);};
+const mn=(v,d=2)=>(v<0?"−":"")+Math.abs(v).toFixed(d);
+const sgn=(v,d=2)=>(v<0?"−":v>0?"+":"")+Math.abs(v).toFixed(d);
+const pct=v=>Math.round(v*100)+"%";
+const BIG=v=>{const a=Math.abs(v);if(a>=1e6)return(v<0?"−":"")+a.toExponential(1).replace("e+","e");return mn(v,a>=100?0:a>=10?1:2);};
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+/* one-hue value scale in the site's blue: pale = low, deep = high */
+const RAMP=[[232,238,246],[199,216,238],[169,193,226],[111,151,204],[37,99,168],[26,74,122],[18,52,90]];
+function rampC(u){u=clamp(u,0,1)*(RAMP.length-1);const i=Math.min(RAMP.length-2,Math.floor(u)),f=u-i;return RAMP[i].map((v,k)=>Math.round(v+(RAMP[i+1][k]-v)*f));}
+const rgb=c=>`rgb(${c[0]},${c[1]},${c[2]})`;
+const lum=c=>(.2126*c[0]+.7152*c[1]+.0722*c[2])/255;
+const heat=u=>rgb(rampC(u));
+const ink4=u=>lum(rampC(u))>.55?"#1e1b29":"#ffffff";
+
+/* grid geometry for the 4 x 12 cliff world inside a box */
+function geoBox(x,y,w,h,pad=0){const cs=Math.max(8,Math.floor(Math.min((w-2*pad)/COLS,(h-2*pad)/ROWS)));const gw=cs*COLS,gh=cs*ROWS,x0=x+(w-gw)/2,y0=y+(h-gh)/2;
+  return{cs,x0,y0,gw,gh,x:c=>x0+c*cs,y:r=>y0+r*cs,cx:s=>x0+(colOf(s)+.5)*cs,cy:s=>y0+(rowOf(s)+.5)*cs};}
+function starPts(cx,cy,R,r){let p="";for(let i=0;i<10;i++){const a=-Math.PI/2+i*Math.PI/5,rr=i%2?r:R;p+=(cx+rr*Math.cos(a)).toFixed(1)+","+(cy+rr*Math.sin(a)).toFixed(1)+" ";}return p;}
+/* the world: cells, the cliff, start ring and goal star; returns handles to recolour cells */
+function world(g,G,o={}){const cells=[],nums=[];const rx=Math.min(3,G.cs*.08);
+  for(let s=0;s<NST;s++){const x=G.x(colOf(s)),y=G.y(rowOf(s));
+    if(isCliff(s)){if(colOf(s)===1)el("rect",{x:x+1.5,y:y+1.5,width:G.cs*10-3,height:G.cs-3,rx,class:"cliff"},g);cells.push(null);continue;}
+    cells.push(el("rect",{x:x+1.5,y:y+1.5,width:G.cs-3,height:G.cs-3,rx,class:"cell"},g));}
+  if(o.cliffLabel!==false){const t=G.cs>=34?"the cliff  ·  −100 and back to the start":G.cs>=22?"cliff  ·  −100":"cliff";el("text",{x:G.x(6),y:G.y(3)+G.cs/2+4,"text-anchor":"middle",class:"lab",style:"fill:var(--bad);font-weight:800;letter-spacing:.04em",text:t},g);}
+  const sc=G.cx(START),sy=G.cy(START);el("circle",{cx:sc,cy:sy,r:G.cs*.3,style:"fill:none;stroke:var(--violet);stroke-width:2;stroke-dasharray:3 2"},g);
+  if(o.startLabel!==false)el("text",{x:sc,y:sy+4,"text-anchor":"middle",style:`font-size:${Math.max(9,G.cs*.28)}px;font-weight:800;fill:var(--violet)`,text:"S"},g);
+  const gx=G.cx(GOAL),gy=G.cy(GOAL);el("polygon",{points:starPts(gx,gy,G.cs*.34,G.cs*.15),style:"fill:var(--gold)"},g);
+  if(o.nums){for(let s=0;s<NST;s++){if(isCliff(s)||s===GOAL){nums.push(null);continue;}nums.push(el("text",{x:G.cx(s),y:G.cy(s)+4,"text-anchor":"middle",class:"mono",style:`font-size:${Math.max(8,Math.min(11,G.cs*.27))}px;font-weight:700`},g));}}
+  return{cells,nums,
+    heat(V,lo,hi,show,NV){for(let s=0;s<NST;s++){const c=cells[s];if(!c||s===GOAL)continue;const v=V[s],nv=NV?NV[s]:v;if(v==null||(o.blankZero&&v===0)){c.setAttribute("style","");c.setAttribute("class","cell");if(nums[s])nums[s].textContent="";continue;}
+      const u=(o.cap||1)*(v-lo)/(hi-lo);c.setAttribute("style",`fill:${heat(u)}`);if(nums[s]){nums[s].textContent=show===false?"":mn(nv,Math.abs(nv)<10&&Math.abs(nv%1)>.05?1:0);nums[s].style.fill=ink4(u);}}},
+    plain(){for(const c of cells)if(c){c.setAttribute("style","");}for(const n of nums)if(n)n.textContent="";}};}
+/* the robot */
+function robot(g,size){const R=el("g",{class:"robot"},g),s=size;
+  el("line",{x1:0,y1:-s*.42,x2:0,y2:-s*.62,style:"stroke:var(--ink-2);stroke-width:1.6"},R);
+  el("circle",{cx:0,cy:-s*.66,r:s*.09,style:"fill:var(--gold)"},R);
+  const body=el("rect",{x:-s*.42,y:-s*.42,width:s*.84,height:s*.78,rx:s*.2,style:"fill:var(--violet)",filter:"url(#soft)"},R);
+  el("rect",{x:-s*.3,y:-s*.28,width:s*.6,height:s*.34,rx:s*.12,style:"fill:#fff;opacity:.93"},R);
+  const e1=el("circle",{cx:-s*.13,cy:-s*.11,r:s*.065,style:"fill:#1e1b29"},R),e2=el("circle",{cx:s*.13,cy:-s*.11,r:s*.065,style:"fill:#1e1b29"},R);
+  el("rect",{x:-s*.14,y:s*.14,width:s*.28,height:s*.05,rx:s*.025,style:"fill:#fff;opacity:.75"},R);
+  return{g:R,at(x,y,look=null,bad=false){R.setAttribute("transform",`translate(${x.toFixed(1)},${y.toFixed(1)})`);const lx=look==null?0:[0,1,0,-1][look]*s*.05,ly=look==null?0:[-1,0,1,0][look]*s*.04;
+    e1.setAttribute("transform",`translate(${lx},${ly})`);e2.setAttribute("transform",`translate(${lx},${ly})`);body.setAttribute("style",bad?"fill:var(--bad)":"fill:var(--violet)");},hide(h){R.style.display=h?"none":"";}};}
+/* small direction arrow (triangle) */
+function arrowD(cx,cy,a,len,w){const dx=[0,1,0,-1][a],dy=[-1,0,1,0][a],px=-dy,py=dx;const tx=cx+dx*len/2,ty=cy+dy*len/2,bx=cx-dx*len/2,by=cy-dy*len/2;
+  return`M${(bx+px*w).toFixed(1)} ${(by+py*w).toFixed(1)}L${tx.toFixed(1)} ${ty.toFixed(1)}L${(bx-px*w).toFixed(1)} ${(by-py*w).toFixed(1)}`;}
+function pathD(G,path,n){let d="";const k=n==null?path.length:Math.min(path.length,n);for(let i=0;i<k;i++)d+=(i?"L":"M")+G.cx(path[i]).toFixed(1)+" "+G.cy(path[i]).toFixed(1);return d;}
+/* a simple chart frame */
+function frame(g,b,o){const sx=v=>b.x+(v-o.x0)/(o.x1-o.x0)*b.w,sy=v=>b.y+b.h-(v-o.y0)/(o.y1-o.y0)*b.h;
+  if(o.grid!==false)for(const v of o.yt||[]){el("line",{x1:b.x,x2:b.x+b.w,y1:sy(v),y2:sy(v),class:"gl"},g);el("text",{x:b.x-6,y:sy(v)+3.5,"text-anchor":"end",class:"ax",text:o.yf?o.yf(v):String(v)},g);}
+  for(const v of o.xt||[]){el("text",{x:sx(v),y:b.y+b.h+14,"text-anchor":"middle",class:"ax",text:o.xf?o.xf(v):String(v)},g);}
+  el("line",{x1:b.x,x2:b.x+b.w,y1:b.y+b.h,y2:b.y+b.h,class:"axl"},g);
+  if(o.xl)el("text",{x:b.x+b.w,y:b.y+b.h+(o.xt&&o.xt.length?28:16),"text-anchor":"end",class:"ax",text:o.xl},g);
+  if(o.yl)el("text",{x:b.x,y:b.y-8,class:"ax",text:o.yl},g);
+  return{sx,sy};}
+function poly(pts){return pts.map((p,i)=>(i?"L":"M")+p[0].toFixed(1)+" "+p[1].toFixed(1)).join("");}
+function pill(g,x,y,text,o={}){const G=el("g",{},g);const t=el("text",{x:0,y:4,"text-anchor":"middle",style:`font-size:${o.fs||11}px;font-weight:800;fill:${o.fg||"#fff"}`,text},G);
+  const w=Math.max(o.minw||24,(o.fs||11)*.62*text.length+16),h=(o.fs||11)+10;const r=el("rect",{x:-w/2,y:-h/2,width:w,height:h,rx:2,style:`fill:${o.bg||"var(--violet)"}`},G);G.insertBefore(r,t);
+  G.setAttribute("transform",`translate(${x},${y})`);return{g:G,t,r,set(text,bg){t.textContent=text;const w=Math.max(o.minw||24,(o.fs||11)*.62*text.length+16);r.setAttribute("x",-w/2);r.setAttribute("width",w);if(bg)r.setAttribute("style",`fill:${bg}`);},at(x,y){G.setAttribute("transform",`translate(${x.toFixed(1)},${y.toFixed(1)})`);}};}
+function legend(g,x,y,items,gap=16){let cx=x;for(const [c,l,dash] of items){el("line",{x1:cx,x2:cx+16,y1:y,y2:y,style:`stroke:${c};stroke-width:3;${dash?"stroke-dasharray:4 3":""}`},g);const t=el("text",{x:cx+21,y:y+4,class:"lab",text:l},g);cx+=21+l.length*6.1+gap;}return cx;}
+
+/* ---------- figures: cover, chapter 1 (the problem), chapter 2 (values and planning) ---------- */
+const BUILD={};
+function stepsOf(moves){const out=[];let s=START;for(const a of moves){const o=step(s,a);out.push({s,a,hit:o.hit,n:o.n,r:o.r,fell:!!o.fell});s=o.n;}return out;}
+function erf(x){const t=1/(1+.3275911*Math.abs(x)),y=1-(((((1.061405429*t-1.453152027)*t)+1.421413741)*t-.284496736)*t+.254829592)*t*Math.exp(-x*x);return x>=0?y:-y;}
+const Phi=x=>.5*(1+erf(x/Math.SQRT2));
+
+/* Cover: Q-learning in fast-forward. The robot's episodes get shorter; the squares fill with what they're worth. */
+BUILD.cover=(svg,W,H)=>{
+  const run=once("cover",()=>learn("q",160,11,.1,.5)),EPS=[0,1,2,3,4,6,9,14,22,35,60,100,159],SL=2.7,narrow=W<520;
+  const g=el("g",{},svg),top=narrow?40:50,spH=narrow?78:96;
+  const G=geoBox(0,top,W,H-top-spH-18,narrow?0:6),Wd=world(g,G,{blankZero:true,cap:.66});
+  const trail=el("path",{style:"fill:none;stroke:var(--pink);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;opacity:.6"},g);
+  const rb=robot(g,G.cs*.8);
+  const epT=el("text",{x:G.x0,y:top-16,class:"disp",style:`font-size:${narrow?20:24}px`},g);
+  const subT=el("text",{x:G.x0+G.gw,y:top-16,"text-anchor":"end",class:"lab"},g);
+  const b={x:G.x0+30,y:H-spH+10,w:G.gw-30,h:spH-34};
+  const fr=frame(g,b,{x0:0,x1:159,y0:-220,y1:0,yt:[0,-100,-200],yf:v=>v?"−"+(-v):"0",xt:[],yl:"return of each episode (higher is better)"});
+  const spark=el("path",{style:"fill:none;stroke:var(--violet);stroke-width:1.8;stroke-linejoin:round"},g);
+  const dot=el("circle",{r:4,style:"fill:var(--pink)"},g);
+  const at=t=>{const i=clamp(Math.floor(t/SL),0,EPS.length-1);return{i,e:EPS[i],u:clamp((t-i*SL)/SL,0,1)};};
+  const V=new Float64Array(NST);
+  return{t0:0,t1:EPS.length*SL-.01,rest:EPS.length*SL-.01,speed:1,label:"fast-forward",
+    update(t){const{e,u}=at(t),sn=run.snaps[e],pQ=e?run.snaps[e-1].Q:null,m=smooth((u-.8)/.2);
+      for(let s=0;s<NST;s++)V[s]=lerp(pQ?maxQ(pQ,s):0,maxQ(sn.Q,s),m);Wd.heat(V,-20,0,false);
+      const P=sn.path,f=clamp(u/.8,0,1)*(P.length-1),k=Math.floor(f),fk=f-k,a=P[k],b2=P[Math.min(P.length-1,k+1)];
+      const jump=b2===START&&a!==START&&isCliff(a);const x=jump?G.cx(a):lerp(G.cx(a),G.cx(b2),fk),y=jump?G.cy(a):lerp(G.cy(a),G.cy(b2),fk);
+      rb.at(x,y,null,isCliff(a));trail.setAttribute("d",pathD(G,P.slice(Math.max(0,k-40),k+1).filter(s=>!isCliff(s))));
+      epT.textContent=`Episode ${e+1}`;subT.textContent=`${P.length-1-sn.falls} moves · ${sn.falls} falls`;
+      let d="";for(let j=0;j<=e;j++)d+=(j?"L":"M")+fr.sx(j).toFixed(1)+" "+fr.sy(Math.max(-220,run.rets[j])).toFixed(1);spark.setAttribute("d",d);
+      dot.setAttribute("cx",fr.sx(e));dot.setAttribute("cy",fr.sy(Math.max(-220,run.rets[e])));},
+    readout(t){const{e}=at(t),sn=run.snaps[e];return[["episode",`${e+1} of 160`],["moves",`${sn.path.length-1-sn.falls}`],["falls",`${sn.falls}`],["return",mn(sn.G,0)],["colour","what each square is worth, learned so far"]];}};
+};
+
+/* 1.1 Copy the crowd or chase the outcome. Illustrative 1-D sketch. */
+BUILD.outcome=(svg,W,H)=>{
+  const narrow=W<520,g=el("g",{},svg),b={x:narrow?10:24,y:narrow?44:50,w:W-(narrow?20:48),h:H-(narrow?110:120)};
+  const X0=-3.5,X1=6,sx=v=>b.x+(v-X0)/(X1-X0)*b.w,sy=d=>b.y+b.h-d/.62*b.h,ry=v=>b.y+b.h-v*b.h*.98;
+  const r=x=>.08+.92*Math.exp(-((x-3.5)**2)/(2*1.44)),N=(x,m,s)=>Math.exp(-((x-m)**2)/(2*s*s))/(s*Math.sqrt(2*Math.PI));
+  const J=(m,s)=>.08+.92*1.2/Math.sqrt(1.44+s*s)*Math.exp(-((m-3.5)**2)/(2*(1.44+s*s)));
+  let d=`M${sx(X0)} ${ry(0)}`;for(let x=X0;x<=X1+1e-9;x+=.05)d+=`L${sx(x).toFixed(1)} ${ry(r(x)).toFixed(1)}`;d+=`L${sx(X1)} ${ry(0)}Z`;
+  el("path",{d,style:"fill:var(--gold);fill-opacity:.16;stroke:var(--gold);stroke-width:2"},g);
+  el("text",{x:sx(3.5),y:ry(1)-8,"text-anchor":"middle",class:"labb",style:"fill:var(--gold)",text:"how well the move turns out"},g);
+  const R=rng(3),cnt=new Array(38).fill(0);for(let i=0;i<3000;i++){const v=gauss(R),k=Math.floor((v-X0)/.25);if(k>=0&&k<38)cnt[k]++;}
+  const bars=cnt.map((c,k)=>el("rect",{x:sx(X0+k*.25)+1,width:b.w/38-2,y:sy(0),height:0,style:"fill:var(--c8);fill-opacity:.6"},g));
+  let dn="";for(let x=X0;x<=X1+1e-9;x+=.05)dn+=(x===X0?"M":"L")+sx(x).toFixed(1)+" "+sy(N(x,0,1)).toFixed(1);
+  const copy=el("path",{d:dn,style:"fill:none;stroke:var(--ink);stroke-width:2;stroke-dasharray:6 4"},g);
+  const rl=el("path",{style:"fill:var(--accent);fill-opacity:.16;stroke:var(--accent);stroke-width:2.6"},g);
+  el("line",{x1:b.x,x2:b.x+b.w,y1:b.y+b.h,y2:b.y+b.h,class:"axl"},g);
+  el("text",{x:b.x,y:b.y+b.h+18,class:"ax",text:"usual moves"},g);el("text",{x:b.x+b.w,y:b.y+b.h+18,"text-anchor":"end",class:"ax",text:"unusual moves →"},g);
+  const lg=el("g",{},g);legend(lg,b.x,narrow?16:22,narrow?[["var(--c8)","people's moves"],["var(--ink)","a model that copies them",1]]:[["var(--c8)","people's moves (the data)"],["var(--ink)","a model that copies them",1],["var(--accent)","an RL policy"]]);
+  if(narrow)legend(lg,b.x,34,[["var(--accent)","an RL policy"]]);
+  const tagT=el("text",{class:"labb",style:"fill:var(--accent)","text-anchor":"middle"},g);
+  const zone=el("g",{class:"fx",opacity:0},g);el("text",{x:sx(3.5),y:sy(.02)-6,"text-anchor":"middle",class:"lab",style:"fill:var(--accent)",text:narrow?"almost no one plays here":"almost no one in the data plays here"},zone);
+  const st=t=>{const u=smooth((t-4.5)/7.5);return{m:3.35*u,s:1-.42*u};};
+  return{t0:0,t1:14,rest:14,speed:1,label:"illustrative",
+    update(t){const gu=ease(t/2.5);bars.forEach((e,k)=>{const h=cnt[k]/3000/.25;const y=sy(h*gu);e.setAttribute("y",y);e.setAttribute("height",Math.max(0,sy(0)-y));});
+      copy.style.opacity=clamp((t-2.6)/1.2,0,1);
+      const{m,s}=st(t),vis=clamp((t-4)/.8,0,1);let dr=`M${sx(X0)} ${sy(0)}`;for(let x=X0;x<=X1+1e-9;x+=.04)dr+=`L${sx(x).toFixed(1)} ${sy(N(x,m,s)).toFixed(1)}`;dr+=`L${sx(X1)} ${sy(0)}Z`;
+      rl.setAttribute("d",dr);rl.style.opacity=vis;tagT.setAttribute("x",sx(m));tagT.setAttribute("y",sy(N(m,m,s))-10);tagT.textContent=vis?"RL":"";tagT.style.opacity=vis;
+      zone.setAttribute("opacity",clamp((t-9)/1.5,0,1));},
+    readout(t){const{m,s}=st(t);return[["people's moves","average outcome "+J(0,1).toFixed(2)],["copying model","average outcome "+J(0,1).toFixed(2)],["RL policy","average outcome "+J(m,s).toFixed(2)],["moves past RL's","only "+(100*(1-Phi(m))).toFixed(m>2?2:1)+"% of people's"]];}};
+};
+
+/* 1.2 The loop: action out, state and reward back */
+BUILD.loop=(svg,W,H)=>{
+  const ST=stepsOf([U,R_,R_,R_,R_,R_,D,U,...Array(11).fill(R_),D]),CY=1.5,narrow=W<560,g=el("g",{},svg);
+  let A,E,top,bot;
+  if(!narrow){A={x:W*.03,y:H*.2,w:W*.28,h:H*.56};E={x:W*.45,y:H*.2,w:W*.52,h:H*.56};
+    top=[[A.x+A.w,A.y+A.h*.25],[W*.38,H*.06],[E.x,E.y+E.h*.25]];bot=[[E.x,E.y+E.h*.78],[W*.38,H*.94],[A.x+A.w,A.y+A.h*.78]];}
+  else{A={x:W*.2,y:H*.03,w:W*.6,h:H*.3};E={x:W*.04,y:H*.5,w:W*.92,h:H*.46};
+    top=[[A.x+A.w,A.y+A.h*.6],[W*.98,H*.42],[E.x+E.w*.82,E.y]];bot=[[E.x+E.w*.18,E.y],[W*.02,H*.42],[A.x,A.y+A.h*.6]];}
+  for(const [B,t,c] of [[A,"Agent","var(--c1)"],[E,"Environment","var(--c3)"]]){el("rect",{x:B.x,y:B.y,width:B.w,height:B.h,rx:16,class:"box",style:`stroke:${c};stroke-width:2`},g);el("text",{x:B.x+14,y:B.y+22,class:"ttl",style:`fill:${c}`,text:t},g);}
+  const q=(P,u)=>{const a=(1-u)*(1-u),b=2*(1-u)*u,c=u*u;return[a*P[0][0]+b*P[1][0]+c*P[2][0],a*P[0][1]+b*P[1][1]+c*P[2][1]];};
+  const qd=P=>`M${P[0][0]} ${P[0][1]}Q${P[1][0]} ${P[1][1]} ${P[2][0]} ${P[2][1]}`;
+  el("path",{d:qd(top),style:"fill:none;stroke:var(--c1);stroke-width:2.4;stroke-dasharray:2 5;stroke-linecap:round"},g);
+  el("path",{d:qd(bot),style:"fill:none;stroke:var(--c3);stroke-width:2.4;stroke-dasharray:2 5;stroke-linecap:round"},g);
+  const head=(P,c)=>{const e=P[2],d=[P[2][0]-P[1][0],P[2][1]-P[1][1]],l=Math.hypot(d[0],d[1]),ux=d[0]/l,uy=d[1]/l;el("path",{d:`M${e[0]} ${e[1]}L${e[0]-ux*11-uy*6} ${e[1]-uy*11+ux*6}L${e[0]-ux*11+uy*6} ${e[1]-uy*11-ux*6}Z`,style:`fill:${c}`},g);};
+  head(top,"var(--c1)");head(bot,"var(--c3)");
+  const tl=q(top,.5),bl=q(bot,.5);
+  el("text",{x:tl[0]+(narrow?-8:0),y:tl[1]+(narrow?0:-10),"text-anchor":narrow?"end":"middle",class:"labb",style:"fill:var(--c1)",text:"action aₜ"},g);
+  el("text",{x:bl[0]+(narrow?8:0),y:bl[1]+(narrow?0:20),"text-anchor":narrow?"start":"middle",class:"labb",style:"fill:var(--c3)",text:narrow?"sₜ₊₁, rₜ₊₁":"next state sₜ₊₁ and reward rₜ₊₁"},g);
+  const big=robot(g,Math.min(A.w,A.h)*.38);big.at(A.x+A.w/2,A.y+A.h*.55);
+  el("text",{x:A.x+A.w/2,y:A.y+A.h-14,"text-anchor":"middle",class:"lab",text:narrow?"picks with its policy π":"picks each move with its policy π"},g);
+  const G=geoBox(E.x+8,E.y+30,E.w-16,E.h-56,0),Wd=world(g,G,{cliffLabel:G.cs>20});
+  el("text",{x:E.x+E.w/2,y:E.y+E.h-12,"text-anchor":"middle",class:"lab",text:"moves the robot and hands out the reward"},g);
+  const small=robot(g,G.cs*.78);
+  const ap=pill(g,0,0,"→",{bg:"var(--c1)",minw:30}),rp=pill(g,0,0,"−1",{bg:"var(--c3)",minw:34});
+  return{t0:0,t1:ST.length*CY-.01,rest:ST.length*CY-.01,speed:1,label:"",
+    update(t){const i=clamp(Math.floor(t/CY),0,ST.length-1),u=(t-i*CY)/CY,s=ST[i];
+      big.at(A.x+A.w/2,A.y+A.h*.55,u<.3?(narrow?1:1):u>.55?3:null);
+      ap.set(AGL[s.a]+" "+ANAME[s.a]);const pa=q(top,clamp(u/.3,0,1));ap.at(pa[0],pa[1]);ap.g.style.opacity=u<.32?1:0;
+      const mv=clamp((u-.3)/.25,0,1);let x,y,bad=false;
+      if(mv<1){x=lerp(G.cx(s.s),G.cx(s.hit),ease(mv));y=lerp(G.cy(s.s),G.cy(s.hit),ease(mv));}else{x=G.cx(s.fell&&u>.62?START:s.hit);y=G.cy(s.fell&&u>.62?START:s.hit);bad=s.fell&&u<=.62;}
+      small.at(x,y,s.a,bad||(s.fell&&mv>.6&&u<=.62));
+      rp.set((s.r>0?"+":"−")+Math.abs(s.r),s.r<-1?"var(--bad)":"var(--c3)");const pb=q(bot,clamp((u-.58)/.32,0,1));rp.at(pb[0],pb[1]);rp.g.style.opacity=u>.56&&u<.92?1:0;},
+    readout(t){const i=clamp(Math.floor(t/CY),0,ST.length-1),s=ST[i];let G0=0;for(let j=0;j<=i;j++)G0+=ST[j].r;const u=(t-i*CY)/CY;
+      return[["time step t",String(i)],["state sₜ",`row ${rowOf(s.s)}, column ${colOf(s.s)}`],["action aₜ",ANAME[s.a]],["reward rₜ₊₁",u>.55?String(s.r).replace("-","−")+(s.fell?" (fell, back to start)":""):"…"],["total so far",mn(G0-(u>.55?0:s.r),0)]];}};
+};
+
+/* 1.3 The world as an MDP: S, A, P, R, gamma, one at a time */
+BUILD.mdp=(svg,W,H)=>{
+  const narrow=W<520,g=el("g",{},svg),G=geoBox(0,10,W,H-(narrow?96:110),narrow?0:8),Wd=world(g,G);
+  const PH=["S","A","P","R","γ"],DUR=3.4;
+  const lay=PH.map(()=>el("g",{class:"fx",opacity:0},g));
+  const ov=[];for(let s=0;s<NST;s++){if(isCliff(s))continue;ov.push([s,el("rect",{x:G.x(colOf(s))+1.5,y:G.y(rowOf(s))+1.5,width:G.cs-3,height:G.cs-3,rx:6,style:"fill:var(--c1)",opacity:0},lay[0])]);}
+  const C=COLS+4,cx=G.cx(C),cy=G.cy(C),L=G.cs*.95;
+  for(let a=0;a<4;a++){el("path",{d:arrowD(cx+[0,1,0,-1][a]*L*.72,cy+[-1,0,1,0][a]*L*.72,a,L*.42,L*.2)+"Z",style:"fill:var(--violet)"},lay[1]);}
+  el("text",{x:cx,y:G.y(3)+G.cs*.5+4,"text-anchor":"middle",class:"labb halo",text:"up · right · down · left"},lay[1]);
+  const pr=[[1,.925],[0,.025],[2,.025],[3,.025]];
+  for(const [a,p] of pr){const dx=[0,1,0,-1][a],dy=[-1,0,1,0][a];el("line",{x1:cx+dx*G.cs*.3,y1:cy+dy*G.cs*.3,x2:cx+dx*G.cs*.92,y2:cy+dy*G.cs*.92,style:`stroke:var(--c2);stroke-width:${p>.5?6:2};stroke-linecap:round`},lay[2]);
+    const tx=cx+dx*G.cs*.92,ty=cy+dy*G.cs*.92;el("text",{x:tx+(dx>0?6:dx<0?-6:6),y:ty+(dy?(dy<0?2:8):4),"text-anchor":dx<0?"end":"start",class:"labb halo",style:"fill:var(--c2)",text:(p*100).toFixed(1)+"%"},lay[2]);}
+  const ghost=robot(lay[2],G.cs*.7);
+  for(let s=0;s<NST;s++){if(isCliff(s)||s===GOAL)continue;el("text",{x:G.cx(s),y:G.cy(s)+4,"text-anchor":"middle",class:"mono",style:`font-size:${Math.max(8,Math.min(11,G.cs*.27))}px;fill:var(--ink-2)`,text:"−1"},lay[3]);}
+  el("text",{x:G.cx(GOAL),y:G.y(3)-6,"text-anchor":"middle",class:"labb",style:"fill:var(--gold)",text:"end"},lay[3]);
+  const edge=movesToPath([U,...Array(11).fill(R_),D]);el("path",{d:pathD(G,edge),style:"fill:none;stroke:var(--c1);stroke-width:3;stroke-linejoin:round;opacity:.6"},lay[4]);
+  edge.slice(1).forEach((s,k)=>{if(G.cs<26&&k%2)return;el("text",{x:G.cx(s),y:G.cy(s)-G.cs*.16,"text-anchor":"middle",class:"mono halo",style:`font-size:${Math.max(8,Math.min(10.5,G.cs*.25))}px;font-weight:700;fill:var(--c1)`,text:(.9**k).toFixed(2).replace(/^0/,"")},lay[4]);});
+  const rb=robot(g,G.cs*.78);
+  const ty=H-(narrow?70:78),tw=Math.min(W-20,narrow?300:380),tx0=(W-tw)/2,sp=tw/5;const syms=[];
+  el("text",{x:tx0-8,y:ty+8,"text-anchor":"end",class:"disp",style:"font-size:30px;fill:var(--faint)",text:"⟨"},g);el("text",{x:tx0+tw+8,y:ty+8,class:"disp",style:"font-size:30px;fill:var(--faint)",text:"⟩"},g);
+  PH.forEach((p,i)=>{const bx=tx0+sp*i+sp/2;const r=el("rect",{x:bx-sp*.36,y:ty-18,width:sp*.72,height:34,rx:10,style:"fill:var(--c1)",opacity:0},g);const t=el("text",{x:bx,y:ty+8,"text-anchor":"middle",class:"disp",style:"font-size:28px",text:p},g);syms.push([r,t]);});
+  const cap=el("text",{x:W/2,y:ty+40,"text-anchor":"middle",class:"lab"},g);
+  const CAP=["States: the 48 squares","Actions: four moves","P: where a move lands (shown for a slippery floor)","R: −1 per move, −100 for the cliff","γ: a reward k moves away counts 0.9ᵏ"];
+  const DESC=[["S","the set of states","48 squares; the robot's square is all it needs to know"],["A","the set of actions","up, right, down, left; bumping a wall means staying put"],["P","transition probabilities","plain floor: 100% where you aim; slippery: 92.5% / 2.5% / 2.5% / 2.5%"],["R","the reward function","−1 for every move, −100 for stepping off the cliff (and back to start)"],["γ","the discount factor","0.9 here: a reward 3 moves away counts 0.73"]];
+  const ph=t=>clamp(Math.floor(t/DUR),0,4);
+  return{t0:0,t1:5*DUR-.01,rest:5*DUR-.01,speed:1,label:"",
+    update(t){const p=ph(t),u=(t-p*DUR)/DUR;lay.forEach((l,i)=>l.setAttribute("opacity",i===p?1:0));syms.forEach(([r,tx],i)=>{r.setAttribute("opacity",i===p?1:0);tx.style.fill=i===p?"#fff":"var(--ink)";});cap.textContent=CAP[p];
+      if(p===0)ov.forEach(([s,r])=>{const k=colOf(s)+rowOf(s)*.6,w=u*20-k;r.setAttribute("opacity",(.55*Math.exp(-w*w/6)+(w>0?.12:0)).toFixed(3));});
+      if(p===0||p===3)rb.at(G.cx(START),G.cy(START));
+      if(p===1||p===2)rb.at(cx,cy,1);
+      if(p===2){const cyc=(u*3)%1,slip=Math.floor(u*3)===1;const tgt=slip?C+COLS:C+1;ghost.at(lerp(cx,G.cx(tgt),ease(cyc)),lerp(cy,G.cy(tgt),ease(cyc)));ghost.g.style.opacity=(.55*(1-cyc)).toFixed(2);}
+      if(p===4){const k=Math.min(edge.length-1,Math.floor(u*1.3*(edge.length-1)));rb.at(G.cx(edge[k]),G.cy(edge[k]),1);}},
+    readout(t){const d=DESC[ph(t)];return[["showing",d[0]+", "+d[1]],["here",d[2]]];}};
+};
+
+/* 1.4 Return and discount: one episode with a fall, three discount factors */
+BUILD.ret=(svg,W,H)=>{
+  const ST=stepsOf([U,R_,R_,R_,R_,R_,D,U,...Array(11).fill(R_),D]),n=ST.length,narrow=W<520,g=el("g",{},svg);
+  const G=geoBox(0,6,W,H*.44,narrow?0:6),Wd=world(g,G),rb=robot(g,G.cs*.78),trail=el("path",{style:"fill:none;stroke:var(--violet);stroke-width:2.4;opacity:.45;stroke-linejoin:round"},g);
+  const T={x:narrow?8:30,y:H*.5+36,w:W-(narrow?16:60),h:H*.5-80};
+  el("text",{x:T.x,y:T.y-16,class:"ttl",text:"Each reward, weighted by γᵏ"},g);
+  const Gt=el("text",{x:T.x+T.w,y:T.y-12,"text-anchor":"end",class:"disp",style:`font-size:${narrow?22:28}px`},g);
+  el("line",{x1:T.x,x2:T.x+T.w,y1:T.y,y2:T.y,class:"axl"},g);
+  const bw=T.w/n,bars=[],ghosts=[],labs=[];
+  for(let k=0;k<n;k++){const big=ST[k].r<-1;const x=T.x+k*bw+bw*.14,w=bw*.72;
+    ghosts.push(el("rect",{x,y:T.y,width:w,height:0,rx:2,style:"fill:none;stroke:var(--faint);stroke-dasharray:2 2"},g));
+    bars.push(el("rect",{x,y:T.y,width:w,height:0,rx:2,style:big?"fill:var(--bad)":"fill:var(--violet);fill-opacity:.8"},g));
+    if(big||(!narrow&&(k<3||k%4===0)))labs.push([k,el("text",{x:x+w/2,y:T.y-5,"text-anchor":"middle",class:"mono",style:`font-size:${narrow?8.5:10}px;fill:${big?"var(--bad)":"var(--ink-2)"};font-weight:700`},g)]);}
+  el("text",{x:T.x,y:T.y+T.h+18,class:"ax",text:"move 1"},g);el("text",{x:T.x+T.w,y:T.y+T.h+18,"text-anchor":"end",class:"ax",text:`move ${n}`},g);
+  const gam=t=>t<11?1:t<13.5?lerp(1,.9,smooth((t-11)/2.5)):t<16?.9:t<18.5?lerp(.9,.5,smooth((t-16)/2.5)):.5;
+  const Gof=(gm,upto)=>{let s=0;for(let k=0;k<upto;k++)s+=ST[k].r*gm**k;return s;};
+  const pos=[START];ST.forEach(s=>{if(s.fell){pos.push(s.hit,START);}else pos.push(s.n);});
+  return{t0:0,t1:21,rest:21,speed:1,label:"",
+    update(t){const gm=gam(t),done=clamp(Math.floor(t/.5),0,n),u=(t%.5)/.5;
+      if(done<n){const s=ST[done],x=lerp(G.cx(s.s),G.cx(s.hit),ease(u)),y=lerp(G.cy(s.s),G.cy(s.hit),ease(u));rb.at(x,y,s.a,s.fell&&u>.7);}else rb.at(G.cx(GOAL),G.cy(GOAL));
+      let p=[START];for(let k=0;k<done;k++){p.push(ST[k].fell?ST[k].hit:ST[k].n);if(ST[k].fell)p.push(START);}trail.setAttribute("d",pathD(G,p.filter(s=>!isCliff(s)).slice(-14)));
+      const unit=T.h/100*.86,minH=Math.max(3,T.h*.07);
+      for(let k=0;k<n;k++){const vis=k<done;const r=ST[k].r,full=r<-1?T.h*.92:minH,hgt=vis?(r<-1?full*gm**k:minH*gm**k):0;bars[k].setAttribute("height",Math.max(0,hgt));ghosts[k].setAttribute("height",vis&&gm<1?full:0);}
+      for(const [k,tx] of labs){tx.textContent=k<done?mn(ST[k].r*gm**k,ST[k].r<-1?(gm<1?1:0):(gm<1?2:0)):"";tx.setAttribute("y",T.y+Math.max(14,(ST[k].r<-1?T.h*.92*gm**k:minH*gm**k))+12);}
+      Gt.textContent=`G = ${mn(Gof(gm,done),1)}`;},
+    readout(t){const gm=gam(t);return[["γ",gm.toFixed(2)],["G with γ = 1",mn(Gof(1,n),0)],["G with γ = 0.9",mn(Gof(.9,n),1)],["G with γ = 0.5",mn(Gof(.5,n),2)],["the fall (move 7)",`counts ${mn(-100*gm**6,1)} today`]];}};
+};
+
+/* 2.1 What a state is worth: the two-branch example from the Value Functions note (gamma 0.9) */
+BUILD.tiny=(svg,W,H)=>{
+  const narrow=W<520,g=el("g",{},svg),Y1=H*.27,Y2=H*.67,xs=[W*.08,W*.33,W*.58,W*.83];
+  const BR=[{y:Y1,c:"var(--B)",a:"a₀",r:[2,8,-3],nm:["s₀","s₁","s₂","end"]},{y:Y2,c:"var(--A)",a:"a₁",r:[1,5,2],nm:["s₀","s₃","s₄","end"]}];
+  const sY=(H*.47);const s0=[xs[0],sY];
+  const nodes=[],toks=[],eqs=[],tot=[];
+  el("circle",{cx:s0[0],cy:s0[1],r:narrow?17:22,style:"fill:var(--sheet);stroke:var(--ink);stroke-width:2"},g);el("text",{x:s0[0],y:s0[1]+5,"text-anchor":"middle",class:"dispi",style:"font-size:18px",text:"s₀"},g);
+  BR.forEach((B,bi)=>{const pts=[s0,[xs[1],B.y],[xs[2],B.y],[xs[3],B.y]];
+    for(let k=0;k<3;k++){const a=pts[k],b=pts[k+1];el("line",{x1:a[0],y1:a[1],x2:b[0],y2:b[1],style:`stroke:${B.c};stroke-width:3;opacity:.5`},g);
+      const mx=(a[0]+b[0])/2,my=(a[1]+b[1])/2;el("text",{x:mx,y:my-9,"text-anchor":"middle",class:"labb halo",style:`fill:${B.c}`,text:(k===0?B.a+"  ":"")+"r = "+String(B.r[k]).replace("-","−")},g);}
+    for(let k=1;k<4;k++){const p=pts[k];el(k===3?"rect":"circle",k===3?{x:p[0]-16,y:p[1]-12,width:32,height:24,rx:6,style:"fill:var(--cell);stroke:var(--faint)"}:{cx:p[0],cy:p[1],r:narrow?15:19,style:`fill:var(--sheet);stroke:${B.c};stroke-width:2.2`},g);el("text",{x:p[0],y:p[1]+5,"text-anchor":"middle",class:k===3?"ax":"dispi",style:k===3?"":"font-size:17px",text:B.nm[k]},g);}
+    toks.push({pts,c:el("circle",{r:narrow?7:9,style:`fill:${B.c}`,filter:"url(#soft)"},g)});
+    eqs.push(el("text",{x:W*.08,y:B.y+(bi?44:-34),class:"mono",style:`font-size:${narrow?10:12}px;font-weight:700;fill:${B.c}`},g));
+    tot.push(el("text",{x:xs[3]+(narrow?0:26),y:B.y+(narrow?36:6),"text-anchor":narrow?"middle":"start",class:"disp",style:`font-size:${narrow?18:24}px;fill:${B.c}`},g));});
+  const win=el("text",{x:W/2,y:H-14,"text-anchor":"middle",class:"labb"},g);
+  const vals=BR.map(B=>B.r.map((r,k)=>r*.9**k));
+  return{t0:0,t1:9,rest:9,speed:1,label:"",
+    update(t){BR.forEach((B,bi)=>{const k=clamp(Math.floor(t/1.6),0,3),u=clamp((t-k*1.6)/1.6,0,1),T=toks[bi];
+        if(k<3){const a=T.pts[k],b=T.pts[k+1];T.c.setAttribute("cx",lerp(a[0],b[0],ease(u)));T.c.setAttribute("cy",lerp(a[1],b[1],ease(u)));}else{T.c.setAttribute("cx",T.pts[3][0]);T.c.setAttribute("cy",T.pts[3][1]);}
+        const done=clamp(Math.floor(t/1.6+.45),0,3);const terms=["","0.9 × ","0.81 × "];let s="",v=0;for(let j=0;j<done;j++){s+=(j?" + ":"")+terms[j]+(B.r[j]<0?"(−"+(-B.r[j])+")":B.r[j]);v+=vals[bi][j];}
+        eqs[bi].textContent=done?s+(done===3?"":" + …"):"";tot[bi].textContent=done===3?mn(v,2):"";});
+      const fin=t>5.6;win.textContent=fin?(narrow?"a₁ wins: 7.12 > 6.77":"Pick a₁: 7.12 > 6.77, even though a₀ pays more first (2) and holds the biggest reward (8)"):"";win.style.fill=fin?"var(--A)":"";},
+    readout(t){const fin=t>5.6;return[["γ","0.9"],["V(s₁)","8 + 0.9 × (−3) = 5.3"],["V(s₃)","5 + 0.9 × 2 = 6.8"],["value of a₀","2 + 0.9 × 5.3 = 6.77"],["value of a₁",fin?"1 + 0.9 × 6.8 = 7.12  ← better":"1 + 0.9 × 6.8 = 7.12"]];}};
+};
+
+/* 2.2 Bellman: the two-state example; every start point is pulled to the same fixed point */
+BUILD.mrp=(svg,W,H)=>{
+  const narrow=W<560,g=el("g",{},svg);
+  const D=narrow?{x:0,y:0,w:W,h:H*.3}:{x:0,y:H*.12,w:W*.36,h:H*.7};
+  const Pb=narrow?{x:44,y:H*.36,w:W-60,h:H*.56}:{x:W*.44,y:H*.06,w:W*.52,h:H*.8};
+  const c1=[D.x+D.w*.3,D.y+D.h*.55],c2=[D.x+D.w*.72,D.y+D.h*.55],rr=narrow?20:26;
+  const loop=(c,up,lab,col)=>{const s=up?-1:1;el("path",{d:`M${c[0]-10} ${c[1]+s*rr*.8}C${c[0]-34} ${c[1]+s*rr*2.6} ${c[0]+34} ${c[1]+s*rr*2.6} ${c[0]+10} ${c[1]+s*rr*.8}`,style:`fill:none;stroke:${col};stroke-width:2`},g);el("text",{x:c[0],y:c[1]+s*rr*2.35+(up?-4:12),"text-anchor":"middle",class:"labb",style:`fill:${col}`,text:lab},g);};
+  loop(c1,true,"0.8 · +15","var(--good)");loop(c2,true,"0.4 · −10","var(--bad)");
+  el("path",{d:`M${c1[0]+rr} ${c1[1]-6}Q${(c1[0]+c2[0])/2} ${c1[1]-22} ${c2[0]-rr} ${c2[1]-6}`,style:"fill:none;stroke:var(--bad);stroke-width:2"},g);
+  el("path",{d:`M${c2[0]-rr} ${c2[1]+6}Q${(c1[0]+c2[0])/2} ${c1[1]+22} ${c1[0]+rr} ${c1[1]+6}`,style:"fill:none;stroke:var(--good);stroke-width:2"},g);
+  el("text",{x:(c1[0]+c2[0])/2,y:c1[1]-22,"text-anchor":"middle",class:"labb halo",style:"fill:var(--bad)",text:"0.2 · −10"},g);
+  el("text",{x:(c1[0]+c2[0])/2,y:c1[1]+34,"text-anchor":"middle",class:"labb halo",style:"fill:var(--good)",text:"0.6 · +15"},g);
+  for(const [c,n] of [[c1,"s₁"],[c2,"s₂"]]){el("circle",{cx:c[0],cy:c[1],r:rr,style:"fill:var(--sheet);stroke:var(--c2);stroke-width:2.5"},g);el("text",{x:c[0],y:c[1]+6,"text-anchor":"middle",class:"dispi",style:"font-size:19px",text:n},g);}
+  if(!narrow)el("text",{x:D.x+D.w/2,y:D.y+D.h+6,"text-anchor":"middle",class:"lab",text:"probability · reward, γ = 0.9"},g);
+  const fr=frame(g,Pb,{x0:0,x1:110,y0:0,y1:110,yt:[0,50,100],xt:[0,50,100],xl:"v(s₁)",yl:"v(s₂)"});
+  const fx=[89.0244,82.9268];el("polygon",{points:starPts(fr.sx(fx[0]),fr.sy(fx[1]),11,5),style:"fill:var(--gold)"},g);
+  el("text",{x:fr.sx(fx[0])-14,y:fr.sy(fx[1])+4,"text-anchor":"end",class:"labb halo",text:"(89.02, 82.93)"},g);
+  const R=rng(17),starts=[[0,0],[110,110],[105,8],[6,104]];for(let i=0;i<14;i++)starts.push([R()*110,R()*110]);
+  const hist=starts.map(p=>{const h=[p];let v=p;for(let k=0;k<60;k++){v=mrpT(v);h.push(v);}return h;});
+  const cols=["var(--c1)","var(--c5)","var(--c4)","var(--c3)","var(--c2)","var(--c6)"];
+  const tr=hist.map((h,i)=>el("path",{style:`fill:none;stroke:${cols[i%6]};stroke-width:1.3;opacity:.45`},g));
+  const dots=hist.map((h,i)=>el("circle",{r:i<2?6:4.5,style:`fill:${cols[i%6]};stroke:var(--sheet);stroke-width:1.5`},g));
+  const gap=el("line",{style:"stroke:var(--ink);stroke-width:1.4;stroke-dasharray:4 3"},g);
+  const SW=.55,K=40;
+  const pos=(h,t)=>{const k=clamp(Math.floor(t/SW),0,K),u=ease((t-k*SW)/SW*1.6);const a=h[k],b=h[Math.min(K,k+1)];return k>=K?a:[lerp(a[0],b[0],u),lerp(a[1],b[1],u)];};
+  return{t0:0,t1:K*SW,rest:K*SW,speed:1,label:"one sweep every 0.55 s",
+    update(t){const k=clamp(Math.floor(t/SW),0,K);hist.forEach((h,i)=>{const p=pos(h,t);dots[i].setAttribute("cx",fr.sx(p[0]));dots[i].setAttribute("cy",fr.sy(p[1]));
+        tr[i].setAttribute("d",poly(h.slice(0,k+1).map(v=>[fr.sx(v[0]),fr.sy(v[1])]).concat([[fr.sx(p[0]),fr.sy(p[1])]])));});
+      const a=pos(hist[0],t),b=pos(hist[1],t);gap.setAttribute("x1",fr.sx(a[0]));gap.setAttribute("y1",fr.sy(a[1]));gap.setAttribute("x2",fr.sx(b[0]));gap.setAttribute("y2",fr.sy(b[1]));},
+    readout(t){const k=clamp(Math.floor(t/SW),0,K),a=hist[0][k],b=hist[1][k],d=Math.max(Math.abs(a[0]-b[0]),Math.abs(a[1]-b[1])),pd=k?Math.max(Math.abs(hist[0][k-1][0]-hist[1][k-1][0]),Math.abs(hist[0][k-1][1]-hist[1][k-1][1])):d;
+      return[["sweep k",String(k)],["start (0, 0) is at",`(${a[0].toFixed(2)}, ${a[1].toFixed(2)})`],["gap to start (110, 110)",d.toFixed(2)],["gap ratio",k?(d/pd).toFixed(3)+"  (never above γ = 0.9)":"n/a"]];}};
+};
+
+/* 2.3 Value iteration on the cliff, gamma 1: the values spread back from the goal one square per sweep */
+BUILD.vi=(svg,W,H)=>{
+  const VH=once("vi1",()=>viHist(1,0,16)),K=15,SW=1.1,narrow=W<520,g=el("g",{},svg);
+  const G=geoBox(0,30,W,H-80,narrow?0:6),showN=G.cs>=30,Wd=world(g,G,{nums:showN});
+  const arrows=[];for(let s=0;s<NST;s++){if(isCliff(s)||s===GOAL){arrows.push(null);continue;}arrows.push(el("path",{style:"fill:#fff;opacity:.85"},g));}
+  const fronts=[];for(let s=0;s<NST;s++){fronts.push(isCliff(s)||s===GOAL?null:el("rect",{x:G.x(colOf(s))+1.5,y:G.y(rowOf(s))+1.5,width:G.cs-3,height:G.cs-3,style:"fill:none;stroke:var(--gold);stroke-width:3",opacity:0},g));}
+  const route=el("path",{style:"fill:none;stroke:var(--gold);stroke-width:3.4;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1 7"},g);
+  const rb=robot(g,G.cs*.72);rb.at(G.cx(START),G.cy(START));
+  const hd=el("text",{x:G.x0,y:20,class:"disp",style:"font-size:22px"},g);
+  const VS=VH[K],dist=s=>-VS[s];
+  const ramp0=-14;el("text",{x:G.x0+G.gw,y:20,"text-anchor":"end",class:"lab",text:narrow?"darker = closer to the star":"colour = value; darker means closer to the star"},g);
+  const Vt=new Float64Array(NST);
+  return{t0:0,t1:K*SW,rest:K*SW,speed:1,label:"one sweep every 1.1 s",
+    update(t){const k=clamp(Math.floor(t/SW),0,K),u=ease((t-k*SW)/SW*2),A=VH[k],B=VH[Math.min(K,k+1)];
+      for(let s=0;s<NST;s++)Vt[s]=k>=K?A[s]:lerp(A[s],B[s],u);Wd.heat(Vt,ramp0,0,showN,u>.5?B:A);
+      for(let s=0;s<NST;s++){if(!arrows[s])continue;const a=greedyA(A,1,0,s);const len=G.cs*.3,cy=showN?G.y(rowOf(s))+G.cs*.26:G.cy(s);arrows[s].setAttribute("d",arrowD(G.cx(s),cy,a,len*.7,len*.32)+"Z");
+        const settled=dist(s)<=k;arrows[s].style.opacity=settled?.92:.25;arrows[s].style.fill=ink4((Vt[s]-ramp0)/-ramp0);
+        if(fronts[s])fronts[s].setAttribute("opacity",dist(s)===k+1&&k<K?(1-Math.abs(u-.5)*.6).toFixed(2):0);}
+      hd.textContent=`Sweep ${k}`;const fin=k>=13;route.setAttribute("d",fin?pathD(G,greedyPath(s=>greedyA(VS,1,0,s)).path):"");},
+    readout(t){const k=clamp(Math.floor(t/SW),0,K),A=VH[k];let settled=0,tot=0,ch=0;for(let s=0;s<NST;s++){if(isCliff(s)||s===GOAL)continue;tot++;if(dist(s)<=k)settled++;if(k)ch=Math.max(ch,Math.abs(A[s]-VH[k-1][s]));}
+      return[["sweep",String(k)],["squares settled",`${settled} of ${tot}`],["V(start)",mn(A[START],0)+(k>=13?"  (13 moves to the star)":"")],["biggest change",k?mn(ch,0):"n/a"]];}};
+};
+
+/* 2.4 Policy iteration from the random policy, gamma 0.9 */
+BUILD.pi=(svg,W,H)=>{
+  const FR=once("pi",()=>piHist(.9)),narrow=W<520,g=el("g",{},svg);
+  const seq=[];FR.forEach((f,i)=>{f.sweeps.forEach((V,j)=>seq.push({it:i,ph:"evaluate",V,pol:f.pol,dur:j<6?.32:.12}));seq.push({it:i,ph:"improve",V:f.sweeps[f.sweeps.length-1],pol:f.pol,next:f.next,changed:f.changed,dur:1.8});});
+  let acc=0;seq.forEach(s=>{s.t=acc;acc+=s.dur;});const T1=acc;
+  const G=geoBox(0,46,W,H-96,narrow?0:6),Wd=world(g,G,{nums:G.cs>=34});
+  const ar=[];for(let s=0;s<NST;s++){if(isCliff(s)||s===GOAL){ar.push(null);continue;}ar.push([0,1,2,3].map(()=>el("path",{style:"fill:#fff"},g)));}
+  const fl=[];for(let s=0;s<NST;s++){fl.push(isCliff(s)||s===GOAL?null:el("rect",{x:G.x(colOf(s))+1.5,y:G.y(rowOf(s))+1.5,width:G.cs-3,height:G.cs-3,rx:6,style:"fill:none;stroke:var(--pink);stroke-width:3",opacity:0},g));}
+  const route=el("path",{style:"fill:none;stroke:var(--gold);stroke-width:3.4;stroke-linecap:round;stroke-dasharray:1 7"},g);
+  const rb=robot(g,G.cs*.72);rb.at(G.cx(START),G.cy(START));
+  const chips=["evaluate","improve"].map((n,i)=>{const p=pill(g,0,0,n,{bg:"var(--c2)",minw:90});p.at(G.x0+50+i*110,20);return p;});
+  el("text",{x:G.x0+105,y:24,"text-anchor":"middle",class:"labb",text:"⇄"},g);
+  const hd=el("text",{x:G.x0+G.gw,y:24,"text-anchor":"end",class:"disp",style:"font-size:21px"},g);
+  const find=t=>{let i=0;while(i<seq.length-1&&seq[i+1].t<=t)i++;return i;};
+  const lo=-30;
+  return{t0:0,t1:T1,rest:T1,speed:1,label:"",
+    update(t){const i=find(t),S=seq[i],u=clamp((t-S.t)/S.dur,0,1);Wd.heat(S.V,lo,0,G.cs>=34);
+      const showNext=S.ph==="improve"&&u>.35;const pol=showNext?S.next:S.pol;
+      for(let s=0;s<NST;s++){if(!ar[s])continue;const L=G.cs*.3,cy=G.cs>=34?G.y(rowOf(s))+G.cs*.26:G.cy(s),inkc=ink4((S.V[s]-lo)/-lo);
+        for(let a=0;a<4;a++){const p=ar[s][a];if(pol===null){const dx=[0,1,0,-1][a],dy=[-1,0,1,0][a];p.setAttribute("d",arrowD(G.cx(s)+dx*L*.45,cy+dy*L*.45,a,L*.38,L*.16)+"Z");p.style.opacity=.6;}
+          else if(a===pol[s]){p.setAttribute("d",arrowD(G.cx(s),cy,a,L*.7,L*.32)+"Z");p.style.opacity=.92;}else p.style.opacity=0;p.style.fill=inkc;}
+        if(fl[s])fl[s].setAttribute("opacity",S.ph==="improve"&&(!S.pol||S.pol[s]!==S.next[s])&&u>.3?(1-u)*1.2:0);}
+      chips[0].set("evaluate",S.ph==="evaluate"?"var(--c2)":"var(--faint)");chips[1].set("improve",S.ph==="improve"?"var(--pink)":"var(--faint)");
+      hd.textContent=`Iteration ${S.it+1}`;const last=i>=seq.length-1;route.setAttribute("d",last&&u>.5?pathD(G,greedyPath(s=>S.next[s]).path):"");},
+    readout(t){const S=seq[find(t)];return[["iteration",String(S.it+1)],["step",S.ph==="evaluate"?"evaluate: what is this policy worth?":"improve: best move in every square"],["arrows changed",S.ph==="improve"?String(S.changed):"n/a"],["V(start)",mn(S.V[START],2)+(S.V[START]<-9.99&&S.V[START]>-10.01?"  (never reaches the star)":"")]];}};
+};
+
+/* 2.5 A slippery floor: the best route moves away from the cliff */
+BUILD.slip=(svg,W,H)=>{
+  const PS=[0,.05,.1,.2],DUR=4.2,VS=once("slip",()=>PS.map(p=>viHist(.99,p,700)[700])),PATHS=PS.map((p,i)=>greedyPath(s=>greedyA(VS[i],.99,p,s)).path);
+  const narrow=W<520,g=el("g",{},svg),G=geoBox(0,46,W,H-96,narrow?0:6),Wd=world(g,G,{nums:G.cs>=36});
+  const route=el("path",{style:"fill:none;stroke:var(--gold);stroke-width:3.4;stroke-linecap:round;stroke-linejoin:round"},g),route2=el("path",{style:"display:none"},g);
+  const rb=robot(g,G.cs*.72);
+  const hd=el("text",{x:G.x0,y:26,class:"disp",style:"font-size:22px"},g);
+  const sub=el("text",{x:G.x0+G.gw,y:26,"text-anchor":"end",class:"lab"},g);
+  const Vt=new Float64Array(NST),lo=-40;
+  const ph=t=>clamp(Math.floor(t/DUR),0,3);
+  return{t0:0,t1:4*DUR-.01,rest:4*DUR-.01,speed:1,label:"",
+    update(t){const i=ph(t),u=(t-i*DUR)/DUR,m=i>0?smooth(u/.3):1,A=VS[Math.max(0,i-1)],B=VS[i];
+      for(let s=0;s<NST;s++)Vt[s]=lerp(A[s],B[s],m);Wd.heat(Vt,lo,0,G.cs>=36);
+      const P=PATHS[i];route.setAttribute("d",pathD(G,P));route2.setAttribute("d",pathD(G,P));
+      const k=Math.min(P.length-1,Math.floor(clamp((u-.3)/.6,0,1)*(P.length-1)));rb.at(G.cx(P[k]),G.cy(P[k]));
+      hd.textContent=`Slip ${Math.round(PS[i]*100)}%`;sub.textContent=PS[i]?`${Math.round(PS[i]*100)}% of moves go in a random direction`:"every move goes where you aim";},
+    readout(t){const i=ph(t),P=PATHS[i],rows=P.filter(s=>colOf(s)>0&&colOf(s)<11).map(rowOf);const gap=2-Math.max(...rows);
+      return[["slip chance",Math.round(PS[i]*100)+"%"],["best route",`${P.length-1} moves`],["over the cliff",gap?`keeps ${gap} row${gap>1?"s":""} between it and the edge`:"walks right along the edge"],["V(start)",mn(VS[i][START],1)]];}};
+};
+
+/* ---------- figures: chapter 3 (learning from experience), chapter 4 (values at scale) ---------- */
+
+/* 3.1 Monte Carlo waits for the end; TD(0) updates every move. Two episodes, alpha 0.5, gamma 1. */
+BUILD.mctd=(svg,W,H)=>{
+  const M=once("mctd",mctdHist),narrow=W<520,g=el("g",{},svg);
+  const seq=M.frames.map(f=>Object.assign({},f,{dur:f.mcUpd?2.4:.55}));let acc=0;seq.forEach(f=>{f.at=acc;acc+=f.dur;});
+  const half=(H-16)/2,G1=geoBox(0,26,W,half-30,narrow?0:8),G2=geoBox(0,half+34,W,half-34,narrow?0:8);
+  const W1=world(g,G1,{nums:G1.cs>=24,blankZero:true,cliffLabel:G1.cs>=30}),W2=world(g,G2,{nums:G2.cs>=24,blankZero:true,cliffLabel:G2.cs>=30});
+  el("text",{x:G1.x0,y:G1.y0-9,class:"labb",style:"fill:var(--B)",text:narrow?"Monte Carlo: waits for the end":"Monte Carlo: waits for the end, then uses the real return"},g);
+  el("text",{x:G2.x0,y:G2.y0-9,class:"labb",style:"fill:var(--A)",text:narrow?"TD(0): updates after every move":"TD(0): updates after every move, from its neighbour's guess"},g);
+  const fl2=el("rect",{width:G2.cs-3,height:G2.cs-3,style:"fill:none;stroke:var(--gold);stroke-width:3.5"},g);
+  const fl1=[];for(let s=0;s<NST;s++)fl1.push(isCliff(s)?null:el("rect",{x:G1.x(colOf(s))+1.5,y:G1.y(rowOf(s))+1.5,width:G1.cs-3,height:G1.cs-3,rx:6,style:"fill:none;stroke:var(--B);stroke-width:3.5",opacity:0},g));
+  const r1=robot(g,G1.cs*.72),r2=robot(g,G2.cs*.72);
+  const find=t=>{let i=0;while(i<seq.length-1&&seq[i+1].at<=t)i++;return i;};
+  const lo=-12;
+  return{t0:0,t1:acc,rest:acc,speed:1,label:"",
+    update(t){const i=find(t),f=seq[i],u=clamp((t-f.at)/f.dur,0,1),P=M.eps[f.e],prev=i?seq[i-1]:null;
+      if(!f.mcUpd){const a=P[f.t],b=P[f.t+1],x1=lerp(G1.cx(a),G1.cx(b),ease(u)),y1=lerp(G1.cy(a),G1.cy(b),ease(u));r1.at(x1,y1);r2.at(lerp(G2.cx(a),G2.cx(b),ease(u)),lerp(G2.cy(a),G2.cy(b),ease(u)));
+        W2.heat(u>.55||!prev?f.td:prev.td,lo,0);if(!prev&&u<=.55)W2.plain();W1.heat(f.mc,lo,0);
+        fl2.setAttribute("x",G2.x(colOf(f.s))+1.5);fl2.setAttribute("y",G2.y(rowOf(f.s))+1.5);fl2.setAttribute("opacity",u>.5?(1-u)*2:0);fl1.forEach(r=>r&&r.setAttribute("opacity",0));}
+      else{r1.at(G1.cx(GOAL),G1.cy(GOAL));r2.at(G2.cx(GOAL),G2.cy(GOAL));W2.heat(f.td,lo,0);fl2.setAttribute("opacity",0);
+        const n=f.mcUpd.length,k=Math.floor(u*1.4*n),shown=new Set(f.mcUpd.slice(Math.max(0,n-k)));const V=new Float64Array(NST);const old=prev?prev.mc:new Float64Array(NST);
+        for(let s=0;s<NST;s++)V[s]=shown.has(s)?f.mc[s]:old[s];W1.heat(V,lo,0);
+        fl1.forEach((r,s)=>r&&r.setAttribute("opacity",shown.has(s)&&u<.95?.9:0));}},
+    readout(t){const i=find(t),f=seq[i];const tdN=seq.slice(0,i+1).filter(x=>!x.mcUpd).length,mcN=seq.slice(0,i+1).filter(x=>x.mcUpd).reduce((a,x)=>a+x.mcUpd.length,0);
+      return[["episode",`${f.e+1} of 2  (${M.eps[f.e].length-1} moves)`],["move",f.mcUpd?"episode over":String(f.t+1)],["TD updates",String(tdN)],["MC updates",String(mcN)+(mcN?"":"  (still waiting)")],["last TD error δ",f.mcUpd?"n/a":mn(f.d,2)]];}};
+};
+
+/* 3.2 How far to look: TD(0), n-step and Monte Carlo targets, then the lambda mix of all of them */
+BUILD.nstep=(svg,W,H)=>{
+  const narrow=W<520,g=el("g",{},svg),N=8,x0=narrow?62:96,x1=W-(narrow?10:24),bw=(x1-x0)/(N+1);
+  const yT=narrow?40:52;el("text",{x:x0-10,y:yT+5,"text-anchor":"end",class:"lab",text:narrow?"from s₂":"from state s₂"},g);
+  for(let k=0;k<N;k++){const x=x0+k*bw;el("rect",{x:x+3,y:yT-15,width:bw-6,height:30,rx:7,style:"fill:var(--cell)"},g);el("text",{x:x+bw/2,y:yT+5,"text-anchor":"middle",class:"mono",style:`font-size:${narrow?10:12}px;font-weight:700`,text:"r"+["₃","₄","₅","₆","₇","₈","₉","₁₀"][k]},g);}
+  el("text",{x:x0+N*bw+bw/2,y:yT+5,"text-anchor":"middle",class:"lab",text:"end"},g);
+  const rows=[["TD(0)",1,"var(--cyan)"],["3-step",3,"var(--violet)"],["Monte Carlo",N,"var(--B)"]],hl=[];
+  rows.forEach(([nm,n,c],i)=>{const y=yT+38+i*(narrow?30:36);el("text",{x:x0-10,y:y+4,"text-anchor":"end",class:"labb",style:`fill:${c}`,text:nm},g);
+    const r=el("rect",{x:x0+3,y:y-9,width:n*bw-6,height:18,rx:9,style:`fill:${c};opacity:.85`},g);
+    if(n<N){el("rect",{x:x0+n*bw+3,y:y-11,width:bw-6,height:22,rx:6,style:`fill:none;stroke:${c};stroke-width:2;stroke-dasharray:4 3`},g);el("text",{x:x0+n*bw+bw/2,y:y+4,"text-anchor":"middle",class:"mono",style:`font-size:${narrow?8.5:10}px;fill:${c};font-weight:700`,text:"V(s"+["₃","₄","₅","₆","₇","₈","₉","₁₀"][n-1]+")"},g);}
+    hl.push(r);});
+  const yL=yT+38+3*(narrow?30:36)+20;
+  el("text",{x:x0-(narrow?60:90),y:yL+4,class:"ttl",text:"TD(λ) mixes them all"},g);
+  const lam=el("text",{x:x1,y:yL+4,"text-anchor":"end",class:"disp",style:`font-size:${narrow?20:26}px`},g);
+  const B={x:x0,y:yL+18,w:x1-x0,h:H-yL-60};el("line",{x1:B.x,x2:B.x+B.w,y1:B.y+B.h,y2:B.y+B.h,class:"axl"},g);
+  const nb=N,bars=[],labs=[];
+  for(let n=1;n<=nb;n++){const x=B.x+(n-1)*B.w/nb;const c=n===nb?"var(--B)":`color-mix(in oklab,var(--cyan) ${100-(n-1)*14}%,var(--violet))`;
+    bars.push(el("rect",{x:x+4,width:B.w/nb-8,y:B.y+B.h,height:0,rx:4,style:`fill:${c}`},g));
+    el("text",{x:x+B.w/nb/2,y:B.y+B.h+15,"text-anchor":"middle",class:"ax",text:n===nb?(narrow?"MC":"full"):n+(narrow?"":"-step")},g);
+    labs.push(el("text",{x:x+B.w/nb/2,"text-anchor":"middle",class:"mono",style:"font-size:10px;font-weight:700"},g));}
+  const LS=[0,.5,.8,1],D=3.6;
+  const lamAt=t=>{const i=Math.floor(t/D);if(i>=3)return 1;const u=smooth((t-i*D-2.2)/1.4);return lerp(LS[i],LS[i+1],u);};
+  const wts=l=>{const w=[];for(let n=1;n<nb;n++)w.push((1-l)*l**(n-1));w.push(l**(nb-1));return w;};
+  return{t0:0,t1:3*D+1.4,rest:3*D+1.4,speed:1,label:"",
+    update(t){const l=lamAt(t),w=wts(l);lam.textContent="λ = "+l.toFixed(2);
+      w.forEach((v,i)=>{const h=v*B.h*.92;bars[i].setAttribute("y",B.y+B.h-h);bars[i].setAttribute("height",h);labs[i].setAttribute("y",B.y+B.h-h-5);labs[i].textContent=v>.004?v.toFixed(2).replace(/^0/,""):"";});
+      const dom=w.indexOf(Math.max(...w));hl.forEach((r,i)=>r.style.opacity=(i===0&&dom===0)||(i===2&&dom===nb-1)||(i===1&&dom>0&&dom<nb-1)?1:.45);},
+    readout(t){const l=lamAt(t),w=wts(l),la=w.reduce((a,v,i)=>a+v*(i+1),0);return[["λ",l.toFixed(2)+(l===0?"  = TD(0)":l===1?"  = Monte Carlo":"")],["weight on 1-step",w[0].toFixed(2)],["weight on full return",w[nb-1].toFixed(2)],["average look-ahead",la.toFixed(1)+" steps"]];}};
+};
+
+/* 3.3 Explore or exploit: epsilon-greedy in one square */
+BUILD.egreedy=(svg,W,H)=>{
+  const narrow=W<560,g=el("g",{},svg),Q=[-14,-12,-113,-13],best=1,EPS=[0,.1,.3,1],D=5.2,dt=.075;
+  const C=narrow?{x:W/2,y:H*.29,s:Math.min(W*.15,H*.095)}:{x:W*.28,y:H*.46,s:Math.min(W*.11,H*.16)};
+  el("rect",{x:C.x-C.s,y:C.y-C.s,width:2*C.s,height:2*C.s,rx:16,style:"fill:var(--cell)"},g);
+  const rb=robot(g,C.s*.9);rb.at(C.x,C.y+C.s*.08,1);
+  const COL=["var(--c2)","var(--violet)","var(--bad)","var(--c4)"];
+  for(let a=0;a<4;a++){const dx=[0,1,0,-1][a],dy=[-1,0,1,0][a],L=C.s*1.55;
+    el("path",{d:arrowD(C.x+dx*L,C.y+dy*L,a,C.s*.5,C.s*(a===best?.3:.2))+"Z",style:`fill:${COL[a]}`},g);
+    const tx=C.x+dx*L,ty=C.y+dy*L;el("text",{x:dy?tx+C.s*.38:tx,y:dy?ty+4:ty-C.s*.42,"text-anchor":dy?"start":"middle",class:"labb halo",style:`fill:${COL[a]}`,text:`${ANAME[a]}  Q = ${mn(Q[a],0)}`},g);}
+  if(!narrow)el("text",{x:C.x,y:C.y-C.s*2.55,"text-anchor":"middle",class:"lab",text:"the square just above the cliff's first step"},g);
+  const B=narrow?{x:40,y:H*.6,w:W-56,h:H*.3}:{x:W*.58,y:H*.18,w:W*.38,h:H*.6};
+  const fr=frame(g,B,{x0:0,x1:4,y0:0,y1:1,yt:[0,.5,1],yf:v=>Math.round(v*100)+"%",xt:[],yl:"share of picks"});
+  const bars=[0,1,2,3].map(a=>el("rect",{x:fr.sx(a)+6,width:B.w/4-12,y:B.y+B.h,height:0,rx:5,style:`fill:${COL[a]}`},g));
+  const ex=[0,1,2,3].map(a=>el("line",{x1:fr.sx(a)+2,x2:fr.sx(a+1)-2,style:"stroke:var(--ink);stroke-width:2;stroke-dasharray:4 3"},g));
+  [0,1,2,3].forEach(a=>el("text",{x:fr.sx(a+.5),y:B.y+B.h+15,"text-anchor":"middle",class:"ax",text:AGL[a]+" "+ANAME[a]},g));
+  const R=rng(9),SEQ=EPS.map(e=>{const s=[];for(let i=0;i<Math.floor(D/dt);i++)s.push(R()<e?Math.floor(R()*4):best);return s;});
+  const dots=[];for(let i=0;i<10;i++)dots.push(el("circle",{r:5,style:"fill:var(--pink)"},g));
+  const hd=el("text",{x:narrow?10:C.x,y:narrow?26:H-24,"text-anchor":narrow?"start":"middle",class:"disp",style:"font-size:24px"},g);
+  const at=t=>{const p=clamp(Math.floor(t/D),0,3);return{p,n:clamp(Math.floor((t-p*D)/dt),0,SEQ[p].length-1),u:((t-p*D)%dt)/dt};};
+  return{t0:0,t1:4*D-.01,rest:4*D-.01,speed:1,label:"",
+    update(t){const{p,n}=at(t),e=EPS[p],cnt=[0,0,0,0];for(let i=0;i<=n;i++)cnt[SEQ[p][i]]++;
+      bars.forEach((b,a)=>{const v=cnt[a]/(n+1),y=fr.sy(v);b.setAttribute("y",y);b.setAttribute("height",B.y+B.h-y);});
+      ex.forEach((l,a)=>{const pv=(a===best?1-e:0)+e/4;l.setAttribute("y1",fr.sy(pv));l.setAttribute("y2",fr.sy(pv));});
+      dots.forEach((d,j)=>{const i=n-j;if(i<0){d.setAttribute("opacity",0);return;}const a=SEQ[p][i],age=(t-p*D-i*dt)/.7;if(age>1){d.setAttribute("opacity",0);return;}
+        const L=C.s*(.6+1.6*ease(age));d.setAttribute("cx",C.x+[0,1,0,-1][a]*L);d.setAttribute("cy",C.y+[-1,0,1,0][a]*L);d.setAttribute("opacity",(1-age).toFixed(2));d.setAttribute("style",`fill:${a===best?"var(--violet)":"var(--pink)"}`);});
+      hd.textContent="ε = "+e;},
+    readout(t){const{p,n}=at(t),e=EPS[p];let gb=0,dn=0;for(let i=0;i<=n;i++){if(SEQ[p][i]===best)gb++;if(SEQ[p][i]===2)dn++;}
+      return[["ε",String(e)],["chance of the best move",(100*(1-e+e/4)).toFixed(1)+"%"],["picks so far",String(n+1)],["picked the best",pct(gb/(n+1))],["stepped off the cliff",String(dn)]];}};
+};
+
+/* 3.4 SARSA vs Q-learning on the cliff, epsilon 0.1, alpha 0.5 (as in the Model-Free Control note) */
+BUILD.cliff=(svg,W,H)=>{
+  const E=500,RUNS=24,data=once("cliff",()=>{const avg={sarsa:new Float64Array(E),q:new Float64Array(E)},rep={};
+      for(const k of ["sarsa","q"]){for(let r=0;r<RUNS;r++){const o=learn(k,E,500+r*13,.1,.5,false);o.rets.forEach((v,e)=>avg[k][e]+=v/RUNS);}rep[k]=learn(k,E,11,.1,.5,true);}
+      const sm={};for(const k in avg){sm[k]=Array.from(avg[k],(v,e)=>{let s=0,c=0;for(let j=Math.max(0,e-9);j<=e;j++){s+=avg[k][j];c++;}return s/c;});}return{sm,rep,cache:{sarsa:{},q:{}}};});
+  const narrow=W<600,g=el("g",{},svg);
+  let G1,G2,top;
+  if(!narrow){const gw=(W-24)/2;G1=geoBox(0,30,gw,H*.34,0);G2=geoBox(gw+24,30,gw,H*.34,0);top=Math.max(G1.y0+G1.gh,G2.y0+G2.gh)+34;}
+  else{G1=geoBox(0,24,W,H*.25,0);G2=geoBox(0,H*.25+48,W,H*.25,0);top=G2.y0+G2.gh+30;}
+  const W1=world(g,G1,{cliffLabel:G1.cs>=28}),W2=world(g,G2,{cliffLabel:G2.cs>=28});
+  el("text",{x:G1.x0,y:G1.y0-9,class:"labb",style:"fill:var(--A)",text:"SARSA"},g);el("text",{x:G2.x0,y:G2.y0-9,class:"labb",style:"fill:var(--B)",text:"Q-learning"},g);
+  const p1=el("path",{style:"fill:none;stroke:var(--A);stroke-width:4;stroke-linecap:round;stroke-linejoin:round"},g),p2=el("path",{style:"fill:none;stroke:var(--B);stroke-width:4;stroke-linecap:round;stroke-linejoin:round"},g);
+  const rb1=robot(g,G1.cs*.75),rb2=robot(g,G2.cs*.75);
+  const B={x:narrow?40:48,y:top+8,w:W-(narrow?52:72),h:H-top-38};
+  const fr=frame(g,B,{x0:0,x1:E,y0:-120,y1:0,yt:[0,-50,-100],yf:v=>v?"−"+(-v):"0",xt:[0,250,500],xl:"episode",yl:narrow?"reward per episode (24 runs)":"reward per episode, while still exploring (average of 24 runs)"});
+  const l1=el("path",{style:"fill:none;stroke:var(--A);stroke-width:2.6"},g),l2=el("path",{style:"fill:none;stroke:var(--B);stroke-width:2.6"},g);
+  const tg1=el("text",{class:"labb halo",style:"fill:var(--A)"},g),tg2=el("text",{class:"labb halo",style:"fill:var(--B)"},g);
+  const T=26,epAt=t=>clamp(Math.floor((E-1)*Math.pow(clamp(t/T,0,1),1.5)),0,E-1);
+  const gpath=(k,e)=>{const c=data.cache[k];if(c[e])return c[e];const Q=data.rep[k].snaps[e].Q;return c[e]=greedyPath(s=>argQ(Q,s));};
+  return{t0:0,t1:T,rest:T,speed:1,label:"",
+    update(t){const e=epAt(t);const a=gpath("sarsa",e),b=gpath("q",e);p1.setAttribute("d",pathD(G1,a.path));p2.setAttribute("d",pathD(G2,b.path));
+      const ph=(t*1.2)%1,ia=Math.min(a.path.length-1,Math.floor(ph*a.path.length)),ib=Math.min(b.path.length-1,Math.floor(ph*b.path.length));rb1.at(G1.cx(a.path[ia]),G1.cy(a.path[ia]));rb2.at(G2.cx(b.path[ib]),G2.cy(b.path[ib]));
+      const pts=k=>{let d="";for(let j=0;j<=e;j+=1)d+=(j?"L":"M")+fr.sx(j).toFixed(1)+" "+fr.sy(Math.max(-120,data.sm[k][j])).toFixed(1);return d;};l1.setAttribute("d",pts("sarsa"));l2.setAttribute("d",pts("q"));
+      const ys=fr.sy(Math.max(-120,data.sm.sarsa[e])),yq=fr.sy(Math.max(-120,data.sm.q[e])),sep=Math.abs(ys-yq)<14?(ys<yq?-7:7):0;
+      tg1.setAttribute("x",fr.sx(e)+6);tg1.setAttribute("y",ys+4+sep);tg1.textContent=e>30?mn(data.sm.sarsa[e],0):"";tg2.setAttribute("x",fr.sx(e)+6);tg2.setAttribute("y",yq+4-sep);tg2.textContent=e>30?mn(data.sm.q[e],0):"";
+      if(fr.sx(e)>B.x+B.w-40){tg1.setAttribute("text-anchor","end");tg2.setAttribute("text-anchor","end");tg1.setAttribute("x",fr.sx(e)-6);tg2.setAttribute("x",fr.sx(e)-6);}else{tg1.setAttribute("text-anchor","start");tg2.setAttribute("text-anchor","start");}},
+    readout(t){const e=epAt(t),a=gpath("sarsa",e),b=gpath("q",e),desc=r=>r.ok?`${r.path.length-1} moves, ${Math.max(...r.path.filter(s=>colOf(s)>0&&colOf(s)<11).map(rowOf))===2?"along the edge":"away from the edge"}`:"still unsure";
+      return[["episode",String(e+1)],["SARSA, reward",mn(data.sm.sarsa[e],0)],["Q-learning, reward",mn(data.sm.q[e],0)],["SARSA's route",desc(a)],["Q-learning's route",desc(b)]];}};
+};
+
+/* 3.5 Importance sampling: one weight per trajectory; most shrink, a few explode */
+BUILD.is=(svg,W,H)=>{
+  const n=300,TM=20,Wt=once("is",()=>isHist(n,TM,7)),narrow=W<520,g=el("g",{},svg);
+  const B={x:narrow?42:56,y:narrow?70:54,w:W-(narrow?52:80),h:H-(narrow?124:110)};const LO=-14,HI=6;
+  const fr=frame(g,B,{x0:0,x1:n,y0:LO,y1:HI,yt:[6,3,0,-3,-6,-9,-12],yf:v=>v===0?"1":"10"+(v<0?"⁻":"")+["⁰","¹","²","³","⁴","⁵","⁶","⁷","⁸","⁹","¹⁰","¹¹","¹²"][Math.abs(v)],xt:[],grid:true,yl:"weight π/π_β of each trajectory (log scale)"});
+  el("line",{x1:B.x,x2:B.x+B.w,y1:fr.sy(0),y2:fr.sy(0),style:"stroke:var(--ink);stroke-width:1.4"},g);
+  el("text",{x:B.x+B.w,y:B.y+B.h+16,"text-anchor":"end",class:"ax",text:"300 trajectories, sorted by weight"},g);
+  const bw=B.w/n,bars=[];for(let i=0;i<n;i++)bars.push(el("rect",{x:B.x+i*bw,width:Math.max(1,bw-.3)},g));
+  const hd=el("text",{x:B.x+B.w,y:narrow?44:30,"text-anchor":"end",class:"disp",style:`font-size:${narrow?19:26}px`},g);
+  const hT=el("text",{x:narrow?B.x+B.w:B.x,y:narrow?18:30,"text-anchor":narrow?"end":"start",class:"ttl"},g);
+  const sorted=[];for(let T=0;T<=TM;T++)sorted.push(Wt.map(r=>r[T]).sort((a,b)=>b-a));
+  const D=1.05,Tat=t=>clamp(t/D,0,TM-1)+1;
+  const stats=T=>{let s=0,s2=0,mx=0;for(const r of Wt){const w=r[T];s+=w;s2+=w*w;mx=Math.max(mx,w);}return{mean:s/n,ess:s*s/s2,top:mx/s};};
+  return{t0:0,t1:(TM-1)*D,rest:(TM-1)*D,speed:1,label:"",
+    update(t){const x=Tat(t),T=Math.floor(x),u=smooth(x-T),A=sorted[T],Bn=sorted[Math.min(TM,T+1)];
+      for(let i=0;i<n;i++){const v=lerp(Math.log10(A[i]),Math.log10(Bn[i]),u),y0=fr.sy(0),y=fr.sy(clamp(v,LO,HI));bars[i].setAttribute("y",Math.min(y,y0));bars[i].setAttribute("height",Math.max(1,Math.abs(y-y0)));bars[i].setAttribute("style",v>=0?"fill:var(--gold)":"fill:var(--violet);fill-opacity:.55");}
+      const T2=Math.round(x),s=stats(T2);hd.textContent=`useful samples ≈ ${s.ess.toFixed(s.ess<10?1:0)} of ${n}`;hT.textContent=`horizon: ${T2} step${T2>1?"s":""}`;},
+    readout(t){const T=Math.round(Tat(t)),s=stats(T);return[["horizon T",String(T)],["average weight",s.mean.toFixed(2)+"  (should be 1)"],["useful samples (ESS)",s.ess.toFixed(1)+" of 300"],["largest weight's share",pct(s.top)]];}};
+};
+
+/* 4.1 From tables to functions: a 2-weight line fitted to a 19-state random walk, weighted by visits */
+BUILD.approx=(svg,W,H)=>{
+  const A=once("approx",()=>approxHist(400,3,.002)),narrow=W<520,g=el("g",{},svg),N=19;
+  const B={x:narrow?38:52,y:40,w:W-(narrow?48:76),h:(H-80)*.66},M={x:B.x,y:B.y+B.h+38,w:B.w,h:(H-80)*.24};
+  const fr=frame(g,B,{x0:-.5,x1:N-.5,y0:-1,y1:1,yt:[-1,-.5,0,.5,1],xt:[],yl:"value V(s)"});
+  el("line",{x1:B.x,x2:B.x+B.w,y1:fr.sy(0),y2:fr.sy(0),class:"z"},g);
+  const line=el("path",{style:"fill:none;stroke:var(--violet);stroke-width:3.2;stroke-linecap:round"},g);
+  const errs=[];for(let s=0;s<N;s++)errs.push(el("line",{style:"stroke:var(--pink);stroke-width:2;opacity:.6"},g));
+  for(let s=0;s<N;s++){el("circle",{cx:fr.sx(s),cy:fr.sy(A.V[s]),r:narrow?4:5.5,style:"fill:var(--gold)"},g);}
+  legend(g,B.x+(narrow?74:90),B.y-8,narrow?[["var(--gold)","true value"],["var(--violet)","the fit"]]:[["var(--gold)","true value of each of 19 states"],["var(--violet)","a line with just 2 weights"]]);
+  el("text",{x:M.x,y:M.y-8,class:"ax",text:narrow?"μ(s): how often each state is visited":"μ(s): how often each state is visited (start in the middle)"},g);
+  const mb=[];for(let s=0;s<N;s++)mb.push(el("rect",{x:M.x+s*M.w/N+2,width:M.w/N-4,style:"fill:var(--c2)"},g));
+  el("text",{x:M.x,y:M.y+M.h+14,class:"ax",text:"left end (−1)"},g);el("text",{x:M.x+M.w,y:M.y+M.h+14,"text-anchor":"end",class:"ax",text:"right end (+1)"},g);
+  const T=16,epAt=t=>clamp(Math.floor(399*Math.pow(clamp(t/T,0,1),1.3)),0,399);
+  return{t0:0,t1:T,rest:T,speed:1,label:"",
+    update(t){const e=epAt(t),f=A.fr[e],v=s=>f.th[0]+f.th[1]*A.x(s);line.setAttribute("d",`M${fr.sx(-.3)} ${fr.sy(v(-.3))}L${fr.sx(N-.7)} ${fr.sy(v(N-.7))}`);
+      for(let s=0;s<N;s++){errs[s].setAttribute("x1",fr.sx(s));errs[s].setAttribute("x2",fr.sx(s));errs[s].setAttribute("y1",fr.sy(A.V[s]));errs[s].setAttribute("y2",fr.sy(v(s)));}
+      const mx=Math.max(...f.mu);for(let s=0;s<N;s++){const h=f.mu[s]/mx*M.h;mb[s].setAttribute("y",M.y+M.h-h);mb[s].setAttribute("height",h);}},
+    readout(t){const e=epAt(t),f=A.fr[e];const er=s=>Math.abs(A.V[s]-(f.th[0]+f.th[1]*A.x(s)));let mid=0;for(let s=6;s<=12;s++)mid+=er(s)/7;const ends=(er(0)+er(18))/2;
+      return[["episode",String(e+1)],["weights θ",`(${f.th[0].toFixed(3)}, ${f.th[1].toFixed(3)})`],["error, weighted by μ",f.ve.toFixed(4)],["average error, middle 7 states",mid.toFixed(3)],["average error, the two ends",ends.toFixed(3)]];}};
+};
+
+/* 4.2 The deadly triad: the note's Baird-style example. Ratchet first, then the long run. */
+BUILD.triad=(svg,W,H)=>{
+  const narrow=W<560,g=el("g",{},svg),VAR=["full","tabular","mc","onpolicy"],COL={full:"var(--bad)",tabular:"var(--A)",mc:"var(--c4)",onpolicy:"var(--c6)"};
+  const LAB={full:"all three legs",tabular:"no function approximation",mc:"no bootstrapping",onpolicy:"on-policy weighting"};
+  const RUN=once("triad",()=>{const o={};for(const v of VAR){const B=bairdHist(v,1000),phi=v==="tabular"?null:BPHI;o[v]=B.map(th=>{let m=0;for(let s=0;s<6;s++){const V=v==="tabular"?th[s]:BPHI[s].reduce((a,f,j)=>a+f*th[j],0);m=Math.max(m,Math.abs(V));}return m;});}
+    // the ratchet, alpha 0.1, theta all ones: s1..s5 -> s6, then s6 -> s6
+    let th=[1,1,1,1,1,1,1];const V=s=>BPHI[s].reduce((a,f,j)=>a+f*th[j],0),r=[1];for(const s of [0,1,2,3,4,5]){const d=.99*V(5)-V(s),ph=BPHI[s];th=th.map((x,j)=>x+.1*d*ph[j]);r.push(th[6]);}o.ratchet=r;return o;});
+  const topH=narrow?H*.38:H*.4,cy1=topH*.3,cy2=topH*.82,xs=(narrow?[.08,.24,.4,.56,.72]:[.12,.31,.5,.69,.88].map(f=>f*.78)).map(f=>W*f);
+  const lowX=narrow?W*.4:W*.39,rr=narrow?14:19;
+  const arrs=[];for(let i=0;i<5;i++){arrs.push(el("line",{x1:xs[i],y1:cy1+rr,x2:lowX,y2:cy2-rr,style:"stroke:var(--faint);stroke-width:1.6"},g));}
+  el("path",{d:`M${lowX+rr*.6} ${cy2+rr*.8}C${lowX+rr*2.6} ${cy2+rr*2.4} ${lowX-rr*2.6} ${cy2+rr*2.4} ${lowX-rr*.6} ${cy2+rr*.8}`,style:"fill:none;stroke:var(--faint);stroke-width:1.6"},g);
+  for(let i=0;i<5;i++){el("circle",{cx:xs[i],cy:cy1,r:rr,style:"fill:var(--sheet);stroke:var(--c4);stroke-width:2"},g);el("text",{x:xs[i],y:cy1-rr-6,"text-anchor":"middle",class:"mono",style:`font-size:${narrow?8.5:10}px;font-weight:700`,text:`2θ${"₁₂₃₄₅"[i]}+θ₇`},g);el("text",{x:xs[i],y:cy1+5,"text-anchor":"middle",class:"dispi",style:"font-size:15px",text:"s"+"₁₂₃₄₅"[i]},g);}
+  el("circle",{cx:lowX,cy:cy2,r:rr,style:"fill:var(--sheet);stroke:var(--c4);stroke-width:2"},g);el("text",{x:lowX,y:cy2+5,"text-anchor":"middle",class:"dispi",style:"font-size:15px",text:"s₆"},g);
+  el("text",{x:lowX+rr+8,y:cy2+4,class:"mono",style:`font-size:${narrow?8.5:10}px;font-weight:700`,text:"θ₆+5θ₇"},g);
+  const tok=el("circle",{r:7,style:"fill:var(--c4)",filter:"url(#soft)"},g);
+  const gx=narrow?W-26:W*.9,gT=cy1-12,gB=cy2+18,gH=gB-gT;
+  el("rect",{x:gx-12,y:gT,width:24,height:gH,rx:12,style:"fill:var(--cell)"},g);const gf=el("rect",{x:gx-12,width:24,rx:12,style:"fill:var(--c4)"},g);
+  const gv=el("text",{x:gx,y:gT-8,"text-anchor":"middle",class:"labb"},g);el("text",{x:gx,y:gB+16,"text-anchor":"middle",class:"ax",text:"θ₇"},g);
+  const B={x:narrow?40:58,y:topH+30,w:W-(narrow?52:84),h:H-topH-72};
+  const sl=v=>Math.log10(1+v);
+  const fr=frame(g,B,{x0:0,x1:1000,y0:0,y1:12,yt:[0,3,6,9,12],yf:v=>v?"10"+["","¹","²","³","⁴","⁵","⁶","⁷","⁸","⁹","¹⁰","¹¹","¹²"][v]:"0",xt:[0,500,1000],xl:"sweeps",yl:"largest |V̂(s)| (the true value is 0)"});
+  const lines={};VAR.forEach(v=>lines[v]=el("path",{style:`fill:none;stroke:${COL[v]};stroke-width:${v==="full"?3:2.2}`},g));
+  const lgY=B.y+14;let ly=lgY;VAR.forEach(v=>{el("line",{x1:B.x+10,x2:B.x+26,y1:ly,y2:ly,style:`stroke:${COL[v]};stroke-width:3`},g);el("text",{x:B.x+32,y:ly+4,class:"lab",text:LAB[v]},g);ly+=15;});
+  const TR=8.4,T1=TR+12;
+  return{t0:0,t1:T1,rest:T1,speed:1,label:"",
+    update(t){const k=clamp(Math.floor(t/1.4),0,6),u=clamp((t-k*1.4)/1.4,0,1);
+      if(t<TR&&k<6){const from=k<5?[xs[k],cy1]:[lowX,cy2],x=k<5?lerp(from[0],lowX,ease(u)):lowX+Math.sin(u*Math.PI*2)*rr*1.6,y=k<5?lerp(from[1],cy2,ease(u)):cy2+rr*1.2+Math.sin(u*Math.PI)*rr;tok.setAttribute("cx",x);tok.setAttribute("cy",y);tok.setAttribute("opacity",1);
+        arrs.forEach((a,i)=>a.setAttribute("style",`stroke:${i===k?"var(--c4)":"var(--faint)"};stroke-width:${i===k?3:1.6}`));}else{tok.setAttribute("opacity",0);arrs.forEach(a=>a.setAttribute("style","stroke:var(--faint);stroke-width:1.6"));}
+      const val=t<TR?lerp(RUN.ratchet[k],RUN.ratchet[Math.min(6,k+1)],ease(u)):RUN.ratchet[6];const h=clamp(val/5,0,1)*gH;gf.setAttribute("y",gB-h);gf.setAttribute("height",h);gv.textContent=val.toFixed(3);
+      const sw=Math.floor(1000*clamp((t-TR)/(T1-TR-.5),0,1));VAR.forEach(v=>{let d="";for(let j=0;j<=sw;j+=5)d+=(j?"L":"M")+fr.sx(j).toFixed(1)+" "+fr.sy(Math.min(12.3,sl(RUN[v][j]))).toFixed(1);lines[v].setAttribute("d",t>=TR?d:"");});},
+    readout(t){if(t<TR){const k=clamp(Math.floor(t/1.4),0,5);return[["phase","the ratchet (α = 0.1, all θ start at 1)"],["update",k<5?`s${"₁₂₃₄₅"[k]} → s₆`:"s₆ → s₆"],["θ₇",RUN.ratchet[k].toFixed(3)+" → "+RUN.ratchet[k+1].toFixed(3)]];}
+      const sw=Math.floor(1000*clamp((t-TR)/(T1-TR-.5),0,1));return[["phase","the long run (α = 0.01, expected updates)"],["sweeps",String(sw)],["all three legs",BIG(RUN.full[sw])],["any one leg removed","≤ "+BIG(Math.max(RUN.tabular[sw],RUN.mc[sw],RUN.onpolicy[sw]))]];}};
+};
+
+/* 4.3 Deep Q-learning: replay buffer and a target network. A diagram of the mechanics (illustrative). */
+BUILD.dqn=(svg,W,H)=>{
+  const narrow=W<600,g=el("g",{},svg),SL=30,cols=6,NEW=.42,MB=.84,SYNC=6;
+  const Bf=narrow?{x:14,y:62,w:W*.56,h:H*.36}:{x:W*.06,y:70,w:W*.42,h:H*.42};
+  const On=narrow?{x:W*.64,y:62,w:W*.33,h:H*.15}:{x:W*.62,y:70,w:W*.34,h:H*.16},Tg=narrow?{x:W*.64,y:62+H*.21,w:W*.33,h:H*.15}:{x:W*.62,y:70+H*.25,w:W*.34,h:H*.16};
+  el("text",{x:Bf.x,y:Bf.y-12,class:"ttl",text:"Replay buffer"},g);
+  for(const [B,t,c] of [[On,"online Q-network","var(--c4)"],[Tg,"target network","var(--c2)"]]){el("rect",{x:B.x,y:B.y,width:B.w,height:B.h,rx:14,class:"box",style:`stroke:${c};stroke-width:2`},g);el("text",{x:B.x+B.w/2,y:B.y+B.h/2+4,"text-anchor":"middle",class:"labb",style:`fill:${c}`,text:t},g);}
+  const frz=el("text",{x:Tg.x+Tg.w/2,y:Tg.y+Tg.h-8,"text-anchor":"middle",class:"ax"},g);
+  const rowsN=Math.ceil(SL/cols),cw=Bf.w/cols,ch=Bf.h/rowsN,slots=[];
+  for(let i=0;i<SL;i++){const x=Bf.x+(i%cols)*cw,y=Bf.y+Math.floor(i/cols)*ch;slots.push({x:x+cw/2,y:y+ch/2,r:el("rect",{x:x+3,y:y+3,width:cw-6,height:ch-6,rx:6,style:"fill:var(--cell)"},g),t:el("text",{x:x+cw/2,y:y+ch/2+4,"text-anchor":"middle",class:"mono",style:"font-size:9.5px;font-weight:700;fill:#fff"},g)});}
+  const links=[0,1,2,3].map(()=>el("line",{style:"stroke:var(--c4);stroke-width:2;opacity:0"},g));
+  const sync=el("path",{d:`M${On.x+On.w/2} ${On.y+On.h}L${Tg.x+Tg.w/2} ${Tg.y}`,style:"stroke:var(--c2);stroke-width:3;stroke-dasharray:4 4;opacity:0"},g);
+  const C={x:narrow?40:W*.08,y:narrow?H*.62:H*.68,w:narrow?W-56:W*.86,h:narrow?H*.27:H*.22};
+  const fr=frame(g,C,{x0:0,x1:30,y0:0,y1:1.1,yt:[0,1],xt:[],yl:narrow?"target (steps) vs online estimate":"Q-value of one move: target (steps) and online estimate (chases it)"});
+  el("line",{x1:C.x,x2:C.x+C.w,y1:fr.sy(1),y2:fr.sy(1),class:"z"},g);
+  const lo=el("path",{style:"fill:none;stroke:var(--c4);stroke-width:2.4"},g),lt=el("path",{style:"fill:none;stroke:var(--c2);stroke-width:2.4"},g);
+  const hue=i=>heat(.12+.8*((i%30)/29));
+  const R=rng(21),batches=[];for(let b=0;b<40;b++){batches.push([0,1,2,3].map(()=>R()));}
+  const sim=[];let o=0,tg=0;for(let b=0;b<=40;b++){sim.push({o,tg});o=o+.17*(.3+.7*tg-o);if((b+1)%SYNC===0)tg=o;}
+  const T1=24;
+  return{t0:0,t1:T1,rest:T1,speed:1,label:"diagram",
+    update(t){const nIn=Math.min(56,Math.floor(t/NEW)+1),nb=Math.floor(t/MB);
+      for(let i=0;i<SL;i++){const s=slots[i];const idx=nIn-1-((nIn-1-i)%SL+SL)%SL;const filled=i<nIn;const id=filled?(Math.floor((nIn-1-i)/SL)*SL+i):-1;
+        if(filled){s.r.setAttribute("style",`fill:${hue(id)}`);s.t.style.fill=ink4(.12+.8*((id%30)/29));s.t.textContent="#"+(id+1);}else{s.r.setAttribute("style","fill:var(--cell)");s.t.textContent="";}}
+      const u=(t-nb*MB)/MB,filled=Math.min(nIn,SL);
+      if(nb>=1&&u<.7){batches[nb%40].forEach((r,j)=>{const i=Math.floor(r*filled),s=slots[i];links[j].setAttribute("x1",s.x);links[j].setAttribute("y1",s.y);links[j].setAttribute("x2",On.x);links[j].setAttribute("y2",On.y+On.h*(.2+.2*j));links[j].setAttribute("opacity",(.8*(1-u/.7)).toFixed(2));});}else links.forEach(l=>l.setAttribute("opacity",0));
+      const syncNow=nb>0&&nb%SYNC===0&&u<.6;sync.setAttribute("opacity",syncNow?1:0);frz.textContent=narrow?(syncNow?"copying":"frozen"):(syncNow?"copying the online weights":`frozen · next copy in ${SYNC-(nb%SYNC)} updates`);
+      const K=Math.min(40,nb);let a="",b2="";for(let k=0;k<=K;k++){a+=(k?"L":"M")+fr.sx(k*30/40).toFixed(1)+" "+fr.sy(sim[k].o).toFixed(1);b2+=(k?"L":"M")+fr.sx(k*30/40).toFixed(1)+" "+fr.sy(sim[k].tg).toFixed(1)+(k<K?"L"+fr.sx((k+1)*30/40).toFixed(1)+" "+fr.sy(sim[k].tg).toFixed(1):"");}
+      lo.setAttribute("d",a);lt.setAttribute("d",b2);},
+    readout(t){const nIn=Math.min(56,Math.floor(t/NEW)+1),nb=Math.floor(t/MB);return[["moves stored",`${Math.min(nIn,SL)} of ${SL} slots (oldest dropped)`],["mini-batch updates",String(nb)],["target copies",String(Math.floor(nb/SYNC))],["why",nb%2?"random batches break up runs of similar moves":"a frozen target stops the goal moving every step"]];}};
+};
+
+/* 4.4 Double Q-learning: the max of noisy estimates is biased up; a second estimator removes it */
+BUILD.doubleq=(svg,W,H)=>{
+  const narrow=W<600,g=el("g",{},svg),R=rng(31),DT=.26,N1=60,N2=60,draws=[];
+  for(let k=0;k<N1+N2;k++){const m=k<N1?4:10,A=[],Bv=[];for(let i=0;i<m;i++){A.push(2*R()-1);Bv.push(2*R()-1);}let a=0;for(let i=1;i<m;i++)if(A[i]>A[a])a=i;draws.push({m,A,B:Bv,a,single:A[a],dbl:Bv[a]});}
+  const run=draws.map((d,k)=>{const lo=k<N1?0:N1,sl=draws.slice(lo,k+1);return{s:sl.reduce((a,x)=>a+x.single,0)/sl.length,d:sl.reduce((a,x)=>a+x.dbl,0)/sl.length};});
+  const P=narrow?{x:36,y:44,w:W-48,h:H*.36}:{x:44,y:56,w:W*.44,h:H-130};
+  const C=narrow?{x:44,y:H*.56,w:W-60,h:H*.32}:{x:W*.57,y:56,w:W*.39,h:H-130};
+  const fp=frame(g,P,{x0:0,x1:10,y0:-1.1,y1:1.1,yt:[-1,0,1],xt:[],yl:"estimates for each action (true value 0)"});
+  el("line",{x1:P.x,x2:P.x+P.w,y1:fp.sy(0),y2:fp.sy(0),style:"stroke:var(--ink);stroke-width:1.6;stroke-dasharray:6 4"},g);
+  const ba=[],bb=[];for(let i=0;i<10;i++){ba.push(el("rect",{rx:2,style:"fill:var(--B)"},g));bb.push(el("rect",{rx:2,style:"fill:var(--A);fill-opacity:.55"},g));}
+  const mA=el("circle",{r:8,style:"fill:none;stroke:var(--bad);stroke-width:3"},g),mB=el("circle",{r:8,style:"fill:none;stroke:var(--A);stroke-width:3"},g);
+  legend(g,P.x,P.y+P.h+(narrow?16:22),[["var(--B)","Qᴬ"],["var(--A)","Qᴮ"]]);
+  const fc=frame(g,C,{x0:0,x1:N1,y0:-.3,y1:1,yt:[-.25,0,.25,.5,.75,1],xt:[],xl:"draws",yl:"running average of the estimate used"});
+  const t1=el("line",{class:"z"},g),t2=el("line",{x1:C.x,x2:C.x+C.w,y1:fc.sy(0),y2:fc.sy(0),class:"z"},g);
+  const ls=el("path",{style:"fill:none;stroke:var(--bad);stroke-width:2.6"},g),ld=el("path",{style:"fill:none;stroke:var(--A);stroke-width:2.6"},g);
+  const lt=el("text",{class:"lab halo",style:"fill:var(--bad)"},g);
+  legend(g,C.x,C.y+C.h+(narrow?30:34),[["var(--bad)","max of Qᴬ"],["var(--A)","Qᴮ at Qᴬ's pick"]]);
+  const at=t=>clamp(Math.floor(t/DT),0,N1+N2-1);
+  return{t0:0,t1:(N1+N2)*DT-.01,rest:(N1+N2)*DT-.01,speed:1,label:"",
+    update(t){const k=at(t),d=draws[k],m=d.m,bw=P.w/m;
+      for(let i=0;i<10;i++){if(i>=m){ba[i].setAttribute("height",0);bb[i].setAttribute("height",0);continue;}const x=P.x+i*bw,y0=fp.sy(0);
+        const ya=fp.sy(d.A[i]),yb=fp.sy(d.B[i]);ba[i].setAttribute("x",x+bw*.14);ba[i].setAttribute("width",bw*.36);ba[i].setAttribute("y",Math.min(ya,y0));ba[i].setAttribute("height",Math.abs(ya-y0));
+        bb[i].setAttribute("x",x+bw*.52);bb[i].setAttribute("width",bw*.36);bb[i].setAttribute("y",Math.min(yb,y0));bb[i].setAttribute("height",Math.abs(yb-y0));}
+      const xa=P.x+d.a*bw;mA.setAttribute("cx",xa+bw*.32);mA.setAttribute("cy",fp.sy(d.A[d.a]));mB.setAttribute("cx",xa+bw*.7);mB.setAttribute("cy",fp.sy(d.B[d.a]));
+      const lo=k<N1?0:N1,ex=(m-1)/(m+1);t1.setAttribute("x1",C.x);t1.setAttribute("x2",C.x+C.w);t1.setAttribute("y1",fc.sy(ex));t1.setAttribute("y2",fc.sy(ex));
+      let a="",b="";for(let j=lo;j<=k;j++){a+=(j>lo?"L":"M")+fc.sx(j-lo).toFixed(1)+" "+fc.sy(run[j].s).toFixed(1);b+=(j>lo?"L":"M")+fc.sx(j-lo).toFixed(1)+" "+fc.sy(run[j].d).toFixed(1);}ls.setAttribute("d",a);ld.setAttribute("d",b);
+      lt.setAttribute("x",C.x+C.w-4);lt.setAttribute("y",fc.sy(ex)-6);lt.setAttribute("text-anchor","end");lt.textContent=`expected bias ${ex.toFixed(2)} with ${m} actions`;},
+    readout(t){const k=at(t),d=draws[k],ex=(d.m-1)/(d.m+1);return[["actions m",String(d.m)],["draws",String(k<N1?k+1:k+1-N1)],["single estimator",sgn(run[k].s,2)+`  (theory ${ex.toFixed(2)})`],["double estimator",sgn(run[k].d,2)+"  (theory 0)"]];}};
+};
+
+/* ---------- figures: chapter 5 (learning the policy), chapter 6 (continuous actions) ---------- */
+const ARM=["var(--c8)","var(--gold)","var(--good)"];
+
+/* 5.1 REINFORCE on a 3-armed bandit, with and without dividing by pi(a) */
+BUILD.pg=(svg,W,H)=>{
+  const S=600,A1=once("pg1",()=>pgHist(S,2,true)),A2=once("pg2",()=>pgHist(S,2,false)),narrow=W<520,g=el("g",{},svg);
+  const panels=[{H:A1,t:"REINFORCE: step ∝ G · ∇ ln π(a), so rare picks count fully"},{H:A2,t:"Without the 1/π: frequent picks dominate"}];
+  const ph=(H-70)/2,x0=narrow?30:44,pw=W-x0-(narrow?62:96);
+  const parts=panels.map((P,i)=>{const y=34+i*(ph+18);el("text",{x:x0,y:y-8,class:"labb",style:`fill:${i?"var(--bad)":"var(--accent)"}`,text:narrow?(i?"without the 1/π":"REINFORCE"):P.t},g);
+    const fr=frame(g,{x:x0,y,w:pw,h:ph-24},{x0:0,x1:S,y0:0,y1:1,yt:[0,.5,1],yf:v=>Math.round(v*100)+"%",xt:i?[0,300,600]:[],xl:i?"pulls":""});
+    const ar=[0,1,2].map(a=>el("path",{style:`fill:${ARM[a]};fill-opacity:.85`},g));
+    const lab=[0,1,2].map(a=>el("text",{x:x0+pw+8,class:"mono",style:`font-size:${narrow?9.5:11}px;font-weight:700;fill:${ARM[a]}`},g));
+    return{fr,ar,lab,P};});
+  legend(g,x0,H-8,[["var(--c8)","arm pays 0.2"],["var(--gold)","0.5"],["var(--good)","0.8"]],10);
+  const T=18,at=t=>clamp(Math.floor((S-1)*clamp(t/T,0,1)),0,S-1);
+  return{t0:0,t1:T,rest:T,speed:1,label:"",
+    update(t){const k=at(t);parts.forEach(({fr,ar,lab,P})=>{const step=Math.max(1,Math.floor(k/150));const lo=[],hi=[[],[],[]];
+        for(let a=0;a<3;a++){let d="";const top=[],bot=[];for(let j=0;j<=k;j+=step){const p=P.H[j].p;const b=a===0?0:a===1?p[0]:p[0]+p[1];top.push([fr.sx(j),fr.sy(b+p[a])]);bot.push([fr.sx(j),fr.sy(b)]);}
+          ar[a].setAttribute("d",poly(top.concat(bot.reverse()))+"Z");const p=P.H[k].p,b=a===0?0:a===1?p[0]:p[0]+p[1];lab[a].setAttribute("y",fr.sy(b+p[a]/2)+4);lab[a].textContent=pct(p[a]);}});},
+    readout(t){const k=at(t),a=A1[k].p,b=A2[k].p;const avg=H=>{let s=0;for(let j=Math.max(0,k-49);j<=k;j++)s+=H[j].G;return s/Math.min(50,k+1);};
+      return[["pulls",String(k+1)],["REINFORCE: best arm",pct(a[2])+`, recent reward ${avg(A1).toFixed(2)}`],["without 1/π: best arm",pct(b[2])+`, stuck on 0.5 arm ${pct(b[1])}`]];}};
+};
+
+/* 5.2 Actor-critic: the critic's TD error is a far tighter learning signal than the full return */
+BUILD.ac=(svg,W,H)=>{
+  const E=300,RUNS=20,D=once("ac",()=>{const c={reinforce:new Float64Array(E),ac:new Float64Array(E)},sig={};for(const k of ["reinforce","ac"]){for(let r=0;r<RUNS;r++){const o=acHist(k,E,r+1,.2);o.curve.forEach((v,i)=>c[k][i]+=v/RUNS);if(r===0)sig[k]=o.sig;}}
+    const sm={};for(const k in c)sm[k]=Array.from(c[k],(v,i)=>{let s=0,n=0;for(let j=Math.max(0,i-9);j<=i;j++){s+=c[k][j];n++;}return s/n;});return{sm,sig};});
+  const narrow=W<600,g=el("g",{},svg);
+  const Hb=narrow?{x:30,y:36,w:W-44,h:H*.28}:{x:40,y:56,w:W*.42,h:H-130},Cb=narrow?{x:40,y:H*.62,w:W-54,h:H*.28}:{x:W*.55,y:56,w:W*.41,h:H-130};
+  const BN=36,LO=-3.6,HI=3.6,fh=frame(g,Hb,{x0:LO,x1:HI,y0:0,y1:1,yt:[],xt:[-3,0,3],xl:"value of the learning signal",yl:"how often each signal value appears"});
+  const hb={reinforce:[],ac:[]};for(const k of ["reinforce","ac"])for(let i=0;i<BN;i++)hb[k].push(el("rect",{x:fh.sx(LO+i*(HI-LO)/BN)+1,width:Hb.w/BN-2,rx:1.5,style:`fill:${k==="ac"?"var(--A)":"var(--B)"};fill-opacity:${k==="ac"?.7:.55}`},g));
+  legend(g,Hb.x,Hb.y+Hb.h+(narrow?36:44),narrow?[["var(--B)","return Gₜ"],["var(--A)","TD error δₜ"]]:[["var(--B)","REINFORCE: return Gₜ"],["var(--A)","actor-critic: TD error δₜ"]],12);
+  const fc=frame(g,Cb,{x0:0,x1:E,y0:0,y1:32,yt:[0,10,20,30],xt:[0,150,300],xl:"episode",yl:"moves to reach the goal (fewer is better)"});
+  const lc={reinforce:el("path",{style:"fill:none;stroke:var(--B);stroke-width:2.6"},g),ac:el("path",{style:"fill:none;stroke:var(--A);stroke-width:2.6"},g)};
+  el("line",{x1:Cb.x,x2:Cb.x+Cb.w,y1:fc.sy(6),y2:fc.sy(6),class:"z"},g);el("text",{x:Cb.x+Cb.w,y:fc.sy(6)-5,"text-anchor":"end",class:"ax",text:"best possible: 6"},g);
+  const T=16,at=t=>clamp(Math.floor((E-1)*clamp(t/T,0,1)),0,E-1);
+  const sd=a=>{const m=a.reduce((x,y)=>x+y,0)/a.length;return Math.sqrt(a.reduce((x,y)=>x+(y-m)**2,0)/a.length);};
+  return{t0:0,t1:T,rest:T,speed:1,label:"",
+    update(t){const e=at(t),fr=(e+1)/E;let mx=1;const cnt={};for(const k of ["reinforce","ac"]){const s=D.sig[k],n=Math.max(1,Math.floor(s.length*fr));const c=new Array(BN).fill(0);for(let i=0;i<n;i++){const b=Math.floor((s[i]-LO)/(HI-LO)*BN);if(b>=0&&b<BN)c[b]++;}cnt[k]=c.map(v=>v/n);mx=Math.max(mx*0,mx,...cnt[k]);}
+      for(const k of ["reinforce","ac"])cnt[k].forEach((v,i)=>{const h=v/Math.max(...cnt.ac,...cnt.reinforce)*Hb.h*.95;hb[k][i].setAttribute("y",Hb.y+Hb.h-h);hb[k][i].setAttribute("height",h);});
+      for(const k of ["reinforce","ac"]){let d="";for(let j=0;j<=e;j++)d+=(j?"L":"M")+fc.sx(j).toFixed(1)+" "+fc.sy(Math.min(32,D.sm[k][j])).toFixed(1);lc[k].setAttribute("d",d);}},
+    readout(t){const e=at(t),fr=(e+1)/E,n=k=>Math.max(2,Math.floor(D.sig[k].length*fr));return[["episode",String(e+1)+" (average of 20 runs)"],["spread of Gₜ",sd(D.sig.reinforce.slice(0,n("reinforce"))).toFixed(2)],["spread of δₜ",sd(D.sig.ac.slice(0,n("ac"))).toFixed(2)],["moves to goal",`REINFORCE ${D.sm.reinforce[e].toFixed(1)} · actor-critic ${D.sm.ac[e].toFixed(1)}`]];}};
+};
+
+/* 5.3 KL divergence: fit one Gaussian to two bumps, reverse vs forward */
+BUILD.kl=(svg,W,H)=>{
+  const R=once("klr",()=>klHist("rev",300)),F=once("klf",()=>klHist("fwd",300)),narrow=W<520,g=el("g",{},svg);
+  const B={x:narrow?14:30,y:56,w:W-(narrow?28:60),h:H-120};const sx=v=>B.x+(v+5)/10*B.w,sy=v=>B.y+B.h-v/.7*B.h;
+  const N=(x,m,s)=>Math.exp(-((x-m)**2)/(2*s*s))/(s*Math.sqrt(2*Math.PI)),p=x=>.5*N(x,-2,.6)+.5*N(x,2,.6);
+  let d=`M${sx(-5)} ${sy(0)}`;for(let x=-5;x<=5.001;x+=.05)d+=`L${sx(x).toFixed(1)} ${sy(p(x)).toFixed(1)}`;el("path",{d:d+`L${sx(5)} ${sy(0)}Z`,style:"fill:var(--gold);fill-opacity:.3;stroke:var(--gold);stroke-width:2"},g);
+  el("line",{x1:B.x,x2:B.x+B.w,y1:sy(0),y2:sy(0),class:"axl"},g);
+  const qr=el("path",{style:"fill:var(--accent);fill-opacity:.12;stroke:var(--accent);stroke-width:3"},g),qf=el("path",{style:"fill:none;stroke:var(--ink-2);stroke-width:2.6;stroke-dasharray:7 4"},g);
+  legend(g,B.x,24,narrow?[["var(--gold)","target"],["var(--accent)","reverse KL"],["var(--ink-2)","forward KL",1]]:[["var(--gold)","target: two bumps"],["var(--accent)","fit by reverse KL(q‖p)"],["var(--ink-2)","fit by forward KL(p‖q)",1]],12);
+  const T=10,at=t=>clamp(Math.floor(299*Math.pow(clamp(t/T,0,1),.7)),0,299);
+  const gp=(o)=>{let s=`M${sx(-5)} ${sy(0)}`;for(let x=-5;x<=5.001;x+=.05)s+=`L${sx(x).toFixed(1)} ${sy(Math.min(.7,N(x,o.m,o.s))).toFixed(1)}`;return s+`L${sx(5)} ${sy(0)}Z`;};
+  return{t0:0,t1:T,rest:T,speed:1,label:"",
+    update(t){const k=at(t);qr.setAttribute("d",gp(R[k]));qf.setAttribute("d",gp(F[k]));},
+    readout(t){const k=at(t),r=R[k],f=F[k];return[["gradient steps",String(k+1)],["reverse KL fit",`mean ${r.m.toFixed(2)}, width ${r.s.toFixed(2)}, KL ${r.kl.toFixed(3)}`],["forward KL fit",`mean ${f.m.toFixed(2)}, width ${f.s.toFixed(2)}, KL ${f.kl.toFixed(3)}`],["behaviour",k>150?"reverse picks one bump; forward covers both":"…"]];}};
+};
+
+/* 5.4 TRPO: the same KL budget is a different-sized step depending on where the policy is */
+BUILD.trpo=(svg,W,H)=>{
+  const narrow=W<520,g=el("g",{},svg),Av=[1,-.6,0],dl=.05,R0=3;
+  const side=Math.min(W-(narrow?40:120),H-110),P={x:(W-side)/2+(narrow?10:20),y:44,w:side,h:side};
+  const sx=v=>P.x+(v+R0)/(2*R0)*P.w,sy=v=>P.y+P.h-(v+R0)/(2*R0)*P.h;
+  const pi=th=>{const e=[Math.exp(th[0]),Math.exp(th[1]),1],z=e[0]+e[1]+e[2];return e.map(v=>v/z);};
+  const L=th=>{const p=pi(th);return p[0]*Av[0]+p[1]*Av[1]+p[2]*Av[2];};
+  const KL=(a,b)=>{const p=pi(a),q=pi(b);return p.reduce((s,v,i)=>s+v*Math.log(v/q[i]),0);};
+  const NC=30;for(let i=0;i<NC;i++)for(let j=0;j<NC;j++){const th=[-R0+(i+.5)*2*R0/NC,-R0+(j+.5)*2*R0/NC],u=.05+.6*(L(th)+.6)/1.6;el("rect",{x:sx(th[0]-R0/NC),y:sy(th[1]+R0/NC),width:P.w/NC+.6,height:P.h/NC+.6,style:`fill:${heat(u)}`},g);}
+  el("rect",{x:P.x,y:P.y,width:P.w,height:P.h,style:"fill:none;stroke:var(--rule)"},g);
+  el("text",{x:P.x+P.w,y:P.y+P.h+16,"text-anchor":"end",class:"ax",text:"θ₁ (logit of the good action)"},g);el("text",{x:P.x,y:P.y-8,class:"ax",text:"θ₂ (logit of the bad action)"},g);
+  el("text",{x:P.x-6,y:P.y+P.h+16,class:"ax","text-anchor":"start",text:""},g);
+  const clip=el("clipPath",{id:"trc"},g);el("rect",{x:P.x,y:P.y,width:P.w,height:P.h},clip);const gc=el("g",{"clip-path":"url(#trc)"},g);
+  const ell=el("path",{style:"fill:var(--gold);fill-opacity:.12;stroke:var(--gold);stroke-width:2.4"},gc);
+  const ga=el("line",{style:"stroke:var(--ink);stroke-width:2.4;stroke-dasharray:5 4"},gc),na=el("line",{style:"stroke:var(--gold);stroke-width:3.6"},gc);
+  const bt=[0,1,2,3,4].map(()=>el("circle",{r:4,style:"fill:#fff;stroke:#1e1b29"},gc));
+  const od=el("circle",{r:7,style:"fill:var(--violet);stroke:#fff;stroke-width:2.5"},gc);
+  legend(g,P.x,P.y+P.h+(narrow?34:36),narrow?[["var(--gold)","natural step"],["var(--ink)","plain gradient",1]]:[["var(--gold)","TRPO step, on the KL = δ boundary"],["var(--ink)","plain gradient, same length",1]],12);
+  const path=t=>{const u=smooth((t-5)/7);return[lerp(0,2.3,u),lerp(0,-1.3,u)];};
+  const solve=th=>{const p=pi(th),ab=p[0]*Av[0]+p[1]*Av[1]+p[2]*Av[2],gv=[p[0]*(Av[0]-ab),p[1]*(Av[1]-ab)];
+    const F=[[p[0]-p[0]*p[0],-p[0]*p[1]],[-p[0]*p[1],p[1]-p[1]*p[1]]],det=F[0][0]*F[1][1]-F[0][1]*F[1][0],Fi=[[F[1][1]/det,-F[0][1]/det],[-F[1][0]/det,F[0][0]/det]];
+    const d=[Fi[0][0]*gv[0]+Fi[0][1]*gv[1],Fi[1][0]*gv[0]+Fi[1][1]*gv[1]],gFg=gv[0]*d[0]+gv[1]*d[1],beta=Math.sqrt(2*dl/gFg);
+    const tries=[];let j=0,nt;for(;j<5;j++){const s=beta*.5**j;nt=[th[0]+s*d[0],th[1]+s*d[1]];const kl=KL(th,nt);tries.push({nt,kl,ok:kl<=dl&&L(nt)>L(th)});if(kl<=dl&&L(nt)>L(th))break;}
+    const tr=(F[0][0]+F[1][1])/2,dd=Math.sqrt(((F[0][0]-F[1][1])/2)**2+F[0][1]**2),l1=tr+dd,l2=tr-dd,ang=Math.atan2(l1-F[0][0],F[0][1]||1e-9);
+    return{p,gv,d,beta,tries,ax:[Math.sqrt(2*dl/l1),Math.sqrt(2*dl/l2)],ang};};
+  return{t0:0,t1:14,rest:14,speed:1,label:"",
+    update(t){const th=path(t),S=solve(th),[a1,a2]=S.ax,c=Math.cos(S.ang),s=Math.sin(S.ang);let d="";for(let k=0;k<=64;k++){const q=k/64*2*Math.PI,x=th[0]+a1*Math.cos(q)*c-a2*Math.sin(q)*s,y=th[1]+a1*Math.cos(q)*s+a2*Math.sin(q)*c;d+=(k?"L":"M")+sx(x).toFixed(1)+" "+sy(y).toFixed(1);}ell.setAttribute("d",d+"Z");
+      od.setAttribute("cx",sx(th[0]));od.setAttribute("cy",sy(th[1]));const fin=S.tries[S.tries.length-1].nt,len=Math.hypot(fin[0]-th[0],fin[1]-th[1]),gl=Math.hypot(S.gv[0],S.gv[1]);
+      na.setAttribute("x1",sx(th[0]));na.setAttribute("y1",sy(th[1]));na.setAttribute("x2",sx(fin[0]));na.setAttribute("y2",sy(fin[1]));
+      ga.setAttribute("x1",sx(th[0]));ga.setAttribute("y1",sy(th[1]));ga.setAttribute("x2",sx(th[0]+S.gv[0]/gl*len));ga.setAttribute("y2",sy(th[1]+S.gv[1]/gl*len));
+      bt.forEach((b,i)=>{const tr=S.tries[i];if(!tr||i===S.tries.length-1){b.setAttribute("opacity",0);return;}b.setAttribute("opacity",1);b.setAttribute("cx",sx(tr.nt[0]));b.setAttribute("cy",sy(tr.nt[1]));});},
+    readout(t){const th=path(t),S=solve(th),last=S.tries[S.tries.length-1],len=Math.hypot(last.nt[0]-th[0],last.nt[1]-th[1]);
+      return[["old policy π",S.p.map(v=>v.toFixed(2)).join(" · ")+"  (good · bad · neutral)"],["KL budget δ","0.05"],["exact KL of the step",last.kl.toFixed(3)+(S.tries.length>1?`  after ${S.tries.length-1} halving${S.tries.length>2?"s":""}`:"")],["step length in θ",len.toFixed(2)],["gain in the surrogate",sgn(L(last.nt)-L(th),3)]];}};
+};
+
+/* 5.5 PPO's clipped objective, with the four cases worked in the PPO note (epsilon 0.2) */
+BUILD.ppo=(svg,W,H)=>{
+  const narrow=W<520,g=el("g",{},svg),eps=.2,CASES=[[1.5,2],[1.5,-2],[.6,2],[.6,-2]],D=3.4;
+  const ph=(H-92)/2,x0=narrow?40:56,pw=W-x0-(narrow?14:28);
+  const Lc=(f,A)=>Math.min(f*A,clamp(f,1-eps,1+eps)*A);
+  const P=[2,-2].map((A,i)=>{const y=40+i*(ph+30),fr=frame(g,{x:x0,y,w:pw,h:ph},{x0:0,x1:2,y0:A>0?0:-4,y1:A>0?4:0,yt:A>0?[0,2,4]:[0,-2,-4],yf:v=>mn(v,0),xt:i?[0,.8,1,1.2,2]:[],xf:v=>v.toString(),xl:i?"ratio φ = π_new(a|s) / π_old(a|s)":""});
+    el("rect",{x:fr.sx(.8),y,width:fr.sx(1.2)-fr.sx(.8),height:ph,style:"fill:var(--accent);fill-opacity:.08"},g);
+    let du="",dc="";for(let f=0;f<=2.0001;f+=.02){du+=(f?"L":"M")+fr.sx(f).toFixed(1)+" "+fr.sy(f*A).toFixed(1);dc+=(f?"L":"M")+fr.sx(f).toFixed(1)+" "+fr.sy(Lc(f,A)).toFixed(1);}
+    el("path",{d:du,style:"fill:none;stroke:var(--faint);stroke-width:1.6;stroke-dasharray:5 4"},g);el("path",{d:dc,style:`fill:none;stroke:${A>0?"var(--good)":"var(--bad)"};stroke-width:3.4`},g);
+    const flat=A>0?[1.2,2]:[0,.8];el("line",{x1:fr.sx(flat[0]),x2:fr.sx(flat[1]),y1:fr.sy(Lc((flat[0]+flat[1])/2,A))+(A>0?-9:9),y2:fr.sy(Lc((flat[0]+flat[1])/2,A))+(A>0?-9:9),style:"stroke:var(--ink-2);stroke-width:1;stroke-dasharray:2 3"},g);
+    el("text",{x:fr.sx((flat[0]+flat[1])/2),y:fr.sy(Lc((flat[0]+flat[1])/2,A))+(A>0?-14:22),"text-anchor":"middle",class:"ax",text:"flat: no gradient"},g);
+    el("text",{x:x0+8,y:y+16,class:"labb",style:`fill:${A>0?"var(--good)":"var(--bad)"}`,text:A>0?"advantage A = +2 (a good action)":"advantage A = −2 (a bad action)"},g);
+    const dot=el("circle",{r:8,style:`fill:${A>0?"var(--good)":"var(--bad)"};stroke:var(--sheet);stroke-width:2.5`},g),un=el("circle",{r:5,style:"fill:none;stroke:var(--faint);stroke-width:2"},g),tag=el("text",{class:"labb halo","text-anchor":"middle"},g);
+    return{A,fr,dot,un,tag};});
+  const at=t=>{const i=clamp(Math.floor(t/D),0,3);return{i,u:clamp((t-i*D)/(D*.55),0,1)};};
+  return{t0:0,t1:4*D-.01,rest:4*D-.01,speed:1,label:"",
+    update(t){const{i,u}=at(t),[f,A]=CASES[i],phi=lerp(1,f,ease(u));P.forEach(p=>{const on=p.A===A;[p.dot,p.un,p.tag].forEach(e=>e.style.opacity=on?1:0);if(!on)return;
+      p.dot.setAttribute("cx",p.fr.sx(phi));p.dot.setAttribute("cy",p.fr.sy(Lc(phi,A)));p.un.setAttribute("cx",p.fr.sx(phi));p.un.setAttribute("cy",p.fr.sy(phi*A));
+      p.tag.setAttribute("x",p.fr.sx(phi));p.tag.setAttribute("y",p.fr.sy(Lc(phi,A))+(A>0?-14:24));p.tag.textContent=u>=1?"uses "+mn(Lc(f,A),1):"";});},
+    readout(t){const{i}=at(t),[f,A]=CASES[i],un=f*A,cl=clamp(f,1-eps,1+eps)*A,ch=Math.min(un,cl),grad=ch===un&&!(un===cl);
+      return[["case",`${i+1} of 4 (from the PPO note)`],["φ and A",`φ = ${f}, A = ${sgn(A,0)}`],["unclipped φA",mn(un,1)],["clipped",mn(cl,1)],["min picks",mn(ch,1)+(grad?"  → gradient flows (fix a mistake)":"  → no gradient (already moved enough)")]];}};
+};
+
+/* 5.6 GRPO: eight answers to one prompt, graded against each other */
+BUILD.grpo=(svg,W,H)=>{
+  const R=once("grpo",()=>grpoHist(40,3,.04)),narrow=W<600,g=el("g",{},svg),G=8,CS=["var(--c8)","var(--c2)","var(--c1)","var(--c3)"],PR=[10,30,60,90];
+  const cw=(W-(narrow?16:40))/G,cx0=narrow?8:20,cy=44,ch=narrow?50:62;
+  el("text",{x:cx0,y:24,class:"ttl",text:"One prompt, 8 sampled answers"},g);const rnd=el("text",{x:W-(narrow?8:20),y:24,"text-anchor":"end",class:"disp",style:"font-size:22px"},g);
+  const cards=[];for(let i=0;i<G;i++){const x=cx0+i*cw;const r=el("rect",{x:x+4,y:cy,width:cw-8,height:ch,style:"fill:var(--cell)"},g);const mk=el("text",{x:x+cw/2,y:cy+ch*.5,"text-anchor":"middle",class:"disp",style:`font-size:${narrow?20:26}px;fill:#fff`},g);const sub=el("text",{x:x+cw/2,y:cy+ch-8,"text-anchor":"middle",class:"mono",style:"font-size:9px;fill:#fff;font-weight:700"},g);cards.push({r,mk,sub});}
+  const ay=cy+ch+(narrow?58:72),ah=narrow?40:52;el("line",{x1:cx0,x2:cx0+G*cw,y1:ay,y2:ay,class:"axl"},g);
+  el("text",{x:cx0,y:ay-ah-8,class:"ax",text:narrow?"advantage Â = (r − mean) / std":"advantage Â = (r − mean) / std  (the group is its own baseline)"},g);
+  const adv=[];for(let i=0;i<G;i++)adv.push({b:el("rect",{x:cx0+i*cw+cw*.25,width:cw*.5,rx:3},g),t:el("text",{x:cx0+i*cw+cw/2,"text-anchor":"middle",class:"mono",style:"font-size:10px;font-weight:700"},g)});
+  const ms=el("text",{x:cx0+G*cw,y:ay+ah+18,"text-anchor":"end",class:"labb"},g);
+  const by=ay+ah+(narrow?34:44),Bb={x:cx0+(narrow?0:6),y:by+16,w:narrow?W-26:(W-60)*.42,h:H-by-(narrow?90:44)};
+  el("text",{x:Bb.x,y:by+6,class:"ttl",text:"Policy over 4 ways of answering"},g);
+  const pb=[0,1,2,3].map(a=>{const x=Bb.x+a*Bb.w/4;el("text",{x:x+Bb.w/8,y:Bb.y+Bb.h+14,"text-anchor":"middle",class:"ax",text:`right ${PR[a]}%`},g);return{b:el("rect",{x:x+5,width:Bb.w/4-10,rx:4,style:`fill:${CS[a]}`},g),t:el("text",{x:x+Bb.w/8,"text-anchor":"middle",class:"mono",style:"font-size:10px;font-weight:700"},g)};});
+  let fc=null,acc;if(!narrow){const Cb={x:W*.56,y:by+16,w:W*.4,h:H-by-60};fc=frame(g,Cb,{x0:0,x1:39,y0:0,y1:1,yt:[0,.5,1],yf:v=>Math.round(v*100)+"%",xt:[],yl:"chance an answer is right",xl:"rounds"});acc=el("path",{style:"fill:none;stroke:var(--accent);stroke-width:2.8"},g);}
+  const DT=.75,at=t=>clamp(Math.floor(t/DT),0,39);
+  return{t0:0,t1:40*DT-.01,rest:40*DT-.01,speed:1,label:"",
+    update(t){const k=at(t),r=R[k],u=(t-k*DT)/DT,show=u>.15,showA=u>.45;rnd.textContent=`Round ${k+1}`;
+      r.ans.forEach((a,i)=>{const c=cards[i];c.r.setAttribute("style",`fill:${show?CS[a.a]:"var(--cell)"};opacity:${show?(a.r?1:.45):1}`);c.mk.textContent=show?(a.r?"✓":"✗"):"";c.mk.setAttribute("y",cy+ch*.55);c.sub.textContent=show?`way ${a.a+1}`:"";
+        const h=showA?Math.min(ah,Math.abs(a.A)/2*ah):0,up=a.A>=0;adv[i].b.setAttribute("y",up?ay-h:ay);adv[i].b.setAttribute("height",h);adv[i].b.setAttribute("style",`fill:${up?"var(--good)":"var(--bad)"}`);
+        adv[i].t.setAttribute("y",up?ay-h-4:ay+h+12);adv[i].t.textContent=showA?sgn(a.A,2):"";});
+      ms.textContent=showA?(r.sd>0?`mean ${r.mu.toFixed(2)} · std ${r.sd.toFixed(2)}`:"all the same: std 0, no signal this round"):"";
+      const pi=showA&&k<39?R[k+1].pi:r.pi;pb.forEach((p,a)=>{const h=pi[a]*Bb.h;p.b.setAttribute("y",Bb.y+Bb.h-h);p.b.setAttribute("height",h);p.t.setAttribute("y",Bb.y+Bb.h-h-5);p.t.textContent=pct(pi[a]);});
+      if(fc){let d="";for(let j=0;j<=k;j++)d+=(j?"L":"M")+fc.sx(j).toFixed(1)+" "+fc.sy(R[j].acc).toFixed(1);acc.setAttribute("d",d);}},
+    readout(t){const k=at(t),r=R[k];return[["round",String(k+1)],["right this round",`${r.ans.filter(a=>a.r).length} of 8`],["mean, std",`${r.mu.toFixed(2)}, ${r.sd.toFixed(2)}`],["chance of a right answer",pct(r.acc)],["KL to the reference model",r.kl.toFixed(3)]];}};
+};
+
+/* 6.1 DPG / DDPG: a deterministic actor slides up the critic's slope */
+BUILD.ddpg=(svg,W,H)=>{
+  const narrow=W<520,g=el("g",{},svg),B={x:narrow?36:50,y:40,w:W-(narrow?46:74),h:H-100},A0=-1.4,A1=1.4;
+  const sx=s=>B.x+(s+1)/2*B.w,sy=a=>B.y+B.h-(a-A0)/(A1-A0)*B.h,best=s=>Math.sin(Math.PI*s),Q=(s,a)=>-((a-best(s))**2);
+  const NC=44,NR=28;for(let i=0;i<NC;i++)for(let j=0;j<NR;j++){const s=-1+(i+.5)*2/NC,a=A0+(j+.5)*(A1-A0)/NR;el("rect",{x:sx(s-1/NC),y:sy(a+(A1-A0)/NR/2),width:B.w/NC+.6,height:B.h/NR+.6,style:`fill:${heat(.04+.66*clamp(1+Q(s,a)/3,0,1))}`},g);}
+  let bd="";for(let s=-1;s<=1.001;s+=.02)bd+=(s===-1?"M":"L")+sx(s).toFixed(1)+" "+sy(best(s)).toFixed(1);el("path",{d:bd,style:"fill:none;stroke:#fff;stroke-width:2;stroke-dasharray:6 5;opacity:.9"},g);
+  el("text",{x:B.x,y:B.y+B.h+16,class:"ax",text:"state s →"},g);el("text",{x:B.x,y:B.y-8,class:"ax",text:narrow?"action a (colour = critic's Q)":"action a (colour = critic's Q(s, a); dashed = best action)"},g);
+  const actor=el("path",{style:"fill:none;stroke:#1e1b29;stroke-width:4.5;stroke-linecap:round"},g),actor2=el("path",{style:"fill:none;stroke:var(--violet);stroke-width:2.6;stroke-linecap:round"},g);
+  const SS=[-.9,-.675,-.45,-.225,0,.225,.45,.675,.9],arr=SS.map(()=>el("path",{style:"fill:#fff;stroke:#1e1b29;stroke-width:1"},g));
+  const noise=[];for(let i=0;i<26;i++)noise.push(el("circle",{r:2.6,style:"fill:#fff;opacity:.8"},g));
+  const bas=s=>[1,s,(3*s*s-1)/2,(5*s*s*s-3*s)/2];
+  const TH=once("ddpg",()=>{let th=[0,0,0,0];const out=[th.slice()];const grid=[];for(let i=0;i<=20;i++)grid.push(-1+i/10);for(let k=0;k<160;k++){const gr=[0,0,0,0];for(const s of grid){const b=bas(s),a=b.reduce((x,v,j)=>x+v*th[j],0),dq=-2*(a-best(s));b.forEach((v,j)=>gr[j]+=dq*v/grid.length);}th=th.map((v,j)=>v+[.5,1.2,2,2.6][j]*.03*gr[j]);out.push(th.slice());}return out;});
+  const act=(th,s)=>bas(s).reduce((x,v,j)=>x+v*th[j],0);const Rn=rng(5),NZ=[];for(let i=0;i<26;i++)NZ.push([-1+2*Rn(),gauss(Rn)*.12]);
+  const T=12,at=t=>clamp(Math.floor(160*clamp(t/T,0,1)),0,160);
+  return{t0:0,t1:T,rest:T,speed:1,label:"",
+    update(t){const k=at(t),th=TH[k];let d="";for(let s=-1;s<=1.001;s+=.02)d+=(s===-1?"M":"L")+sx(s).toFixed(1)+" "+sy(clamp(act(th,s),A0,A1)).toFixed(1);actor.setAttribute("d",d);actor2.setAttribute("d",d);
+      SS.forEach((s,i)=>{const a=act(th,s),dq=-2*(a-best(s)),len=clamp(dq*B.h*.09,-B.h*.18,B.h*.18),x=sx(s),y=sy(a),y2=y-len;
+        if(Math.abs(len)<4){arr[i].setAttribute("d","");return;}const dir=len>0?-1:1;arr[i].setAttribute("d",`M${x-2} ${y}L${x-2} ${y2-dir*7}L${x-7} ${y2-dir*7}L${x} ${y2}L${x+7} ${y2-dir*7}L${x+2} ${y2-dir*7}L${x+2} ${y}Z`);});
+      NZ.forEach(([s,e],i)=>{noise[i].setAttribute("cx",sx(s));noise[i].setAttribute("cy",sy(clamp(act(th,s)+e*((k*7+i)%5-2)/2,A0,A1)));});},
+    readout(t){const k=at(t),th=TH[k];let q=0,gq=0;for(let i=0;i<=20;i++){const s=-1+i/10,a=act(th,s);q+=Q(s,a)/21;gq+=Math.abs(2*(a-best(s)))/21;}
+      return[["actor updates",String(k)],["average Q at the actor's actions",mn(q,3)],["average slope |∂Q/∂a|",gq.toFixed(3)],["how",k<5?"no search over actions: just follow the slope":"θ moves along ∇ₐQ · ∇θ actor"]];}};
+};
+
+/* 6.2 TD3: an actor maximising a noisy critic finds its optimistic bumps; the min of two critics resists */
+BUILD.td3=(svg,W,H)=>{
+  const D=once("td3",()=>td3Draws(200,4)),narrow=W<560,g=el("g",{},svg);
+  const Tp={x:narrow?36:50,y:40,w:W-(narrow?46:74),h:(H-90)*.52},Hb={x:Tp.x,y:Tp.y+Tp.h+52,w:Tp.w,h:(H-90)*.34};
+  const ft=frame(g,Tp,{x0:-2,x1:2,y0:-1.6,y1:.6,yt:[-1.5,-1,-.5,0,.5],xt:[-2,0,2],xl:"action a",yl:"Q(a): true value and two noisy critics"});
+  const tq=el("path",{style:"fill:none;stroke:var(--faint);stroke-width:2.4;stroke-dasharray:6 4"},g);let d="";for(let a=-2;a<=2.001;a+=.04)d+=(a===-2?"M":"L")+ft.sx(a).toFixed(1)+" "+ft.sy(Math.max(-1.6,-a*a)).toFixed(1);tq.setAttribute("d",d);
+  const q1=el("path",{style:"fill:none;stroke:var(--B);stroke-width:2"},g),q2=el("path",{style:"fill:none;stroke:var(--A);stroke-width:2"},g),qm=el("path",{style:"fill:none;stroke:var(--ink);stroke-width:3.4"},g);
+  const d1=el("circle",{r:6,style:"fill:var(--B);stroke:var(--sheet);stroke-width:2"},g),dm=el("circle",{r:6,style:"fill:var(--ink);stroke:var(--sheet);stroke-width:2"},g),g1=el("line",{style:"stroke:var(--B);stroke-width:2"},g),gm=el("line",{style:"stroke:var(--ink);stroke-width:2"},g);
+  legend(g,Tp.x,Tp.y+Tp.h+26,narrow?[["var(--B)","critic 1"],["var(--A)","critic 2"],["var(--ink)","min"]]:[["var(--faint)","true Q",1],["var(--B)","critic 1"],["var(--A)","critic 2"],["var(--ink)","min of the two"]],12);
+  const BN=24,LO=-.3,HI=.5,fh=frame(g,Hb,{x0:LO,x1:HI,y0:0,y1:1,yt:[],xt:[-.2,0,.2,.4],xl:"overestimate at the chosen action",yl:"over 200 random critics"});
+  el("line",{x1:fh.sx(0),x2:fh.sx(0),y1:Hb.y,y2:Hb.y+Hb.h,class:"z"},g);
+  const hb={s:[],m:[]};for(const k of ["s","m"])for(let i=0;i<BN;i++)hb[k].push(el("rect",{x:fh.sx(LO+i*(HI-LO)/BN)+1,width:Hb.w/BN-2,rx:1.5,style:`fill:${k==="s"?"var(--B)":"var(--ink-2)"};fill-opacity:.5`},g));
+  const at=t=>t<14?Math.floor(t/.35):clamp(40+Math.floor((t-14)/4*160),40,199);
+  const curve=f=>{let s="";for(let a=-2;a<=2.001;a+=.04)s+=(a===-2?"M":"L")+ft.sx(a).toFixed(1)+" "+ft.sy(clamp(f(a),-1.6,.6)).toFixed(1);return s;};
+  return{t0:0,t1:18.5,rest:18.5,speed:1,label:"",
+    update(t){const k=clamp(at(t),0,199),x=D[k];q1.setAttribute("d",curve(a=>-a*a+x.n1(a)));q2.setAttribute("d",curve(a=>-a*a+x.n2(a)));qm.setAttribute("d",curve(a=>-a*a+Math.min(x.n1(a),x.n2(a))));
+      d1.setAttribute("cx",ft.sx(x.a1));d1.setAttribute("cy",ft.sy(-x.a1*x.a1+x.b1));dm.setAttribute("cx",ft.sx(x.am));dm.setAttribute("cy",ft.sy(-x.am*x.am+x.bm));
+      g1.setAttribute("x1",ft.sx(x.a1));g1.setAttribute("x2",ft.sx(x.a1));g1.setAttribute("y1",ft.sy(-x.a1*x.a1));g1.setAttribute("y2",ft.sy(-x.a1*x.a1+x.b1));
+      gm.setAttribute("x1",ft.sx(x.am));gm.setAttribute("x2",ft.sx(x.am));gm.setAttribute("y1",ft.sy(-x.am*x.am));gm.setAttribute("y2",ft.sy(-x.am*x.am+x.bm));
+      const cs=new Array(BN).fill(0),cm=new Array(BN).fill(0);for(let j=0;j<=k;j++){const bs=Math.floor((D[j].b1-LO)/(HI-LO)*BN),bm=Math.floor((D[j].bm-LO)/(HI-LO)*BN);if(bs>=0&&bs<BN)cs[bs]++;if(bm>=0&&bm<BN)cm[bm]++;}
+      const mx=Math.max(4,...cs,...cm);for(let i=0;i<BN;i++){const h1=cs[i]/mx*Hb.h,h2=cm[i]/mx*Hb.h;hb.s[i].setAttribute("y",Hb.y+Hb.h-h1);hb.s[i].setAttribute("height",h1);hb.m[i].setAttribute("y",Hb.y+Hb.h-h2);hb.m[i].setAttribute("height",h2);}},
+    readout(t){const k=clamp(at(t),0,199),x=D[k],ms=D.slice(0,k+1).reduce((a,v)=>a+v.b1,0)/(k+1),mm=D.slice(0,k+1).reduce((a,v)=>a+v.bm,0)/(k+1);
+      return[["random critic pair",`${k+1} of 200`],["this one: critic 1 overestimates",sgn(x.b1,3)],["this one: the min overestimates",sgn(x.bm,3)],["average so far",`single ${sgn(ms,3)} · min ${sgn(mm,3)}`]];}};
+};
+
+/* 6.3 The reparameterization trick: same expectation, far less noise */
+BUILD.reparam=(svg,W,H)=>{
+  const narrow=W<520,g=el("g",{},svg),NS=1200,R=rng(8),E=[];for(let i=0;i<NS;i++)E.push(gauss(R));
+  const sf=E.map(e=>(1+e)**2*e),rp=E.map(e=>2*(1+e));const RM=[sf,rp].map(a=>{let s=0;return a.map((v,i)=>(s+=v)/(i+1));});
+  const B={x:narrow?20:40,y:64,w:W-(narrow?32:72),h:(H-150)*.46},LO=-10,HI=14,BN=48;const fr=frame(g,B,{x0:LO,x1:HI,y0:0,y1:1,yt:[],xt:[-10,-5,0,2,5,10],xl:narrow?"one-sample estimates":"one-sample estimates (score-function: piled near 0, long tails)"});
+  const C={x:B.x+(narrow?16:24),y:B.y+B.h+58,w:B.w-(narrow?16:24),h:(H-150)*.4};const fc=frame(g,C,{x0:0,x1:NS,y0:-1,y1:5,yt:[0,2,4],xt:[0,600,1200],xl:"samples averaged",yl:"running average (should settle at 2)"});
+  el("rect",{x:C.x,y:fc.sy(2.1),width:C.w,height:fc.sy(1.9)-fc.sy(2.1),style:"fill:var(--good);fill-opacity:.25"},g);
+  const rmS=el("path",{style:"fill:none;stroke:var(--B);stroke-width:2.4"},g),rmR=el("path",{style:"fill:none;stroke:var(--A);stroke-width:2.4"},g);
+  el("line",{x1:fr.sx(2),x2:fr.sx(2),y1:B.y-6,y2:B.y+B.h,style:"stroke:var(--ink);stroke-width:2;stroke-dasharray:5 4"},g);el("text",{x:fr.sx(2)+6,y:B.y+8,class:"labb",text:"true value 2"},g);
+  const hb={s:[],r:[]};for(const k of ["s","r"])for(let i=0;i<BN;i++)hb[k].push(el("rect",{x:fr.sx(LO+i*(HI-LO)/BN)+1,width:B.w/BN-2,rx:1.5,style:`fill:${k==="s"?"var(--B)":"var(--A)"};fill-opacity:${k==="s"?.6:.75}`},g));
+  legend(g,B.x,24,narrow?[["var(--B)","score function"],["var(--A)","reparameterised"]]:[["var(--B)","score function: z² · (z − μ)"],["var(--A)","reparameterised: 2(μ + ε)"]],14);
+  el("text",{x:B.x,y:44,class:"ax",text:narrow?"z = μ + ε, μ = 1, ε ~ N(0, 1)":"z ~ N(μ = 1, 1), written as z = μ + ε with ε ~ N(0, 1)"},g);
+  const T=14,at=t=>clamp(Math.floor(NS*Math.pow(clamp(t/T,0,1),1.4)),1,NS);
+  const st=a=>{const m=a.reduce((x,y)=>x+y,0)/a.length;return{m,sd:Math.sqrt(a.reduce((x,y)=>x+(y-m)**2,0)/a.length)};};
+  return{t0:0,t1:T,rest:T,speed:1,label:"",
+    update(t){const n=at(t),cs=new Array(BN).fill(0),cr=new Array(BN).fill(0);for(let i=0;i<n;i++){const a=Math.floor((sf[i]-LO)/(HI-LO)*BN),b=Math.floor((rp[i]-LO)/(HI-LO)*BN);if(a>=0&&a<BN)cs[a]++;if(b>=0&&b<BN)cr[b]++;}
+      const mx=Math.max(3,...cs,...cr);for(let i=0;i<BN;i++){const h1=cs[i]/mx*B.h,h2=cr[i]/mx*B.h;hb.s[i].setAttribute("y",B.y+B.h-h1);hb.s[i].setAttribute("height",h1);hb.r[i].setAttribute("y",B.y+B.h-h2);hb.r[i].setAttribute("height",h2);}
+      const st=Math.max(1,Math.floor(n/300));for(const [p,a] of [[rmS,RM[0]],[rmR,RM[1]]]){let d="";for(let i=0;i<n;i+=st)d+=(i?"L":"M")+fc.sx(i).toFixed(1)+" "+fc.sy(clamp(a[i],-1,5)).toFixed(1);p.setAttribute("d",d);}},
+    readout(t){const n=at(t),a=st(sf.slice(0,n)),b=st(rp.slice(0,n));return[["samples",String(n)],["score function",`mean ${a.m.toFixed(2)}, spread ${a.sd.toFixed(1)} (theory: 2, √30 ≈ 5.5)`],["reparameterised",`mean ${b.m.toFixed(2)}, spread ${b.sd.toFixed(1)} (theory: 2, 2)`],["samples for ±5%",`about ${Math.round(30/.01)} vs ${Math.round(4/.01)}`]];}};
+};
+
+/* 6.4 SAC: the best Gaussian for reward plus entropy, as the temperature alpha falls */
+BUILD.sac=(svg,W,H)=>{
+  const narrow=W<520,g=el("g",{},svg),AL=[];for(let i=0;i<=60;i++)AL.push(Math.exp(Math.log(.5)+(Math.log(.02)-Math.log(.5))*i/60));
+  /* Q is a sum of two Gaussian bumps (width 0.3), so E[Q] under a Gaussian policy has a closed form */
+  const EQ=(mu,s)=>{const v=.09+s*s,k=.3/Math.sqrt(v);return 1.0*k*Math.exp(-((mu-1.1)**2)/(2*v))+.9*k*Math.exp(-((mu+1.1)**2)/(2*v));};
+  const OPT=once("sac",()=>AL.map(al=>{let best=[0,1,1e9];for(let mu=-2;mu<=2.0001;mu+=.02)for(let k=0;k<=80;k++){const s=Math.exp(Math.log(.05)+k/80*(Math.log(2.6)-Math.log(.05)));const J=-al*(.5*Math.log(2*Math.PI*Math.E*s*s))-EQ(mu,s);if(J<best[2])best=[mu,s,J];}
+    return{mu:best[0],s:best[1],H:.5*Math.log(2*Math.PI*Math.E*best[1]**2),eq:EQ(best[0],best[1])};}));
+  const B={x:narrow?16:36,y:56,w:W-(narrow?32:72),h:H-130};const sx=a=>B.x+(a+3)/6*B.w,sy=v=>B.y+B.h-v*B.h*.88;
+  let dq="";for(let a=-3;a<=3.001;a+=.03)dq+=(a===-3?"M":"L")+sx(a).toFixed(1)+" "+sy(sacQ(a)).toFixed(1);
+  const tgt=el("path",{style:"fill:var(--gold);fill-opacity:.25;stroke:var(--gold);stroke-width:1.6"},g);
+  el("path",{d:dq,style:"fill:none;stroke:var(--ink);stroke-width:2.4"},g);el("line",{x1:B.x,x2:B.x+B.w,y1:sy(0),y2:sy(0),class:"axl"},g);
+  el("text",{x:sx(1.1)+(narrow?18:26),y:sy(.92),class:"labb",text:"Q = 1.0"},g);el("text",{x:sx(-1.1)-(narrow?18:26),y:sy(.84),"text-anchor":"end",class:"labb",text:"Q = 0.9"},g);
+  const pol=el("path",{style:"fill:var(--accent);fill-opacity:.18;stroke:var(--accent);stroke-width:3"},g);
+  const R=rng(12),EPS=[];for(let i=0;i<40;i++)EPS.push(gauss(R));const dots=EPS.map(()=>el("circle",{r:3.4,style:"fill:var(--accent)"},g));
+  legend(g,B.x,24,narrow?[["var(--ink)","Q(a)"],["var(--gold)","exp(Q/α)"],["var(--accent)","policy"]]:[["var(--ink)","critic Q(a)"],["var(--gold)","soft target ∝ exp(Q/α)"],["var(--accent)","best Gaussian policy"]],14);
+  const alT=el("text",{x:B.x+B.w,y:B.y+14,"text-anchor":"end",class:"disp",style:`font-size:${narrow?20:26}px`},g);
+  el("text",{x:B.x,y:B.y+B.h+16,class:"ax",text:"action a"},g);
+  const T=12,idx=t=>clamp((t/T)*60,0,60);
+  return{t0:0,t1:T,rest:T,speed:1,label:"",
+    update(t){const x=idx(t),i=Math.floor(x),f=x-i,A=OPT[i],Bq=OPT[Math.min(60,i+1)],mu=lerp(A.mu,Bq.mu,f),s=lerp(A.s,Bq.s,f),al=Math.exp(lerp(Math.log(AL[i]),Math.log(AL[Math.min(60,i+1)]),f));
+      let z=0;const xs=[];for(let a=-3;a<=3.001;a+=.03){const v=Math.exp((sacQ(a)-1)/al);xs.push([a,v]);z+=v*.03;}let d=`M${sx(-3)} ${sy(0)}`;for(const [a,v] of xs)d+=`L${sx(a).toFixed(1)} ${sy(Math.min(1.1,v/z*.55)).toFixed(1)}`;tgt.setAttribute("d",d+`L${sx(3)} ${sy(0)}Z`);
+      let pd=`M${sx(-3)} ${sy(0)}`;for(let a=-3;a<=3.001;a+=.03){const v=Math.exp(-((a-mu)**2)/(2*s*s))/(s*Math.sqrt(2*Math.PI));pd+=`L${sx(a).toFixed(1)} ${sy(Math.min(1.1,v*.55)).toFixed(1)}`;}pol.setAttribute("d",pd+`L${sx(3)} ${sy(0)}Z`);
+      dots.forEach((c,j)=>{c.setAttribute("cx",sx(clamp(mu+s*EPS[j],-3,3)));c.setAttribute("cy",sy(0)+8+(j%4)*5);});alT.textContent="α = "+(al>=.1?al.toFixed(2):al.toFixed(3));},
+    readout(t){const x=Math.round(idx(t)),o=OPT[x];return[["temperature α",AL[x]>=.1?AL[x].toFixed(2):AL[x].toFixed(3)],["policy mean, width",`${o.mu.toFixed(2)}, ${o.s.toFixed(2)}`],["entropy",o.H.toFixed(2)],["expected Q",o.eq.toFixed(3)],["reading",o.s>.9?"spread over both peaks: keeps exploring":o.mu>.6?"committed to the higher peak":"in between"]];}};
+};
+
+/* ---------- figures: chapter 7 (safety, data, search) and the course map ---------- */
+
+/* 7.1 Constrained RL: the plain Lagrange multiplier (integral-only) overshoots; PID damps it. Illustrative plant. */
+BUILD.cmdp=(svg,W,H)=>{
+  const I=once("pidi",()=>pidHist("i")),P=once("pidp",()=>pidHist("pid")),N=400,narrow=W<520,g=el("g",{},svg);
+  const x0=narrow?36:50,w=W-x0-(narrow?12:28),h1=(H-110)*.6,h2=(H-110)*.4;
+  const fc=frame(g,{x:x0,y:58,w,h:h1},{x0:0,x1:N,y0:0,y1:5,yt:[0,1,2,3,4,5],xt:[],yl:"cost per episode (limit = 1)"});
+  el("line",{x1:x0,x2:x0+w,y1:fc.sy(1),y2:fc.sy(1),style:"stroke:var(--bad);stroke-width:2;stroke-dasharray:6 4"},g);
+  el("text",{x:x0+w-4,y:fc.sy(1)-6,"text-anchor":"end",class:"labb",style:"fill:var(--bad)",text:"limit"},g);
+  const fl=frame(g,{x:x0,y:58+h1+36,w,h:h2-14},{x0:0,x1:N,y0:0,y1:3,yt:[0,1,2,3],xt:[0,200,400],xl:"training updates",yl:"multiplier λ (the price of cost)"});
+  const aI=el("path",{style:"fill:var(--B);fill-opacity:.18"},g),aP=el("path",{style:"fill:var(--A);fill-opacity:.22"},g);
+  const cI=el("path",{style:"fill:none;stroke:var(--B);stroke-width:2.6"},g),cP=el("path",{style:"fill:none;stroke:var(--A);stroke-width:2.6"},g);
+  const lI=el("path",{style:"fill:none;stroke:var(--B);stroke-width:2.2"},g),lP=el("path",{style:"fill:none;stroke:var(--A);stroke-width:2.2"},g);
+  legend(g,x0,18,narrow?[["var(--B)","plain λ"],["var(--A)","PID λ"]]:[["var(--B)","plain gradient ascent on λ (integral only)"],["var(--A)","PID Lagrangian"]],14);
+  const T=16,at=t=>clamp(Math.floor((N-1)*clamp(t/T,0,1)),0,N-1);
+  const line=(D,k,key,fr,cap)=>{let d="";for(let j=0;j<=k;j++)d+=(j?"L":"M")+fr.sx(j).toFixed(1)+" "+fr.sy(Math.min(cap,D[j][key])).toFixed(1);return d;};
+  const area=(D,k)=>{let d="";let on=false;for(let j=0;j<=k;j++){const c=Math.min(5,D[j].c);if(c>1){if(!on){d+=`M${fc.sx(j).toFixed(1)} ${fc.sy(1)}`;on=true;}d+=`L${fc.sx(j).toFixed(1)} ${fc.sy(c).toFixed(1)}`;}else if(on){d+=`L${fc.sx(j).toFixed(1)} ${fc.sy(1)}Z`;on=false;}}if(on)d+=`L${fc.sx(k).toFixed(1)} ${fc.sy(1)}Z`;return d;};
+  const stat=(D,k)=>{let pk=0,ar=0,cr=0;for(let j=0;j<=k;j++){pk=Math.max(pk,D[j].c);ar+=Math.max(0,D[j].c-1);if(j&&(D[j].c-1)*(D[j-1].c-1)<0)cr++;}return{pk,ar,cr};};
+  return{t0:0,t1:T,rest:T,speed:1,label:"illustrative",
+    update(t){const k=at(t);cI.setAttribute("d",line(I,k,"c",fc,5));cP.setAttribute("d",line(P,k,"c",fc,5));lI.setAttribute("d",line(I,k,"lam",fl,3));lP.setAttribute("d",line(P,k,"lam",fl,3));aI.setAttribute("d",area(I,k));aP.setAttribute("d",area(P,k));},
+    readout(t){const k=at(t),a=stat(I,k),b=stat(P,k);return[["update",String(k+1)],["plain λ",`peak cost ${a.pk.toFixed(2)}, ${a.cr} crossings, excess ${a.ar.toFixed(0)}`],["PID λ",`peak cost ${b.pk.toFixed(2)}, ${b.cr} crossings, excess ${b.ar.toFixed(0)}`]];}};
+};
+
+/* 7.2 Offline RL with Implicit Q-Learning: an upper expectile of the data, never the unseen action */
+BUILD.iql=(svg,W,H)=>{
+  const R=rng(5),xs=[];for(let i=0;i<300;i++)xs.push(.45+.18*gauss(R));const OOD=1.6,mean=xs.reduce((a,b)=>a+b)/xs.length,mx=Math.max(...xs);
+  const narrow=W<560,g=el("g",{},svg),B={x:narrow?20:36,y:56,w:W-(narrow?32:72),h:(H-110)*.6},LO=-.2,HI=1.8,BN=40;
+  const fr=frame(g,B,{x0:LO,x1:HI,y0:0,y1:1,yt:[],xt:[0,.5,1,1.5],xl:"Q(s, a) for actions in the data"});
+  const cnt=new Array(BN).fill(0);for(const x of xs){const b=Math.floor((x-LO)/(HI-LO)*BN);if(b>=0&&b<BN)cnt[b]++;}const cm=Math.max(...cnt);
+  cnt.forEach((c,i)=>el("rect",{x:fr.sx(LO+i*(HI-LO)/BN)+1,width:B.w/BN-2,y:B.y+B.h-c/cm*B.h*.8,height:c/cm*B.h*.8,style:"fill:var(--c2);fill-opacity:.75"},g));
+  el("rect",{x:fr.sx(OOD)-5,width:10,y:B.y+B.h*.35,height:B.h*.65,rx:3,style:"fill:none;stroke:var(--bad);stroke-width:2;stroke-dasharray:4 3"},g);
+  el("text",{x:fr.sx(OOD),y:B.y+B.h*.35-24,"text-anchor":"middle",class:"labb",style:"fill:var(--bad)",text:narrow?"unseen action":"an action never in the data"},g);
+  el("text",{x:fr.sx(OOD),y:B.y+B.h*.35-10,"text-anchor":"middle",class:"ax",text:"(over-valued: 1.6)"},g);
+  const vline=(x,c,dash)=>el("line",{x1:fr.sx(x),x2:fr.sx(x),y1:B.y,y2:B.y+B.h,style:`stroke:${c};stroke-width:2;${dash?"stroke-dasharray:5 4":""}`},g);
+  vline(mean,"var(--ink-2)",1);vline(mx,"var(--gold)",1);
+  el("text",{x:fr.sx(mean)-4,y:B.y+10,"text-anchor":"end",class:"lab",text:"mean"},g);el("text",{x:fr.sx(mx)+4,y:B.y+10,class:"lab",style:"fill:var(--gold)",text:"best in data"},g);
+  const ev=el("line",{y1:B.y-6,y2:B.y+B.h,style:"stroke:var(--violet);stroke-width:4"},g),et=el("text",{class:"labb halo",style:"fill:var(--violet)","text-anchor":"middle"},g);
+  const L={x:B.x+8,y:B.y+B.h+62,w:narrow?B.w-16:B.w*.42,h:H-B.y-B.h-90};
+  el("text",{x:L.x,y:L.y-10,class:"ax",text:"loss on the error u = Q − V"},g);
+  const fl=frame(g,L,{x0:-1,x1:1,y0:0,y1:1,yt:[],xt:[-1,0,1],grid:false});const lc=el("path",{style:"fill:none;stroke:var(--violet);stroke-width:2.6"},g);
+  const TS=[.5,.7,.9,.99],D=3.2,tau=t=>{const i=Math.floor(t/D);if(i>=3)return .99;const u=smooth((t-i*D-1.8)/1.4);return lerp(TS[i],TS[i+1],u);};
+  return{t0:0,t1:3*D+1.4,rest:3*D+1.4,speed:1,label:"",
+    update(t){const tu=tau(t),m=expectile(xs,tu);ev.setAttribute("x1",fr.sx(m));ev.setAttribute("x2",fr.sx(m));et.setAttribute("x",fr.sx(m));et.setAttribute("y",B.y-12);et.textContent=`V = expectile ${tu.toFixed(2)}`;
+      let d="";for(let u=-1;u<=1.001;u+=.02){const w=u<0?1-tu:tu;d+=(u===-1?"M":"L")+fl.sx(u).toFixed(1)+" "+fl.sy(w*u*u).toFixed(1);}lc.setAttribute("d",d);},
+    readout(t){const tu=tau(t),m=expectile(xs,tu);return[["τ",tu.toFixed(2)+(tu<=.5?"  (plain average, like SARSA)":tu>.95?"  (close to the best in the data)":"")],["V(s)",m.toFixed(3)],["mean, best in data",`${mean.toFixed(3)}, ${mx.toFixed(3)}`],["unseen action",`${OOD} (never used)`]];}};
+};
+
+/* 7.3 AlphaZero-style search at one position: the prior leads early, then the visits follow value */
+BUILD.mcts=(svg,W,H)=>{
+  const M=once("mcts",()=>mctsHist(800,3,1.5)),narrow=W<560,g=el("g",{},svg),n=6,CS=["var(--c1)","var(--c2)","var(--c3)","var(--c4)","var(--c5)","var(--c6)"];
+  const root=[W/2,44],cy=narrow?120:136,cw=(W-(narrow?16:40))/n,x0=narrow?8:20;
+  el("circle",{cx:root[0],cy:root[1],r:16,style:"fill:var(--sheet);stroke:var(--ink);stroke-width:2"},g);el("text",{x:root[0]+24,y:root[1]+5,class:"lab",text:"the position to move from"},g);
+  const edges=[],nodes=[];for(let i=0;i<n;i++){const x=x0+cw*i+cw/2;edges.push(el("line",{x1:root[0],y1:root[1]+16,x2:x,y2:cy-16,style:"stroke:var(--faint);stroke-width:1.4"},g));
+    nodes.push(el("circle",{cx:x,cy,r:14,style:`fill:${CS[i]}`},g));el("text",{x,y:cy+5,"text-anchor":"middle",style:"font-size:12px;font-weight:800;fill:#fff",text:String(i+1)},g);}
+  const by=cy+40,bh=H-by-(narrow?70:76);el("line",{x1:x0,x2:x0+n*cw,y1:by+bh,y2:by+bh,class:"axl"},g);
+  const vb=[],pb=[],vt=[],qt=[];for(let i=0;i<n;i++){const x=x0+cw*i;pb.push(el("rect",{x:x+cw*.12,width:cw*.2,rx:3,style:`fill:${CS[i]};fill-opacity:.3`},g));vb.push(el("rect",{x:x+cw*.36,width:cw*.5,rx:4,style:`fill:${CS[i]}`},g));
+    vt.push(el("text",{x:x+cw*.61,"text-anchor":"middle",class:"mono",style:"font-size:10px;font-weight:700"},g));qt.push(el("text",{x:x+cw/2,y:by+bh+16,"text-anchor":"middle",class:"mono",style:"font-size:10px"},g));
+    el("text",{x:x+cw/2,y:by+bh+30,"text-anchor":"middle",class:"ax",text:`win ${Math.round(M.W[i]*100)}%`},g);}
+  el("text",{x:x0,y:by-8,class:"ax",text:narrow?"faint = prior P · solid = visits N":"faint bar = network's prior P · solid bar = visits N (the training target)"},g);
+  const T=16,at=t=>clamp(Math.floor(800*Math.pow(clamp(t/T,0,1),2.2)),1,800);
+  return{t0:0,t1:T,rest:T,speed:1,label:"slow, then fast",
+    update(t){const k=at(t),o=M.out[k-1],tot=k;for(let i=0;i<n;i++){const share=o.N[i]/tot,h=share*bh*.92,hp=M.P[i]*bh*.92;vb[i].setAttribute("y",by+bh-h);vb[i].setAttribute("height",h);pb[i].setAttribute("y",by+bh-hp);pb[i].setAttribute("height",hp);
+        vt[i].setAttribute("y",by+bh-h-5);vt[i].textContent=o.N[i]?String(o.N[i]):"";qt[i].textContent=o.N[i]?"Q "+sgn(o.Q[i],2):"Q n/a";
+        edges[i].setAttribute("style",i===o.b?`stroke:${CS[i]};stroke-width:3.5`:"stroke:var(--faint);stroke-width:1.4");nodes[i].setAttribute("r",i===o.b?17:14);}},
+    readout(t){const k=at(t),o=M.out[k-1];let b=0;for(let i=1;i<n;i++)if(o.N[i]>o.N[b])b=i;return[["simulations",String(k)+" of 800"],["this one explored","move "+(o.b+1)],["most visited",`move ${b+1}, ${pct(o.N[b]/k)} of visits`],["prior's favourite","move 1: "+o.N[0]+" visits"]];}};
+};
+
+/* 7.4 Cross-Entropy Method: sample, keep the best, refit, repeat */
+BUILD.cem=(svg,W,H)=>{
+  const C=once("cem",()=>cemHist(4)),narrow=W<520,g=el("g",{},svg),side=Math.min(W-(narrow?24:60),H-90),B={x:(W-side)/2,y:40,w:side,h:side},R0=2.6;
+  const sx=v=>B.x+(v+R0)/(2*R0)*B.w,sy=v=>B.y+B.h-(v+R0)/(2*R0)*B.h;
+  const NC=44;for(let i=0;i<NC;i++)for(let j=0;j<NC;j++){const x=-R0+(i+.5)*2*R0/NC,y=-R0+(j+.5)*2*R0/NC;el("rect",{x:sx(x-R0/NC),y:sy(y+R0/NC),width:B.w/NC+.6,height:B.h/NC+.6,style:`fill:${heat(.04+.72*cemV(x,y))}`},g);}
+  el("text",{x:sx(1.1),y:sy(.7)-18,"text-anchor":"middle",class:"labb halo",text:"best (1.0)"},g);el("text",{x:sx(-1.2),y:sy(-.9)+28,"text-anchor":"middle",class:"labb halo",text:"decoy (0.7)"},g);
+  const e2=el("ellipse",{style:"fill:none;stroke:var(--ink);stroke-width:1.4;stroke-dasharray:5 4"},g),e1=el("ellipse",{style:"fill:var(--ink);fill-opacity:.06;stroke:var(--ink);stroke-width:2.4"},g);
+  const dots=[];for(let i=0;i<80;i++)dots.push(el("circle",{r:3.6},g));
+  const hd=el("text",{x:B.x,y:28,class:"disp",style:"font-size:22px"},g);const sub=el("text",{x:B.x+B.w,y:28,"text-anchor":"end",class:"lab"},g);
+  const IT=8,D=1.9,at=t=>{const i=clamp(Math.floor(t/D),0,IT-1);return{i,u:clamp((t-i*D)/D,0,1)};};
+  return{t0:0,t1:IT*D,rest:IT*D,speed:1,label:"",
+    update(t){const{i,u}=at(t),c=C[i],nx=C[Math.min(C.length-1,i+1)],m=u>.62?smooth((u-.62)/.38):0;const mu=[lerp(c.m[0],nx.m[0],m),lerp(c.m[1],nx.m[1],m)],sd=[lerp(c.s[0],nx.s[0],m),lerp(c.s[1],nx.s[1],m)];
+      for(const [e,k] of [[e1,1],[e2,2]]){e.setAttribute("cx",sx(mu[0]));e.setAttribute("cy",sy(mu[1]));e.setAttribute("rx",sd[0]*k*B.w/(2*R0));e.setAttribute("ry",sd[1]*k*B.h/(2*R0));}
+      const shown=Math.floor(clamp(u/.32,0,1)*80);c.pts.forEach((p,j)=>{const d=dots[j];if(j>=shown||m>.9){d.setAttribute("opacity",0);return;}d.setAttribute("cx",sx(clamp(p.x,-R0,R0)));d.setAttribute("cy",sy(clamp(p.y,-R0,R0)));
+        const elite=j<12;d.setAttribute("opacity",u>.36?(elite?1:.25):.85);d.setAttribute("style",u>.36&&elite?"fill:var(--gold);stroke:#1e1b29;stroke-width:1.2":"fill:#fff;stroke:#1e1b29;stroke-width:.8");d.setAttribute("r",u>.36&&elite?5:3.4);});
+      hd.textContent=`Round ${i+1}`;sub.textContent=u<.36?"sample 80 actions":u<.62?"keep the best 12":"refit the Gaussian to them";},
+    readout(t){const{i}=at(t),c=C[i];return[["round",String(i+1)],["bar to make the cut γₜ",c.thr.toFixed(3)],["best sample",c.best.toFixed(3)],["centre of the search",`(${c.m[0].toFixed(2)}, ${c.m[1].toFixed(2)})`]];}};
+};
+
+/* Wrap-up: the course as a transit map; each station links to its note */
+const MAP=[[1,"The problem",[["about-rl","About RL"],["mdp","MDPs"]]],[2,"Planning",[["value-functions-and-policies","Values & policies"],["dynamic-programming-for-mdps","DP for MDPs"],["policy-and-value-iteration-proofs","DP proofs"]]],
+ [3,"Experience",[["model-free-prediction","MF prediction"],["model-free-control","MF control"],["importance-sampling","Importance sampling"]]],
+ [4,"Approximation",[["prediction-with-function-approximation","Approx. prediction"],["on-policy-control-with-function-approximation","On-policy"],["off-policy-control-with-function-approximation","Off-policy"],["learnability-of-rl-objectives","Learnability"],["the-deadly-triad","Deadly triad"],["deep-q-learning","Deep Q-learning"],["double-q-learning","Double Q"]]],
+ [5,"Policy",[["policy-gradients","Policy gradients"],["actor-critic","Actor-critic"],["kl-divergence","KL divergence"],["trpo","TRPO"],["conjugate-gradient-method","Conjugate grad."],["ppo","PPO"],["grpo","GRPO"]]],
+ [6,"Continuous",[["ddpg","DPG & DDPG"],["td3","TD3"],["reparameterization-trick","Reparam. trick"],["sac","SAC"]]],
+ [7,"Safety & data",[["constrained-mdps","Constrained MDPs"],["cpo","CPO"],["pid-lagrangian","PID Lagrangian"],["off-policy-evaluation","Off-policy eval."],["implicit-q-learning","Implicit Q"],["policy-distillation","Distillation"],["successor-features","Successor"]]],
+ [8,"Search & more",[["alphazero","AlphaZero"],["cem","Cross-entropy"],["nn-verification","NN verification"],["drl-verification","DRL verification"],["transformer","Transformer"],["backpropagation","Backprop"],["TabPFN","TabPFN"]]]];
+BUILD.map=(svg,W,H)=>{
+  const narrow=W<600,g=el("g",{},svg),rows=MAP.length,top=narrow?24:30,rh=(H-top-20)/rows,lx=narrow?8:110,rx=W-(narrow?10:24);
+  const pts=[];MAP.forEach(([c,name,st],r)=>{const y=top+r*rh+rh*.42,n=st.length,sp=(rx-lx)/Math.max(n,1),dir=r%2?-1:1;
+    const xs=st.map((_,i)=>dir>0?lx+sp*(i+.5):rx-sp*(i+.5));
+    if(!narrow)el("text",{x:8,y:y+4,class:"labb",style:`fill:var(--c${c})`,text:name},g);
+    el("line",{x1:Math.min(...xs)-10,x2:Math.max(...xs)+10,y1:y,y2:y,style:`stroke:var(--c${c});stroke-width:${narrow?5:7};stroke-linecap:round`},g);
+    st.forEach(([slug,lab],i)=>{const a=el("a",{href:`https://mattlanders.net/${slug}.html`,target:"_blank"},g);el("circle",{cx:xs[i],cy:y,r:narrow?4.5:6.5,style:`fill:var(--sheet);stroke:var(--c${c});stroke-width:3`},a);
+      if(!narrow||i===0||i===n-1)el("text",{x:xs[i],y:y+(narrow?14:19),"text-anchor":"middle",class:"lab",style:`font-size:${narrow?8.5:10}px`,text:lab},a);pts.push([xs[i],y,c]);});
+    if(narrow)el("text",{x:dir>0?lx:rx,y:y-9,"text-anchor":dir>0?"start":"end",class:"labb",style:`fill:var(--c${c});font-size:10px`,text:`${name} · ${n}`},g);});
+  for(let i=1;i<pts.length;i++){const a=pts[i-1],b=pts[i];if(a[1]!==b[1]){const mx=a[0];el("path",{d:`M${a[0]} ${a[1]}C${mx+(b[0]>W/2?40:-40)} ${a[1]} ${b[0]+(b[0]>W/2?40:-40)} ${b[1]} ${b[0]} ${b[1]}`,style:"fill:none;stroke:var(--faint);stroke-width:2;stroke-dasharray:3 4"},g);}}
+  const train=el("circle",{r:narrow?6:8,style:"fill:var(--ink);stroke:var(--sheet);stroke-width:3"},g);
+  const T=pts.length*.55;
+  return{t0:0,t1:T,rest:T,speed:1,label:"",
+    update(t){const x=clamp(t/.55,0,pts.length-1),i=Math.floor(x),u=ease(x-i),a=pts[i],b=pts[Math.min(pts.length-1,i+1)];train.setAttribute("cx",lerp(a[0],b[0],u));train.setAttribute("cy",lerp(a[1],b[1],u));train.setAttribute("style",`fill:var(--c${a[2]});stroke:var(--sheet);stroke-width:3`);},
+    readout(t){const i=clamp(Math.round(t/.55),0,pts.length-1);let k=0,name="",row=0;for(const [c,nm,st] of MAP){if(i<k+st.length){name=st[i-k][1];row=nm;break;}k+=st.length;}return[["note",`${i+1} of ${pts.length}: ${name}`],["line",row],["tip","click a station to open the note"]];}};
+};
+
+/* ---------- the pages ---------- */
+const CH=[{name:"Start"},{name:"The problem"},{name:"Values and planning"},{name:"Learning from experience"},{name:"Values at scale"},{name:"Learning the policy"},{name:"Continuous actions"},{name:"Safety, data, search"},{name:"Wrap-up"}];
+const chk=(q,a)=>`<div class="check"><p><b>Check yourself.</b> ${q}</p><details><summary>Show the answer</summary><p>${a}</p></details></div>`;
+const PAGES=[
+ {id:"start",ch:0,no:"0",title:"Learning by doing",sub:"a visual companion to Matt Landers' RL notes",fig:{kind:"cover"},figno:"Exhibit 0",figtitle:"A robot learns the cliff",notes:[["about-rl","About RL"]],html:`
+  <p class="lead">Most machine learning copies examples. Reinforcement learning (RL) learns from results: try something, see how it turns out, do more of what worked.</p>
+  <p>This companion walks through <a href="https://mattlanders.net/about-rl.html" target="_blank" rel="noopener">Matt Landers' RL notes</a> in their order, from the basic setup to PPO, GRPO and AlphaZero. One robot and one cliff carry the first half of the course.</p>
+  <p>On the right, the robot is learning to cross a grid without stepping off the cliff. Its first tries wander for hundreds of moves. Watch the episodes shrink, and watch the squares fill with colour as it learns what each one is worth.</p>
+  <p class="note">Turn pages with the arrow keys, the scroll wheel, a swipe or the arrows at the top. Each figure has Play, Replay and a scrubber. Figures run real simulations in your browser unless they say “illustrative”.</p>
+  <p class="note">The notes and their derivations are Matt Landers'. The plain-words explanations and figures here are an independent companion; every page links to the note it follows, for the full maths. The page format is inspired by Atlas of Physics.</p>`},
+
+ {id:"why",ch:1,no:"1.1",title:"Copy the crowd, or chase the outcome",sub:"why RL is different",fig:{kind:"outcome"},figno:"Exhibit 1.1",figtitle:"Data shows what people do",notes:[["about-rl","About RL"]],html:`
+  <p class="lead">A model trained on human examples learns what people usually do. RL learns what works.</p>
+  <p>Large generative models fit the distribution of human-made text and images, so they reproduce typical human behaviour. RL is outcome-driven: it gets a number for how well things turned out and changes its behaviour to push that number up.</p>
+  <p>That is how AlphaGo found Move 37 against Lee Sedol, a move top players first read as a mistake. On the right, the grey bars are people's moves and the dashed line is a model that copies them. The <span class="key">blue</span> RL policy climbs toward the best outcome, into territory the data barely covers.</p>
+  <p>RL suits sequential decisions: each action changes what you can do next, the rules may be unknown, and the only feedback is a reward.</p>
+  <p class="note">The figure is a one-dimensional sketch, not real Go data.</p>`},
+ {id:"loop",ch:1,no:"1.2",title:"The loop",sub:"agent, environment, repeat",fig:{kind:"loop"},figno:"Exhibit 1.2",figtitle:"One step at a time",notes:[["mdp","MDPs"]],html:`
+  <p class="lead">At every time step the agent sees a state, picks an action, and the environment answers with the next state and a reward.</p>
+  <p>The robot is the agent. The grid is the environment. The robot never sees the rules; it only sees where it ended up and the number it got.</p>
+  <div class="eq">s<sub>0</sub>, a<sub>0</sub>, r<sub>1</sub>, s<sub>1</sub>, a<sub>1</sub>, r<sub>2</sub>, s<sub>2</sub>, …<small>The reward for action a<sub>t</sub> arrives with the next state, so it is written r<sub>t+1</sub>.</small></div>
+  <p>Watch move 7. The robot steps off the cliff, gets <span class="kbad">−100</span> and lands back at the start. Nothing tells it why. It has to work that out from the numbers.</p>`},
+ {id:"mdp",ch:1,no:"1.3",title:"The world as an MDP",sub:"five pieces",fig:{kind:"mdp"},figno:"Exhibit 1.3",figtitle:"⟨S, A, P, R, γ⟩",notes:[["mdp","MDPs"]],html:`
+  <p class="lead">A Markov decision process (MDP) is the formal version of the loop: states, actions, transition probabilities, rewards and a discount factor.</p>
+  <table class="t"><tr><th>piece</th><th>in the cliff world</th></tr>
+  <tr><td>S, states</td><td>48 squares</td></tr><tr><td>A, actions</td><td>up, right, down, left</td></tr>
+  <tr><td>P, transitions</td><td>where a move lands, with what probability</td></tr><tr><td>R, rewards</td><td>−1 per move, −100 for the cliff</td></tr><tr><td>γ, discount</td><td>how much later rewards count</td></tr></table>
+  <p><b>Markov</b> means the present is enough: where you go next depends only on where you are and what you do, not on how you got there.</p>
+  <p class="note">Cliff walking is a standard example from Sutton and Barto; the course uses it in the Model-Free Control note. The robot starts at S and the episode ends at the star.</p>`},
+ {id:"return",ch:1,no:"1.4",title:"Return and discount",sub:"what the agent adds up",fig:{kind:"ret"},figno:"Exhibit 1.4",figtitle:"One episode, three values of γ",notes:[["mdp","MDPs"]],html:`
+  <p class="lead">The agent's score is its return: the sum of rewards, with each later reward shrunk by γ for every step of delay.</p>
+  <div class="eq">G<sub>t</sub> = r<sub>t+1</sub> + <span class="hl">γ</span> r<sub>t+2</sub> + <span class="hl">γ²</span> r<sub>t+3</sub> + …</div>
+  <p>With γ = 1 every reward counts in full and this episode scores −119. With γ = 0.9 it scores −61.4. With γ = 0.5 it scores −3.55, and the fall barely registers because it happens on move 7.</p>
+  <p>So γ sets how far ahead the agent cares. It also keeps the sum finite when an episode could go on forever.</p>
+  ${chk("Why does a small γ make the agent careless about a cliff that is far away?","A fall k moves away counts 100 × γᵏ today. At γ = 0.5 and six moves out, that is about 1.6, less than two ordinary moves.")}`},
+
+ {id:"value",ch:2,no:"2.1",title:"What a state is worth",sub:"values and policies",fig:{kind:"tiny"},figno:"Exhibit 2.1",figtitle:"The course's two-branch example",notes:[["value-functions-and-policies","Value Functions & Policies"]],html:`
+  <p class="lead">A state's value is the return you can expect from it. That depends on what you do next, so a value is always for a policy π.</p>
+  <p>This is the note's example, with γ = 0.9. From s₀, action <span class="kB">a₀</span> earns 2, then 8, then −3. Action <span class="kA">a₁</span> earns 1, then 5, then 2.</p>
+  <p>a₀ starts better and holds the biggest single reward. After discounting, a₁ is worth more: 7.12 against 6.77.</p>
+  <div class="eq">V<sub>π</sub>(s) = E<sub>π</sub>[ G<sub>t</sub> | s<sub>t</sub> = s ]&nbsp;&nbsp;&nbsp; Q<sub>π</sub>(s, a) = E<sub>π</sub>[ G<sub>t</sub> | s<sub>t</sub> = s, a<sub>t</sub> = a ]</div>
+  <p>V scores a state. Q scores a state plus a first action. A policy can be deterministic (one move per state) or stochastic (a probability for each move).</p>`},
+ {id:"bellman",ch:2,no:"2.2",title:"Bellman: one step, then trust the rest",sub:"the recursion behind everything",fig:{kind:"mrp"},figno:"Exhibit 2.2",figtitle:"Every start ends at the same point",notes:[["value-functions-and-policies","Value Functions & Policies"],["policy-and-value-iteration-proofs","DP Proofs"]],html:`
+  <p class="lead">The Bellman equation says a state's value is the next reward plus γ times the value of where you land.</p>
+  <div class="eq">V<sub>π</sub>(s) = Σ<sub>a</sub> π(a|s) [ R(s,a) + <span class="hl">γ</span> Σ<sub>s′</sub> P(s,a,s′) V<sub>π</sub>(s′) ]</div>
+  <p>In the note's two-state example, s₁ stays with probability 0.8 (+15) or moves with 0.2 (−10); s₂ returns with 0.6 (+15) or stays with 0.4 (−10). Solving the two linear equations gives v = (89.02, 82.93).</p>
+  <p>You can also apply the equation over and over. On the right, 18 start points, wherever they begin, all slide to the same star. Each sweep shrinks the gap between any two of them by at least a factor of γ = 0.9.</p>
+  <p class="note">That shrinking is a contraction. The proofs note uses it, with Banach's fixed-point theorem, to show that policy evaluation and value iteration always converge to one answer.</p>`},
+ {id:"vi",ch:2,no:"2.3",title:"Value iteration",sub:"planning with a known map",fig:{kind:"vi"},figno:"Exhibit 2.3",figtitle:"Values spread back from the star",notes:[["dynamic-programming-for-mdps","DP for MDPs"]],html:`
+  <p class="lead">If you know P and R, you can compute the best values directly: repeatedly set each square to its best one-step lookahead.</p>
+  <div class="eq">V(s) ← max<sub>a</sub> [ R(s,a) + γ Σ<sub>s′</sub> P(s,a,s′) V(s′) ]</div>
+  <p>Here γ = 1, so a square's value is minus the number of moves to the star. Everything starts at 0. Each sweep, correct values spread one square further back from the goal (the <span class="kgold">gold</span> outlines), and the arrows show the best move so far.</p>
+  <p>After 13 sweeps the start reads −13: the route along the cliff edge. Updating a guess from other guesses is called <b>bootstrapping</b>, and most of RL does it.</p>`},
+ {id:"pi",ch:2,no:"2.4",title:"Policy iteration",sub:"evaluate, improve, repeat",fig:{kind:"pi"},figno:"Exhibit 2.4",figtitle:"From random moves to the best route",notes:[["dynamic-programming-for-mdps","DP for MDPs"],["policy-and-value-iteration-proofs","DP Proofs"]],html:`
+  <p class="lead">Policy iteration alternates two steps: work out what the current policy is worth, then switch every square to its best move under those values.</p>
+  <p>It starts from the random policy (each move 25%), with γ = 0.9. Near the cliff that policy is very costly, so the first improvement mostly says one thing: get away from the edge.</p>
+  <p>That improved policy never reaches the star (its start value is −10, an endless walk). The next rounds pull a route in from the goal. By iteration 7 the route is optimal, and iteration 8 changes nothing.</p>
+  <p>Each round is a strict improvement and there are finitely many policies, so it must stop. Value iteration is the special case that evaluates for one sweep before improving. The course calls the general pattern generalised policy iteration (GPI).</p>`},
+ {id:"slip",ch:2,no:"2.5",title:"A slippery floor",sub:"P shapes the best route",fig:{kind:"slip"},figno:"Exhibit 2.5",figtitle:"Safer routes as slipping rises",notes:[["mdp","MDPs"],["dynamic-programming-for-mdps","DP for MDPs"]],html:`
+  <p class="lead">Make the floor slippery and the best route changes, even though the rewards don't.</p>
+  <p>With slip s, a move goes in a random direction s of the time. Walking the edge now risks a −100 fall, so value iteration (γ = 0.99) picks routes further from the cliff: 13 moves at 0%, 15 at 5% and 10%, 17 at 20%.</p>
+  <p>The robot pays extra moves for safety. Remember this on the SARSA page: an agent that knows it sometimes stumbles should keep its distance.</p>
+  ${chk("The robot's own random exploring is a kind of slippery floor. Which kind of learner will take the safe route?","One that learns the value of the policy it actually follows, stumbles included. That is SARSA, on page 3.4.")}`},
+
+ {id:"mctd",ch:3,no:"3.1",title:"Learn from what happened",sub:"Monte Carlo and TD, without a map",fig:{kind:"mctd"},figno:"Exhibit 3.1",figtitle:"Same two episodes, two learners",notes:[["model-free-prediction","Model-Free Prediction"]],html:`
+  <p class="lead">Without P and R you can't plan. You can still learn values from experience: follow the policy and keep score.</p>
+  <p><span class="kB">Monte Carlo</span> (MC) waits until the episode ends, then moves each visited square toward the return that actually followed. Its target is real, so it is unbiased, but returns are noisy and episodes must end.</p>
+  <p><span class="kA">Temporal-difference learning</span>, TD(0), updates after every move, from the reward it just got plus its current guess for the next square:</p>
+  <div class="eq">V(s<sub>t</sub>) ← V(s<sub>t</sub>) + α [ r<sub>t+1</sub> + γ V(s<sub>t+1</sub>) − V(s<sub>t</sub>) ]<small>The bracket is the TD error δ<sub>t</sub>. Here α = 0.5 and γ = 1.</small></div>
+  <p>After one episode, MC already puts the start at −8.5; TD only knows each square cost about 0.5. TD learns sooner and online, but it leans on guesses, so its early answers are biased.</p>`},
+ {id:"lambda",ch:3,no:"3.2",title:"How far to look",sub:"n-step returns and TD(λ)",fig:{kind:"nstep"},figno:"Exhibit 3.2",figtitle:"One dial from TD(0) to Monte Carlo",notes:[["model-free-prediction","Model-Free Prediction"]],html:`
+  <p class="lead">TD(0) and Monte Carlo are two ends of one dial: how many real rewards to use before trusting a guess.</p>
+  <p>An n-step return adds n real rewards, then the estimated value of the state it reached. n = 1 is TD(0). Letting n run to the end of the episode is Monte Carlo.</p>
+  <p>TD(λ) averages all of them: the 1-step return gets weight (1 − λ), the 2-step (1 − λ)λ, and so on. λ = 0 is TD(0) and λ = 1 is Monte Carlo.</p>
+  <div class="eq">G<sup>λ</sup><sub>t</sub> = (1 − λ) Σ<sub>n</sub> λ<sup>n−1</sup> G<sub>t:t+n</sub></div>
+  <p>The note also covers the backward view: an eligibility trace keeps a fading memory of recently visited states, so each TD error can update all of them while the agent is still moving.</p>`},
+ {id:"explore",ch:3,no:"3.3",title:"Explore or exploit",sub:"ε-greedy",fig:{kind:"egreedy"},figno:"Exhibit 3.3",figtitle:"How often the best move gets picked",notes:[["model-free-control","Model-Free Control"]],html:`
+  <p class="lead">To find the best move you have to try moves that currently look worse. ε-greedy is the simplest way.</p>
+  <p>With probability 1 − ε, take the move with the highest Q. With probability ε, pick any move at random, the best one included. With four moves, the best one's chance is 1 − ε + ε/4.</p>
+  <p>In this square, a random pick can mean stepping off the cliff. At ε = 0.1 that happens about 1 time in 40. Exploring has a real cost, and the next page shows two learners that account for it differently.</p>`},
+ {id:"sarsa",ch:3,no:"3.4",title:"SARSA vs Q-learning",sub:"on-policy vs off-policy, on the cliff",fig:{kind:"cliff"},figno:"Exhibit 3.4",figtitle:"Safe route vs best route",notes:[["model-free-control","Model-Free Control"]],html:`
+  <p class="lead">Both learn Q-values after every move. They differ in one term: which next move they assume.</p>
+  <div class="eq"><span class="kA">SARSA</span>: r + γ Q(s′, a′)<br><span class="kB">Q-learning</span>: r + γ max<sub>a′</sub> Q(s′, a′)</div>
+  <p>SARSA uses the move it will actually take next, exploration included, so it learns the value of its own ε-greedy behaviour. Q-learning uses the best next move, so it learns the greedy policy while still behaving ε-greedily. That makes it off-policy.</p>
+  <p>With ε = 0.1 and α = 0.5, as in the note, Q-learning finds the optimal route along the edge, but its random steps keep throwing it off the cliff: about −51 per episode while learning. SARSA learns that the edge is dangerous for an agent that stumbles, takes the top route and earns about −27.</p>
+  ${chk("Which route would SARSA learn if exploring stopped entirely (ε = 0)?","The edge route. With no random moves, SARSA's next move is the greedy one, so its target equals Q-learning's and both learn the 13-move path.")}`},
+ {id:"is",ch:3,no:"3.5",title:"Importance sampling",sub:"learning about one policy from another's data",fig:{kind:"is"},figno:"Exhibit 3.5",figtitle:"Weights collapse as the horizon grows",notes:[["importance-sampling","Importance Sampling"],["off-policy-evaluation","Off-Policy Evaluation"]],html:`
+  <p class="lead">Off-policy learning uses data from a behaviour policy π<sub>β</sub> to learn about a different target policy π. Importance sampling reweights each sample by how much more, or less, likely π was to produce it.</p>
+  <div class="eq">E<sub>π</sub>[ f ] = E<sub>π<sub>β</sub></sub>[ π(x) / π<sub>β</sub>(x) · f(x) ]<small>For a whole trajectory the weight is a product of per-step ratios. The unknown transition probabilities cancel, so you never need P.</small></div>
+  <p>Here the behaviour policy picks two actions 50/50 and the target picks the first 90% of the time, so each step multiplies a trajectory's weight by 1.8 or 0.2.</p>
+  <p>The estimate stays unbiased in theory, but over long horizons nearly every weight collapses toward zero while a rare few explode. At 20 steps only about 9 of 300 trajectories still count, and the average weight, which should be 1, has drifted to 0.05 because the huge ones were never drawn.</p>
+  <p class="note">That is why n-step methods cap the product at n steps, and why off-policy evaluation mixes in learned models (the doubly robust estimator).</p>`},
+
+ {id:"approx",ch:4,no:"4.1",title:"From tables to functions",sub:"prediction with function approximation",fig:{kind:"approx"},figno:"Exhibit 4.1",figtitle:"Two weights, nineteen states",notes:[["prediction-with-function-approximation","Prediction with Approx."],["on-policy-control-with-function-approximation","On-Policy Control"]],html:`
+  <p class="lead">Real problems have too many states for a table (the note's Tetris example has about 10<sup>62</sup>). So we fit a function V̂(s; θ) with far fewer weights than states.</p>
+  <p>With fewer weights than states the fit can't be exact everywhere. The objective weights each state's error by μ(s), how often the policy visits it:</p>
+  <div class="eq">VE(θ) = Σ<sub>s</sub> μ(s) [ V<sub>π</sub>(s) − V̂(s; θ) ]²</div>
+  <p>This 19-state random walk starts in the middle, so the middle is visited most. A straight line (two weights) learned by gradient Monte Carlo tracks the true values well there and misses at the ends.</p>
+  <p>With TD the target itself depends on θ. The usual update ignores that dependence, which is why it is called <b>semi-gradient</b>. For control, the same idea gives semi-gradient SARSA with Q̂(s, a; θ).</p>`},
+ {id:"triad",ch:4,no:"4.2",title:"The deadly triad",sub:"three good ideas that diverge together",fig:{kind:"triad"},figno:"Exhibit 4.2",figtitle:"Values explode when all three meet",notes:[["the-deadly-triad","The Deadly Triad"],["off-policy-control-with-function-approximation","Off-Policy Control"],["learnability-of-rl-objectives","Learnability"]],html:`
+  <p class="lead">Function approximation, bootstrapping and off-policy training are each useful. Together they can make value estimates blow up.</p>
+  <p>The note's example has six states, seven weights and zero reward everywhere, so every true value is 0 and θ = 0 would fit it exactly. The behaviour policy spreads visits over all six states; the target policy always goes to s₆.</p>
+  <p>Watch the ratchet (α = 0.1, all weights 1). Each update from an upper state toward s₆ raises θ₇, which raises s₆'s estimate, which raises the next target: θ₇ goes 1.294, 1.704, 2.276, 3.074, 4.188. The one update from s₆ to itself pulls it back only to about 4.08.</p>
+  <p>Over 1,000 expected sweeps (α = 0.01) the largest estimate passes 10<sup>12</sup>. Remove any one leg, with a table instead of shared features, Monte Carlo targets instead of bootstrapping, or on-policy weighting, and it stays bounded.</p>`},
+ {id:"dqn",ch:4,no:"4.3",title:"Deep Q-learning",sub:"two tricks that keep it stable",fig:{kind:"dqn"},figno:"Exhibit 4.3",figtitle:"Replay buffer and target network",notes:[["deep-q-learning","Deep Q-Learning"]],html:`
+  <p class="lead">Deep Q-learning (DQN) replaces the Q-table with a neural network that takes a state and outputs a value for every action.</p>
+  <p>Trained naively it is unstable: consecutive moves are nearly identical, and the target keeps shifting because it comes from the network being trained. DQN adds two fixes:</p>
+  <ul class="l"><li><b>Experience replay.</b> Store moves in a buffer and train on random mini-batches. This breaks up runs of similar moves and reuses data.</li><li><b>A target network.</b> Compute targets with a frozen copy θ⁻ and refresh it only now and then, so the goal holds still between copies.</li></ul>
+  <div class="eq">δ = r + γ max<sub>a′</sub> Q(s′, a′; <span class="hl">θ⁻</span>) − Q(s, a; θ)</div>
+  <p class="note">In the chart the target (light blue) moves in steps at each copy and the online estimate (gold) chases it. The note also flags a sign trap: with loss (target − prediction)², the update is +α δ ∇Q.</p>`},
+ {id:"doubleq",ch:4,no:"4.4",title:"Double Q-learning",sub:"the max is an optimist",fig:{kind:"doubleq"},figno:"Exhibit 4.4",figtitle:"Max of noise is not zero",notes:[["double-q-learning","Double Q-Learning"]],html:`
+  <p class="lead">The max of noisy estimates is biased upward, even when each estimate on its own is unbiased.</p>
+  <p>Here every action is truly worth 0 and each estimate has noise between −1 and +1. The largest of m estimates averages (m − 1)/(m + 1): 0.6 with four actions and 0.82 with ten. Q-learning's max builds this optimism into every target.</p>
+  <p>The fix is to keep two estimates. Let Qᴬ choose the action and Qᴮ score it. Qᴮ's noise has nothing to do with Qᴬ's choice, so the score is unbiased.</p>
+  <div class="eq">Y = r + γ Q<sup>B</sup>( s′, argmax<sub>a′</sub> Q<sup>A</sup>(s′, a′) )</div>
+  <p>Double DQN reuses the target network as the second estimator.</p>
+  ${chk("With 10 actions and noise uniform in [−1, 1], how much does the plain max overestimate on average?","About 0.82, from (m − 1)/(m + 1) = 9/11.")}`},
+
+ {id:"pg",ch:5,no:"5.1",title:"Policy gradients",sub:"skip the values, tune the policy",fig:{kind:"pg"},figno:"Exhibit 5.1",figtitle:"Why REINFORCE divides by π(a)",notes:[["policy-gradients","Policy Gradients"]],html:`
+  <p class="lead">Instead of learning values and acting greedily, policy-gradient methods adjust the policy's parameters θ directly, uphill on expected return.</p>
+  <p>They handle continuous actions, can represent stochastic policies, and change probabilities smoothly as θ moves, unlike ε-greedy, which jumps.</p>
+  <div class="eq">θ ← θ + α G<sub>t</sub> ∇ ln π(a<sub>t</sub>|s<sub>t</sub>; θ) = θ + α G<sub>t</sub> ∇π(a<sub>t</sub>|s<sub>t</sub>) / <span class="hl">π(a<sub>t</sub>|s<sub>t</sub>)</span><small>REINFORCE. The policy gradient theorem makes this possible without differentiating the state distribution.</small></div>
+  <p>The division by π(a) is what makes it fair. Common actions are sampled more often, so without it they get pushed up just for being common. On the right, arms pay 0.2, 0.5 and 0.8, and the policy starts mostly on the 0.5 arm. REINFORCE finds the 0.8 arm; the version without 1/π locks onto the 0.5 arm.</p>`},
+ {id:"ac",ch:5,no:"5.2",title:"Actor and critic",sub:"a learned critic cuts the noise",fig:{kind:"ac"},figno:"Exhibit 5.2",figtitle:"A tighter learning signal",notes:[["actor-critic","Actor-Critic Framework"]],html:`
+  <p class="lead">REINFORCE is a Monte Carlo method: its signal G<sub>t</sub> adds up the noise of every later step. Actor-critic swaps it for the critic's TD error.</p>
+  <div class="eq">δ<sub>t</sub> = r<sub>t+1</sub> + γ V(s<sub>t+1</sub>) − V(s<sub>t</sub>)&nbsp;&nbsp;&nbsp; θ ← θ + α <span class="hl">δ<sub>t</sub></span> ∇ ln π(a<sub>t</sub>|s<sub>t</sub>)</div>
+  <p>The critic learns the value of the actor's current policy, not the optimal one. The actor moves toward actions that turned out better than the critic expected.</p>
+  <p>On a 7-cell corridor with noisy step rewards (20 runs, same step size for both), the TD error's spread is about half the return's, and actor-critic settles on a shorter path to the goal.</p>
+  <p class="note">The note counts TRPO and PPO as actor-critic methods too. The corridor is an illustrative test, not from the note.</p>`},
+ {id:"kl",ch:5,no:"5.3",title:"KL divergence",sub:"how far apart two distributions are",fig:{kind:"kl"},figno:"Exhibit 5.3",figtitle:"Two directions, two answers",notes:[["kl-divergence","KL Divergence"]],html:`
+  <p class="lead">KL divergence measures how different two distributions are. The note builds it from importance sampling: it is the average log of the probability ratio.</p>
+  <div class="eq">D<sub>KL</sub>(p ‖ q) = E<sub>x∼p</sub>[ log p(x) / q(x) ]</div>
+  <p>It isn't symmetric, and the direction changes the answer. Fit one Gaussian to a target with two bumps:</p>
+  <ul class="l"><li><span class="key">Reverse KL(q‖p)</span> is mode-seeking. Mass where the target is empty is punished hard, so the fit locks onto one bump.</li><li><b>Forward KL(p‖q)</b> (dashed) is mean-seeking; it equals maximum likelihood. Missing a bump is punished, so the fit spreads over both, empty middle included.</li></ul>
+  <p>RL usually uses the reverse direction, because we can sample from our policy. Supervised learning uses the forward one, because we only have samples of data. Keeping KL between old and new policies small also keeps importance ratios near 1, the idea behind TRPO and PPO.</p>`},
+ {id:"trpo",ch:5,no:"5.4",title:"TRPO: a trust region",sub:"limit how far behaviour moves",fig:{kind:"trpo"},figno:"Exhibit 5.4",figtitle:"Same KL budget, different step",notes:[["trpo","TRPO"],["conjugate-gradient-method","Conjugate Gradient"]],html:`
+  <p class="lead">In RL the agent collects its own data, so one bad update can poison everything after it. TRPO takes the largest step that keeps the average KL to the old policy under δ.</p>
+  <div class="eq">max<sub>θ</sub> E[ π<sub>θ</sub>(a|s) / π<sub>old</sub>(a|s) · A(s,a) ]&nbsp; s.t.&nbsp; E[ D<sub>KL</sub>(π<sub>old</sub> ‖ π<sub>θ</sub>) ] ≤ δ</div>
+  <p>Expanding the KL to second order gives an ellipse in parameter space, shaped by the Fisher matrix. The best step inside it is the natural gradient, then a line search halves the step until the exact KL is under δ and the objective improves.</p>
+  <p>On the right, a three-action policy with two free parameters. While the policy is uncertain the ellipse is small. As it becomes nearly certain, the same budget allows a much longer step in θ. Equal parameter steps are not equal changes in behaviour.</p>
+  <p class="note">A real network's Fisher matrix is too big to build (the note's 8-100-100-2 example has 11,202 parameters, so over 125 million entries). TRPO finds the step with the conjugate gradient method, which needs only matrix-vector products.</p>`},
+ {id:"ppo",ch:5,no:"5.5",title:"PPO: clip the ratio",sub:"TRPO's idea, first-order and simple",fig:{kind:"ppo"},figno:"Exhibit 5.5",figtitle:"The note's four cases",notes:[["ppo","PPO"]],html:`
+  <p class="lead">PPO keeps the probability-ratio objective but clips the ratio φ to [1 − ε, 1 + ε], so it can take several cheap gradient steps on one batch without straying far.</p>
+  <div class="eq">L<sup>CLIP</sup> = E[ min( φ<sub>t</sub>A<sub>t</sub>,&nbsp; clip(φ<sub>t</sub>, 1−ε, 1+ε) A<sub>t</sub> ) ]</div>
+  <table class="t"><tr><th>φ</th><th>A</th><th class="num">unclipped</th><th class="num">clipped</th><th class="num">used</th><th>gradient</th></tr>
+  <tr><td>1.5</td><td>+2</td><td class="num">3</td><td class="num">2.4</td><td class="num">2.4</td><td>no</td></tr>
+  <tr><td>1.5</td><td>−2</td><td class="num">−3</td><td class="num">−2.4</td><td class="num">−3</td><td>yes</td></tr>
+  <tr><td>0.6</td><td>+2</td><td class="num">1.2</td><td class="num">1.6</td><td class="num">1.2</td><td>yes</td></tr>
+  <tr><td>0.6</td><td>−2</td><td class="num">−1.2</td><td class="num">−1.6</td><td class="num">−1.6</td><td>no</td></tr></table>
+  <p>With ε = 0.2, the min makes PPO pessimistic. Clipping only stops a sample from pushing further in a direction it has already moved enough. When the ratio has moved the wrong way, the full gradient stays, so the mistake gets corrected.</p>`},
+ {id:"grpo",ch:5,no:"5.6",title:"GRPO: grade on a curve",sub:"PPO for language models, without a critic",fig:{kind:"grpo"},figno:"Exhibit 5.6",figtitle:"Each answer scored against its group",notes:[["grpo","GRPO"]],html:`
+  <p class="lead">GRPO samples a group of answers to the same prompt and scores each one against the group. That relative score is the advantage; no value network needed.</p>
+  <div class="eq">Â<sub>i</sub> = ( r<sub>i</sub> − mean(r) ) / std(r)</div>
+  <p>For language models a critic is large and hard to train from one reward at the end of an answer. GRPO drops it. Every token in answer i gets Â<sub>i</sub>, PPO's clipped objective does the rest, and a KL penalty toward the reference (SFT) model stops the policy drifting too far.</p>
+  <p>On the right, one prompt with four hidden ways of answering, right 10%, 30%, 60% and 90% of the time. Each round samples 8 answers. A right answer in a mostly wrong group gets a big positive advantage; if all 8 agree, the std is 0 and there is no signal. Over 40 rounds the chance of a right answer climbs from 35% to 78%.</p>
+  <p class="note">A simulation of the idea, not a language model. The note also covers process supervision, where each reasoning step gets its own normalised score.</p>
+  ${chk("A group of four answers gets rewards [1, 0, 0, 1]. What are the advantages?","Mean 0.5 and std 0.5, so [+1, −1, −1, +1].")}`},
+
+ {id:"ddpg",ch:6,no:"6.1",title:"DPG and DDPG",sub:"follow the critic's slope",fig:{kind:"ddpg"},figno:"Exhibit 6.1",figtitle:"The actor slides up the critic",notes:[["ddpg","DPG & DDPG"]],html:`
+  <p class="lead">With continuous actions you can't take a max over every action at every step. Deterministic policy gradient (DPG) uses a deterministic actor that slides uphill on the critic instead.</p>
+  <div class="eq">∇<sub>θ</sub>J = E<sub>s</sub>[ ∇<sub>a</sub>Q(s, a)|<sub>a = ρ(s)</sub> · ∇<sub>θ</sub>ρ(s; θ) ]</div>
+  <p>The gradient needs an average over states only, not over actions, so it needs far fewer samples. Exploration comes from noise added to the actions, which makes it off-policy.</p>
+  <p>On the right, colour is the critic's Q(s, a) and the dashed line is the best action in each state. The actor starts flat and follows the white arrows, ∂Q/∂a, until it sits on the ridge.</p>
+  <p>DDPG is DPG plus DQN's tools: a replay buffer, target networks updated softly (θ⁻ ← τθ + (1 − τ)θ⁻) and exploration noise.</p>`},
+ {id:"td3",ch:6,no:"6.2",title:"TD3: trust the lower critic",sub:"twin critics, delayed updates, smoothed targets",fig:{kind:"td3"},figno:"Exhibit 6.2",figtitle:"The actor finds the critic's mistakes",notes:[["td3","TD3"],["double-q-learning","Double Q-Learning"]],html:`
+  <p class="lead">An actor that maximises an imperfect critic finds the critic's mistakes, especially the optimistic ones. TD3 is built to resist that.</p>
+  <p>The note's point: here overestimation comes from optimisation, not a max operator. And Double DQN's fix fails, because the online and target critics change slowly and share their errors.</p>
+  <ul class="l"><li><b>Twin critics:</b> train two and use the smaller target. Underestimating is safer, because undervalued actions don't get chosen.</li><li><b>Delayed updates:</b> update the actor and targets every d = 2 critic updates.</li><li><b>Target smoothing:</b> add a little clipped noise to the target action, so narrow false peaks don't count.</li></ul>
+  <div class="eq">y = r + γ min<sub>i=1,2</sub> Q<sub>i</sub>(s′, ã′)</div>
+  <p>On the right, each round draws two noisy critics of the same true Q. An actor using critic 1 alone overestimates by about 0.16 on average; using the minimum, about 0.03.</p>`},
+ {id:"reparam",ch:6,no:"6.3",title:"The reparameterization trick",sub:"move the randomness out of the way",fig:{kind:"reparam"},figno:"Exhibit 6.3",figtitle:"Two unbiased estimators, one tight",notes:[["reparameterization-trick","Reparameterization Trick"]],html:`
+  <p class="lead">To differentiate an expectation over a distribution that depends on θ, write each sample as fixed noise passed through a function of θ.</p>
+  <div class="eq">z = μ(θ) + σ(θ) ε,&nbsp; ε ∼ N(0, 1)&nbsp;&nbsp;⇒&nbsp;&nbsp;∇<sub>θ</sub>E[f(z)] = E<sub>ε</sub>[ ∇<sub>θ</sub> f(μ + σε) ]</div>
+  <p>The alternative, the score-function (log-derivative) estimator, is also unbiased but noisy. On the right, both estimate d/dμ E[z²] for z ∼ N(1, 1), whose true value is 2. Score-function samples spread about √30 ≈ 5.5; reparameterised ones spread 2.</p>
+  <p>To get within ±5% you need about 3,000 samples one way and 400 the other. SAC, next, depends on this trick.</p>`},
+ {id:"sac",ch:6,no:"6.4",title:"Soft Actor-Critic",sub:"reward plus entropy",fig:{kind:"sac"},figno:"Exhibit 6.4",figtitle:"Temperature decides how wide to stay",notes:[["sac","Soft Actor-Critic"],["kl-divergence","KL Divergence"]],html:`
+  <p class="lead">SAC trains a stochastic Gaussian policy to maximise reward plus α times its entropy. The bonus keeps it exploring and keeps more than one good behaviour alive.</p>
+  <div class="eq">π ∝ exp( Q(s, a) / α )&nbsp;&nbsp;&nbsp; J<sub>π</sub> = E[ α log π(a|s) − Q(s, a) ],&nbsp; a = μ + σε</div>
+  <p>Each policy update fits the Gaussian to exp(Q/α) by KL, using the reparameterization trick so the gradient flows through Q. On the right, Q has peaks of 1.0 and 0.9. At high α the best Gaussian spreads across both. Below about α = 0.2 it commits to the higher peak.</p>
+  <p>Too large an α gives a near-uniform policy; too small, an early collapse onto one action. SAC can tune α automatically to hold entropy near a target, and it borrows TD3's twin critics.</p>
+  ${chk("SAC's automatic tuning sees entropy fall below its target. What happens to α?","It rises, which raises the entropy bonus until the policy spreads out again.")}`},
+
+ {id:"cmdp",ch:7,no:"7.1",title:"Safety as a budget",sub:"constrained MDPs and the PID Lagrangian",fig:{kind:"cmdp"},figno:"Exhibit 7.1",figtitle:"Plain λ overshoots, PID damps",notes:[["constrained-mdps","Constrained MDPs"],["pid-lagrangian","PID Lagrangian"],["cpo","CPO"]],html:`
+  <p class="lead">A constrained MDP adds cost budgets: maximise reward while keeping expected cost under a limit. The usual tool is a Lagrange multiplier λ, a price on cost that rises while you are over budget.</p>
+  <div class="eq">max<sub>π</sub> min<sub>λ≥0</sub>&nbsp; J<sub>R</sub>(π) − λ ( J<sub>C</sub>(π) − l )</div>
+  <p>For a fixed λ this is an ordinary MDP with reward r − λc, so training alternates policy steps and λ steps. The note stresses that you need the saddle point, not just the best λ, and that the optimal policy may need to be random.</p>
+  <p>The PID Lagrangian note reframes the λ update: plain gradient ascent on λ is an integral-only controller. Like any integral-only controller it overshoots and oscillates. Adding proportional and derivative terms damps it. In this toy loop, plain λ lets cost peak at 4.7 and cross the limit four times; PID peaks at 2.4 and crosses once.</p>
+  <p class="note">Illustrative dynamics; the notes give no gains. CPO, also in the course, instead enforces the limit inside every TRPO-style step.</p>`},
+ {id:"iql",ch:7,no:"7.2",title:"Offline RL: stay inside the data",sub:"Implicit Q-Learning",fig:{kind:"iql"},figno:"Exhibit 7.2",figtitle:"An upper expectile, not a max",notes:[["implicit-q-learning","Implicit Q-Learning"],["off-policy-evaluation","Off-Policy Evaluation"]],html:`
+  <p class="lead">Offline RL learns from a fixed dataset with no new tries. The danger is the max: it picks actions the data never covered, whose values nothing can correct.</p>
+  <p>Implicit Q-learning never asks about unseen actions. It fits V(s) as an upper expectile of Q over the actions in the data, then backs up r + γV(s′).</p>
+  <div class="eq">L<sub>τ</sub>(u) = | τ − 1(u &lt; 0) | · u²,&nbsp;&nbsp; u = Q(s, a) − V(s)</div>
+  <p>τ = 0.5 gives the plain average, like SARSA on the data. As τ approaches 1, the expectile moves toward the best action in the data, like Q-learning, but it never reaches the over-valued action that isn't there.</p>
+  <p>The policy is then extracted by advantage-weighted regression: imitate the data's actions, weighted by exp(A/β).</p>
+  <p class="note">The note's figure uses τ = 0.9. Off-policy evaluation, a neighbouring note, asks the related question of scoring a policy from logs alone.</p>`},
+ {id:"alphazero",ch:7,no:"7.3",title:"AlphaZero: search, then learn from it",sub:"PUCT and self-play",fig:{kind:"mcts"},figno:"Exhibit 7.3",figtitle:"Visits move from the prior to the winner",notes:[["alphazero","AlphaZero (chess)"]],html:`
+  <p class="lead">AlphaZero replaces hand-written evaluation with one network that outputs move probabilities p and a value v, and uses it to guide a tree search.</p>
+  <div class="eq">a = argmax<sub>a</sub> [ Q(s,a) + c · P(s,a) · √N(s) / (1 + N(s,a)) ]</div>
+  <p>Each simulation picks moves by this rule. Q favours moves that have done well; the second term favours moves the network likes that haven't been tried much. Leaves are scored by the network instead of random playouts.</p>
+  <p>On the right, the network's prior favours move 1, so early simulations go there. As evidence arrives, visits shift to move 3, which actually wins most often. After 800 simulations, the number the note uses, the visit counts are the improved policy.</p>
+  <p>Self-play trains the network to match those visit counts and the game's result. The search is distilled into the network, which makes the next search stronger.</p>
+  <p class="note">A toy search at one position; c = 1.5 is chosen for the demo (the note gives no value).</p>`},
+ {id:"cem",ch:7,no:"7.4",title:"The cross-entropy method",sub:"sample, keep the best, refit",fig:{kind:"cem"},figno:"Exhibit 7.4",figtitle:"The waterline rises",notes:[["cem","Cross-Entropy Method"]],html:`
+  <p class="lead">The cross-entropy method (CEM) searches by sampling: draw candidates from a Gaussian, keep the top few, refit the Gaussian to them, repeat.</p>
+  <p>The note frames it as estimating a rare event, “value above γ”, and raising γ each round. The best samples tell you where to look next, and the cut-off γ<sub>t</sub> rises like a waterline.</p>
+  <p>On the right, 80 samples a round, the best 12 kept, with smoothing. The search starts between a broad decoy (0.7) and the true peak (1.0), and closes in on the peak within five rounds.</p>
+  <p>It needs no gradients, which is why it is used to plan actions at run time. Its failure mode: refit too aggressively and it can lock onto the decoy.</p>`},
+
+ {id:"map",ch:8,no:"8.1",title:"The course on one page",sub:"40 notes on eight lines",fig:{kind:"map"},figno:"Exhibit 8.1",figtitle:"Click a station to open the note",notes:[["about-rl","About RL"],["glossary","Glossary"],["pseudocode","Pseudocode"]],html:`
+  <p class="lead">The notes form a path: the problem, planning, learning from experience, approximation, policy methods, continuous control, then safety, offline data and search.</p>
+  <p>Each note opens by naming the earlier notes it builds on, and ends with its sources. The glossary and pseudocode pages collect the notation and algorithms in one place.</p>
+  <div class="cards">${MAP.map(([c,n,st])=>st.map(([slug,lab])=>`<a style="--cc:var(--c${c})" href="https://mattlanders.net/${slug}.html" target="_blank" rel="noopener">${lab}</a>`).join("")).join("")}</div>
+  <p class="note">The map shows 40 of the 45 pages. The rest are the introduction, the glossary, the pseudocode index, and two side notes (Bayes' rule for distributions and prior-data fitted networks).</p>`},
+ {id:"quiz",ch:8,no:"8.2",title:"Check yourself",sub:"six questions, then build one",fig:{kind:"cover"},figno:"Exhibit 8.2",figtitle:"Back where we started",notes:[["implementations","Implementations"]],html:`
+  <p class="lead">One question per big idea. Answer before you open each one.</p>
+  ${chk("Why can a small γ make an agent ignore a cliff?","A cost k steps away counts γᵏ times as much. At γ = 0.5, a fall six steps out is worth about 1.6 today.")}
+  ${chk("Value iteration on the cliff with γ = 1: what does each square's final value mean?","Minus the number of moves to the goal along the best route.")}
+  ${chk("With ε = 0.1, which earns more while learning on the cliff, SARSA or Q-learning, and why?","SARSA (about −27 vs −51). It learns the value of its own exploring behaviour, so it keeps away from the edge where a random step is fatal.")}
+  ${chk("Name the three legs of the deadly triad, and one way to remove one.","Function approximation, bootstrapping and off-policy training. Use a table, Monte Carlo targets or on-policy weighting.")}
+  ${chk("PPO with ε = 0.2, φ = 0.6 and A = +2: which term is used, and does the gradient flow?","The unclipped one, 1.2, so yes: the update raises the good action's probability again.")}
+  ${chk("Why doesn't GRPO need a critic?","The group's own mean is the baseline and its std sets the scale, so each answer's advantage comes from comparing it with its siblings.")}
+  <p><b>Build it.</b> Write tabular SARSA and Q-learning for cliff walking (about 40 lines of Python) and reproduce Fig. 3.4. The course's <a href="https://mattlanders.net/implementations.html" target="_blank" rel="noopener">implementations page</a> has reference code.</p>
+  <p class="note">Credits: the notes are by Matt Landers (mattlanders.net). Cliff walking is from Sutton and Barto's <i>Reinforcement Learning: An Introduction</i>. The page format is inspired by Atlas of Physics. Simulations run in your browser with fixed random seeds.</p>`},
+];
+
+/* ---------- engine: pages turn, one clock drives the figure ---------- */
+const $=s=>document.querySelector(s);
+const pg=$("#pg"),sheet=$("#sheet"),stage=$("#stage"),svg=$("#fig"),ro=$("#readout"),scrub=$("#scrub"),playBtn=$("#play"),prog=$("#prog"),toc=$("#toc");
+const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+let cur=0,F=null,clock=0,playing=!reduce,hold=0,lastTs=null,scrubbing=false,lastRO="";
+const NOTE="https://mattlanders.net/";
+
+const segBtns=[];
+CH.forEach((c,ci)=>{const idx=PAGES.map((p,i)=>p.ch===ci?i:-1).filter(i=>i>=0);if(!idx.length)return;
+  const seg=document.createElement("div");seg.className="seg";seg.style.setProperty("--n",idx.length);seg.style.setProperty("--cc",`var(--c${ci})`);seg.title=c.name;
+  idx.forEach(i=>{const b=document.createElement("button");b.type="button";b.setAttribute("aria-label",`${PAGES[i].no} ${PAGES[i].title}`);b.title=`${PAGES[i].no}  ${PAGES[i].title}`;b.addEventListener("click",()=>go(i));seg.appendChild(b);segBtns[i]=b;});
+  prog.appendChild(seg);});
+const tocBtns=[];
+CH.forEach((c,ci)=>{const idx=PAGES.map((p,i)=>p.ch===ci?i:-1).filter(i=>i>=0);if(!idx.length)return;
+  const d=document.createElement("div");d.style.setProperty("--cc",`var(--c${ci})`);d.innerHTML=`<h3>${c.name}</h3><ol></ol>`;
+  idx.forEach(i=>{const li=document.createElement("li"),b=document.createElement("button");b.type="button";b.innerHTML=`<span>${PAGES[i].no}</span>${PAGES[i].title}`;b.addEventListener("click",()=>{closeToc();go(i);});li.appendChild(b);d.querySelector("ol").appendChild(li);tocBtns[i]=b;});
+  $("#tocgrid").appendChild(d);});
+function openToc(){toc.classList.add("open");(tocBtns[cur]||tocBtns[0]).focus();}
+function closeToc(){toc.classList.remove("open");$("#tocbtn").focus();}
+$("#tocbtn").addEventListener("click",openToc);
+toc.addEventListener("click",e=>{if(e.target===toc)closeToc();});
+
+function build(){
+  const W=Math.max(280,Math.round(stage.clientWidth)),H=Math.max(300,Math.round(stage.clientHeight));
+  svg.setAttribute("viewBox",`0 0 ${W} ${H}`);svg.textContent="";
+  const prev=F,p=PAGES[cur];F=BUILD[p.fig.kind](svg,W,H,p.fig);F.domain=F.domain||p.fig.kind;
+  if(!prev||prev.domain!==F.domain){clock=reduce?F.rest:F.t0;hold=0;}else clock=clamp(clock,F.t0,F.t1);
+  $("#speed").textContent=F.label||"";
+  svg.setAttribute("aria-label",p.figtitle);
+  F.update(clock);writeRO();
+}
+function render(first){
+  const p=PAGES[cur],c=CH[p.ch];
+  document.documentElement.style.setProperty("--ch",`var(--c${p.ch})`);
+  const notes=(p.notes||[]).map(([slug,name])=>`<a href="${NOTE}${slug}.html" target="_blank" rel="noopener">${name}</a>`).join(", ");
+  const fill=()=>{pg.innerHTML=`<div class="kick"><span class="chip">${c.name}</span><span class="kno">${p.no}</span></div><h1>${p.title}</h1><p class="sub">${p.sub}</p>${p.html}<div class="foot"><span>${notes?"From the course: "+notes:""}</span><span>${cur+1} / ${PAGES.length}</span></div>`;pg.classList.remove("out");sheet.scrollTop=0;};
+  if(first)fill();else{pg.classList.add("out");setTimeout(fill,160);}
+  $("#figno").textContent=p.figno;$("#figtitle").textContent=p.figtitle;
+  $("#count").textContent=`${cur+1} / ${PAGES.length}`;
+  $("#prev").disabled=cur===0;$("#next").disabled=cur===PAGES.length-1;
+  segBtns.forEach((b,i)=>{b.setAttribute("aria-current",i===cur?"true":"false");b.classList.toggle("done",i<cur);});
+  tocBtns.forEach((b,i)=>b&&b.setAttribute("aria-current",i===cur?"true":"false"));
+  try{history.replaceState(null,"","#"+p.id);}catch(e){}
+  if(first||reduce)build();else{svg.classList.add("fade");setTimeout(()=>{build();svg.classList.remove("fade");},170);}
+}
+function go(i){i=clamp(i,0,PAGES.length-1);if(i===cur)return;cur=i;render(false);}
+function writeRO(){if(!F)return;const h=F.readout(clock).map(([k,v])=>`<span class="k">${k}</span><span class="v">${v}</span>`).join("");if(h!==lastRO){ro.innerHTML=h;lastRO=h;}}
+function tick(ts){
+  const dt=lastTs==null?0:Math.min(.1,(ts-lastTs)/1000);lastTs=ts;
+  if(F&&playing&&!scrubbing){if(hold>0){hold-=dt;if(hold<=0)clock=F.t0;}else{clock+=dt*F.speed;if(clock>=F.t1){clock=F.t1;hold=F.hold??2.6;}}}
+  if(F){F.update(clock);if(!scrubbing)scrub.value=Math.round((clock-F.t0)/(F.t1-F.t0)*1000);writeRO();}
+  requestAnimationFrame(tick);
+}
+const setPlay=v=>{playing=v;playBtn.textContent=v?"Pause":"Play";};
+playBtn.addEventListener("click",()=>setPlay(!playing));
+$("#replay").addEventListener("click",()=>{if(!F)return;clock=F.t0;hold=0;setPlay(true);});
+scrub.addEventListener("input",()=>{if(!F)return;scrubbing=true;setPlay(false);hold=0;clock=F.t0+scrub.value/1000*(F.t1-F.t0);});
+scrub.addEventListener("change",()=>{scrubbing=false;});
+$("#prev").addEventListener("click",()=>go(cur-1));
+$("#next").addEventListener("click",()=>go(cur+1));
+addEventListener("keydown",e=>{
+  if(toc.classList.contains("open")){if(e.key==="Escape")closeToc();return;}
+  if(e.metaKey||e.ctrlKey||e.altKey)return;const tg=e.target.tagName;if(tg==="INPUT"||tg==="TEXTAREA"||tg==="SUMMARY")return;
+  if(["ArrowRight","ArrowDown","PageDown"].includes(e.key)){e.preventDefault();go(cur+1);}
+  else if(["ArrowLeft","ArrowUp","PageUp"].includes(e.key)){e.preventDefault();go(cur-1);}
+  else if(e.key==="Home"){go(0);}else if(e.key==="End"){go(PAGES.length-1);}
+  else if(e.key===" "&&tg!=="BUTTON"){e.preventDefault();setPlay(!playing);}
+});
+const wide=matchMedia("(min-width: 861px)");
+let acc=0,lock=0,accT=0;
+addEventListener("wheel",e=>{
+  if(!wide.matches||toc.classList.contains("open"))return;
+  if(sheet.contains(e.target)){const down=sheet.scrollTop+sheet.clientHeight<sheet.scrollHeight-2,up=sheet.scrollTop>2;if((e.deltaY>0&&down)||(e.deltaY<0&&up))return;}
+  e.preventDefault();const now=performance.now();if(now-accT>250)acc=0;accT=now;acc+=e.deltaY;
+  if(Math.abs(acc)>40&&now>lock){go(cur+(acc>0?1:-1));lock=now+750;acc=0;}
+},{passive:false});
+let tx=null,ty=null;
+stage.addEventListener("touchstart",e=>{tx=e.touches[0].clientX;ty=e.touches[0].clientY;},{passive:true});
+stage.addEventListener("touchend",e=>{if(tx==null)return;const dx=e.changedTouches[0].clientX-tx,dy=e.changedTouches[0].clientY-ty;if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)*1.4)go(cur+(dx<0?1:-1));tx=null;},{passive:true});
+let rz=0,lastW=0,lastH=0;new ResizeObserver(()=>{const w=stage.clientWidth,h=stage.clientHeight;if(Math.abs(w-lastW)<2&&Math.abs(h-lastH)<2)return;lastW=w;lastH=h;cancelAnimationFrame(rz);rz=requestAnimationFrame(build);}).observe(stage);
+
+const start=PAGES.findIndex(p=>"#"+p.id===location.hash);if(start>0)cur=start;
+addEventListener("hashchange",()=>{const i=PAGES.findIndex(p=>"#"+p.id===location.hash);if(i>=0)go(i);});
+if(!playing)playBtn.textContent="Play";
+render(true);
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(build);
+requestAnimationFrame(tick);
+
+})();
+</script>
+</body>
+</html>
